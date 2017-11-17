@@ -87,6 +87,11 @@ namespace cxc {
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
 
+		virtual void DrawObject() noexcept;
+
+		void InitBuffers() noexcept;
+		void releaseBuffers() noexcept;
+
 	// Private data access interface
 	public:
 
@@ -143,6 +148,10 @@ namespace cxc {
 
 		// if obj file has been loaded
 		bool isLoaded;
+
+		GLuint VBO_P, VBO_A, EBO, VAO;
+
+		uint32_t indices_num;
 
 	};
 

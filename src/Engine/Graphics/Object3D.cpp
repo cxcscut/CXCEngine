@@ -8,11 +8,12 @@
 #include "..\Libraries\TinyObjLoader\tiny_obj_loader.h"
 
 #include "..\Helper\FileHelper.h"
+#include "..\EngineFacade\EngineFacade.h"
 
 namespace cxc {
 
 	Object3D::Object3D() :
-		ObjectName(""), m_ModelMap(),m_Material(),
+		ObjectName(""), m_ModelMap(),m_Material(),indices_num(0U),
 		isLoaded(false),m_ObjectTree(),stateChanged(GL_FALSE)
 	{
 
@@ -766,7 +767,130 @@ namespace cxc {
 		return glm::vec3(new_vec.x / new_vec.w, new_vec.y / new_vec.w, new_vec.z / new_vec.w);
 	}
 
-	void Object3D ::RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept
+	void Object3D::releaseBuffers() noexcept
+	{
+		if (VAO)
+		{
+			glDeleteVertexArrays(1, &VAO);
+		}
+
+		if (EBO)
+		{
+			glDeleteBuffers(1, &EBO);
+		}
+
+		if (VBO_P)
+		{
+			glDeleteBuffers(1, &VBO_P);
+			glDisableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
+		}
+
+		if (VBO_A)
+		{
+			glDeleteBuffers(1, &VBO_A);
+			glDisableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
+			glDisableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
+			glDisableVertexAttribArray(static_cast<GLuint>(Location::COLOR_LOCATION));
+		}
+	}
+
+	void Object3D::InitBuffers() noexcept
+	{
+		std::vector<VertexAttri> m_VertexAttribs;
+		std::vector<glm::vec3> m_VertexPos;
+		std::vector<uint32_t> m_ElementBuffer;
+
+		m_VertexPos.clear();
+		m_VertexAttribs.clear();
+		m_ElementBuffer.clear();
+		uint32_t TotalVexNum = 0U;
+
+		uint32_t vex_num = 0U;
+
+		for (auto shape : m_ModelMap){
+			indices_num += shape.second->GetVertexIndices().size();
+			vex_num += shape.second->GetVertexArray().size();
+		}
+
+		m_VertexPos.reserve(vex_num);
+		m_VertexAttribs.reserve(vex_num);
+		m_ElementBuffer.reserve(indices_num);
+
+		GetObjectBuffers(m_VertexPos, m_VertexAttribs, m_ElementBuffer);
+
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+
+		glGenBuffers(1, &VBO_P);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexPos.size(), &m_VertexPos.front(), GL_DYNAMIC_DRAW);
+
+		glGenBuffers(1, &VBO_A);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_A);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexAttri) *m_VertexAttribs.size(), &m_VertexAttribs.front(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_ElementBuffer.size(), &m_ElementBuffer.front(), GL_STATIC_DRAW);
+	}
+
+	void Object3D::DrawObject() noexcept
+	{
+		auto Engine = EngineFacade::GetInstance();
+
+		auto SpriteProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+
+		Engine->BindCameraUniforms();
+		Engine->GetRendermanagerPtr()->BindLightingUniforms();
+
+		glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
+
+		GLuint M_MatrixID = glGetUniformLocation(SpriteProgramID, "M");
+		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &m_ModelMatrix[0][0]);
+
+		// Updating coordinates position
+		g_lock.lock();
+		if (CheckStateChanged())
+		{
+			for (auto shape : m_ModelMap)
+			{
+				if (shape.second->CheckStateChanged())
+				{
+					shape.second->UpDateCurrentPos();
+
+					auto vertices = shape.second->GetVertexArray();
+					auto offset = GetVertexSubscript(shape.second->GetModelName()) * sizeof(glm::vec3);
+					glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
+					glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(glm::vec3) * vertices.size(), &vertices.front());
+
+					shape.second->SetStateChanged(GL_FALSE);
+				}
+			}
+			SetStateChanged(GL_FALSE);
+		}
+		g_lock.unlock();
+		
+		glBindVertexArray(VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_A);
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::TEXTURE_LOCATION), 2, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(0)); // Texcoords
+
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec2))); // Normal
+
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::COLOR_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::COLOR_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec3) + sizeof(glm::vec2))); // Color
+
+		glDrawElements(GL_TRIANGLES, indices_num, GL_UNSIGNED_INT, (void*)0);
+		
+	}
+
+	void Object3D::RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept
 	{
 
 		auto ModelPtr = GetModelByName(ModelName);
