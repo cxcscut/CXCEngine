@@ -38,6 +38,7 @@ namespace cxc {
 
 		GLuint GetTextureID(const std::string &tex_name) const noexcept;
 
+		std::shared_ptr<Texture2D> GetTexPtr(const std::string &tex_name) const noexcept;
 	// Resource acquisition and release
 	public:
 

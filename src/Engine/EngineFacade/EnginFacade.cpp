@@ -232,7 +232,11 @@ namespace cxc {
 			// Init camera params and set input callback func
 			InitCameraStatus();
 
-			m_pSceneMgr->InitBuffers();
+			// Load texture
+			m_pSceneMgr->GetTextureManagerPtr()->LoadAllTexture();
+
+			// Accuire resources
+			m_pSceneMgr->initResources();
 
 			// Begin event looping
 			GameLooping();
@@ -242,6 +246,9 @@ namespace cxc {
 
 			// release program resources
 			m_pRendererMgr->releaseResources();
+
+			// Release texture resources
+			m_pSceneMgr->GetTextureManagerPtr()->RemoveAllTexture();
 
 			// shutdown and clean
 			glfwTerminate();

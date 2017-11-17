@@ -32,8 +32,9 @@ namespace cxc {
 	// Texture loading
 	public:
 
-		GLboolean LoadTextureFromFile(const std::string &file_path);
+		GLboolean LoadTextureFromFile(const std::string &file_path) ;
 
+		void releaseTexture() noexcept;
 	private:
 
 		// Texture ID

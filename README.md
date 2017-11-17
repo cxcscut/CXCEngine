@@ -34,7 +34,8 @@ Work to be done:
 - [x] Multi-threading support for rendering 
 - [x] GUI based on MFC
 - [x] Implementation of data glove interface
-- [ ] Implementation of 20 kinds of actions （11/20 Finished）
+- [x] Implementation of production actions 
+- [x] Implementation of **Inverse Kinematics**
 - [ ] Implementation of network interface
 - [ ] Implementation of skeleton animation
-- [ ] Implementation of **Inverse Kinematics**
+

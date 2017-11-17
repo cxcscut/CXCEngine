@@ -131,9 +131,6 @@ BOOL CRobotSimDlg::OnInitDialog()
 	right_hand.join();
 	plane.join();
 
-	// Load texture
-	m_Engine->GetSceneManagerPtr()->GetTextureManagerPtr()->LoadAllTexture();
-
 	auto end = std::chrono::system_clock::now();
 	auto LoadingTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	CString TimeStr;

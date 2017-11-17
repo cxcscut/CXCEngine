@@ -14,6 +14,7 @@ namespace cxc {
 
 	Object3D::Object3D() :
 		ObjectName(""), m_ModelMap(),m_Material(),indices_num(0U),
+		TexSamplerHandle(0U),VAO(0U),EBO(0U),VBO_A(0U),VBO_P(0U),
 		isLoaded(false),m_ObjectTree(),stateChanged(GL_FALSE)
 	{
 
@@ -200,7 +201,7 @@ namespace cxc {
 					}
 
 					tex_manager->addTexture(mp->diffuse_texname, texture_filename);
-					
+					m_TexNames.emplace_back(mp->diffuse_texname);
 				}
 		}
 
@@ -832,20 +833,40 @@ namespace cxc {
 		glGenBuffers(1, &EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_ElementBuffer.size(), &m_ElementBuffer.front(), GL_STATIC_DRAW);
+
+		auto Engine = EngineFacade::GetInstance();
+
+		auto ProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+
+		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
+		
+		for (auto tex_name : m_TexNames)
+		{
+			auto tex_ptr= SceneManager::GetInstance()->GetTextureManagerPtr()->GetTexPtr(tex_name);
+			if (tex_ptr)
+			{
+				glActiveTexture(GL_TEXTURE0);
+
+				glBindTexture(GL_TEXTURE_2D, tex_ptr->GetTextureID());
+
+				glUniform1i(tex_ptr->GetTextureID(), 0);
+				
+			}
+		}
 	}
 
 	void Object3D::DrawObject() noexcept
 	{
 		auto Engine = EngineFacade::GetInstance();
 
-		auto SpriteProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+		auto ProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
 
 		Engine->BindCameraUniforms();
 		Engine->GetRendermanagerPtr()->BindLightingUniforms();
 
 		glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
 
-		GLuint M_MatrixID = glGetUniformLocation(SpriteProgramID, "M");
+		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
 		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &m_ModelMatrix[0][0]);
 
 		// Updating coordinates position

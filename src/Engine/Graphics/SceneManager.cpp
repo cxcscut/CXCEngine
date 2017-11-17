@@ -21,10 +21,12 @@ namespace cxc {
 			pObject.second->releaseBuffers();
 	}
 
-	void SceneManager::InitBuffers() noexcept
+	void SceneManager::initResources() noexcept
 	{
-		for (auto pObject : m_ObjectMap)
+		// Init buffer objects 
+		for (auto pObject : m_ObjectMap) {
 			pObject.second->InitBuffers();
+		}
 	}
 
 	GLboolean SceneManager::CreateObject(const std::string &Object_name,const std::string &Object_file) noexcept
@@ -48,7 +50,6 @@ namespace cxc {
 	{
 		for (auto pObject : m_ObjectMap)
 			pObject.second->DrawObject();
-
 	}
 
 	void SceneManager::DeleteObject(const std::string &sprite_name) noexcept

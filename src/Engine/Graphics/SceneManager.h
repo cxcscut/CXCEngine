@@ -51,7 +51,7 @@ namespace cxc {
 
 		void DrawScene() noexcept;
 
-		void InitBuffers() noexcept;
+		void initResources() noexcept;
 
 		void releaseBuffers() noexcept;
 

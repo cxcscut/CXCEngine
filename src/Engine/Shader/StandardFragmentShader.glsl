@@ -7,7 +7,7 @@ in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
 in vec3 Normal_cameraspace;
 
-uniform sampler2D myTextureSampler;
+uniform sampler2D Sampler;
 
 out vec3 color;
 
@@ -23,7 +23,7 @@ void main()
 	vec3 LightColor = vec3(1,1,1);
 	
 
-	vec3 MaterialDiffuseColor = Color;
+	vec3 MaterialDiffuseColor = Color * texture( Sampler, UV ).rgb;
 	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 

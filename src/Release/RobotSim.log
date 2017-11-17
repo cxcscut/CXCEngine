@@ -1,4 +1,4 @@
 ﻿  Object3D.cpp
 LINK : warning LNK4075: 忽略“/INCREMENTAL”(由于“/OPT:ICF”规范)
-  RobotSim.vcxproj -> C:\Users\cxc123\Desktop\cxcengine\src\Release\RobotSim.exe
-  RobotSim.vcxproj -> C:\Users\cxc123\Desktop\cxcengine\src\Release\RobotSim.pdb (Full PDB)
+  RobotSim.vcxproj -> C:\Users\cxc123\Desktop\CxcEngine\src\Release\RobotSim.exe
+  RobotSim.vcxproj -> C:\Users\cxc123\Desktop\CxcEngine\src\Release\RobotSim.pdb (Full PDB)

@@ -21,6 +21,15 @@ namespace cxc {
 		m_LoadingQueue.emplace_back(std::make_pair(tex_name,tex_path));
 	}
 
+	std::shared_ptr<Texture2D> TextureManager::GetTexPtr(const std::string &tex_name) const noexcept
+	{
+		auto it = m_TextureMap.find(tex_name);
+		if (it != m_TextureMap.end())
+			return it->second;
+		else
+			return nullptr;
+	}
+
 	void TextureManager::LoadAllTexture() noexcept
 	{
 		while (!m_LoadingQueue.empty())
@@ -55,6 +64,7 @@ namespace cxc {
 		auto it = m_TextureMap.find(tex_name);
 		if (it != m_TextureMap.end())
 		{
+			it->second->releaseTexture();
 			m_TextureMap.erase(it);
 			return GL_TRUE;
 		}
@@ -63,7 +73,9 @@ namespace cxc {
 
 	void TextureManager::RemoveAllTexture() noexcept
 	{
-		m_TextPathList.clear();
+		for (auto it : m_TextureMap)
+			it.second->releaseTexture();
+
 		m_TextureMap.clear();
 	}
 

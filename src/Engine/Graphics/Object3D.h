@@ -149,9 +149,17 @@ namespace cxc {
 		// if obj file has been loaded
 		bool isLoaded;
 
+		// Buffers ID
 		GLuint VBO_P, VBO_A, EBO, VAO;
 
+		// Number of indices 
 		uint32_t indices_num;
+
+		// Texture handle
+		GLuint TexSamplerHandle;
+
+		// Texture ptr
+		std::vector<std::string> m_TexNames;
 
 	};
 

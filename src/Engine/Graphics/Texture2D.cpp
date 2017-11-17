@@ -46,6 +46,12 @@ namespace cxc {
 		return TextureID;
 	}
 
+	void Texture2D::releaseTexture() noexcept
+	{
+		if (TextureID)
+			glDeleteTextures(1,&TextureID);
+	}
+
 	GLboolean Texture2D::LoadTextureFromFile(const std::string &file_path)
 	{
 		unsigned char *image;
