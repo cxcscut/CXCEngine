@@ -834,25 +834,6 @@ namespace cxc {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_ElementBuffer.size(), &m_ElementBuffer.front(), GL_STATIC_DRAW);
 
-		auto Engine = EngineFacade::GetInstance();
-
-		auto ProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
-
-		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
-		
-		for (auto tex_name : m_TexNames)
-		{
-			auto tex_ptr= SceneManager::GetInstance()->GetTextureManagerPtr()->GetTexPtr(tex_name);
-			if (tex_ptr)
-			{
-				glActiveTexture(GL_TEXTURE0);
-
-				glBindTexture(GL_TEXTURE_2D, tex_ptr->GetTextureID());
-
-				glUniform1i(tex_ptr->GetTextureID(), 0);
-				
-			}
-		}
 	}
 
 	void Object3D::DrawObject() noexcept
@@ -868,6 +849,29 @@ namespace cxc {
 
 		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
 		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &m_ModelMatrix[0][0]);
+
+		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
+		auto tex_flag_loc = glGetUniformLocation(ProgramID, "tex_is_used");
+		glBindTexture(GL_TEXTURE_2D, 0);
+		for (auto tex_name : m_TexNames)
+		{
+			auto tex_ptr = SceneManager::GetInstance()->GetTextureManagerPtr()->GetTexPtr(tex_name);
+			if (tex_ptr)
+			{
+
+				glBindTexture(GL_TEXTURE_2D, tex_ptr->GetTextureID());
+
+				glUniform1i(TexSamplerHandle,0);
+
+				glUniform1f(tex_flag_loc, 1.0f);
+
+			}
+			else
+			{
+				glUniform1f(tex_flag_loc,0.0f);
+			}
+		}
+		
 
 		// Updating coordinates position
 		g_lock.lock();
@@ -908,7 +912,7 @@ namespace cxc {
 		glVertexAttribPointer(static_cast<GLuint>(Location::COLOR_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec3) + sizeof(glm::vec2))); // Color
 
 		glDrawElements(GL_TRIANGLES, indices_num, GL_UNSIGNED_INT, (void*)0);
-		
+
 	}
 
 	void Object3D::RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept

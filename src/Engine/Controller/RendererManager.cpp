@@ -20,28 +20,6 @@ namespace cxc {
 			glDeleteProgram(programid);
 	}
 
-	void RendererManager::DrawCoordinateAxis() noexcept
-	{
-
-		glLineWidth(10);
-		glBegin(GL_LINES);
-		// draw line for x axis
-		glColor3f(1.0, 0.0, 0.0);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(10.0, 0.0, 0.0);
-		// draw line for y axis
-		glColor3f(0.0, 1.0, 0.0);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(0.0, 10.0, 0.0);
-		// draw line for Z axis
-		glColor3f(0.0, 0.0, 1.0);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(0.0, 0.0, 10.0);
-		glEnd();
-
-		glFlush();
-	}
-
 	GLint RendererManager::GetShaderProgramID(ShaderType Type) const noexcept
 	{
 		switch (Type)

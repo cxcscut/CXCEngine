@@ -45,8 +45,6 @@ namespace cxc {
 		void CreateProgram(ShaderType Type,ProgramStruct &program) noexcept;
 		void SetShaderStruct(ShaderType type,ProgramStruct &shader_struct) noexcept;
 
-		void DrawCoordinateAxis() noexcept;
-
 		void releaseResources() noexcept;
 
 	// Private date

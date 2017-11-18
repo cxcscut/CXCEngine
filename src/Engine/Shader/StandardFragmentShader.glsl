@@ -14,6 +14,7 @@ out vec3 color;
 uniform mat4 M;
 uniform mat4 V;
 uniform vec3 LightPosition_worldspace;
+uniform float tex_is_used;
 
 void main()
 {
@@ -21,10 +22,9 @@ void main()
 	mat4 MV = V * M;
 
 	vec3 LightColor = vec3(1,1,1);
-	
 
-	vec3 MaterialDiffuseColor = Color * texture( Sampler, UV ).rgb;
-	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
+	vec3 MaterialDiffuseColor = Color * tex_is_used * (texture( Sampler, UV ).rgb -1.0f) + 1.0f*Color;
+	vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 
 	float distance = length(LightPosition_worldspace - Position_worldspace);
