@@ -68,7 +68,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
-    <LibraryPath>G:\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Users\39317\Desktop\git\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\cxc123\Desktop\cxcengine\src\Examples\RobotSim\5DT\lib;G:\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Users\39317\Desktop\git\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>

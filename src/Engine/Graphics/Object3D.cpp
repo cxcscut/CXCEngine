@@ -852,7 +852,12 @@ namespace cxc {
 
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
 		auto tex_flag_loc = glGetUniformLocation(ProgramID, "tex_is_used");
+
+		// Reset the flag
+		glUniform1f(tex_flag_loc, 0.0f);
+
 		glBindTexture(GL_TEXTURE_2D, 0);
+
 		for (auto tex_name : m_TexNames)
 		{
 			auto tex_ptr = SceneManager::GetInstance()->GetTextureManagerPtr()->GetTexPtr(tex_name);
@@ -866,13 +871,8 @@ namespace cxc {
 				glUniform1f(tex_flag_loc, 1.0f);
 
 			}
-			else
-			{
-				glUniform1f(tex_flag_loc,0.0f);
-			}
 		}
 		
-
 		// Updating coordinates position
 		g_lock.lock();
 		if (CheckStateChanged())

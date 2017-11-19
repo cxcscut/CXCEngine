@@ -12,5 +12,5 @@ newmtl wire_135059008
 	Kd 0.5294 0.2314 0.0314
 	Ks 0.3500 0.3500 0.3500
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Map__1_Cellular.tga
-	map_Kd Map__1_Cellular.tga
+	map_Ka floor_texture.jpg
+	map_Kd floor_texture.jpg

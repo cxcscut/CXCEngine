@@ -12,6 +12,8 @@ static const std::string ModelPath_RightHand = ".\\Examples\\RobotSim\\SZrobotr.
 
 static const std::string PlaneFile = ".\\Examples\\RobotSim\\plane.obj";
 
+static const std::string TableFile = ".\\Examples\\RobotSim\\table.obj";
+
 static const std::string ScriptDir = ".\\Examples\\RobotSim\\";
 
 // Glove calibration file

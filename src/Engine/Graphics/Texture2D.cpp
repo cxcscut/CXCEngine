@@ -76,7 +76,7 @@ namespace cxc {
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		}
-		else if (Compoent == 4)
+		else if(Compoent == 4)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 		}

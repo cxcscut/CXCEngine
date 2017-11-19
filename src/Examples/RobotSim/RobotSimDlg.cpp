@@ -112,6 +112,7 @@ BOOL CRobotSimDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 
 	std::shared_ptr<Object3D> Plane;
+	std::shared_ptr<Object3D> Table;
 
 	auto start = std::chrono::system_clock::now();
 	auto LoadRobothand = [&](int type) {
@@ -122,14 +123,17 @@ BOOL CRobotSimDlg::OnInitDialog()
 	};
 
 	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile); };
+	auto LoadTable = [&]() {Table = std::make_shared<Object3D>("table", TableFile); };
 
 	std::thread left_hand(LoadRobothand, ROBOTHAND_LEFT);
 	std::thread right_hand(LoadRobothand, ROBOTHAND_RIGHT);
 	std::thread plane(LoadPlane);
+	std::thread table(LoadTable);
 
 	left_hand.join();
 	right_hand.join();
 	plane.join();
+	table.join();
 
 	auto end = std::chrono::system_clock::now();
 	auto LoadingTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -148,6 +152,7 @@ BOOL CRobotSimDlg::OnInitDialog()
 	m_Engine->GetSceneManagerPtr()->AddObject(m_LeftPtr->GetObjectName(), m_LeftPtr);
 	m_Engine->GetSceneManagerPtr()->AddObject(m_RightPtr->GetObjectName(), m_RightPtr);
 	m_Engine->GetSceneManagerPtr()->AddObject(Plane->GetObjectName(), Plane);
+	m_Engine->GetSceneManagerPtr()->AddObject(Table->GetObjectName(), Table);
 
 	// Init ComboBox
 	LoadCombobox();
