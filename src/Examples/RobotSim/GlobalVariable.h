@@ -7,12 +7,14 @@
 static const std::string LeftHandName = "SZRobothandL";
 static const std::string RightHandName = "SZRobothandR";
 
-static const std::string ModelPath_Lefthand = ".\\Examples\\RobotSim\\SZrobotl.obj";
-static const std::string ModelPath_RightHand = ".\\Examples\\RobotSim\\SZrobotr.obj";
+static const std::string ModelPath_Lefthand = ".\\Examples\\RobotSim\\Model\\SZrobotl.obj";
+static const std::string ModelPath_RightHand = ".\\Examples\\RobotSim\\Model\\SZrobotr.obj";
 
-static const std::string PlaneFile = ".\\Examples\\RobotSim\\plane.obj";
+static const std::string PlaneFile = ".\\Examples\\RobotSim\\Model\\plane.obj";
 
-static const std::string TableFile = ".\\Examples\\RobotSim\\table.obj";
+static const std::string TableFile = ".\\Examples\\RobotSim\\Model\\table.obj";
+
+static const std::string WidgetFile = ".\\Examples\\RobotSim\\Model\\widget.obj";
 
 static const std::string ScriptDir = ".\\Examples\\RobotSim\\";
 

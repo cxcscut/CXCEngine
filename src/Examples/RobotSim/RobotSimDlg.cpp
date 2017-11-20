@@ -113,6 +113,7 @@ BOOL CRobotSimDlg::OnInitDialog()
 
 	std::shared_ptr<Object3D> Plane;
 	std::shared_ptr<Object3D> Table;
+	std::shared_ptr<Object3D> Widget;
 
 	auto start = std::chrono::system_clock::now();
 	auto LoadRobothand = [&](int type) {
@@ -123,17 +124,20 @@ BOOL CRobotSimDlg::OnInitDialog()
 	};
 
 	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile); };
-	auto LoadTable = [&]() {Table = std::make_shared<Object3D>("table", TableFile); };
+	auto LoadTable_and_widget = [&]() {
+		Table = std::make_shared<Object3D>("table", TableFile); 
+		Widget = std::make_shared<Object3D>("widget", WidgetFile);
+	};
 
 	std::thread left_hand(LoadRobothand, ROBOTHAND_LEFT);
 	std::thread right_hand(LoadRobothand, ROBOTHAND_RIGHT);
 	std::thread plane(LoadPlane);
-	std::thread table(LoadTable);
+	std::thread table_and_widget(LoadTable_and_widget);
 
 	left_hand.join();
 	right_hand.join();
 	plane.join();
-	table.join();
+	table_and_widget.join();
 
 	auto end = std::chrono::system_clock::now();
 	auto LoadingTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -153,6 +157,7 @@ BOOL CRobotSimDlg::OnInitDialog()
 	m_Engine->GetSceneManagerPtr()->AddObject(m_RightPtr->GetObjectName(), m_RightPtr);
 	m_Engine->GetSceneManagerPtr()->AddObject(Plane->GetObjectName(), Plane);
 	m_Engine->GetSceneManagerPtr()->AddObject(Table->GetObjectName(), Table);
+	m_Engine->GetSceneManagerPtr()->AddObject(Widget->GetObjectName(), Widget);
 
 	// Init ComboBox
 	LoadCombobox();
