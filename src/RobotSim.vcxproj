@@ -72,8 +72,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;G:\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Users\cxc123\Desktop\CxcEngine\src\Examples\RobotSim\5DT\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;G:\opencv_downloads\opencv\build\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;G:\opencv\opencv\build\x86\vc12\lib;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;G:\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Users\cxc123\Desktop\CxcEngine\src\Examples\RobotSim\5DT\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>G:\opencv\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;G:\opencv_downloads\opencv\build\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>G:\git\CxcEngine\src\Examples\RobotSim\5DT\lib;$(LibraryPath)</LibraryPath>
@@ -109,7 +109,8 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>fgloved.lib;glfw3.lib;glew32.lib</AdditionalDependencies>
+      <AdditionalDependencies>fgloved.lib;glfw3.lib;glew32.lib;opencv_ts300.lib;
+opencv_world300.lib;Kinect10.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

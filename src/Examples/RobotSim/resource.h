@@ -3,20 +3,28 @@
 // π© RobotSim.rc  π”√
 //
 #define IDOK2                           3
+#define IDCANCEL2                       4
 #define IDD_ROBOTSIM_DIALOG             102
 #define IDP_SOCKETS_INIT_FAILED         103
 #define IDR_MAINFRAME                   128
 #define IDD_DIALOG_RobotControl         129
+#define IDD_Kinect                      135
 #define IDC_PIC                         1001
+#define IDC_ScreenShot                  1002
 #define IDC_LEFTCOMBO                   1003
 #define IDC_LIST2                       1003
+#define IDC_Dept                        1003
 #define IDC_LEFTANGLE                   1004
+#define IDC_BUTTON4                     1004
 #define IDC_LEFTMOTION                  1005
 #define IDC_GESTURE                     1005
+#define IDC_BUTTON5                     1005
 #define IDC_LEFTRESET                   1006
 #define IDC_S1                          1006
+#define IDC_EDIT1                       1006
 #define IDC_LEFTRESETALL                1007
 #define IDC_S0                          1007
+#define IDC_Cut                         1007
 #define IDC_RIGHTCOMBO                  1008
 #define IDC_S2                          1008
 #define IDC_RIGHTANGLE                  1009
@@ -65,14 +73,21 @@
 #define IDC_A8                          1032
 #define IDC_A11                         1033
 #define IDC_BUTTON1                     1034
+#define IDC_SELF                        1035
 #define IDC_LIST1                       1036
 #define IDC_CHECK1                      1037
+#define IDC_CLS                         1038
+#define IDC_COMBO1                      1041
+#define IDC_ANALY                       1042
+#define IDC_RESET                       1043
+#define IDC_ESEND                       1045
+#define IDC_REMOTE                      1046
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        137
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1031
 #define _APS_NEXT_SYMED_VALUE           101

@@ -2,9 +2,9 @@
 //
 
 #include "stdafx.h"
-#include "3DSLoader.h"
 #include "KinectWin.h"
 #include "afxdialogex.h"
+#include "Resource.h"
 
 SOCKET listen_sock;
 SOCKET sock;
@@ -342,8 +342,8 @@ void KinectWin::OnBnClickedCancel2()
 	NuiShutdown();
 	}*/
 	if (analyFlag) {
-		close(sock);
-		close(listen_sock);
+		closesocket(sock);
+		closesocket(listen_sock);
 	}
 	else {
 		closesocket(sock);

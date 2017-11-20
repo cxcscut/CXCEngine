@@ -74,7 +74,7 @@ namespace cxc {
 		void InitEngine() noexcept;
 		void CleanFrameBuffer() const noexcept;
 		void ActivateRenderer(ShaderType Type) const noexcept;
-		void DrawObject(const std::string &Object_name) const;
+		void CleanGL() noexcept {glfwTerminate();};
 		void StoreAndSetMousePos() noexcept;
 		void UpdateCameraPos() noexcept;
 

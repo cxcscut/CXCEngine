@@ -126,10 +126,7 @@ namespace cxc {
 
 	EngineFacade::~EngineFacade()
 	{
-		m_pInputMgr->DeleteSingleton();
-		m_pRendererMgr->DeleteSingleton();
-		m_pSceneMgr->DeleteSingleton();
-		m_pCamera.reset();
+
 	}
 
 	GLboolean EngineFacade::CreateAndDisplayWindow(GLint Width,
@@ -225,8 +222,8 @@ namespace cxc {
 				glfwTerminate();
 				return;
 			}
-		
-			// Init input mode and opengl
+
+			// Init input mode
 			InitEngine();
 
 			// Init camera params and set input callback func
@@ -250,8 +247,8 @@ namespace cxc {
 			// Release texture resources
 			m_pSceneMgr->GetTextureManagerPtr()->RemoveAllTexture();
 
-			// shutdown and clean
-			glfwTerminate();
+			// Shutdown GL context
+			CleanGL();
 
 		};
 

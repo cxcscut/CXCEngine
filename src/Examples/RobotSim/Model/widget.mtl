@@ -12,5 +12,5 @@ newmtl 02___Default
 	Kd 0.5882 0.5882 0.5882
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka C:\Users\39317\Desktop\git\cxcengine\src\Examples\RobotSim\Model\metal_texture.jpg
-	map_Kd C:\Users\39317\Desktop\git\cxcengine\src\Examples\RobotSim\Model\metal_texture.jpg
+	map_Ka metal_texture.jpg
+	map_Kd metal_texture.jpg

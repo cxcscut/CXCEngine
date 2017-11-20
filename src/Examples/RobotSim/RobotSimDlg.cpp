@@ -92,6 +92,7 @@ BEGIN_MESSAGE_MAP(CRobotSimDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_ACTIONRESET, &CRobotSimDlg::OnBnClickedActionreset)
 	ON_LBN_DBLCLK(IDC_LIST1, &CRobotSimDlg::OnLbnDblclkList1)
 	ON_BN_CLICKED(IDC_SENDACTION, &CRobotSimDlg::OnBnClickedSendaction)
+	ON_BN_CLICKED(IDC_BUTTON1, &CRobotSimDlg::OnBnClickedKinect)
 END_MESSAGE_MAP()
 
 
@@ -124,20 +125,22 @@ BOOL CRobotSimDlg::OnInitDialog()
 	};
 
 	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile); };
-	auto LoadTable_and_widget = [&]() {
+	auto LoadTable= [&]() {
 		Table = std::make_shared<Object3D>("table", TableFile); 
-		Widget = std::make_shared<Object3D>("widget", WidgetFile);
+		
 	};
 
 	std::thread left_hand(LoadRobothand, ROBOTHAND_LEFT);
 	std::thread right_hand(LoadRobothand, ROBOTHAND_RIGHT);
 	std::thread plane(LoadPlane);
-	std::thread table_and_widget(LoadTable_and_widget);
+	std::thread table(LoadTable);
+
+	Widget = std::make_shared<Object3D>("widget", WidgetFile);
 
 	left_hand.join();
 	right_hand.join();
 	plane.join();
-	table_and_widget.join();
+	table.join();
 
 	auto end = std::chrono::system_clock::now();
 	auto LoadingTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -179,7 +182,7 @@ BOOL CRobotSimDlg::OnInitDialog()
 	m_LeftPtr->SetBaseDegrees({0,0,90,0,-90,0});
 	m_RightPtr->SetBaseDegrees({ 0,0,90,0,-90,0 });
 
-	// Init OpenGL 
+	// Init OpenGL in main thread
 	m_Engine->GetWindowMangaerPtr()->InitGL();
 
 	auto m_Hwnd = GetDlgItem(IDC_PIC)->m_hWnd;
@@ -302,6 +305,7 @@ void CRobotSimDlg::OnBnClickedOk()
 void CRobotSimDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
 	m_Engine->GameOver = true;
 	// wait for rendering thread stopping
 	m_Engine->waitForStop();
@@ -573,15 +577,15 @@ void CRobotSimDlg::OnBnClickedLoutpos()
 void CRobotSimDlg::OnBnClickedDataglove()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	dlg = std::make_unique<CGloveDlg>();
-	dlg->Create(IDD_DIALOG_RobotControl);
-	dlg->ShowWindow(SW_SHOWNORMAL);
+	glove_dlg = std::make_unique<CGloveDlg>();
+	glove_dlg->Create(IDD_DIALOG_RobotControl);
+	glove_dlg->ShowWindow(SW_SHOWNORMAL);
 }
 
 LRESULT CRobotSimDlg::MyMsgHandler(WPARAM, LPARAM)
 {
 	// Right hand 
-	auto angles = dlg->angle;
+	auto angles = glove_dlg->angle;
 	float degree;
 
 	auto RightPtr = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandR").get());
@@ -923,4 +927,15 @@ void CRobotSimDlg::OnBnClickedSendaction()
 	
 	m_LeftPtr->MovingArm({0,-1000,700,glm::radians(90.0f),glm::radians(90.0f),0 });
 
+}
+
+
+void CRobotSimDlg::OnBnClickedKinect()
+{
+	/*
+	// TODO: 在此添加控件通知处理程序代码
+	kinect_dlg = std::make_unique<KinectWin>();
+	kinect_dlg->Create(IDD_Kinect);
+	kinect_dlg->ShowWindow(SW_SHOWNORMAL);
+	*/
 }
