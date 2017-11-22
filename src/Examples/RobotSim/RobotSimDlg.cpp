@@ -125,17 +125,16 @@ BOOL CRobotSimDlg::OnInitDialog()
 	};
 
 	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile); };
-	auto LoadTable= [&]() {
+	auto LoadTable_and_widget= [&]() {
 		Table = std::make_shared<Object3D>("table", TableFile); 
+		Widget = std::make_shared<Object3D>("widget", WidgetFile);
 		
 	};
 
 	std::thread left_hand(LoadRobothand, ROBOTHAND_LEFT);
 	std::thread right_hand(LoadRobothand, ROBOTHAND_RIGHT);
 	std::thread plane(LoadPlane);
-	std::thread table(LoadTable);
-
-	Widget = std::make_shared<Object3D>("widget", WidgetFile);
+	std::thread table(LoadTable_and_widget);
 
 	left_hand.join();
 	right_hand.join();
@@ -932,10 +931,10 @@ void CRobotSimDlg::OnBnClickedSendaction()
 
 void CRobotSimDlg::OnBnClickedKinect()
 {
-	/*
+	
 	// TODO: 在此添加控件通知处理程序代码
 	kinect_dlg = std::make_unique<KinectWin>();
 	kinect_dlg->Create(IDD_Kinect);
 	kinect_dlg->ShowWindow(SW_SHOWNORMAL);
-	*/
+	
 }

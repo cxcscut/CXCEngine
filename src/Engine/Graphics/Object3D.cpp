@@ -33,6 +33,7 @@ namespace cxc {
 	}
 
 	Object3D::Object3D(const std::string &Object_name, const std::string &filename)
+		: Object3D()
 	{
 		ObjectName = Object_name;
 		LoadOBJFromFile(filename);
@@ -804,7 +805,6 @@ namespace cxc {
 		m_VertexPos.clear();
 		m_VertexAttribs.clear();
 		m_ElementBuffer.clear();
-		uint32_t TotalVexNum = 0U;
 
 		uint32_t vex_num = 0U;
 

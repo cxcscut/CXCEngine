@@ -5,7 +5,7 @@
 #pragma once
 #include "afxwin.h"
 #include "GloveDlg.h"
-//#include "KinectWin.h"
+#include "KinectWin.h"
 
 #define WM_MYMSG  WM_USER+200
 
@@ -49,7 +49,7 @@ public:
 	void LoadCombobox();
 	void LoadListBox();
 	std::unique_ptr<CGloveDlg> glove_dlg;
-	//std::unique_ptr<KinectWin> kinect_dlg;
+	std::unique_ptr<KinectWin> kinect_dlg;
 	CStatic m_PicCtrl;
 	CString m_Output;
 	CString m_LeftCombo;

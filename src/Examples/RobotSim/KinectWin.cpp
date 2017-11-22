@@ -420,7 +420,8 @@ UINT Server_Th(LPVOID p)
 	int iaddrSize = sizeof(SOCKADDR_IN);
 	int res;
 	char msg[1024];
-	HWND hWnd = ::FindWindow(NULL, _T("读取摄像头"));      //得到对话框的句柄
+	HWND hWnd = ::FindWindow(NULL, _T("Kinect"));      //得到对话框的句柄
+	if (!hWnd) return 0;
 	KinectWin * dlg = (KinectWin *)KinectWin::FromHandle(hWnd); //由句柄得到对话框的对象指针
 	local_addr.sin_family = AF_INET;
 	local_addr.sin_port = htons(5150);
