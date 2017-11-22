@@ -23,7 +23,7 @@
 
 ![6-DOF Robot arm and 21-DOF dexterous hand simulation](http://github.com/cxcscut/CxcEngine/raw/master/Img/Robothand.png)
 
-##Current Progress:
+## Current Progress:
 
 - [x] **Forward Kinematics**
 - [x] Script parser and interface
