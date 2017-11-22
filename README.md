@@ -30,11 +30,11 @@
 - [x] Multi-threading rendering
 - [x] GUI based on MFC
 - [x] Data glove interface
-- [x] production actions 
 - [x] **Inverse Kinematics**
 - [x] Kinect sensor interface
 - [x] Winsock interface for remote connections
 - [x] Object recognition and analysis
-- [ ] Implementation of skeleton animation
+- [x] Optimization of draw calls 
+- [ ] Skeleton animation
 - [ ] GUI based on QT
 - [ ] Motion planning for obstacle advoidance
