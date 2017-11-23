@@ -35,6 +35,7 @@
 - [x] Winsock interface for remote connections
 - [x] Object recognition and analysis
 - [x] Optimization of draw calls 
+- [ ] FBX loader
 - [ ] Skeleton animation
 - [ ] GUI based on QT
 - [ ] Motion planning for obstacle advoidance

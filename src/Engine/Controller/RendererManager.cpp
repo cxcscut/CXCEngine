@@ -3,8 +3,7 @@
 namespace cxc {
 
 	RendererManager::RendererManager()
-		: FontShader(),SpriteShader(),
-		m_LightPos(glm::vec3(0,1500,1500))
+		: FontShader(),SpriteShader()
 	{
 	}
 
@@ -34,16 +33,6 @@ namespace cxc {
 			return -1;
 			break;
 		}
-	}
-
-	const glm::vec3 &RendererManager::GetLightPos() const noexcept
-	{
-		return m_LightPos;
-	}
-
-	void RendererManager::SetLightPos(const glm::vec3 &pos) noexcept
-	{
-		m_LightPos = pos;
 	}
 
 	GLboolean RendererManager::isShaderLoaded(ShaderType Type) const noexcept
@@ -320,11 +309,4 @@ namespace cxc {
 		}
 	}
 
-	void RendererManager::BindLightingUniforms() const
-	{
-
-		GLuint LightID = glGetUniformLocation(SpriteShader.ProgramID, "LightPosition_worldspace");
-		glUniform3f(LightID, m_LightPos.x, m_LightPos.y, m_LightPos.z);
-		
-	}
 }

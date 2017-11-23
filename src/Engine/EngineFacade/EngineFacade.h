@@ -63,22 +63,14 @@ namespace cxc {
 		void SetBackGroundColor(float red, float green, float blue, float alpha) noexcept;
 		void SetWindowParams(const WindowDescriptor &windes) noexcept;
 		void SetGraphicsLibVersion(GLint HighByte,GLint LowByte) noexcept;
-		void SetLightPos(const glm::vec3 &light_pos) noexcept;
-		void SetCameraParams(const glm::vec3 &eye,const glm::vec3 &origin,const glm::vec3 &up,
-							const glm::mat4 &ProjectionMatrix) noexcept;
-		void SetCameraMode(CameraModeType mode) noexcept;
 
 	public:
 
-		void InitCameraStatus() noexcept;
 		void InitEngine() noexcept;
 		void CleanFrameBuffer() const noexcept;
 		void ActivateRenderer(ShaderType Type) const noexcept;
 		void CleanGL() noexcept {glfwTerminate();};
 		void StoreAndSetMousePos() noexcept;
-		void UpdateCameraPos() noexcept;
-
-		void BindCameraUniforms() const noexcept;
 
 		void RenderingScenes() const noexcept;
 		void GameLooping() noexcept;
@@ -89,11 +81,10 @@ namespace cxc {
 	// Data access interface
 	public:
 
-		std::shared_ptr<InputManager> GetInputManagerPtr() const noexcept { return m_pInputMgr;}
-		std::shared_ptr<RendererManager> GetRendermanagerPtr() const noexcept {return m_pRendererMgr;}
-		std::shared_ptr<Camera> GetCameraPtr() const noexcept {return m_pCamera;}
-		std::shared_ptr<WindowManager> GetWindowMangaerPtr() const noexcept { return m_pWindowMgr; }
-		std::shared_ptr<SceneManager> GetSceneManagerPtr() const noexcept { return m_pSceneMgr; }
+		// Pointer to the manager
+		std::shared_ptr<InputManager> m_pInputMgr;
+		std::shared_ptr<WindowManager> m_pWindowMgr;
+		std::shared_ptr<SceneManager> m_pSceneMgr;
 
 		std::string GetVertexShaderPath() const noexcept { return VertexShaderPath; }
 		std::string GetFragmentShaderPath() const noexcept { return FragmentShaderPath; }
@@ -104,13 +95,6 @@ namespace cxc {
 		GLboolean GameOver;
 
 	private:
-
-		// Pointer to the manager
-		std::shared_ptr<InputManager> m_pInputMgr;
-		std::shared_ptr<RendererManager> m_pRendererMgr;
-		std::shared_ptr<Camera> m_pCamera;
-		std::shared_ptr<WindowManager> m_pWindowMgr;
-		std::shared_ptr<SceneManager> m_pSceneMgr;
 
 		// Shader path
 		std::string VertexShaderPath,FragmentShaderPath;

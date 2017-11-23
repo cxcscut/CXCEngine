@@ -1,4 +1,5 @@
 #include "EngineFacade.h"
+#include "..\Graphics\SceneManager.h"
 
 namespace cxc {
 
@@ -11,33 +12,29 @@ namespace cxc {
 
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)
 	{
-		auto Engine = EngineFacade::GetInstance();
-		auto m_RM = Engine->GetRendermanagerPtr();
-		auto m_WM = Engine->GetWindowMangaerPtr();
-		auto camera = Engine->GetCameraPtr();
-
-		auto ProgramID = m_RM->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
-		auto wHandle = m_WM->GetWindowHandle();
+		auto pEngine = EngineFacade::GetInstance();
+		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
 
 		double dx = x-_x, dy = y-_y;
 		_x = x; _y = y;
 
-		double theta_xoz = -PI * (dx / m_WM->GetWindowWidth() / 2);
-		double theta_y = -PI * (dy / m_WM->GetWindowHeight() / 2);
+		double theta_xoz = -PI * (dx / pEngine->m_pWindowMgr->GetWindowWidth() / 2);
+		double theta_y = -PI * (dy / pEngine->m_pWindowMgr->GetWindowHeight() / 2);
 
 		// Update angles
-		camera->ComputeAngles();
+		pEngine->m_pSceneMgr->m_pCamera->ComputeAngles();
 
 		// Rotate Camera 
-		camera->theta_xoz += theta_xoz;
-		camera->theta_y += theta_y;
+		pEngine->m_pSceneMgr->m_pCamera->theta_xoz += theta_xoz;
+		pEngine->m_pSceneMgr->m_pCamera->theta_y += theta_y;
 
-		if ((camera->theta_y > PI - 0.1f) || (camera->theta_y < 0.1f))
-			camera->theta_y = camera->theta_y < 0.1f ? 0.1f : PI - 0.1f;
+		if ((pEngine->m_pSceneMgr->m_pCamera->theta_y > PI - 0.1f) || (pEngine->m_pSceneMgr->m_pCamera->theta_y < 0.1f))
+			pEngine->m_pSceneMgr->m_pCamera->theta_y = pEngine->m_pSceneMgr->m_pCamera->theta_y < 0.1f ? 0.1f : PI - 0.1f;
 
-		camera->ComputePosition();
-		camera->ComputeViewMatrix();
-		camera->BindViewMatrix(ProgramID);
+		pEngine->m_pSceneMgr->m_pCamera->ComputePosition();
+		pEngine->m_pSceneMgr->m_pCamera->ComputeViewMatrix();
+		pEngine->m_pSceneMgr->m_pCamera->BindViewMatrix(ProgramID);
 
 		//m_RM->SetLightPos(camera->eye_pos);
 		//m_RM->BindLightingUniforms();
@@ -55,10 +52,8 @@ namespace cxc {
 
 	void MouseCallBack(GLFWwindow *window, int button, int action, int mods)
 	{
-		auto Engine = EngineFacade::GetInstance();
-		auto wHandle = Engine->GetWindowMangaerPtr()->GetWindowHandle();
-		auto ProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
-		auto CurrentProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+		auto pEngine = EngineFacade::GetInstance();
+		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
 		if (!wHandle)
 			return;
 
@@ -77,10 +72,10 @@ namespace cxc {
 
 	void ScrollBarCallBack(GLFWwindow *window, double x, double y)
 	{
-		auto Engine = EngineFacade::GetInstance();
-		auto wHandle = Engine->GetWindowMangaerPtr()->GetWindowHandle();
-		auto CurrentProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
-		auto camera = Engine->GetCameraPtr();
+		auto pEngine = EngineFacade::GetInstance();
+		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
+		auto CurrentProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+		auto camera = pEngine->m_pSceneMgr->m_pCamera;
 		if (!wHandle) return;
 
 		glm::vec3 eye_direction = glm::normalize(camera->origin - camera->eye_pos);
@@ -113,15 +108,14 @@ namespace cxc {
 	}
 
 	EngineFacade::EngineFacade()
-		: m_pInputMgr(InputManager::GetInstance()),
-		m_pRendererMgr(RendererManager::GetInstance()),
-		m_pSceneMgr(SceneManager::GetInstance()),
-		m_pWindowMgr(WindowManager::GetInstance()),
-		m_pCamera(std::make_shared<Camera>()),
+		:
 		GameOver(GL_FALSE), VertexShaderPath(".\\Engine\\Shader\\StandardVertexShader.glsl"),
 		FragmentShaderPath(".\\Engine\\Shader\\StandardFragmentShader.glsl")
 	{
-	
+
+		m_pInputMgr = InputManager::GetInstance();
+		m_pWindowMgr = WindowManager::GetInstance();
+		 m_pSceneMgr = SceneManager::GetInstance();
 	}
 
 	EngineFacade::~EngineFacade()
@@ -160,16 +154,16 @@ namespace cxc {
 									const std::string &fragment_shader_path)
 	{
 		
-		if (!m_pRendererMgr->isShaderLoaded(Type)) {
+		if (!m_pSceneMgr->m_pRendererMgr->isShaderLoaded(Type)) {
 			ProgramStruct m_ProgramStruct;
-			if (!m_pRendererMgr->CreateShaderProgram(m_ProgramStruct, vertex_shader_path, fragment_shader_path))
+			if (!m_pSceneMgr->m_pRendererMgr->CreateShaderProgram(m_ProgramStruct, vertex_shader_path, fragment_shader_path))
 				return GL_FALSE;
-			m_pRendererMgr->CreateProgram(Type,m_ProgramStruct);
+			m_pSceneMgr->m_pRendererMgr->CreateProgram(Type,m_ProgramStruct);
 
 			return GL_TRUE;
 		}
 		else
-			m_pRendererMgr->BindShaderWithExistingProgram(Type,vertex_shader_path,fragment_shader_path);
+			m_pSceneMgr->m_pRendererMgr->BindShaderWithExistingProgram(Type,vertex_shader_path,fragment_shader_path);
 
 		return GL_TRUE;
 	}
@@ -206,7 +200,7 @@ namespace cxc {
 			{
 
 				// release program resources
-				m_pRendererMgr->releaseResources();
+				m_pSceneMgr->m_pRendererMgr->releaseResources();
 
 				// shutdown and clean
 				glfwTerminate();
@@ -216,7 +210,7 @@ namespace cxc {
 			if (!LoadShader(CXC_SPRITE_SHADER_PROGRAM, VertexShaderPath, FragmentShaderPath))
 			{
 				// release program resources
-				m_pRendererMgr->releaseResources();
+				m_pSceneMgr->m_pRendererMgr->releaseResources();
 
 				// shutdown and clean
 				glfwTerminate();
@@ -227,10 +221,10 @@ namespace cxc {
 			InitEngine();
 
 			// Init camera params and set input callback func
-			InitCameraStatus();
+			m_pSceneMgr->InitCameraStatus(m_pWindowMgr->GetWindowHandle());
 
 			// Load texture
-			m_pSceneMgr->GetTextureManagerPtr()->LoadAllTexture();
+			m_pSceneMgr->m_pTextureMgr->LoadAllTexture();
 
 			// Accuire resources
 			m_pSceneMgr->initResources();
@@ -242,10 +236,10 @@ namespace cxc {
 			m_pSceneMgr->releaseBuffers();
 
 			// release program resources
-			m_pRendererMgr->releaseResources();
+			m_pSceneMgr->m_pRendererMgr->releaseResources();
 
 			// Release texture resources
-			m_pSceneMgr->GetTextureManagerPtr()->RemoveAllTexture();
+			m_pSceneMgr->m_pTextureMgr->RemoveAllTexture();
 
 			// Shutdown GL context
 			CleanGL();
@@ -257,34 +251,6 @@ namespace cxc {
 
 	}
 
-	void EngineFacade::InitCameraStatus() noexcept
-	{
-		m_pCamera->InitLastTime();
-
-		if (m_pCamera->m_CameraMode == CAMERA_FIXED)
-		{
-			//Set Keyboard and mouse callback function
-			glfwSetKeyCallback(m_pWindowMgr->GetWindowHandle(), KeyBoradCallBack);
-			glfwSetMouseButtonCallback(m_pWindowMgr->GetWindowHandle(), MouseCallBack);
-			glfwSetScrollCallback(m_pWindowMgr->GetWindowHandle(), ScrollBarCallBack);
-		}
-
-		// Set Camera pos
-		SetCameraParams(glm::vec3(0, 2000, 2000), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0),
-			glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f)
-		);
-
-	}
-
-	void EngineFacade::SetLightPos(const glm::vec3 &light_pos) noexcept
-	{
-		m_pRendererMgr->SetLightPos(light_pos);
-	}
-
-	void EngineFacade::SetCameraMode(CameraModeType mode) noexcept
-	{
-		m_pCamera->m_CameraMode = mode;
-	}
 
 	void EngineFacade::SetGraphicsLibVersion(GLint HighByte, GLint LowByte) noexcept
 	{
@@ -299,17 +265,6 @@ namespace cxc {
 
 	}
 
-	void EngineFacade::SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
-									const glm::mat4 &ProjectionMatrix) noexcept
-	{
-
-		m_pCamera->eye_pos = eye;
-		m_pCamera->origin = origin;
-		m_pCamera->up_vector = up;
-		m_pCamera->SetAllMatrix(glm::lookAt(eye,origin,up), ProjectionMatrix);
-		m_pCamera->ComputeAngles();
-	}
-
 	void EngineFacade::CleanFrameBuffer() const noexcept
 	{
 		if (m_pWindowMgr->isEnableDepthTest())
@@ -320,7 +275,7 @@ namespace cxc {
 
 	void EngineFacade::ActivateRenderer(ShaderType Type) const noexcept
 	{
-		auto id = m_pRendererMgr->GetShaderProgramID(Type);
+		auto id = m_pSceneMgr->m_pRendererMgr->GetShaderProgramID(Type);
 		if(id)
 			glUseProgram(id);
 	}
@@ -331,19 +286,6 @@ namespace cxc {
 		m_pInputMgr->SetMouseScreenPos(m_pWindowMgr->GetWindowHandle(), m_pWindowMgr->GetWindowWidth() / 2, m_pWindowMgr->GetWindowHeight() / 2);
 	}
 
-	void EngineFacade::UpdateCameraPos() noexcept
-	{
-			m_pCamera->ComputeMatrices_Moving(m_pWindowMgr->GetWindowHandle(), m_pInputMgr->GetXPos(),
-			m_pInputMgr->GetYPos(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowWidth());
-
-	}
-
-	void EngineFacade::BindCameraUniforms() const noexcept
-	{
-		auto SpriteProgramID = m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
-		m_pCamera->BindCameraUniforms(SpriteProgramID);
-	}
-
 	void EngineFacade::SetBackGroundColor(float red, float green, float blue, float alpha) noexcept
 	{
 		m_pWindowMgr->SetBackGroundColor(red,green,blue,alpha);
@@ -352,7 +294,7 @@ namespace cxc {
 	void EngineFacade::RenderingScenes() const noexcept
 	{
 		ActivateRenderer(CXC_SPRITE_SHADER_PROGRAM);
-		GetSceneManagerPtr()->DrawScene();
+		m_pSceneMgr->DrawScene();
 	}	
 
 	void EngineFacade::GameLooping() noexcept
@@ -364,10 +306,11 @@ namespace cxc {
 			// clean frame buffer for rendering
 			CleanFrameBuffer();
 
-			if (m_pCamera->m_CameraMode == CAMERA_FREE)
+			if (m_pSceneMgr->m_pCamera->m_CameraMode == CAMERA_FREE)
 			{
 				StoreAndSetMousePos();
-				UpdateCameraPos();
+				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(),m_pInputMgr->GetXPos(),m_pInputMgr->GetYPos(),
+					m_pWindowMgr->GetWindowHeight(),m_pWindowMgr->GetWindowWidth());
 			}
 
 			// Rendering scenes

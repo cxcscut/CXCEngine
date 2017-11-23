@@ -838,12 +838,11 @@ namespace cxc {
 
 	void Object3D::DrawObject() noexcept
 	{
-		auto Engine = EngineFacade::GetInstance();
+		auto pEngine = EngineFacade::GetInstance();
+		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
 
-		auto ProgramID = Engine->GetRendermanagerPtr()->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
-
-		Engine->BindCameraUniforms();
-		Engine->GetRendermanagerPtr()->BindLightingUniforms();
+		pEngine->m_pSceneMgr->BindCameraUniforms();
+		pEngine->m_pSceneMgr->BindLightingUniforms(ProgramID);
 
 		glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
 
@@ -860,7 +859,7 @@ namespace cxc {
 
 		for (auto tex_name : m_TexNames)
 		{
-			auto tex_ptr = SceneManager::GetInstance()->GetTextureManagerPtr()->GetTexPtr(tex_name);
+			auto tex_ptr = pEngine->m_pSceneMgr->m_pTextureMgr->GetTexPtr(tex_name);
 			if (tex_ptr)
 			{
 

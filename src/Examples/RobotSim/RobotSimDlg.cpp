@@ -155,11 +155,11 @@ BOOL CRobotSimDlg::OnInitDialog()
 	else
 		OutputInfo("手臂加载失败\r\n");
 		
-	m_Engine->GetSceneManagerPtr()->AddObject(m_LeftPtr->GetObjectName(), m_LeftPtr);
-	m_Engine->GetSceneManagerPtr()->AddObject(m_RightPtr->GetObjectName(), m_RightPtr);
-	m_Engine->GetSceneManagerPtr()->AddObject(Plane->GetObjectName(), Plane);
-	m_Engine->GetSceneManagerPtr()->AddObject(Table->GetObjectName(), Table);
-	m_Engine->GetSceneManagerPtr()->AddObject(Widget->GetObjectName(), Widget);
+	m_Engine->m_pSceneMgr->AddObject(m_LeftPtr->GetObjectName(), m_LeftPtr);
+	m_Engine->m_pSceneMgr->AddObject(m_RightPtr->GetObjectName(), m_RightPtr);
+	m_Engine->m_pSceneMgr->AddObject(Plane->GetObjectName(), Plane);
+	m_Engine->m_pSceneMgr->AddObject(Table->GetObjectName(), Table);
+	m_Engine->m_pSceneMgr->AddObject(Widget->GetObjectName(), Widget);
 
 	// Init ComboBox
 	LoadCombobox();
@@ -182,15 +182,15 @@ BOOL CRobotSimDlg::OnInitDialog()
 	m_RightPtr->SetBaseDegrees({ 0,0,90,0,-90,0 });
 
 	// Init OpenGL in main thread
-	m_Engine->GetWindowMangaerPtr()->InitGL();
+	m_Engine->m_pWindowMgr->InitGL();
 
 	auto m_Hwnd = GetDlgItem(IDC_PIC)->m_hWnd;
 	RECT display_size;
 	m_PicCtrl.GetWindowRect(&display_size);
 
 	// Set display window size
-	m_Engine->GetWindowMangaerPtr()->SetWindowHeight(display_size.bottom - display_size.top);
-	m_Engine->GetWindowMangaerPtr()->SetWindowWidth(display_size.right - display_size.left);
+	m_Engine->m_pWindowMgr->SetWindowHeight(display_size.bottom - display_size.top);
+	m_Engine->m_pWindowMgr->SetWindowWidth(display_size.right - display_size.left);
 
 	// Begin rendering thread
 	m_Engine->run();
@@ -198,9 +198,9 @@ BOOL CRobotSimDlg::OnInitDialog()
 	OutputInfo("渲染线程开始\r\n");
 
 	// Until window has been created
-	while (!m_Engine->GetWindowMangaerPtr()->WindowIsReady());
+	while (!m_Engine->m_pWindowMgr->WindowIsReady());
 
-	auto RenderingHwnd = glfwGetWin32Window(m_Engine->GetWindowMangaerPtr()->GetWindowHandle());
+	auto RenderingHwnd = glfwGetWin32Window(m_Engine->m_pWindowMgr->GetWindowHandle());
 
 	// Set display window position
 	::SetParent(RenderingHwnd, m_Hwnd);
@@ -252,8 +252,8 @@ HCURSOR CRobotSimDlg::OnQueryDragIcon()
 
 void CRobotSimDlg::LoadCombobox()
 {
-	auto left = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandL").get());
-	auto right = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandR").get());
+	auto left = dynamic_cast<Robothand*>(m_Engine->m_pSceneMgr->GetObject3D("SZRobothandL").get());
+	auto right = dynamic_cast<Robothand*>(m_Engine->m_pSceneMgr->GetObject3D("SZRobothandR").get());
 
 	if (left && right)
 	{
@@ -396,7 +396,7 @@ void CRobotSimDlg::OnBnClickedRightmotion()
 		UpdateData(true);
 
 		auto angle = _tstof(m_RightAngle);
-		auto RightPtr = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandR").get());
+		auto RightPtr = dynamic_cast<Robothand*>(m_Engine->m_pSceneMgr->GetObject3D("SZRobothandR").get());
 		if (RightPtr)
 		{
 			if (!RightPtr->RotateJoint(m_InvNameMap[Jointname.GetBuffer(0)], angle))
@@ -423,7 +423,7 @@ void CRobotSimDlg::OnBnClickedRightreset()
 		OutputInfo("请选择一个右手关节\r\n");
 	else
 	{
-		auto RightPtr = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandR").get());
+		auto RightPtr = dynamic_cast<Robothand*>(m_Engine->m_pSceneMgr->GetObject3D("SZRobothandR").get());
 
 		if (RightPtr)
 		{
@@ -443,7 +443,7 @@ void CRobotSimDlg::OnBnClickedRightresetall()
 {
 	// TODO: 在此添加控件通知处理程序代码
 
-	auto RightPtr = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandR").get());
+	auto RightPtr = dynamic_cast<Robothand*>(m_Engine->m_pSceneMgr->GetObject3D("SZRobothandR").get());
 
 	if (RightPtr)
 	{
@@ -486,7 +486,7 @@ void CRobotSimDlg::OnBnClickedRoutangle()
 		OutputInfo("请选择一个右手关节\r\n");
 	else
 	{
-		auto RighttPtr = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandR").get());
+		auto RighttPtr = dynamic_cast<Robothand*>(m_Engine->m_pSceneMgr->GetObject3D("SZRobothandR").get());
 
 		if (RighttPtr)
 		{
@@ -511,7 +511,7 @@ void CRobotSimDlg::OnBnClickedRoutpos()
 		OutputInfo("请选择一个右手关节\r\n");
 	else
 	{
-		auto RightPtr = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandR").get());
+		auto RightPtr = dynamic_cast<Robothand*>(m_Engine->m_pSceneMgr->GetObject3D("SZRobothandR").get());
 
 		if (RightPtr)
 		{
@@ -587,7 +587,7 @@ LRESULT CRobotSimDlg::MyMsgHandler(WPARAM, LPARAM)
 	auto angles = glove_dlg->angle;
 	float degree;
 
-	auto RightPtr = dynamic_cast<Robothand*>(m_Engine->GetSceneManagerPtr()->GetObject3D("SZRobothandR").get());
+	auto RightPtr = dynamic_cast<Robothand*>(m_Engine->m_pSceneMgr->GetObject3D("SZRobothandR").get());
 	 
 	if (!RightPtr) return 0;
 

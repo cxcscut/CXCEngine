@@ -7,6 +7,7 @@
 #include "..\Graphics\Object3D.h"
 #include "..\Graphics\Shape.h"
 #include "..\Graphics\TextureManager.h"
+#include "..\Controller\Camera.h"
 
 namespace cxc {
 
@@ -38,13 +39,30 @@ namespace cxc {
 	// Data access interface
 	public:
 
+		std::shared_ptr<TextureManager> m_pTextureMgr;
+		std::shared_ptr<Camera> m_pCamera;
+		std::shared_ptr<RendererManager> m_pRendererMgr;
+
 		// Return the pointer to the specific sprite
 		std::shared_ptr<Object3D > GetObject3D (const std::string &sprite_name) const noexcept;
+
+		void InitCameraStatus(GLFWwindow * window) noexcept;
+
+		void SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
+			const glm::mat4 &ProjectionMatrix) noexcept;
+
+		void UpdateCameraPos(GLFWwindow *window, float x, float y, GLuint height, GLuint width) noexcept;
+
+		void BindCameraUniforms() const noexcept;
+
+		void SetCameraMode(CameraModeType mode) noexcept;
 
 		// Return the SpriteMap
 		const std::unordered_map<std::string, std::shared_ptr<Object3D >> &GetObjectMap() const noexcept;
 
-		std::shared_ptr<TextureManager> GetTextureManagerPtr() const noexcept { return m_pTextureMgr; }
+		const glm::vec3 &GetLightPos() const noexcept;
+		void BindLightingUniforms(GLuint ProgramID) const;
+		void SetLightPos(const glm::vec3 &pos) noexcept;
 
 	// Draw call
 	public:
@@ -57,7 +75,7 @@ namespace cxc {
 
 	private:
 
-		std::shared_ptr<TextureManager> m_pTextureMgr;
+		
 
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<Object3D>> m_ObjectMap;
@@ -66,6 +84,7 @@ namespace cxc {
 
 		uint32_t TotalIndicesNum;
 
+		glm::vec3 m_LightPos;
 	};
 }
 #endif // CXC_SceneManager_H

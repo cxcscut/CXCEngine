@@ -5,9 +5,11 @@
 namespace cxc {
 
 	SceneManager::SceneManager()
-		: m_ObjectMap(),TotalIndicesNum(0U)
+		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500))
 	{
 		m_pTextureMgr = TextureManager::GetInstance();
+		m_pCamera = std::make_shared<Camera>();
+		m_pRendererMgr = RendererManager::GetInstance();
 	}
 
 	SceneManager::~SceneManager()
@@ -27,6 +29,54 @@ namespace cxc {
 		for (auto pObject : m_ObjectMap) {
 			pObject.second->InitBuffers();
 		}
+	}
+
+	const glm::vec3 &SceneManager::GetLightPos() const noexcept
+	{
+		return m_LightPos;
+	}
+
+	void SceneManager::SetLightPos(const glm::vec3 &pos) noexcept
+	{
+		m_LightPos = pos;
+	}
+
+	void SceneManager::BindLightingUniforms(GLuint ProgramID) const
+	{
+
+		GLuint LightID = glGetUniformLocation(ProgramID, "LightPosition_worldspace");
+		glUniform3f(LightID, m_LightPos.x, m_LightPos.y, m_LightPos.z);
+
+	}
+
+	void SceneManager::InitCameraStatus(GLFWwindow * window) noexcept
+	{
+		m_pCamera->InitLastTime();
+
+		if (m_pCamera->m_CameraMode == CAMERA_FIXED)
+		{
+			//Set Keyboard and mouse callback function
+			glfwSetKeyCallback(window, KeyBoradCallBack);
+			glfwSetMouseButtonCallback(window, MouseCallBack);
+			glfwSetScrollCallback(window, ScrollBarCallBack);
+		}
+
+		// Set Camera pos
+		SetCameraParams(glm::vec3(0, 2000, 2000), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0),
+			glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f)
+		);
+
+	}
+
+	void SceneManager::SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
+		const glm::mat4 &ProjectionMatrix) noexcept
+	{
+
+		m_pCamera->eye_pos = eye;
+		m_pCamera->origin = origin;
+		m_pCamera->up_vector = up;
+		m_pCamera->SetAllMatrix(glm::lookAt(eye, origin, up), ProjectionMatrix);
+		m_pCamera->ComputeAngles();
 	}
 
 	GLboolean SceneManager::CreateObject(const std::string &Object_name,const std::string &Object_file) noexcept
@@ -50,6 +100,22 @@ namespace cxc {
 	{
 		for (auto pObject : m_ObjectMap)
 			pObject.second->DrawObject();
+	}
+
+	void SceneManager::SetCameraMode(CameraModeType mode) noexcept
+	{
+		m_pCamera->m_CameraMode = mode;
+	}
+
+	void SceneManager::UpdateCameraPos(GLFWwindow *window,float x,float y,GLuint height,GLuint width) noexcept
+	{
+		m_pCamera->ComputeMatrices_Moving(window, x,y,height,width);
+	}
+
+	void SceneManager::BindCameraUniforms() const noexcept
+	{
+		auto SpriteProgramID = m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+		m_pCamera->BindCameraUniforms(SpriteProgramID);
 	}
 
 	void SceneManager::DeleteObject(const std::string &sprite_name) noexcept

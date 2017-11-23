@@ -36,12 +36,8 @@ namespace cxc {
 											const std::string &vertex_path,
 											const std::string &fragment_path) noexcept;
 		
-		const glm::vec3 &GetLightPos() const noexcept;
-
 		void SetProgramID(ShaderType Type,GLint ProgramID) noexcept;
-		void BindLightingUniforms() const;
-
-		void SetLightPos(const glm::vec3 &pos) noexcept;
+		
 		void CreateProgram(ShaderType Type,ProgramStruct &program) noexcept;
 		void SetShaderStruct(ShaderType type,ProgramStruct &shader_struct) noexcept;
 
@@ -51,7 +47,6 @@ namespace cxc {
 	private:
 
 		ProgramStruct SpriteShader, FontShader;
-		glm::vec3 m_LightPos;
 
 	// Status checking
 	private:
