@@ -260,7 +260,7 @@ namespace cxc {
 	void EngineFacade::InitEngine() noexcept
 	{
 
-		glDisable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		m_pInputMgr->SetInputModel(m_pWindowMgr->GetWindowHandle());
 
 	}

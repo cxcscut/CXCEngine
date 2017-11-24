@@ -24,10 +24,7 @@ namespace cxc {
 		Shape(const Shape &&) = delete;
 		Shape& operator=(const Shape&&) = delete;
 
-		Shape(const std::string &modelname, const TextureAttrib &tex_attrib,
-			const std::vector<glm::vec3> &vertex,
-			const std::vector<glm::vec3> &normals,
-			const std::vector<glm::vec2> &texcoords);
+		
 
 	// Date access interface
 	public:
@@ -73,12 +70,6 @@ namespace cxc {
 
 		// Name of the model
 		std::string m_ModelName;
-
-		// Texture structure
-		TextureAttrib m_TexAttrib;
-
-		// Buffer ID structure
-		BufferIDs buffer_IDs;
 
 		// Model matrix
 		glm::mat4 m_ModelMatrix;

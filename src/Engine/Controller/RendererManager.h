@@ -7,6 +7,30 @@
 
 namespace cxc {
 
+	typedef struct ProgramStruct {
+		GLint ProgramID;
+		std::vector<GLint> VertexShader;
+		std::vector<GLint> FragmentShader;
+
+		ProgramStruct& operator=(const ProgramStruct & rhs) {
+			this->ProgramID = rhs.ProgramID;
+			this->VertexShader = rhs.VertexShader;
+			this->FragmentShader = rhs.FragmentShader;
+			return *this;
+		}
+		void clear() {
+			ProgramID = 0;
+			VertexShader.clear();
+			FragmentShader.clear();
+		}
+		void ReConstruct(GLint ID, GLint VertexShaderID, GLint FragmentShaderID) {
+			this->clear();
+			ProgramID = ID;
+			VertexShader.emplace_back(VertexShaderID);
+			FragmentShader.emplace_back(FragmentShaderID);
+		}
+	} ProgramStruct;
+
 	class RendererManager final : public Singleton<RendererManager>
 	{
 	public: 

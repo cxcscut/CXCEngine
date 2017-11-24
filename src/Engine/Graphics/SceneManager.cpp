@@ -1,7 +1,9 @@
 #include "SceneManager.h"
-#include "TextureManager.h"
-
 #include "..\EngineFacade\EngineFacade.h"
+
+// FBX SDK header file
+#include <fbxsdk.h>
+
 namespace cxc {
 
 	SceneManager::SceneManager()
@@ -88,6 +90,11 @@ namespace cxc {
 
 		m_ObjectMap.insert(std::make_pair(Object_name, tmp_object));
 
+		return GL_TRUE;
+	}
+
+	GLboolean SceneManager::LoadSceneFromFBX(const std::string &scenefile, const std::string &scene_name) noexcept
+	{
 		return GL_TRUE;
 	}
 

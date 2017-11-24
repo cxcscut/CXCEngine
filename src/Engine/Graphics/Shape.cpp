@@ -8,15 +8,10 @@ namespace cxc {
 	Shape::Shape()
 		: m_VertexIndices(),
 		m_ModelMatrix(1.0f), stateChanged(GL_FALSE),
-		 m_ModelName(""), FragmentType(3), Num_of_faces(0),buffer_IDs(),
+		 m_ModelName(""), FragmentType(3), Num_of_faces(0),
 		m_VertexCoords(),m_VertexNormals(),m_TexCoords(),m_MaterialIDs(),m_VertexColor(),m_GeometricNormal(),
 		m_MyPtr(nullptr),m_TransformationMatrix(1.0f),m_ReposMatrix(1.0f)
 	{
-		m_TexAttrib.Compoent = 0;
-		m_TexAttrib.Height = 0;
-		m_TexAttrib.Width = 0;
-		m_TexAttrib.TextureID = 0;
-
 	}
 
 	Shape::~Shape()
@@ -25,19 +20,6 @@ namespace cxc {
 		m_VertexCoords.clear();
 		m_VertexNormals.clear();
 		m_TexCoords.clear();
-	}
-
-	Shape::Shape(const std::string &modelname, const TextureAttrib &tex_attrib,
-		const std::vector<glm::vec3> &vertex,
-		const std::vector<glm::vec3> &normals,
-		const std::vector<glm::vec2> &texcoords)
-		: Shape()
-	{
-		m_ModelName = modelname;
-		m_TexAttrib = tex_attrib;
-		m_VertexCoords = vertex;
-		m_VertexNormals = normals;
-		m_TexCoords = texcoords;
 	}
 
 	GLboolean Shape::CheckStateChanged() const noexcept

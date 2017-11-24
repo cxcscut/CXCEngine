@@ -14,6 +14,30 @@ class Shape;
 
 namespace cxc {
 
+	using VertexIndexPacket = struct VertexIndexPacket {
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec2 texcoords;
+
+		VertexIndexPacket()
+			:position(glm::vec3(0.0f, 0.0f, 0.0f)),
+			normal(glm::vec3(0.0f, 0.0f, 0.0f)),
+			texcoords(glm::vec2(0.0f, 0.0f))
+		{}
+
+		VertexIndexPacket(const glm::vec3 &pos, const glm::vec3 &_normal, const glm::vec2 &uv)
+		{
+			position = pos;
+			normal = _normal;
+			texcoords = uv;
+		}
+
+		// For customized type, overloaded operator < is needed for std::map
+		bool operator<(const VertexIndexPacket &that) const {
+			return memcmp((void*)this, (void*)&that, sizeof(VertexIndexPacket)) > 0;
+		};
+	};
+
 	using VertexAttri = struct VertexAttri {
 		glm::vec2 texcoord;
 		glm::vec3 normal;

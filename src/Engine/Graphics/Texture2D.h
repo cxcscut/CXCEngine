@@ -5,6 +5,13 @@
 
 namespace cxc {
 
+	using TextureAttrib = struct TextureAttrib {
+		GLint Width;
+		GLint Height;
+		GLint Compoent;
+		GLuint TextureID;
+	};
+
 	class Texture2D final
 	{
 

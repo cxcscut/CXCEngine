@@ -16,6 +16,8 @@
   It is the OpenGL Extension Wrangler library which includes the header file glew.h and static library glew32.lib as well as dynamic library glew32.dll.
 - **GLM**  
   The OpenGL mathematics library including glm.hpp and matrix_transformation.hpp etc.
+- **FBX SDK**  
+  Used for loading the FBX file exported from 3DS MAX.
   
 ## Projects
 

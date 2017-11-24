@@ -86,6 +86,7 @@ namespace cxc {
 		std::shared_ptr<WindowManager> m_pWindowMgr;
 		std::shared_ptr<SceneManager> m_pSceneMgr;
 
+		// Shader path
 		std::string GetVertexShaderPath() const noexcept { return VertexShaderPath; }
 		std::string GetFragmentShaderPath() const noexcept { return FragmentShaderPath; }
 
