@@ -15,7 +15,7 @@ namespace cxc {
 	Object3D::Object3D() :
 		ObjectName(""), m_ModelMap(),m_Material(),indices_num(0U),
 		TexSamplerHandle(0U),VAO(0U),EBO(0U),VBO_A(0U),VBO_P(0U),
-		isLoaded(false),m_ObjectTree(),stateChanged(GL_FALSE)
+		isLoaded(false),m_ObjectTree(),stateChanged(GL_FALSE),enable(GL_TRUE)
 	{
 
 		auto max_float = std::numeric_limits<float>::max();
@@ -32,11 +32,12 @@ namespace cxc {
 		ObjectName = sprite_name;
 	}
 
-	Object3D::Object3D(const std::string &Object_name, const std::string &filename)
+	Object3D::Object3D(const std::string &Object_name, const std::string &filename, GLboolean _enable)
 		: Object3D()
 	{
 		ObjectName = Object_name;
 		LoadOBJFromFile(filename);
+		enable = _enable;
 	}
 
 	Object3D ::~Object3D()
@@ -497,6 +498,8 @@ namespace cxc {
 
 		} // shapes
 		
+		ComputeCenterPos();
+
 		/*
 		// Calculate model matrix for each shapes
 		this->CalculateSizeVector();
@@ -514,6 +517,23 @@ namespace cxc {
 		return ObjectName;
 	}
 	
+	void Object3D::ComputeCenterPos() noexcept
+	{
+		size_t count = 0U;
+		glm::vec3 pos;
+		for (auto shape : m_ModelMap)
+		{
+			count++;
+			pos += shape.second->GetCenterPos();
+		}
+
+		if (count)
+			CenterCoords = glm::vec3({pos.x/count,pos.y/count,pos.z/count});
+		else
+			CenterCoords = pos;
+
+	}
+
 	bool Object3D ::AddRoot(const std::string &ModelName) noexcept
 	{
 		if (!this->isLoaded)
@@ -619,20 +639,19 @@ namespace cxc {
 		auto ModelPtr = GetModelByName(ModelName);
 		if (!ModelPtr)
 			return;
+		
+		// Perform translation on root node
+		ModelPtr->Translate(TranslationVector);
+		
+		SetStateChanged(GL_TRUE);
 
 		auto ObjectNodePtr = ModelPtr->m_MyPtr;
 		if (!ObjectNodePtr)
 			return;
 
-		
-		// Perform translation on root node
-		ModelPtr->Translate(TranslationVector);
-		
 		// Perform translation on children node
 		for (auto &it : ObjectNodePtr->children)
 			Translation(it->root->GetModelName(),TranslationVector);
-
-		SetStateChanged(GL_TRUE);
 
 	}
 

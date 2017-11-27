@@ -30,18 +30,7 @@ namespace cxc {
 		else
 			theta_y = 0.0f;
 
-		double r_xoz = radius * sin(theta_y);
-		
-		if (r_xoz < 1e-6) {
-			theta_xoz = 0;
-			return;
-		}
-
-		// Do not use tan to compute theta_xoz, since the value does not exist when theta_xoz equals to 90 degree
-		if (eye_pos.z > 0)
-			theta_xoz = eye_pos.x > 0 ? asinf(eye_pos.x / r_xoz) : 3 * PI / 2 + asinf(eye_pos.z / r_xoz);
-		else
-			theta_xoz = eye_pos.x > 0 ? PI / 2 + asinf(-eye_pos.z / r_xoz): PI + asinf(-eye_pos.x / r_xoz);
+		theta_xoz = atan2(eye_pos.x,eye_pos.z);
 
 	}
 

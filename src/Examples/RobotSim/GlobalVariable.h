@@ -40,10 +40,13 @@ using RotationAxis = struct RotationAxis {
 
 };
 
+// table origin
+static const glm::vec3 table_origin = {-719.453f,+1511.043f,500.0f};
+
 // Right hand
 
 // Rotation Axis
-static const std::unordered_map<std::string, RotationAxis> g_Axis_R = {
+static const std::map<std::string, RotationAxis> g_Axis_R = {
 	{ "arm_right2",{{ 0.0,0.0,0.0 },{0,0,1}}},
 	{ "arm_right3",{{-220.0,-70.069,380.948},{0,1,0}}},
 	{"arm_right4",{{302.331,55.044,380.948},{0,1,0}}},
@@ -122,7 +125,7 @@ static const std::vector <std::pair<std::string, std::string>> g_ChildNodes_R = 
 // Left hand
 
 // Rotation Axis
-static const std::unordered_map<std::string, RotationAxis> g_Axis_L = {
+static const std::map<std::string, RotationAxis> g_Axis_L = {
 	{ "arm_left2",{ { 0.0,-4.956,300.948 },{ 0,0,1 } } },
 	{ "arm_left3",{ { -220.0,-70.069,380.948 },{ 0,1,0 } } },
 	{ "arm_left4",{ { 302.331,55.044,380.948 },{ 0,1,0 } } },

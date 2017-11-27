@@ -127,7 +127,7 @@ BOOL CRobotSimDlg::OnInitDialog()
 	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile); };
 	auto LoadTable_and_widget= [&]() {
 		Table = std::make_shared<Object3D>("table", TableFile); 
-		Widget = std::make_shared<Object3D>("widget", WidgetFile);
+		Widget = std::make_shared<Object3D>("widget", WidgetFile,GL_FALSE);
 		
 	};
 
@@ -924,7 +924,12 @@ void CRobotSimDlg::OnBnClickedSendaction()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	
-	m_LeftPtr->MovingArm({0,-1000,700,glm::radians(90.0f),glm::radians(90.0f),0 });
+	auto pSceneMgr = m_Engine->m_pSceneMgr;
+	auto pWidget = pSceneMgr->GetObject3D("widget");
+	auto center_pos = pWidget->GetCenterPos();
+	auto target_pos = glm::vec3({center_pos.x,-center_pos.z,center_pos.y});
+
+	m_LeftPtr->MovingArm({target_pos.x,target_pos.y,target_pos.z+200.0f,glm::radians(90.0f),glm::radians(90.0f),0 });
 
 }
 

@@ -1,3 +1,26 @@
-﻿  Object3D.cpp
+﻿  RobotSimDlg.cpp
+G:\opencv\opencv\build\include\opencv2/core/mat.hpp(1965): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+G:\opencv\opencv\build\include\opencv2/core/persistence.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+G:\opencv\opencv\build\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+G:\opencv\opencv\build\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+examples\robotsim\RobotSimDlg.cpp(42): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\ucrt\time.h(505): note: 参见“localtime”的声明
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\utility(188): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+  c:\users\39317\desktop\git\cxcengine\src\examples\robotsim\GlobalVariable.h(86): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<const char(&)[13],double,void,0>(_Other1,_Other2 &&) noexcept(false)”的引用
+          with
+          [
+              _Kty=std::string,
+              _Ty=float,
+              _Other1=const char (&)[13],
+              _Other2=double
+          ]
+  c:\users\39317\desktop\git\cxcengine\src\examples\robotsim\GlobalVariable.h(80): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<const char(&)[13],double,void,0>(_Other1,_Other2 &&) noexcept(false)”的引用
+          with
+          [
+              _Kty=std::string,
+              _Ty=float,
+              _Other1=const char (&)[13],
+              _Other2=double
+          ]
   RobotSim.vcxproj -> C:\Users\39317\Desktop\git\CxcEngine\src\Debug\RobotSim.exe
   RobotSim.vcxproj -> C:\Users\39317\Desktop\git\CxcEngine\src\Debug\RobotSim.pdb (Partial PDB)

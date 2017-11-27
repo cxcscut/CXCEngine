@@ -10,6 +10,22 @@
 // KinectWin 对话框
 UINT Server_Th(LPVOID p);
 
+// Analysis result
+using AnalysisRet = struct AnalysisRet {
+	// 中心位置
+	float x, y;
+
+	// X轴夹角
+	float angle;
+
+	// 宽度
+	float width;
+
+	AnalysisRet() :
+		x(0.0f), y(0.0f), angle(0.0f), width(0.0f)
+	{};
+};
+
 class KinectWin : public CDialogEx
 {
 	DECLARE_DYNAMIC(KinectWin)
@@ -33,6 +49,12 @@ public:
 	IplImage *imageCut; //截图图片
 	CEdit* pEdit;
 	int count;
+	
+	AnalysisRet analysis_ret;
+
+	// 结果是否更新
+	bool result_update;
+
 	void DrawPicToHDC(IplImage *img, UINT ID);
 
 	void OnTimer(UINT_PTR nIDEvent);
@@ -68,4 +90,5 @@ public:
 	afx_msg void OnBnClickedReset();
 	CComboBox m_method;
 	afx_msg void OnCbnSelchangeCombo1();
+	afx_msg void OnBnClickedButton2();
 };

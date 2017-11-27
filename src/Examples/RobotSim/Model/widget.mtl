@@ -1,5 +1,5 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 20.11.2017 14:32:41
+# File Created: 27.11.2017 14:46:21
 
 newmtl 02___Default
 	Ns 10.0000
@@ -12,5 +12,5 @@ newmtl 02___Default
 	Kd 0.5882 0.5882 0.5882
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka metal_texture.jpg
-	map_Kd metal_texture.jpg
+	map_Ka C:\Users\39317\Desktop\git\cxcengine\src\Examples\RobotSim\Model\metal_texture.jpg
+	map_Kd C:\Users\39317\Desktop\git\cxcengine\src\Examples\RobotSim\Model\metal_texture.jpg

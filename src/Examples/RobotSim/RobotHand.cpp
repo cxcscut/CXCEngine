@@ -490,14 +490,30 @@ void Robothand::UpdateRotationAxisPos(const std::string &JointName, const glm::v
 void Robothand::MovingArm(const glm::mat4 &pose) noexcept
 {
 	auto target_pose = pose;
-	std::vector<float> base_degree = { GetBaseDegrees("arm_left2"),GetBaseDegrees("arm_left3"),
-		GetBaseDegrees("arm_left4"),GetBaseDegrees("arm_left5"),GetBaseDegrees("arm_left6"),
-		GetBaseDegrees("palm_left")
-	};
+	std::vector<float> base_degree, current_degree;
+	std::vector<std::string> arm_joint_names;
 
-	std::vector<float> current_degree = { GetJointDegree("arm_left2"),GetJointDegree("arm_left3"),
-		GetJointDegree("arm_left3"),GetJointDegree("arm_left4"),GetJointDegree("arm_left5"),
-		GetJointDegree("arm_left6"),GetJointDegree("palm_left") };
+	auto pBaseDegrees = m_BaseDegrees.cbegin();
+	auto pJointDegrees = m_JointDegrees.cbegin();
+	for (size_t i = 0; i < ARM_JOINT_NUM-1; i++) {
+		base_degree.emplace_back(pBaseDegrees->second);
+		current_degree.emplace_back(pJointDegrees->second);
+		arm_joint_names.emplace_back(pBaseDegrees->first);
+		pBaseDegrees++; pJointDegrees++;
+	}
+
+	if (HType == ROBOTHAND_LEFT)
+	{
+		base_degree.emplace_back(GetBaseDegrees("palm_left"));
+		current_degree.emplace_back(GetJointDegree("palm_left"));
+		arm_joint_names.emplace_back("palm_left");
+	}
+	else
+	{
+		base_degree.emplace_back(GetBaseDegrees("palm_right"));
+		current_degree.emplace_back(GetJointDegree("palm_right"));
+		arm_joint_names.emplace_back("palm_right");
+	}
 
 	target_pose[3][1] = -target_pose[3][1];
 
@@ -507,25 +523,37 @@ void Robothand::MovingArm(const glm::mat4 &pose) noexcept
 
 	auto optimal_sol = KineSolver::getOptimalSolution(KineSolver::InverseKinematics(target_pose), target_pose);
 
-	RotateJoint("arm_left2", -current_degree[0] + base_degree[0] - optimal_sol[0]);
-	RotateJoint("arm_left3", -current_degree[1] + base_degree[1] - optimal_sol[1]);
-	RotateJoint("arm_left4", -current_degree[2] + base_degree[2] - optimal_sol[2]);
-	RotateJoint("arm_left5", -current_degree[3] + base_degree[3] - optimal_sol[3]);
-	RotateJoint("arm_left6", -current_degree[4] + base_degree[4] - optimal_sol[4]);
-	RotateJoint("palm_left", -current_degree[5] + base_degree[5] - optimal_sol[5]);
+	for (size_t k = 0; k < arm_joint_names.size(); k++)
+		RotateJoint(arm_joint_names[k],-current_degree[k] + base_degree[k] - optimal_sol[k]);
 }
 
 void Robothand::MovingArm(const std::vector<float> &eular_space) noexcept
 {
 	auto target_pose = KineSolver::EularSpaceToOrientation(eular_space);
-	std::vector<float> base_degree = { GetBaseDegrees("arm_left2"),GetBaseDegrees("arm_left3"),
-		GetBaseDegrees("arm_left4"),GetBaseDegrees("arm_left5"),GetBaseDegrees("arm_left6"),
-		GetBaseDegrees("palm_left")
-	};
+	std::vector<float> base_degree,current_degree;
+	std::vector<std::string> arm_joint_names;
 
-	std::vector<float> current_degree = { GetJointDegree("arm_left2"),GetJointDegree("arm_left3"),
-		GetJointDegree("arm_left3"),GetJointDegree("arm_left4"),GetJointDegree("arm_left5"),
-		GetJointDegree("arm_left6"),GetJointDegree("palm_left") };
+	auto pBaseDegrees = m_BaseDegrees.cbegin();
+	auto pJointDegrees = m_JointDegrees.cbegin();
+	for (size_t i = 0; i < ARM_JOINT_NUM-1; i++) {
+		base_degree.emplace_back(pBaseDegrees->second);
+		current_degree.emplace_back(pJointDegrees->second);
+		arm_joint_names.emplace_back(pBaseDegrees->first);
+		pBaseDegrees++; pJointDegrees++;
+	}
+
+	if (HType == ROBOTHAND_LEFT)
+	{
+		base_degree.emplace_back(GetBaseDegrees("palm_left"));
+		current_degree.emplace_back(GetJointDegree("palm_left"));
+		arm_joint_names.emplace_back("palm_left");
+	}
+	else
+	{
+		base_degree.emplace_back(GetBaseDegrees("palm_right"));
+		current_degree.emplace_back(GetJointDegree("palm_right"));
+		arm_joint_names.emplace_back("palm_right");
+	}
 
 	target_pose[3][1] = -target_pose[3][1];
 
@@ -535,12 +563,9 @@ void Robothand::MovingArm(const std::vector<float> &eular_space) noexcept
 
 	auto optimal_sol = KineSolver::getOptimalSolution(KineSolver::InverseKinematics(target_pose), target_pose);
 
-	RotateJoint("arm_left2", -current_degree[0] + base_degree[0] - optimal_sol[0]);
-	RotateJoint("arm_left3", -current_degree[1] + base_degree[1] - optimal_sol[1]);
-	RotateJoint("arm_left4", -current_degree[2] + base_degree[2] - optimal_sol[2]);
-	RotateJoint("arm_left5", -current_degree[3] + base_degree[3] - optimal_sol[3]);
-	RotateJoint("arm_left6", -current_degree[4] + base_degree[4] - optimal_sol[4]);
-	RotateJoint("palm_left", -current_degree[5] + base_degree[5] - optimal_sol[5]);
+	for (size_t k = 0; k < arm_joint_names.size(); k++)
+		RotateJoint(arm_joint_names[k], -current_degree[k] + base_degree[k] - optimal_sol[k]);
+
 }
 
 #include "stdafx.h"

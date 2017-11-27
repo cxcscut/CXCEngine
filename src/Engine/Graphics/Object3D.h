@@ -73,7 +73,7 @@ namespace cxc {
 		virtual ~Object3D();
 		
 		Object3D(const std::string &object_name);
-		Object3D(const std::string &Object_name,const std::string &filename);
+		Object3D(const std::string &Object_name,const std::string &filename, GLboolean _enable = GL_TRUE);
 
 	// Obj file loading
 	public:
@@ -144,17 +144,26 @@ namespace cxc {
 		void GetObjectBuffers(std::vector<glm::vec3> &vbo_pos, std::vector<VertexAttri> &vbo_attrib, std::vector<uint32_t> &ebo) noexcept;
 		uint32_t GetVertexSubscript(const std::string &shape_name) noexcept;
 
+		void ComputeCenterPos() noexcept;
+		glm::vec3 GetCenterPos() const noexcept { return CenterCoords; };
 
 		GLboolean CheckStateChanged() const noexcept;
 		void SetStateChanged(GLboolean state) noexcept;
 
+		GLboolean isEnable() const noexcept { return enable; };
+		void Enable() noexcept { enable = GL_TRUE; };
+		void Disable() noexcept { enable = GL_FALSE; };
+
 	private:
+
+		// is enabled
+		GLboolean enable;
 
 		// Name
 		std::string ObjectName;
 
-		// Max and min coordinates
-		glm::vec3 MaxCoords, MinCoords;
+		// Max, min and center coordinates
+		glm::vec3 MaxCoords, MinCoords, CenterCoords;
 
 		// <ModelName , Pointer to Model>
 		std::unordered_map<std::string,std::shared_ptr<Shape>> m_ModelMap;

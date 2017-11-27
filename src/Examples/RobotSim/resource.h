@@ -20,7 +20,6 @@
 #define IDC_LEFTRESET                   1009
 #define IDC_S1                          1010
 #define IDC_EDIT1                       1011
-#define IDC_EDIT55                      1011
 #define IDC_LEFTRESETALL                1012
 #define IDC_S0                          1013
 #define IDC_Cut                         1014

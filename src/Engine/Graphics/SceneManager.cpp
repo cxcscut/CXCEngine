@@ -106,7 +106,8 @@ namespace cxc {
 	void SceneManager::DrawScene() noexcept
 	{
 		for (auto pObject : m_ObjectMap)
-			pObject.second->DrawObject();
+			if(pObject.second->isEnable())
+				pObject.second->DrawObject();
 	}
 
 	void SceneManager::SetCameraMode(CameraModeType mode) noexcept

@@ -68,7 +68,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>G:\2018.1.1\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;G:\opencv\opencv\build\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;G:\opencv\opencv\build\x86\vc12\lib;C:\Users\cxc123\Desktop\cxcengine\src\Examples\RobotSim\5DT\lib;G:\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Users\39317\Desktop\git\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>G:\opencv\opencv\build\x86\vc12\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;C:\Users\39317\Desktop\git\cxcengine\src\Examples\RobotSim\5DT\lib;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -93,7 +93,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>glfw3.lib;glew32.lib;fgloved.lib;Kinect10.lib;opencv_ts300.lib;opencv_world300.lib</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk.lib;glfw3.lib;glew32.lib;fgloved.lib;Kinect10.lib;opencv_ts300.lib;opencv_world300.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -121,12 +121,12 @@ opencv_world300.lib;Kinect10.lib</AdditionalDependencies>
     <ClCompile Include="engine\enginefacade\EnginFacade.cpp" />
     <ClCompile Include="engine\graphics\Font.cpp" />
     <ClCompile Include="engine\graphics\FontsManager.cpp" />
-    <ClCompile Include="engine\graphics\Object3D.cpp" />
+    <ClCompile Include="Engine\Graphics\Object3D.cpp" />
     <ClCompile Include="engine\graphics\SceneManager.cpp" />
     <ClCompile Include="engine\graphics\Shape.cpp" />
     <ClCompile Include="engine\graphics\Texture2D.cpp" />
     <ClCompile Include="engine\graphics\TextureManger.cpp" />
-    <ClCompile Include="engine\helper\FileHelper.cpp" />
+    <ClCompile Include="Engine\Helper\FileHelper.cpp" />
     <ClCompile Include="engine\script\Parser.cpp" />
     <ClCompile Include="engine\window\Window.cpp" />
     <ClCompile Include="Examples\RobotSim\CvvImage.cpp" />

@@ -6,6 +6,8 @@
 #include "afxdialogex.h"
 #include "Resource.h"
 
+#include "..\..\Engine\Graphics\SceneManager.h"
+
 SOCKET listen_sock;
 SOCKET sock;
 std::string colorImagePath2 = "./images/pcd0055r.png"; //初始化截图地址
@@ -17,7 +19,7 @@ bool methodFlag = true;//分析方法，表示是否用fast-rcnn分析
 IMPLEMENT_DYNAMIC(KinectWin, CDialogEx)
 
 KinectWin::KinectWin(CWnd* pParent /*=NULL*/)
-	: CDialogEx(IDD_Kinect, pParent)
+	: CDialogEx(IDD_Kinect, pParent),result_update(false)
 {
 
 }
@@ -189,6 +191,7 @@ BEGIN_MESSAGE_MAP(KinectWin, CDialogEx)
 	ON_BN_CLICKED(IDC_ANALY, &KinectWin::OnBnClickedAnaly)
 	ON_BN_CLICKED(IDC_RESET, &KinectWin::OnBnClickedReset)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &KinectWin::OnCbnSelchangeCombo1)
+	ON_BN_CLICKED(IDC_BUTTON2, &KinectWin::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -581,6 +584,11 @@ void KinectWin::OnBnClickedAnaly()
 	float anglef = atof(result[3].c_str());
 	float widthf = atof(result[4].c_str());
 
+	analysis_ret.x = xf;
+	analysis_ret.y = yf;
+	analysis_ret.angle = anglef;
+	analysis_ret.width = widthf;
+	result_update = true;
 
 	xRaw[1] = xf - 0.5*widthf;
 	yRaw[1] = yf - 0.5*height;
@@ -644,4 +652,28 @@ void KinectWin::OnCbnSelchangeCombo1()
 		Update("选择SSD方法分析");
 		methodFlag = false;
 	}
+}
+
+
+void KinectWin::OnBnClickedButton2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+
+	if (!result_update)
+		return;
+
+	auto pSceneMgr = SceneManager::GetInstance();
+
+	auto pWidget = pSceneMgr->GetObject3D("widget");
+	if (!pWidget) return;
+
+	auto current_pos = pWidget->GetCenterPos();
+	auto origin = glm::vec3({table_origin.x,table_origin.z,table_origin.y});
+	auto destination = glm::vec3({analysis_ret.x,analysis_ret.y,0.0f}) * 20.0f + origin;
+	auto movement = destination - current_pos;
+	pWidget->Translation("widget",movement);
+	pWidget->ComputeCenterPos();
+	pWidget->Enable();
+
+	result_update = false;
 }
