@@ -9,7 +9,7 @@ namespace cxc {
 		LowByteVersion(3), HighByteVersion(4),
 		isForwardCompatible(GL_TRUE),
 		isEnableDepth(GL_TRUE), m_BackGroundColor(),
-		isReady(false)
+		isReady(false),isDecoraded(false)
 
  	{
 
@@ -124,7 +124,7 @@ namespace cxc {
 		else
 		{
 			// Set window pos
-			SetWindowPos(0,0);
+			SetWindowPos(300,400);
 			isReady = true;
 			return GL_TRUE;
 		}
@@ -150,7 +150,8 @@ namespace cxc {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, LowByteVersion);								// low byte of version
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, isForwardCompatible);						// forwarad compatible
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-		glfwWindowHint(GLFW_DECORATED, GL_FALSE); // remove caption bar and frame
+
+		glfwWindowHint(GLFW_DECORATED, isDecoraded); // remove caption bar and frame
 
 		return GL_TRUE;
 	}

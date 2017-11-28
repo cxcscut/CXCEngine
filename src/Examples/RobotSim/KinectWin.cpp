@@ -15,11 +15,12 @@ std::vector<std::string> result;
 bool analyFlag=false;
 bool imageFlag = false;
 bool methodFlag = true;//分析方法，表示是否用fast-rcnn分析
+
 // KinectWin 对话框
 IMPLEMENT_DYNAMIC(KinectWin, CDialogEx)
 
 KinectWin::KinectWin(CWnd* pParent /*=NULL*/)
-	: CDialogEx(IDD_Kinect, pParent),result_update(false)
+	: CDialogEx(IDD_Kinect, pParent)
 {
 
 }
@@ -588,7 +589,7 @@ void KinectWin::OnBnClickedAnaly()
 	analysis_ret.y = yf;
 	analysis_ret.angle = anglef;
 	analysis_ret.width = widthf;
-	result_update = true;
+	analysis_ret.result_update = true;
 
 	xRaw[1] = xf - 0.5*widthf;
 	yRaw[1] = yf - 0.5*height;
@@ -658,8 +659,7 @@ void KinectWin::OnCbnSelchangeCombo1()
 void KinectWin::OnBnClickedButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
-
-	if (!result_update)
+	if (!analysis_ret.result_update)
 		return;
 
 	auto pSceneMgr = SceneManager::GetInstance();
@@ -667,13 +667,16 @@ void KinectWin::OnBnClickedButton2()
 	auto pWidget = pSceneMgr->GetObject3D("widget");
 	if (!pWidget) return;
 
-	auto current_pos = pWidget->GetCenterPos();
-	auto origin = glm::vec3({table_origin.x,table_origin.z,table_origin.y});
-	auto destination = glm::vec3({analysis_ret.x,analysis_ret.y,0.0f}) * 20.0f + origin;
-	auto movement = destination - current_pos;
-	pWidget->Translation("widget",movement);
 	pWidget->ComputeCenterPos();
+	auto current_pos = pWidget->GetCenterPos();
+	auto origin = glm::vec3({ table_origin.x,current_pos.y,table_origin.y });
+	auto destination = glm::vec3({ analysis_ret.x,analysis_ret.y,0.0f });
+	auto movement = glm::vec3({ destination.x,destination.z,-destination.y});
+
+	pWidget->g_lock.lock();
+	pWidget->Translation("widget", movement + origin - current_pos);
+	pWidget->RotateWithArbitraryAxis("widget", current_pos, glm::vec3(0, 1, 0),glm::radians(analysis_ret.angle));
+	pWidget->g_lock.unlock();
 	pWidget->Enable();
 
-	result_update = false;
 }

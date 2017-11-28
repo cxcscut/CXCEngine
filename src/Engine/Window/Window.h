@@ -51,6 +51,7 @@ namespace cxc {
 		GLFWwindow *GetWindowHandle() const noexcept;
 
 		bool InitGL() const noexcept;
+		bool isDecoraded;
 
 	private:
 

@@ -41,7 +41,7 @@ using RotationAxis = struct RotationAxis {
 };
 
 // table origin
-static const glm::vec3 table_origin = {-719.453f,+1511.043f,500.0f};
+static const glm::vec3 table_origin = {-719.453f,1211.043f,500.0f};
 
 // Right hand
 

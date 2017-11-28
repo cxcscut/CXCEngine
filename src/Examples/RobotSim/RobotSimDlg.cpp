@@ -926,10 +926,25 @@ void CRobotSimDlg::OnBnClickedSendaction()
 	
 	auto pSceneMgr = m_Engine->m_pSceneMgr;
 	auto pWidget = pSceneMgr->GetObject3D("widget");
+	pWidget->ComputeCenterPos();
 	auto center_pos = pWidget->GetCenterPos();
 	auto target_pos = glm::vec3({center_pos.x,-center_pos.z,center_pos.y});
+	
+	/*
+	auto target_pose = glm::transpose(glm::mat4({
+		1,0,0,target_pos.x,
+		0,1,0,target_pos.y+100,
+		0,0,1,target_pos.z+200,
+		0,0,0,1
+	}));
+	*/
 
-	m_LeftPtr->MovingArm({target_pos.x,target_pos.y,target_pos.z+200.0f,glm::radians(90.0f),glm::radians(90.0f),0 });
+	if (target_pos.x > 0.0f) {
+		m_LeftPtr->MovingArm(std::vector<float>({ target_pos.x,target_pos.y ,target_pos.z + 150,glm::radians(135.0f),glm::radians(90.0f),glm::radians(30.0f) }));
+		//m_LeftPtr->RotateJoint("palm_left",m_LeftPtr->GetJointDegree("palm_left"));
+	}
+	else
+		m_RightPtr->MovingArm(std::vector<float>({ target_pos.x,target_pos.y ,target_pos.z + 150,glm::radians(135.0f),glm::radians(90.0f),glm::radians(30.0f) }));
 
 }
 

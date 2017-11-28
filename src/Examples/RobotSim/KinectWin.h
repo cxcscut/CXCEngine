@@ -21,10 +21,15 @@ using AnalysisRet = struct AnalysisRet {
 	// 宽度
 	float width;
 
+	// 结果是否更新
+	bool result_update;
+
 	AnalysisRet() :
-		x(0.0f), y(0.0f), angle(0.0f), width(0.0f)
+		x(0.0f), y(0.0f), angle(0.0f), width(0.0f),result_update(false)
 	{};
 };
+
+static AnalysisRet analysis_ret;
 
 class KinectWin : public CDialogEx
 {
@@ -49,11 +54,6 @@ public:
 	IplImage *imageCut; //截图图片
 	CEdit* pEdit;
 	int count;
-	
-	AnalysisRet analysis_ret;
-
-	// 结果是否更新
-	bool result_update;
 
 	void DrawPicToHDC(IplImage *img, UINT ID);
 

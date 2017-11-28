@@ -75,7 +75,7 @@ namespace cxc {
 		void RenderingScenes() const noexcept;
 		void GameLooping() noexcept;
 
-		void run() noexcept;
+		void run(GLboolean Multithreading = GL_TRUE) noexcept;
 		void waitForStop() noexcept;
 
 	// Data access interface
@@ -89,6 +89,8 @@ namespace cxc {
 		// Shader path
 		std::string GetVertexShaderPath() const noexcept { return VertexShaderPath; }
 		std::string GetFragmentShaderPath() const noexcept { return FragmentShaderPath; }
+		void SetVertexShaderPath(const std::string &_VertexShaderPath) noexcept { VertexShaderPath = _VertexShaderPath; };
+		void SetFragmentShaderPath(const std::string &_FragmentShaderPath) noexcept { FragmentShaderPath = _FragmentShaderPath; };
 
 	public:
 

@@ -190,7 +190,7 @@ namespace cxc {
 		}
 	}
 	
-	void EngineFacade::run() noexcept
+	void EngineFacade::run(GLboolean Multithreading) noexcept
 	{
 		// Multi-threading rendering
 		auto RenderingFunc = [&]() {
@@ -246,8 +246,12 @@ namespace cxc {
 
 		};
 
-		// Begin rendering thread, it will be joined when waitForStop() invoked
-		m_RenderingThread = std::make_unique<std::thread>(RenderingFunc);
+		if (Multithreading)
+			// Begin rendering thread, it will be joined when waitForStop() invoked
+			m_RenderingThread = std::make_unique<std::thread>(RenderingFunc);
+		else
+			// Invocked in the main thread
+			RenderingFunc();
 
 	}
 

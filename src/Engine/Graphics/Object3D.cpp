@@ -524,6 +524,7 @@ namespace cxc {
 		for (auto shape : m_ModelMap)
 		{
 			count++;
+			shape.second->ComputeCenterPoint();
 			pos += shape.second->GetCenterPos();
 		}
 
@@ -618,6 +619,11 @@ namespace cxc {
 
 		return RootNodePtr->findChildNode(ChildNodePtr,RetModelPtr);
 	}
+	
+	void Object3D::UpdateCurrentPos() noexcept {
+		for (auto &shape : m_ModelMap)
+			shape.second->UpDateCurrentPos();
+	}
 
 	std::vector<std::shared_ptr<ObjectTree>> &Object3D ::GetObjectTreePtr() noexcept
 	{
@@ -661,19 +667,18 @@ namespace cxc {
 		auto ModelPtr = GetModelByName(ModelName);
 		if (!ModelPtr)
 			return;
+		// Perform rotation on root node
+		ModelPtr->Rotate(RotationAxis,Degree);
+
+		SetStateChanged(GL_TRUE);
 
 		auto ObjectNodePtr = ModelPtr->m_MyPtr;
 		if (!ObjectNodePtr)
 			return;
 
-		// Perform rotation on root node
-		ModelPtr->Rotate(RotationAxis,Degree);
-
 		// Perform rotation on children node
 		for (auto &it : ObjectNodePtr->children)
 			Rotation(it->root->GetModelName(),RotationAxis,Degree);
-			
-		SetStateChanged(GL_TRUE);
 		
 	}
 
@@ -684,12 +689,14 @@ namespace cxc {
 		if (!ModelPtr)
 			return;
 
+		// Perform the transformation
+		ModelPtr->Scale(ScalingVector);
+
+		SetStateChanged(GL_TRUE);
+
 		auto ObjectNodePtr = ModelPtr->m_MyPtr;
 		if (!ObjectNodePtr)
 			return;
-
-		// Perform the transformation
-		ModelPtr->Scale(ScalingVector);
 
 		// Perform the same transforamtion to it's children node;
 		for (auto &it : ObjectNodePtr->children)
@@ -697,8 +704,6 @@ namespace cxc {
 			auto model = it->root;
 			Scaling(model->GetModelName(), ScalingVector);
 		}
-
-		SetStateChanged(GL_TRUE);
 		
 	}
 	bool Object3D ::CheckCompoent(const std::string &CompoentName) const noexcept
@@ -940,10 +945,6 @@ namespace cxc {
 		if (!ModelPtr)
 			return;
 
-		auto ObjectNodePtr = ModelPtr->m_MyPtr;
-		if (!ObjectNodePtr)
-			return;
-
 		// In the global coordinate system, matrix multiplication sequence should be reversed
 		// while in the local coordinate system, matrix multiplication sequence should not be reversed
 		// here we use local coordinate system in which transformation matrix should be left-multiplied
@@ -959,6 +960,12 @@ namespace cxc {
 
 		// Move back
 		Translation(ModelName, start);
+
+		stateChanged = GL_TRUE;
+
+		auto ObjectNodePtr = ModelPtr->m_MyPtr;
+		if (!ObjectNodePtr)
+			return;
 
 	}
 }

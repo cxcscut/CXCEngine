@@ -1,10 +1,17 @@
-﻿  RobotSimDlg.cpp
+﻿  KinectWin.cpp
 G:\opencv\opencv\build\include\opencv2/core/mat.hpp(1965): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
 G:\opencv\opencv\build\include\opencv2/core/persistence.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
 G:\opencv\opencv\build\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
 G:\opencv\opencv\build\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-examples\robotsim\RobotSimDlg.cpp(42): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\ucrt\time.h(505): note: 参见“localtime”的声明
+Examples\RobotSim\KinectWin.cpp(257): warning C4996: 'gethostbyname': Use getaddrinfo() or GetAddrInfoW() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\um\WinSock2.h(2216): note: 参见“gethostbyname”的声明
+Examples\RobotSim\KinectWin.cpp(258): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\um\WinSock2.h(1846): note: 参见“inet_ntoa”的声明
+Examples\RobotSim\KinectWin.cpp(482): warning C4018: “<=”: 有符号/无符号不匹配
+Examples\RobotSim\KinectWin.cpp(452): warning C4996: 'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\um\WinSock2.h(1846): note: 参见“inet_ntoa”的声明
+Examples\RobotSim\KinectWin.cpp(534): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\ucrt\string.h(343): note: 参见“strncpy”的声明
 C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\utility(188): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
   c:\users\39317\desktop\git\cxcengine\src\examples\robotsim\GlobalVariable.h(86): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<const char(&)[13],double,void,0>(_Other1,_Other2 &&) noexcept(false)”的引用
           with

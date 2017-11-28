@@ -146,6 +146,7 @@ namespace cxc {
 
 		void ComputeCenterPos() noexcept;
 		glm::vec3 GetCenterPos() const noexcept { return CenterCoords; };
+		void UpdateCurrentPos() noexcept;
 
 		GLboolean CheckStateChanged() const noexcept;
 		void SetStateChanged(GLboolean state) noexcept;
