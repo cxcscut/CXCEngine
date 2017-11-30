@@ -74,6 +74,8 @@ public:
 
 	void MovingArm(const std::vector<float> &eular_space) noexcept;
 
+	void MovingArmOffset(const glm::vec3 &pos_offset) noexcept;
+	
 public:
 
 	// Load motions from script

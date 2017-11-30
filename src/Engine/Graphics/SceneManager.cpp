@@ -1,8 +1,7 @@
 #include "SceneManager.h"
 #include "..\EngineFacade\EngineFacade.h"
 
-// FBX SDK header file
-#include <fbxsdk.h>
+#include "..\Helper\FBXloader.h"
 
 namespace cxc {
 

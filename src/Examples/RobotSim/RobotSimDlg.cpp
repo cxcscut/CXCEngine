@@ -93,6 +93,7 @@ BEGIN_MESSAGE_MAP(CRobotSimDlg, CDialogEx)
 	ON_LBN_DBLCLK(IDC_LIST1, &CRobotSimDlg::OnLbnDblclkList1)
 	ON_BN_CLICKED(IDC_SENDACTION, &CRobotSimDlg::OnBnClickedSendaction)
 	ON_BN_CLICKED(IDC_BUTTON1, &CRobotSimDlg::OnBnClickedKinect)
+	ON_BN_CLICKED(IDC_CONNECT, &CRobotSimDlg::OnBnClickedConnect)
 END_MESSAGE_MAP()
 
 
@@ -116,6 +117,9 @@ BOOL CRobotSimDlg::OnInitDialog()
 	std::shared_ptr<Object3D> Table;
 	std::shared_ptr<Object3D> Widget;
 
+	kinect_dlg = std::make_unique<KinectWin>();
+	glove_dlg = std::make_unique<CGloveDlg>();
+
 	auto start = std::chrono::system_clock::now();
 	auto LoadRobothand = [&](int type) {
 		if (type == ROBOTHAND_LEFT)
@@ -124,10 +128,10 @@ BOOL CRobotSimDlg::OnInitDialog()
 			m_RightPtr = std::make_shared<Robothand>(type);
 	};
 
-	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile); };
+	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile);};
 	auto LoadTable_and_widget= [&]() {
 		Table = std::make_shared<Object3D>("table", TableFile); 
-		Widget = std::make_shared<Object3D>("widget", WidgetFile,GL_FALSE);
+		Widget = std::make_shared<Object3D>("widget", WidgetFile);
 		
 	};
 
@@ -154,7 +158,7 @@ BOOL CRobotSimDlg::OnInitDialog()
 	}
 	else
 		OutputInfo("手臂加载失败\r\n");
-		
+	
 	m_Engine->m_pSceneMgr->AddObject(m_LeftPtr->GetObjectName(), m_LeftPtr);
 	m_Engine->m_pSceneMgr->AddObject(m_RightPtr->GetObjectName(), m_RightPtr);
 	m_Engine->m_pSceneMgr->AddObject(Plane->GetObjectName(), Plane);
@@ -171,12 +175,13 @@ BOOL CRobotSimDlg::OnInitDialog()
 	m_LeftPtr->InitOriginalDegrees();
 	m_RightPtr->InitOriginalDegrees();
 
+	Widget->RotateWithArbitraryAxis("widget", Widget->GetCenterPos(), glm::vec3({0,1,0}),glm::radians(90.0f));
+
 	// Init hand pose
 	m_LeftPtr->IntegralTranslation(750, 0, 0);
 	m_LeftPtr->RotateJoint("arm_left2", 90.0f);
 	m_RightPtr->IntegralTranslation(-750, 0, 0);
 	m_RightPtr->RotateJoint("arm_right2", 90.0f);
-
 
 	m_LeftPtr->SetBaseDegrees({0,0,90,0,-90,0});
 	m_RightPtr->SetBaseDegrees({ 0,0,90,0,-90,0 });
@@ -576,7 +581,6 @@ void CRobotSimDlg::OnBnClickedLoutpos()
 void CRobotSimDlg::OnBnClickedDataglove()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	glove_dlg = std::make_unique<CGloveDlg>();
 	glove_dlg->Create(IDD_DIALOG_RobotControl);
 	glove_dlg->ShowWindow(SW_SHOWNORMAL);
 }
@@ -928,23 +932,11 @@ void CRobotSimDlg::OnBnClickedSendaction()
 	auto pWidget = pSceneMgr->GetObject3D("widget");
 	pWidget->ComputeCenterPos();
 	auto center_pos = pWidget->GetCenterPos();
-	auto target_pos = glm::vec3({center_pos.x,-center_pos.z,center_pos.y});
+	auto target_pos = glm::vec3({ center_pos.x,-center_pos.z,center_pos.y });
 	
-	/*
-	auto target_pose = glm::transpose(glm::mat4({
-		1,0,0,target_pos.x,
-		0,1,0,target_pos.y+100,
-		0,0,1,target_pos.z+200,
-		0,0,0,1
-	}));
-	*/
-
-	if (target_pos.x > 0.0f) {
-		m_LeftPtr->MovingArm(std::vector<float>({ target_pos.x,target_pos.y ,target_pos.z + 150,glm::radians(135.0f),glm::radians(90.0f),glm::radians(30.0f) }));
-		//m_LeftPtr->RotateJoint("palm_left",m_LeftPtr->GetJointDegree("palm_left"));
-	}
-	else
-		m_RightPtr->MovingArm(std::vector<float>({ target_pos.x,target_pos.y ,target_pos.z + 150,glm::radians(135.0f),glm::radians(90.0f),glm::radians(30.0f) }));
+	//m_LeftPtr->MovingArm(std::vector<float>({ target_pos.x+25,target_pos.y+25 ,target_pos.z + 50,glm::radians(135.0f),glm::radians(90.0f),0 }));
+	
+	m_RightPtr->MovingArm(std::vector<float>({ target_pos.x - 25,target_pos.y + 25 ,target_pos.z + 50,glm::radians(45.0f),glm::radians(90.0f),0 }));
 
 }
 
@@ -953,8 +945,20 @@ void CRobotSimDlg::OnBnClickedKinect()
 {
 	
 	// TODO: 在此添加控件通知处理程序代码
-	kinect_dlg = std::make_unique<KinectWin>();
-	kinect_dlg->Create(IDD_Kinect);
-	kinect_dlg->ShowWindow(SW_SHOWNORMAL);
-	
+	if (kinect_dlg) {
+		kinect_dlg->Create(IDD_Kinect);
+		kinect_dlg->ShowWindow(SW_SHOWNORMAL);
+	}
+}
+
+
+void CRobotSimDlg::OnBnClickedConnect()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (glove_dlg) {
+		glove_dlg->m_SynAngleCtrl.SetCheck(0);
+		glove_dlg->OnClickedSynchronize();
+		m_RightPtr->MovingArmOffset(glm::vec3({ 0,0,400 }));
+		m_Engine->m_pSceneMgr->GetObject3D("widget")->Translation("widget", glm::vec3({0,400,0}));
+	}
 }

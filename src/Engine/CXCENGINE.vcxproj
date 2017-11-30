@@ -114,6 +114,7 @@
     <ClCompile Include="graphics\Shape.cpp" />
     <ClCompile Include="graphics\Texture2D.cpp" />
     <ClCompile Include="graphics\TextureManger.cpp" />
+    <ClCompile Include="Helper\FBXLoader.cpp" />
     <ClCompile Include="helper\FileHelper.cpp" />
     <ClCompile Include="script\Parser.cpp" />
     <ClCompile Include="window\Window.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="graphics\Shape.h" />
     <ClInclude Include="graphics\Texture2D.h" />
     <ClInclude Include="graphics\TextureManager.h" />
+    <ClInclude Include="Helper\FBXloader.h" />
     <ClInclude Include="helper\FileHelper.h" />
     <ClInclude Include="libraries\image_loader\stb_image.h" />
     <ClInclude Include="libraries\tinyobjloader\tiny_obj_loader.h" />

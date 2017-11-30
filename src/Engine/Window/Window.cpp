@@ -124,7 +124,7 @@ namespace cxc {
 		else
 		{
 			// Set window pos
-			SetWindowPos(300,400);
+			SetWindowPos(0,0);
 			isReady = true;
 			return GL_TRUE;
 		}

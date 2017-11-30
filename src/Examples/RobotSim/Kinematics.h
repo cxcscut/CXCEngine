@@ -41,9 +41,9 @@ public:
 	
 
 	// Select optimal solution
-	static std::vector<float> getOptimalSolution(std::vector<std::vector<float>> &solutions, const glm::mat4 &target_pose);
+	static GLboolean getOptimalSolution(std::vector<std::vector<float>> &solutions, const glm::mat4 &target_pose, float error, std::vector<float> &so);
 
-	static std::vector<float> getOptimalSolution(std::vector<std::vector<float>> &solutions, const std::vector<float> &target_pose);
+	static GLboolean getOptimalSolution(std::vector<std::vector<float>> &solutions, const std::vector<float> &target_pose, float error, std::vector<float> &so);
 
 	// Conversion from Eular space to orientation matrix
 	// <px,py,pz,p,g,a>

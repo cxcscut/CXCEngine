@@ -77,4 +77,5 @@ public:
 	afx_msg void OnLbnDblclkList1();
 	afx_msg void OnBnClickedSendaction();
 	afx_msg void OnBnClickedKinect();
+	afx_msg void OnBnClickedConnect();
 };

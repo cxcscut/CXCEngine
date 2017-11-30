@@ -371,7 +371,7 @@ glm::mat4 KineSolver::EularSpaceToOrientation(const vector<float> &eular_space)
 	}));
 }
 
-std::vector<float> KineSolver::getOptimalSolution(std::vector<std::vector<float>> &solutions, const glm::mat4 &target_pose)
+GLboolean KineSolver::getOptimalSolution(std::vector<std::vector<float>> &solutions, const glm::mat4 &target_pose,float error, std::vector<float> &sol)
 {
 	vector<float> errors;
 
@@ -385,10 +385,18 @@ std::vector<float> KineSolver::getOptimalSolution(std::vector<std::vector<float>
 		errors.emplace_back(matrixMeanSquareError(target_pose, _pose));
 	}
 
-	return solutions[distance(begin(errors), min_element(begin(errors), end(errors)))];
+	auto pmin = min_element(begin(errors), end(errors));
+
+	if (*pmin <= error) {
+		sol = solutions[distance(begin(errors), pmin)];
+		return GL_TRUE;
+	}
+	else {
+		return GL_FALSE;
+	}
 }
 
-std::vector<float> KineSolver::getOptimalSolution(std::vector<std::vector<float>> &solutions, const std::vector<float> &target_pose)
+GLboolean KineSolver::getOptimalSolution(std::vector<std::vector<float>> &solutions, const std::vector<float> &target_pose, float error, std::vector<float> &sol)
 {
 	vector<float> errors;
 
@@ -402,7 +410,15 @@ std::vector<float> KineSolver::getOptimalSolution(std::vector<std::vector<float>
 		errors.emplace_back(matrixMeanSquareError(EularSpaceToOrientation(target_pose), _pose));
 	}
 
-	return solutions[distance(begin(errors), min_element(begin(errors), end(errors)))];
+	auto pmin = min_element(begin(errors), end(errors));
+
+	if (*pmin <= error) {
+		sol = solutions[distance(begin(errors), pmin)];
+		return GL_TRUE;
+	}
+	else {
+		return GL_FALSE;
+	}
 }
 
 std::vector<std::vector<float>> KineSolver::InverseKinematics(const glm::mat4 &pose)
