@@ -2,7 +2,7 @@
 
 ## Introduction
 
- **CxcEngine** is a tiny cross-platform OpenGL engine developed with C++ which can be used in 3D graphics rendering, it supports muliti-thread redering, basic shading and model loading from obj format file which can be exported by 3DS MAX or blender.
+ **CxcEngine** is a tiny cross-platform OpenGL engine developed with C++ 11 which can be used in 3D graphics rendering, it supports muliti-thread redering, basic shading and model loading from obj format file which can be exported by 3DS MAX or blender.
 
 ## Dependencies
 
