@@ -1,6 +1,10 @@
-﻿  RobotHand.cpp
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\shared\minwindef.h(130): warning C4005: “APIENTRY”: 宏重定义
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\um\GLFW/glfw3.h(98): note: 参见“APIENTRY”的前一个定义
+﻿  RobotSimDlg.cpp
+G:\opencv\opencv\build\include\opencv2/core/mat.hpp(1965): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+G:\opencv\opencv\build\include\opencv2/core/persistence.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+G:\opencv\opencv\build\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+G:\opencv\opencv\build\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+examples\robotsim\RobotSimDlg.cpp(42): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.15063.0\ucrt\time.h(505): note: 参见“localtime”的声明
 C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\utility(188): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
   c:\users\39317\desktop\git\cxcengine\src\examples\robotsim\GlobalVariable.h(86): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<const char(&)[13],double,void,0>(_Other1,_Other2 &&) noexcept(false)”的引用
           with
@@ -17,95 +21,6 @@ C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\1
               _Ty=float,
               _Other1=const char (&)[13],
               _Other2=double
-          ]
-C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\utility(216): warning C4244: “初始化”: 从“float”转换到“uint16_t”，可能丢失数据
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\xmemory0(856): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float,void,0>(std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&) noexcept”的引用
-          with
-          [
-              _Kty=std::string,
-              _Ty=uint16_t
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\xmemory0(856): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float,void,0>(std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&) noexcept”的引用
-          with
-          [
-              _Kty=std::string,
-              _Ty=uint16_t
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\list(761): note: 参见对正在编译的函数 模板 实例化“void std::_Default_allocator_traits<_Alloc>::construct<_Ty,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(_Alloc &,_Objty *const ,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Alloc=std::allocator<std::_List_node<std::pair<const std::string,uint16_t>,std::_Default_allocator_traits<std::allocator<std::pair<const std::string,uint16_t>>>::void_pointer>>,
-              _Ty=std::pair<const std::string,uint16_t>,
-              _Objty=std::pair<const std::string,uint16_t>
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\list(759): note: 参见对正在编译的函数 模板 实例化“void std::_Default_allocator_traits<_Alloc>::construct<_Ty,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(_Alloc &,_Objty *const ,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Alloc=std::allocator<std::_List_node<std::pair<const std::string,uint16_t>,std::_Default_allocator_traits<std::allocator<std::pair<const std::string,uint16_t>>>::void_pointer>>,
-              _Ty=std::pair<const std::string,uint16_t>,
-              _Objty=std::pair<const std::string,uint16_t>
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\list(996): note: 参见对正在编译的函数 模板 实例化“std::_List_node<_Ty,std::_Default_allocator_traits<_Alloc>::void_pointer> *std::_List_buy<_Ty,_Alloc>::_Buynode<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(std::_List_node<_Ty,std::_Default_allocator_traits<_Alloc>::void_pointer> *,std::_List_node<_Ty,std::_Default_allocator_traits<_Alloc>::void_pointer> *,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Ty=std::pair<const std::string,uint16_t>,
-              _Alloc=std::allocator<std::pair<const std::string,uint16_t>>
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\list(996): note: 参见对正在编译的函数 模板 实例化“std::_List_node<_Ty,std::_Default_allocator_traits<_Alloc>::void_pointer> *std::_List_buy<_Ty,_Alloc>::_Buynode<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(std::_List_node<_Ty,std::_Default_allocator_traits<_Alloc>::void_pointer> *,std::_List_node<_Ty,std::_Default_allocator_traits<_Alloc>::void_pointer> *,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Ty=std::pair<const std::string,uint16_t>,
-              _Alloc=std::allocator<std::pair<const std::string,uint16_t>>
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\list(960): note: 参见对正在编译的函数 模板 实例化“void std::list<std::pair<const _Kty,_Ty>,std::allocator<std::pair<const _Kty,_Ty>>>::_Insert<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(std::_List_unchecked_const_iterator<std::_List_val<std::_List_simple_types<std::pair<const _Kty,_Ty>>>,std::_Iterator_base0>,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Kty=std::string,
-              _Ty=uint16_t
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\list(960): note: 参见对正在编译的函数 模板 实例化“void std::list<std::pair<const _Kty,_Ty>,std::allocator<std::pair<const _Kty,_Ty>>>::_Insert<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(std::_List_unchecked_const_iterator<std::_List_val<std::_List_simple_types<std::pair<const _Kty,_Ty>>>,std::_Iterator_base0>,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Kty=std::string,
-              _Ty=uint16_t
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\xhash(297): note: 参见对正在编译的函数 模板 实例化“void std::list<std::pair<const _Kty,_Ty>,std::allocator<std::pair<const _Kty,_Ty>>>::emplace_front<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Kty=std::string,
-              _Ty=uint16_t
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\unordered_map(290): note: 参见对正在编译的函数 模板 实例化“std::pair<std::_List_iterator<std::_List_val<std::_List_simple_types<_Ty>>>,bool> std::_Hash<std::_Umap_traits<_Kty,unsigned short,std::_Uhash_compare<_Kty,_Hasher,_Keyeq>,_Alloc,false>>::emplace<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Ty=std::pair<const std::string,uint16_t>,
-              _Kty=std::string,
-              _Hasher=std::hash<std::string>,
-              _Keyeq=std::equal_to<std::string>,
-              _Alloc=std::allocator<std::pair<const std::string,uint16_t>>
-          ]
-  C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\include\unordered_map(290): note: 参见对正在编译的函数 模板 实例化“std::pair<std::_List_iterator<std::_List_val<std::_List_simple_types<_Ty>>>,bool> std::_Hash<std::_Umap_traits<_Kty,unsigned short,std::_Uhash_compare<_Kty,_Hasher,_Keyeq>,_Alloc,false>>::emplace<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>>(std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float> &&)”的引用
-          with
-          [
-              _Ty=std::pair<const std::string,uint16_t>,
-              _Kty=std::string,
-              _Hasher=std::hash<std::string>,
-              _Keyeq=std::equal_to<std::string>,
-              _Alloc=std::allocator<std::pair<const std::string,uint16_t>>
-          ]
-  examples\robotsim\RobotHand.cpp(59): note: 参见对正在编译的函数 模板 实例化“std::pair<std::_List_iterator<std::_List_val<std::_List_simple_types<_Ty>>>,bool> std::unordered_map<std::string,uint16_t,std::hash<_Kty>,std::equal_to<_Kty>,std::allocator<_Ty>>::insert<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>,void>(_Valty &&)”的引用
-          with
-          [
-              _Ty=std::pair<const std::string,uint16_t>,
-              _Kty=std::string,
-              _Valty=std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>
-          ]
-  examples\robotsim\RobotHand.cpp(59): note: 参见对正在编译的函数 模板 实例化“std::pair<std::_List_iterator<std::_List_val<std::_List_simple_types<_Ty>>>,bool> std::unordered_map<std::string,uint16_t,std::hash<_Kty>,std::equal_to<_Kty>,std::allocator<_Ty>>::insert<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>,void>(_Valty &&)”的引用
-          with
-          [
-              _Ty=std::pair<const std::string,uint16_t>,
-              _Kty=std::string,
-              _Valty=std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>
           ]
   RobotSim.vcxproj -> C:\Users\39317\Desktop\git\CxcEngine\src\Debug\RobotSim.exe
   RobotSim.vcxproj -> C:\Users\39317\Desktop\git\CxcEngine\src\Debug\RobotSim.pdb (Partial PDB)

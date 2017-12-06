@@ -64,7 +64,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Physics;G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
     <LibraryPath>G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,8 +114,8 @@
     <ClCompile Include="graphics\Shape.cpp" />
     <ClCompile Include="graphics\Texture2D.cpp" />
     <ClCompile Include="graphics\TextureManger.cpp" />
-    <ClCompile Include="Helper\FBXLoader.cpp" />
     <ClCompile Include="helper\FileHelper.cpp" />
+    <ClCompile Include="Physics\RigidBody3D.cpp" />
     <ClCompile Include="script\Parser.cpp" />
     <ClCompile Include="window\Window.cpp" />
   </ItemGroup>
@@ -134,16 +134,42 @@
     <ClInclude Include="graphics\Shape.h" />
     <ClInclude Include="graphics\Texture2D.h" />
     <ClInclude Include="graphics\TextureManager.h" />
-    <ClInclude Include="Helper\FBXloader.h" />
     <ClInclude Include="helper\FileHelper.h" />
     <ClInclude Include="libraries\image_loader\stb_image.h" />
     <ClInclude Include="libraries\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="Physics\ode\collision.h" />
+    <ClInclude Include="Physics\ode\collision_space.h" />
+    <ClInclude Include="Physics\ode\collision_trimesh.h" />
+    <ClInclude Include="Physics\ode\common.h" />
+    <ClInclude Include="Physics\ode\compatibility.h" />
+    <ClInclude Include="Physics\ode\contact.h" />
+    <ClInclude Include="Physics\ode\error.h" />
+    <ClInclude Include="Physics\ode\export-dif.h" />
+    <ClInclude Include="Physics\ode\mass.h" />
+    <ClInclude Include="Physics\ode\matrix.h" />
+    <ClInclude Include="Physics\ode\memory.h" />
+    <ClInclude Include="Physics\ode\misc.h" />
+    <ClInclude Include="Physics\ode\objects.h" />
+    <ClInclude Include="Physics\ode\ode.h" />
+    <ClInclude Include="Physics\ode\odeconfig.h" />
+    <ClInclude Include="Physics\ode\odecpp.h" />
+    <ClInclude Include="Physics\ode\odecpp_collision.h" />
+    <ClInclude Include="Physics\ode\odeinit.h" />
+    <ClInclude Include="Physics\ode\odemath.h" />
+    <ClInclude Include="Physics\ode\odemath_legacy.h" />
+    <ClInclude Include="Physics\ode\precision.h" />
+    <ClInclude Include="Physics\ode\rotation.h" />
+    <ClInclude Include="Physics\ode\threading.h" />
+    <ClInclude Include="Physics\ode\threading_impl.h" />
+    <ClInclude Include="Physics\ode\timer.h" />
+    <ClInclude Include="Physics\RigidBody3D.h" />
     <ClInclude Include="script\Parser.h" />
     <ClInclude Include="window\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="inl\MultiTree.inl" />
     <None Include="inl\Singleton.inl" />
+    <None Include="Physics\ode\precision.h.in" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

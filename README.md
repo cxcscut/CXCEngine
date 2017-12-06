@@ -16,7 +16,7 @@
   It is the OpenGL Extension Wrangler library which includes the header file glew.h and static library glew32.lib as well as dynamic library glew32.dll.
 - **GLM**  
   The OpenGL mathematics library including glm.hpp and matrix_transformation.hpp etc.
-- **FBX SDK**  
+- **Open Dynamics Engine**  
   Used for loading the FBX file exported from 3DS MAX.
   
 ## Projects
@@ -27,8 +27,8 @@ It is a robot hand simulation program in which you can load and draw the robot h
 
 [6-DOF Robot arm and 21-DOF dexterous hand simulation](http://github.com/cxcscut/CxcEngine/raw/master/Img/robot.bmp)
 
-### FBXSDK-Test
-A demo for loading FBX scene exported as FBX file using FBX SDK
+### ODE-Test
+A demo for testing Open Dynamics Engine 
 
 ## Current Progress:
 
@@ -41,7 +41,7 @@ A demo for loading FBX scene exported as FBX file using FBX SDK
 - [x] Winsock interface for remote connections
 - [x] Object recognition and analysis
 - [x] Optimization of draw calls 
-- [ ] FBX loader
-- [ ] Skeleton animation
-- [ ] GUI based on QT
+- [ ] Physics engine using Open Dynamics Engine
+- [ ] Animation
 - [ ] Motion planning for obstacle advoidance
+- [ ] GUI based on QT

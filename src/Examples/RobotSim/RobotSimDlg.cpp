@@ -936,14 +936,13 @@ void CRobotSimDlg::OnBnClickedSendaction()
 	
 	//m_LeftPtr->MovingArm(std::vector<float>({ target_pos.x+25,target_pos.y+25 ,target_pos.z + 50,glm::radians(135.0f),glm::radians(90.0f),0 }));
 	
-	m_RightPtr->MovingArm(std::vector<float>({ target_pos.x - 25,target_pos.y + 25 ,target_pos.z + 50,glm::radians(45.0f),glm::radians(90.0f),0 }));
+	m_RightPtr->MovingArm(std::vector<float>({ target_pos.x - 50,target_pos.y - 50 ,target_pos.z + 50,glm::radians(90.0f),glm::radians(90.0f), glm::radians(135.0f) }));
 
 }
 
 
 void CRobotSimDlg::OnBnClickedKinect()
 {
-	
 	// TODO: 在此添加控件通知处理程序代码
 	if (kinect_dlg) {
 		kinect_dlg->Create(IDD_Kinect);
@@ -956,9 +955,9 @@ void CRobotSimDlg::OnBnClickedConnect()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	if (glove_dlg) {
-		glove_dlg->m_SynAngleCtrl.SetCheck(0);
-		glove_dlg->OnClickedSynchronize();
-		m_RightPtr->MovingArmOffset(glm::vec3({ 0,0,400 }));
-		m_Engine->m_pSceneMgr->GetObject3D("widget")->Translation("widget", glm::vec3({0,400,0}));
+		//glove_dlg->m_SynAngleCtrl.SetCheck(0);
+		//glove_dlg->OnClickedSynchronize();
+		m_RightPtr->MovingArmOffset(glm::vec3({ 0,0,250 }));
+		m_Engine->m_pSceneMgr->GetObject3D("widget")->Translation("widget", glm::vec3({0,250,0}));
 	}
 }

@@ -99,6 +99,15 @@ namespace cxc {
 
 		// Light position
 		glm::vec3 m_LightPos;
+
+		// physics world
+		dWorld m_World;
+
+		// Space
+		dSpaceID m_Space;
+
+		// Joint group
+		dJointGroupID m_JointGroup;
 	};
 }
 #endif // CXC_SceneManager_H

@@ -8,7 +8,7 @@
 
 namespace cxc {
 
-	class Shape final
+	class Shape : public RigidBody3D
 	{
 
 	public:
@@ -16,7 +16,7 @@ namespace cxc {
 		friend class Object3D ;
 
 		Shape();
-		~Shape();
+		virtual ~Shape();
 
 		explicit Shape(const Shape &) = delete;
 		Shape& operator=(const Shape&) = delete;
