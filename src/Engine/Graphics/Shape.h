@@ -5,6 +5,7 @@
 
 #include "..\Graphics\Object3D.h"
 #include "..\Controller\RendererManager.h"
+#include "..\Physics\RigidBody3D.h"
 
 namespace cxc {
 

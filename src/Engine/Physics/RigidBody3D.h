@@ -1,9 +1,8 @@
 #ifndef CXC_PHYSICS_RIGIDBODY_H
 #define CXC_PHYSICS_RIGIDBODY_H
 
-#define GEOMS_MAX_NUM 1
-
 #include "ode/ode.h"
+#include "Collider3D.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 #include <vector>
@@ -15,13 +14,19 @@ namespace cxc {
 	public:
 
 		RigidBody3D();
+		RigidBody3D(dWorldID world_id);
 		virtual ~RigidBody3D();
+
+	// Functionality
+	public:
+
+		void addCollider(dSpace space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
 
 		// Memory allocation and deallocation
 	public:
 
-		dBodyID createRigidBody(dWorldID world);
-		void destroyRigidBody(dBodyID body);
+		void createRigidBody() noexcept;
+		void destroyRigidBody() noexcept;
 
 		void Initialize() noexcept;
 
@@ -38,7 +43,10 @@ namespace cxc {
 		glm::vec3 getLinearVelocity() const;
 		glm::vec3 getAngularVelocity() const;
 
-		void setMass(const dMass *mass) noexcept;
+		void setMass(dReal Mass,
+					const glm::vec3 & center_pos,
+					const glm::mat3 &iner_mat) noexcept;
+
 		void getMass(dMass *mass) const noexcept;
 
 		// Dynamics
@@ -78,45 +86,16 @@ namespace cxc {
 		dJointID getJoint(int index) const;
 		int getJointType(dJointID joint) const;
 
-		dJointID createJoint(int type,dJointGroupID joint_group,const dContact *contact = nullptr) noexcept;
+		dJointID createJoint(int type,dJointGroupID joint_group, const dContact * contact = nullptr) noexcept;
 		void destroyJoint(dJointID joint) noexcept;
-
-		dJointGroupID createJointGroup() noexcept;
-		void destroyJointGroup(dJointGroupID joint_group) noexcept;
-		void emptyJointGroup(dJointGroupID joint_group) noexcept;
-
-		void attachJoint(dJointID joint, const RigidBody3D &rb1, const RigidBody3D &rb2) noexcept;
-		std::shared_ptr<RigidBody3D> getRigidBodyPtr(dJointID joint, int index) const noexcept;
-
-		bool areConnected(const std::shared_ptr<RigidBody3D> &prb1, const std::shared_ptr<RigidBody3D> &prb2) const noexcept;
-
-		// Geometry
-	public:
-
-		void createGeom(int classtype) noexcept;
-		void destroyGemo(dGeomID geo) noexcept;
-
-		void setGemo(dGeomID geo) noexcept;
-
-		void setGeomPosition(dGeomID geo,dReal x, dReal y,dReal z) noexcept;
-		void setGeomRotation(dGeomID geo,dReal x,dReal y,dReal z) noexcept;
-
-		glm::vec3 getGeomPosition() const noexcept;
-		glm::mat4 getGeomRotation() const noexcept;
-
-		dSpaceID getGeomSpace() const noexcept;
-		int getGeomClass(dGeomID geo) const noexcept;
-
-		void enableGeom(dGeomID geo) noexcept;
-		void disableGeom(dGeomID geo) noexcept;
-		bool isGeomEnable(dGeomID geo) const noexcept;
 
 	private:
 
-		std::vector<dGeomID> Geoms;
 		dWorldID m_WorldID;
 		dBodyID m_BodyID;
 
+		// Pointer to collider
+		std::shared_ptr<Collider3D> m_pCollider;
 	};
 }
 

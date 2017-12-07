@@ -1,8 +1,6 @@
 #include "SceneManager.h"
 #include "..\EngineFacade\EngineFacade.h"
 
-#include "..\Helper\FBXloader.h"
-
 namespace cxc {
 
 	SceneManager::SceneManager()

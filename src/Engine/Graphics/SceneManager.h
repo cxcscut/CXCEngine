@@ -86,6 +86,11 @@ namespace cxc {
 
 		void releaseBuffers() noexcept;
 
+	// Physics settings
+	public:
+
+
+
 	private:
 
 		// <Object Name , Pointer to object>
@@ -103,11 +108,11 @@ namespace cxc {
 		// physics world
 		dWorld m_World;
 
-		// Space
-		dSpaceID m_Space;
+		// Top level space
+		dSpaceID m_TopLevelSpace;
 
 		// Joint group
-		dJointGroupID m_JointGroup;
+		std::vector<dJointGroupID> m_JointGroup;
 	};
 }
 #endif // CXC_SceneManager_H

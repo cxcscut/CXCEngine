@@ -12,6 +12,7 @@ namespace cxc {
 		m_VertexCoords(),m_VertexNormals(),m_TexCoords(),m_MaterialIDs(),m_VertexColor(),m_GeometricNormal(),
 		m_MyPtr(nullptr),m_TransformationMatrix(1.0f),m_ReposMatrix(1.0f)
 	{
+
 	}
 
 	Shape::~Shape()
