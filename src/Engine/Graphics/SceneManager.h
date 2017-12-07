@@ -89,8 +89,8 @@ namespace cxc {
 	// Physics settings
 	public:
 
-
-
+		void CreatePhysicalWorld(const glm::vec3 &gravity = { 0,-9.81f,0 }) noexcept;
+		
 	private:
 
 		// <Object Name , Pointer to object>
@@ -106,12 +106,12 @@ namespace cxc {
 		glm::vec3 m_LightPos;
 
 		// physics world
-		dWorld m_World;
+		dWorldID m_WorldID;
 
 		// Top level space
 		dSpaceID m_TopLevelSpace;
 
-		// Joint group
+		// Joint group 
 		std::vector<dJointGroupID> m_JointGroup;
 	};
 }

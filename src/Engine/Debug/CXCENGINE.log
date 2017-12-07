@@ -1,9 +1,27 @@
-﻿  RigidBody3D.cpp
-Physics\RigidBody3D.cpp(84): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(116): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(130): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(246): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(259): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+﻿  Window.cpp
+  Parser.cpp
+  RigidBody3D.cpp
+Physics\RigidBody3D.cpp(77): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(104): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(113): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(200): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(210): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+  Collider3D.cpp
+Physics\Collider3D.cpp(52): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+  FileHelper.cpp
+  TextureManger.cpp
+  Texture2D.cpp
+  Shape.cpp
+  SceneManager.cpp
+  Object3D.cpp
+  FontsManager.cpp
+  Font.cpp
+  EnginFacade.cpp
+  RendererManager.cpp
+  InputManager.cpp
+  CommandHandler.cpp
+  Camera.cpp
+  正在生成代码...
 FontsManager.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
 Font.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
-  CXCENGINE.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Engine\Debug\CXCENGINE.lib
+  CXCENGINE.vcxproj -> C:\Users\cxc123\Desktop\cxcengine\src\Engine\Debug\CXCENGINE.lib

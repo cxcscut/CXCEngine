@@ -4,7 +4,8 @@
 namespace cxc {
 
 	SceneManager::SceneManager()
-		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500))
+		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500)),
+		m_TopLevelSpace(0)
 	{
 		m_pTextureMgr = TextureManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();
@@ -14,6 +15,12 @@ namespace cxc {
 	SceneManager::~SceneManager()
 	{
 		m_ObjectMap.clear();
+
+		
+		dWorldDestroy(m_WorldID);
+
+		// Deallocation for ODE
+		dCloseODE();
 	}
 
 	void SceneManager::releaseBuffers() noexcept
@@ -46,6 +53,15 @@ namespace cxc {
 		GLuint LightID = glGetUniformLocation(ProgramID, "LightPosition_worldspace");
 		glUniform3f(LightID, m_LightPos.x, m_LightPos.y, m_LightPos.z);
 
+	}
+
+	void SceneManager::CreatePhysicalWorld(const glm::vec3 &gravity) noexcept
+	{
+		m_WorldID = dWorldCreate();
+
+		dHashSpaceSetLevels(m_TopLevelSpace,0,5);
+
+		dWorldSetGravity(m_WorldID,gravity.x,gravity.y,gravity.z);
 	}
 
 	void SceneManager::InitCameraStatus(GLFWwindow * window) noexcept
