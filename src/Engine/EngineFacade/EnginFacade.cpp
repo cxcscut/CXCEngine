@@ -229,6 +229,10 @@ namespace cxc {
 			// Accuire resources
 			m_pSceneMgr->initResources();
 
+			// Init physics engine
+			m_pSceneMgr->CreatePhysicalWorld();
+			m_pSceneMgr->InitializePhysicalObjects();
+
 			// Begin event looping
 			GameLooping();
 
@@ -316,6 +320,9 @@ namespace cxc {
 				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(),m_pInputMgr->GetXPos(),m_pInputMgr->GetYPos(),
 					m_pWindowMgr->GetWindowHeight(),m_pWindowMgr->GetWindowWidth());
 			}
+
+			// Processing physical status
+			m_pSceneMgr->PhysicalLoop();
 
 			// Rendering scenes
 			RenderingScenes();

@@ -32,6 +32,11 @@ namespace cxc {
 		dGeomSetPosition(m_GeomID, x, y, z);
 	}
 
+	void Collider3D::associateRigidBody(dBodyID body) noexcept
+	{
+		dGeomSetBody(m_GeomID,body);
+	}
+
 	void Collider3D::setGeomRotation(const glm::mat4 & rot) noexcept
 	{
 		dMatrix3 _rot = { rot[0][0], rot[1][0], rot[2][0], rot[3][0],
@@ -55,18 +60,17 @@ namespace cxc {
 		return ret;
 	}
 
-	glm::mat4 Collider3D::getGeomRotation() const noexcept
+	glm::mat3 Collider3D::getGeomRotation() const noexcept
 	{
-		glm::mat4 ret;
+		glm::mat3 ret;
 
 		if (m_GeomID)
 		{
 			const dReal *rot = dGeomGetRotation(m_GeomID);
-			ret = glm::transpose(glm::mat4({
-				rot[0],rot[1],rot[2],rot[3],
-				rot[4],rot[5],rot[6],rot[7],
-				rot[8],rot[9],rot[10],rot[11],
-				0,0,0,1
+			ret = glm::transpose(glm::mat3({
+				rot[0],rot[1],rot[2],
+				rot[3],rot[4],rot[5],
+				rot[6],rot[7],rot[8]
 			}));
 		}
 

@@ -10,16 +10,23 @@ namespace cxc {
 		m_pTextureMgr = TextureManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();
 		m_pRendererMgr = RendererManager::GetInstance();
+
 	}
 
 	SceneManager::~SceneManager()
 	{
 		m_ObjectMap.clear();
 
-		
+		// Destroy world
 		dWorldDestroy(m_WorldID);
+		
+		// Destroy joint group
+		dJointGroupDestroy(m_ContactJoints);
+		
+		// Destroy space
+		dSpaceDestroy(m_TopLevelSpace);
 
-		// Deallocation for ODE
+		// Deallocation for extra memory of ODE runtime
 		dCloseODE();
 	}
 
@@ -57,11 +64,41 @@ namespace cxc {
 
 	void SceneManager::CreatePhysicalWorld(const glm::vec3 &gravity) noexcept
 	{
+		// Create world
 		m_WorldID = dWorldCreate();
 
-		dHashSpaceSetLevels(m_TopLevelSpace,0,5);
+		// Setting parameters of world
+		dWorldSetERP(m_WorldID, 0.2);
+		dWorldSetCFM(m_WorldID, 1e-5);
 
+		// Create top-level space
+		dHashSpaceSetLevels(m_TopLevelSpace,0,5);
+		
+		// Set gravity
 		dWorldSetGravity(m_WorldID,gravity.x,gravity.y,gravity.z);
+
+		// Create rigid bodies and colliders
+		InitializePhysicalObjects();
+
+		// Create joint gruop for contact joint
+		m_ContactJoints = dJointGroupCreate(0);
+	}
+
+	void SceneManager::InitializePhysicalObjects() noexcept
+	{
+		for (auto object : m_ObjectMap) {
+			object.second->InitializeRigidBodies(m_WorldID);
+			object.second->AttachCollider(m_TopLevelSpace);
+		}
+	}
+
+	void SceneManager::PhysicalLoop() noexcept
+	{
+		dSpaceCollide(m_TopLevelSpace,0,&nearCallback);
+
+		dWorldQuickStep(m_WorldID, WOLRD_QUICK_STEPSIZE);
+
+		dJointGroupEmpty(m_ContactJoints);
 	}
 
 	void SceneManager::InitCameraStatus(GLFWwindow * window) noexcept
@@ -144,6 +181,11 @@ namespace cxc {
 		auto it = m_ObjectMap.find(sprite_name);
 		if (it != m_ObjectMap.end())
 			m_ObjectMap.erase(it);
+	}
+
+	void SceneManager::SynchronizeWorld() noexcept
+	{
+
 	}
 
 	std::shared_ptr<Object3D > SceneManager::GetObject3D(const std::string &sprite_name) const noexcept

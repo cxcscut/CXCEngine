@@ -3,12 +3,13 @@
 #ifndef CXC_SceneManager_H
 #define CXC_SceneManager_H
 
+#define WOLRD_QUICK_STEPSIZE 0.05f
+
 #include "..\inl\Singleton.inl"
 #include "..\Graphics\Object3D.h"
 #include "..\Graphics\Shape.h"
 #include "..\Graphics\TextureManager.h"
 #include "..\Controller\Camera.h"
-
 
 namespace cxc {
 
@@ -91,6 +92,21 @@ namespace cxc {
 
 		void CreatePhysicalWorld(const glm::vec3 &gravity = { 0,-9.81f,0 }) noexcept;
 		
+		void InitializePhysicalObjects() noexcept;
+
+		void PhysicalLoop() noexcept;
+
+		void SynchronizeWorld() noexcept;
+
+		// physics world
+		dWorldID m_WorldID;
+
+		// Top level space
+		dSpaceID m_TopLevelSpace;
+
+		// Joint group 
+		dJointGroupID m_ContactJoints;
+
 	private:
 
 		// <Object Name , Pointer to object>
@@ -105,14 +121,48 @@ namespace cxc {
 		// Light position
 		glm::vec3 m_LightPos;
 
-		// physics world
-		dWorldID m_WorldID;
-
-		// Top level space
-		dSpaceID m_TopLevelSpace;
-
-		// Joint group 
-		std::vector<dJointGroupID> m_JointGroup;
 	};
+
+	// Collision detection callback function
+	void nearCallback(void *data, dGeomID o1, dGeomID o2)
+	{
+
+		if (dGeomIsSpace(o1) || dGeomIsSpace(o2))
+		{
+			dSpaceCollide2(o1, o2, data, &nearCallback);
+
+			if (dGeomIsSpace(o1)) dSpaceCollide(dGeomGetSpace(o1), data, &nearCallback);
+			if (dGeomIsSpace(o2)) dSpaceCollide(dGeomGetSpace(o2), data, &nearCallback);
+		}
+		else {
+			int num;
+
+			dContact contacts[MAX_CONTACT_NUM];
+
+			for (num = 0; num < MAX_CONTACT_NUM; ++num)
+			{
+				contacts[num].surface.mode = dContactBounce | dContactSoftCFM;
+				contacts[num].surface.mu = dInfinity;
+				contacts[num].surface.mu2 = 0;
+				contacts[num].surface.bounce = 0.01;
+				contacts[num].surface.bounce_vel = 0.1;
+				contacts[num].surface.soft_cfm = 0.01;
+			}
+
+			int num_contact = dCollide(o1, o2, MAX_CONTACT_NUM, &contacts[0].geom, sizeof(dContactGeom));
+
+			if (num_contact > 0)
+			{
+				for (int i = 0; i < num_contact; ++i)
+				{
+					auto pSceneMgr = *reinterpret_cast<std::shared_ptr<SceneManager>*>(data);
+
+					dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
+					dJointAttach(joint, dGeomGetBody(o1), dGeomGetBody(o2));
+				}
+			}
+		}
+	}
+
 }
 #endif // CXC_SceneManager_H

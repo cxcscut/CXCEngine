@@ -118,6 +118,20 @@ namespace cxc {
 		MinCoords.z = std::fmin(pos.z, MinCoords.z);
 	}
 
+	void Object3D::InitializeRigidBodies(dWorldID world) noexcept
+	{
+		for (auto shape : m_ModelMap) {
+			shape.second->ComputeCenterPoint();
+			shape.second->Initialize(world, shape.second->GetCenterPos());
+		}
+	}
+
+	void Object3D::AttachCollider(dSpaceID space) noexcept
+	{
+		for (auto shape : m_ModelMap)
+			shape.second->addCollider(space,shape.second->GetVertexArray(),shape.second->GetVertexIndices());
+	}
+
 	void Object3D::IndexVertex(std::map<VertexIndexPacket, uint32_t> &VertexIndexMap,
 		const glm::vec3 &geo_normal,const VertexIndexPacket &vertex,
 		uint32_t &subindex, Shape *drawobject,const tinyobj::attrib_t &attrib)
@@ -620,11 +634,6 @@ namespace cxc {
 		return RootNodePtr->findChildNode(ChildNodePtr,RetModelPtr);
 	}
 	
-	void Object3D::UpdateCurrentPos() noexcept {
-		for (auto &shape : m_ModelMap)
-			shape.second->UpDateCurrentPos();
-	}
-
 	std::vector<std::shared_ptr<ObjectTree>> &Object3D ::GetObjectTreePtr() noexcept
 	{
 		return m_ObjectTree;
@@ -682,30 +691,6 @@ namespace cxc {
 		
 	}
 
-	void Object3D ::Scaling(const std::string &ModelName, const glm::vec3 &ScalingVector) noexcept
-	{
-		
-		auto ModelPtr = GetModelByName(ModelName);
-		if (!ModelPtr)
-			return;
-
-		// Perform the transformation
-		ModelPtr->Scale(ScalingVector);
-
-		SetStateChanged(GL_TRUE);
-
-		auto ObjectNodePtr = ModelPtr->m_MyPtr;
-		if (!ObjectNodePtr)
-			return;
-
-		// Perform the same transforamtion to it's children node;
-		for (auto &it : ObjectNodePtr->children)
-		{
-			auto model = it->root;
-			Scaling(model->GetModelName(), ScalingVector);
-		}
-		
-	}
 	bool Object3D ::CheckCompoent(const std::string &CompoentName) const noexcept
 	{
 		if (!this->isLoaded)
@@ -896,6 +881,8 @@ namespace cxc {
 			}
 		}
 		
+		std::vector<glm::vec3> vertices_buffer;
+
 		// Updating coordinates position
 		g_lock.lock();
 		if (CheckStateChanged())
@@ -904,12 +891,11 @@ namespace cxc {
 			{
 				if (shape.second->CheckStateChanged())
 				{
-					shape.second->UpDateCurrentPos();
-
-					auto vertices = shape.second->GetVertexArray();
+					vertices_buffer.clear();
+					vertices_buffer = std::move(shape.second->GetCurrentPos());
 					auto offset = GetVertexSubscript(shape.second->GetModelName()) * sizeof(glm::vec3);
 					glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
-					glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(glm::vec3) * vertices.size(), &vertices.front());
+					glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(glm::vec3) * vertices_buffer.size(), &vertices_buffer.front());
 
 					shape.second->SetStateChanged(GL_FALSE);
 				}

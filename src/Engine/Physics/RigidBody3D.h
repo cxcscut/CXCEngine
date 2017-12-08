@@ -14,21 +14,20 @@ namespace cxc {
 	public:
 
 		RigidBody3D();
-		RigidBody3D(dWorldID world_id);
 		virtual ~RigidBody3D();
 
 	// Functionality
 	public:
 
-		void addCollider(dSpace space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
+		void addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
 
 		// Memory allocation and deallocation
 	public:
 
-		void createRigidBody() noexcept;
+		void createRigidBody(dWorldID world) noexcept;
 		void destroyRigidBody() noexcept;
 
-		void Initialize() noexcept;
+		void Initialize(dWorldID world,const glm::vec3 &position) noexcept;
 
 		// Properties 
 	public:
@@ -39,13 +38,13 @@ namespace cxc {
 		void setAngularVelocity(dReal x, dReal y, dReal z) noexcept;
 
 		glm::vec3 getPosition() const;
-		glm::mat4 getRotation() const;
+		glm::mat3 getRotation() const;
 		glm::vec3 getLinearVelocity() const;
 		glm::vec3 getAngularVelocity() const;
 
 		void setMass(dReal Mass,
 					const glm::vec3 & center_pos,
-					const glm::mat3 &iner_mat) noexcept;
+					dMatrix3 iner_mat) noexcept;
 
 		void getMass(dMass *mass) const noexcept;
 
@@ -86,7 +85,7 @@ namespace cxc {
 		dJointID getJoint(int index) const;
 		int getJointType(dJointID joint) const;
 
-		dJointID createJoint(int type,dJointGroupID joint_group, const dContact * contact = nullptr) noexcept;
+		dJointID createJoint(int type,dJointGroupID joint_group) noexcept;
 		void destroyJoint(dJointID joint) noexcept;
 
 	private:
@@ -95,7 +94,7 @@ namespace cxc {
 		dBodyID m_BodyID;
 
 		// Pointer to collider
-		std::shared_ptr<Collider3D> m_pCollider;
+		std::unique_ptr<Collider3D> m_pCollider;
 	};
 }
 

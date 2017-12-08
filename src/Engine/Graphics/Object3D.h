@@ -9,6 +9,7 @@
 #include "Shape.h"
 #include "TextureManager.h"
 #include"..\Libraries\TinyObjLoader\tiny_obj_loader.h"
+#include "..\Physics\ode\ode.h"
 
 class Shape;
 
@@ -106,7 +107,6 @@ namespace cxc {
 
 		virtual void Translation(const std::string &ModelName, const glm::vec3 &TranslationVector) noexcept;
 		virtual void Rotation(const std::string &ModelName, const glm::vec3 &RotationAxis, float Degree) noexcept;
-		virtual void Scaling(const std::string &ModelName, const glm::vec3 &ScalingVector) noexcept;
 
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
@@ -115,6 +115,13 @@ namespace cxc {
 
 		void InitBuffers() noexcept;
 		void releaseBuffers() noexcept;
+
+	// Physics interface
+	public:
+
+		void InitializeRigidBodies(dWorldID world) noexcept;
+
+		void AttachCollider(dSpaceID space) noexcept;
 
 	// Private data access interface
 	public:
@@ -146,7 +153,6 @@ namespace cxc {
 
 		void ComputeCenterPos() noexcept;
 		glm::vec3 GetCenterPos() const noexcept { return CenterCoords; };
-		void UpdateCurrentPos() noexcept;
 
 		GLboolean CheckStateChanged() const noexcept;
 		void SetStateChanged(GLboolean state) noexcept;

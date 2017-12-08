@@ -12,7 +12,7 @@ namespace cxc {
 		m_VertexCoords(),m_VertexNormals(),m_TexCoords(),m_MaterialIDs(),m_VertexColor(),m_GeometricNormal(),
 		m_MyPtr(nullptr),m_TransformationMatrix(1.0f),m_ReposMatrix(1.0f)
 	{
-
+	
 	}
 
 	Shape::~Shape()
@@ -68,15 +68,13 @@ namespace cxc {
 		m_MyPtr = ptr;
 	}
 
-	glm::vec3 Shape::ComputeCoordinate(const glm::vec3 &Point) const noexcept
+	glm::vec3 Shape::LocalCoordsToGlobal(const glm::vec3 &Point) const noexcept
 	{
 		glm::vec4 HomoPoint = glm::vec4(Point.x,Point.y,Point.z,1);
 
-		glm::vec4 ret_HomoPoint = m_ModelMatrix * HomoPoint;
+		glm::vec4 ret_HomoPoint = m_TransformationMatrix * HomoPoint;
 
-		glm::vec3 retPoint = glm::vec3(ret_HomoPoint.x/ ret_HomoPoint.w, ret_HomoPoint.y/ ret_HomoPoint.w, ret_HomoPoint.z/ ret_HomoPoint.w);
-
-		return retPoint;
+		return glm::vec3(ret_HomoPoint.x, ret_HomoPoint.y, ret_HomoPoint.z);
 	}
 
 	void Shape::CalculateReposMatrix(const glm::vec3 &scaling_vector,const glm::vec3 &centerizing_vector) noexcept
@@ -115,10 +113,8 @@ namespace cxc {
 		
 		center_point /= m_VertexCoords.size();
 
-		m_CenterPos = center_point;
+		m_CenterPos = LocalCoordsToGlobal(center_point);
 	}
-
-	
 
 	glm::vec3 Shape::GetCenterPos() const noexcept
 	{
@@ -140,27 +136,19 @@ namespace cxc {
 		return m_ModelMatrix;
 	}
 
-	void Shape::UpDateCurrentPos() noexcept
+	std::vector<glm::vec3> Shape::GetCurrentPos() noexcept
 	{
+		std::vector<glm::vec3> ret;
+		ret.reserve(m_VertexCoords.size());
+
 		for (auto &pos : m_VertexCoords)
 		{
 			auto homo_vec = glm::vec4({pos.x,pos.y,pos.z,1});
 			auto new_vec = m_TransformationMatrix * homo_vec;
-			pos.x = new_vec.x;
-			pos.y = new_vec.y;
-			pos.z = new_vec.z;
+			ret.emplace_back(glm::vec3({ new_vec.x,new_vec.y,new_vec.z}));
 		}
 
-		for (auto &pos : m_KeyPoints)
-		{
-			auto homo_vec = glm::vec4({ pos.x,pos.y,pos.z,1 });
-			auto new_vec = m_TransformationMatrix * homo_vec;
-			pos.x = new_vec.x;
-			pos.y = new_vec.y;
-			pos.z = new_vec.z;
-		}
-
-		m_TransformationMatrix = glm::mat4(1.0f);
+		return ret;
 	}
 
 	void Shape::Translate(const glm::vec3 &move_vector) noexcept
@@ -170,15 +158,9 @@ namespace cxc {
 		// Left-multiplication with TransformationMatrix
 		m_TransformationMatrix = TranlationMatrix * m_TransformationMatrix;
 
-		stateChanged = GL_TRUE;
-	}
+		auto new_pos = getPosition() + glm::vec3({ TranlationMatrix[3][0],TranlationMatrix[3][1],TranlationMatrix[3][2] });
 
-	void Shape::Scale(const glm::vec3 &scaler_vector) noexcept
-	{
-		auto ScalingMatrix = glm::scale(glm::mat4(1.0f),scaler_vector);
-
-		// Left-multiplication with TransformationMatrix
-		m_TransformationMatrix = ScalingMatrix * m_TransformationMatrix;
+		setPossition(new_pos.x,new_pos.y,new_pos.z);
 
 		stateChanged = GL_TRUE;
 	}
@@ -189,6 +171,8 @@ namespace cxc {
 
 		// Left-multiplication with TransformationMatrix
 		m_TransformationMatrix = RotationMatrix * m_TransformationMatrix;
+
+		setRotation(glm::mat3(RotationMatrix) * getRotation());
 
 		stateChanged = GL_TRUE;
 	}

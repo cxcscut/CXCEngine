@@ -9,11 +9,6 @@ namespace cxc {
 
 	}
 
-	RigidBody3D::RigidBody3D(dWorldID world_id)
-	{
-		m_WorldID = world_id;
-	}
-
 	RigidBody3D::~RigidBody3D()
 	{
 
@@ -21,15 +16,19 @@ namespace cxc {
 
 	}
 
-	void RigidBody3D::addCollider(dSpace space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept
+	void RigidBody3D::addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept
 	{
-		m_pCollider = std::make_shared<Collider3D>();
+		m_pCollider = std::make_unique<Collider3D>();
 
 		m_pCollider->createTriMeshGeom(space, vertices, indices);
+
+		m_pCollider->associateRigidBody(m_BodyID);
 	}
 
-	void RigidBody3D::createRigidBody() noexcept
+	void RigidBody3D::createRigidBody(dWorldID world) noexcept
 	{
+		m_WorldID = world;
+
 		m_BodyID = dBodyCreate(m_WorldID);
 	}
 
@@ -43,22 +42,37 @@ namespace cxc {
 	{
 	
 		dBodySetPosition(m_BodyID,x,y,z);
+		m_pCollider->setGeomPosition(x, y, z);
+	}
+
+	void RigidBody3D::Initialize(dWorldID world,const glm::vec3 &position) noexcept
+	{
+		createRigidBody(world);
+
+		setPossition(position.x,position.y,position.z);
+
+		dMass *mass;
+
+		getMass(mass);
+
+		setMass(mass->mass, {position.x,position.y,position.z},mass->I);
+
 	}
 
 	void RigidBody3D::setRotation(const glm::mat4 rot) noexcept
 	{
-		dMatrix3 rot_mat = { rot[0][0],rot[1][0],rot[2][0],rot[3][0],
-							rot[0][1],rot[1][1],rot[2][1],rot[3][1],
-							rot[0][2],rot[1][2],rot[2][2],rot[3][2] };
+		dMatrix3 rot_mat = { rot[0][0],rot[1][0],rot[2][0],
+							rot[0][1],rot[1][1],rot[2][1],
+							rot[0][2],rot[1][2],rot[2][2]};
 
 		dBodySetRotation(m_BodyID,rot_mat);
-		
+		m_pCollider->setGeomRotation(rot);
 	}
 
 	void RigidBody3D::setLinearVelocity(dReal x, dReal y, dReal z) noexcept
 	{
 	
-			dBodySetLinearVel(m_BodyID,x,y,z);
+		dBodySetLinearVel(m_BodyID,x,y,z);
 	}
 
 	void RigidBody3D::setAngularVelocity(dReal x, dReal y, dReal z) noexcept
@@ -79,17 +93,15 @@ namespace cxc {
 		return ret;
 	}
 
-	glm::mat4 RigidBody3D::getRotation() const
+	glm::mat3 RigidBody3D::getRotation() const
 	{
-		glm::mat4 ret;
+		glm::mat3 ret;
 
-		
 		const dReal *rot = dBodyGetRotation(m_BodyID);
-		ret = glm::transpose(glm::mat4({
-			rot[0],rot[1],rot[2],rot[3],
-			rot[4],rot[5],rot[6],rot[7],
-			rot[8],rot[9],rot[10],rot[11],
-			0,0,0,1
+		ret = glm::transpose(glm::mat3({
+			rot[0],rot[1],rot[2],
+			rot[3],rot[4],rot[5],
+			rot[6],rot[7],rot[8]
 		}));
 		
 		return ret;
@@ -117,14 +129,14 @@ namespace cxc {
 
 	void RigidBody3D::setMass(dReal MassValue,
 							const glm::vec3 & center_pos,
-							const glm::mat3 &iner_mat) noexcept
+							dMatrix3 iner_mat) noexcept
 	{
 		dMass * mass = nullptr;
 		
 		dMassSetParameters(mass,MassValue,
 						center_pos.x,center_pos.y,center_pos.z,
-						iner_mat[0][0],iner_mat[1][1],iner_mat[2][2],
-						iner_mat[1][1],iner_mat[2][1],iner_mat[2][2]);
+						iner_mat[0],iner_mat[4],iner_mat[8],
+						iner_mat[1],iner_mat[2],iner_mat[5]);
 
 		dBodySetMass(m_BodyID,mass);	
 	}
@@ -252,7 +264,7 @@ namespace cxc {
 		return dJointGetType(joint);
 	}
 
-	dJointID RigidBody3D::createJoint(int type, dJointGroupID joint_group,const dContact * contact) noexcept
+	dJointID RigidBody3D::createJoint(int type, dJointGroupID joint_group) noexcept
 	{
 		switch (type)
 		{
@@ -264,9 +276,6 @@ namespace cxc {
 			break;
 		case dJointTypeSlider:
 			return dJointCreateSlider(m_WorldID,joint_group);
-			break;
-		case dJointTypeContact:
-			return dJointCreateContact(m_WorldID,joint_group,contact);
 			break;
 		case dJointTypeUniversal:
 			return dJointCreateUniversal(m_WorldID,joint_group);

@@ -25,7 +25,6 @@ namespace cxc {
 		Shape(const Shape &&) = delete;
 		Shape& operator=(const Shape&&) = delete;
 
-		
 
 	// Date access interface
 	public:
@@ -40,7 +39,7 @@ namespace cxc {
 		GLuint GetVertexNum() const noexcept;
 		void SetObjectTreePtr(const std::shared_ptr<ObjectTree> &ptr) noexcept;
 		void addKeyPoints(const glm::vec3 &point) noexcept;
-		glm::vec3 ComputeCoordinate(const glm::vec3 &Point) const noexcept;
+		glm::vec3 LocalCoordsToGlobal(const glm::vec3 &Point) const noexcept;
 		glm::vec3 GetCenterPos() const noexcept;
 		glm::mat4 GetModelMatrix() const noexcept;
 		std::shared_ptr<ObjectTree> GetMyPtr() const noexcept;
@@ -53,7 +52,7 @@ namespace cxc {
 	public:
 
 		GLboolean VertexisEqual(const glm::vec3 &lhs, const glm::vec3 &rhs) const noexcept;
-		void UpDateCurrentPos() noexcept;
+		std::vector<glm::vec3> GetCurrentPos() noexcept;
 
 	public:
 
@@ -64,7 +63,6 @@ namespace cxc {
 	public:
 
 		void Translate(const glm::vec3 &move_vector) noexcept;
-		void Scale(const glm::vec3 &scaler_vector) noexcept;
 		void Rotate(const glm::vec3 &rotation_axis, GLfloat degree) noexcept;
 
 	private:

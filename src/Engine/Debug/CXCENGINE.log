@@ -1,27 +1,27 @@
-﻿  Window.cpp
-  Parser.cpp
-  RigidBody3D.cpp
-Physics\RigidBody3D.cpp(77): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(104): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(113): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(200): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(210): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-  Collider3D.cpp
-Physics\Collider3D.cpp(52): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-  FileHelper.cpp
-  TextureManger.cpp
-  Texture2D.cpp
-  Shape.cpp
+﻿  Shape.cpp
   SceneManager.cpp
   Object3D.cpp
-  FontsManager.cpp
-  Font.cpp
   EnginFacade.cpp
-  RendererManager.cpp
-  InputManager.cpp
+  RigidBody3D.cpp
+Physics\RigidBody3D.cpp(84): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(109): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(118): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(205): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(215): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+  Collider3D.cpp
+Physics\Collider3D.cpp(57): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+  正在生成代码...
+  正在编译...
   CommandHandler.cpp
   Camera.cpp
   正在生成代码...
+  正在跳过...(未检测到相关更改)
+  InputManager.cpp
+SceneManager.obj : warning LNK4006: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已在 Shape.obj 中定义；已忽略第二个定义
+Object3D.obj : warning LNK4006: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已在 Shape.obj 中定义；已忽略第二个定义
 FontsManager.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
 Font.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
-  CXCENGINE.vcxproj -> C:\Users\cxc123\Desktop\cxcengine\src\Engine\Debug\CXCENGINE.lib
+EnginFacade.obj : warning LNK4006: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已在 Shape.obj 中定义；已忽略第二个定义
+CommandHandler.obj : warning LNK4006: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已在 Shape.obj 中定义；已忽略第二个定义
+Camera.obj : warning LNK4006: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已在 Shape.obj 中定义；已忽略第二个定义
+  CXCENGINE.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Engine\Debug\CXCENGINE.lib

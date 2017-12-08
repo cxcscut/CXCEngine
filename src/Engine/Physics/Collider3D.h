@@ -1,6 +1,8 @@
 #ifndef CXC_PHYSICS_COLLIDER_H
 #define CXC_PHYSICS_COLLIDER_H
 
+#define MAX_CONTACT_NUM 1
+
 #include "ode\ode.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
@@ -25,7 +27,7 @@ namespace cxc {
 		void setGeomRotation(const glm::mat4 & rot) noexcept;
 
 		glm::vec3 getGeomPosition() const noexcept;
-		glm::mat4 getGeomRotation() const noexcept;
+		glm::mat3 getGeomRotation() const noexcept;
 
 		dSpaceID getGeomSpace() const noexcept;
 		int getGeomClass() const noexcept;
@@ -33,6 +35,8 @@ namespace cxc {
 		void enableGeom() noexcept;
 		void disableGeom() noexcept;
 		bool isGeomEnable() const noexcept;
+
+		void associateRigidBody(dBodyID body) noexcept;
 
 	private:
 
