@@ -892,6 +892,8 @@ namespace cxc {
 				if (shape.second->CheckStateChanged())
 				{
 					vertices_buffer.clear();
+
+					shape.second->UpdateTransMatrix();
 					vertices_buffer = std::move(shape.second->GetCurrentPos());
 					auto offset = GetVertexSubscript(shape.second->GetModelName()) * sizeof(glm::vec3);
 					glBindBuffer(GL_ARRAY_BUFFER, VBO_P);

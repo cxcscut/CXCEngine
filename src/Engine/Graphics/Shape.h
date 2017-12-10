@@ -58,6 +58,7 @@ namespace cxc {
 
 		void CalculateReposMatrix(const glm::vec3 &scaling_vector,const glm::vec3 &centerize_vector) noexcept;
 		void ComputeCenterPoint() noexcept;
+		void UpdateTransMatrix() noexcept;
 
 	// Model transformation
 	public:

@@ -103,6 +103,10 @@ namespace cxc {
 		return fabs(ret.x) < 0.001 && fabs(ret.y) < 0.001 && fabs(ret.z) < 0.001;
 	}
 
+	void Shape::UpdateTransMatrix() noexcept
+	{
+		m_TransformationMatrix = getTransMatrix();
+	}
 
 	void Shape::ComputeCenterPoint() noexcept
 	{
@@ -153,12 +157,12 @@ namespace cxc {
 
 	void Shape::Translate(const glm::vec3 &move_vector) noexcept
 	{
-		auto TranlationMatrix = glm::translate(glm::mat4(1.0f),move_vector);
+		//auto TranlationMatrix = glm::translate(glm::mat4(1.0f),move_vector);
 
 		// Left-multiplication with TransformationMatrix
-		m_TransformationMatrix = TranlationMatrix * m_TransformationMatrix;
+		//m_TransformationMatrix = TranlationMatrix * m_TransformationMatrix;
 
-		auto new_pos = getPosition() + glm::vec3({ TranlationMatrix[3][0],TranlationMatrix[3][1],TranlationMatrix[3][2] });
+		auto new_pos = getPosition() + move_vector;
 
 		setPossition(new_pos.x,new_pos.y,new_pos.z);
 
@@ -170,7 +174,7 @@ namespace cxc {
 		auto RotationMatrix = glm::rotate(glm::mat4(1.0f),degree, rotation_axis);
 
 		// Left-multiplication with TransformationMatrix
-		m_TransformationMatrix = RotationMatrix * m_TransformationMatrix;
+		//m_TransformationMatrix = RotationMatrix * m_TransformationMatrix;
 
 		setRotation(glm::mat3(RotationMatrix) * getRotation());
 

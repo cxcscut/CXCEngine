@@ -51,12 +51,27 @@ namespace cxc {
 
 		setPossition(position.x,position.y,position.z);
 
-		dMass *mass;
+		dMass *mass = nullptr;
 
 		getMass(mass);
 
 		setMass(mass->mass, {position.x,position.y,position.z},mass->I);
 
+		m_OriginPos = { position.x,position.y,position.z };
+
+	}
+
+	glm::mat4 RigidBody3D::getTransMatrix() const noexcept
+	{
+		auto R = getRotation();
+		auto pos = getPosition() - m_OriginPos;
+
+		return glm::transpose(glm::mat4({
+			R[0][0],R[1][0],R[2][0],pos[0],
+			R[0][1],R[1][1],R[2][1],pos[1],
+			R[0][2],R[1][2],R[2][2],pos[2],
+			0,0,0,1
+		}));
 	}
 
 	void RigidBody3D::setRotation(const glm::mat4 rot) noexcept

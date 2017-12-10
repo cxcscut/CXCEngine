@@ -1,4 +1,9 @@
 ﻿  FBXSDKTest.cpp
 c:\users\39317\desktop\git\cxcengine\src\examples\fbxsdk-test\fbxsdktest.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  FBXSDK-Test.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.exe
-  FBXSDK-Test.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.pdb (Partial PDB)
+CXCENGINE.lib(Object3D.obj) : error LNK2005: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已经在 FBXSDKTest.obj 中定义
+CXCENGINE.lib(SceneManager.obj) : error LNK2005: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已经在 FBXSDKTest.obj 中定义
+CXCENGINE.lib(EnginFacade.obj) : error LNK2005: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已经在 FBXSDKTest.obj 中定义
+CXCENGINE.lib(Shape.obj) : error LNK2005: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已经在 FBXSDKTest.obj 中定义
+CXCENGINE.lib(Camera.obj) : error LNK2005: "void __cdecl cxc::nearCallback(void *,struct dxGeom *,struct dxGeom *)" (?nearCallback@cxc@@YAXPAXPAUdxGeom@@1@Z) 已经在 FBXSDKTest.obj 中定义
+MSVCRTD.lib(initializers.obj) : warning LNK4098: 默认库“msvcrt.lib”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
+C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.exe : fatal error LNK1169: 找到一个或多个多重定义的符号

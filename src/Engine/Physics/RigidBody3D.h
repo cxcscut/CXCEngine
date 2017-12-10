@@ -21,6 +21,8 @@ namespace cxc {
 
 		void addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
 
+		glm::mat4 getTransMatrix() const noexcept;
+
 		// Memory allocation and deallocation
 	public:
 
@@ -95,6 +97,8 @@ namespace cxc {
 
 		// Pointer to collider
 		std::unique_ptr<Collider3D> m_pCollider;
+
+		glm::vec3 m_OriginPos;
 	};
 }
 
