@@ -4,9 +4,10 @@ namespace cxc {
 		
 	RigidBody3D::RigidBody3D():
 		m_WorldID(0),
-		m_BodyID(0)
+		m_BodyID(0),Initialized(false),m_GravityMode(0)
 	{
 
+		m_pCollider = std::make_unique<Collider3D>();
 	}
 
 	RigidBody3D::~RigidBody3D()
@@ -18,7 +19,6 @@ namespace cxc {
 
 	void RigidBody3D::addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept
 	{
-		m_pCollider = std::make_unique<Collider3D>();
 
 		m_pCollider->createTriMeshGeom(space, vertices, indices);
 
@@ -30,6 +30,11 @@ namespace cxc {
 		m_WorldID = world;
 
 		m_BodyID = dBodyCreate(m_WorldID);
+
+		dBodySetGravityMode(m_BodyID,m_GravityMode);
+
+		Initialized = true;
+
 	}
 
 	void RigidBody3D::destroyRigidBody() noexcept
@@ -47,15 +52,15 @@ namespace cxc {
 
 	void RigidBody3D::Initialize(dWorldID world,const glm::vec3 &position) noexcept
 	{
-		createRigidBody(world);
 
 		setPossition(position.x,position.y,position.z);
+		setRotation(glm::mat3(1.0f));
 
-		dMass *mass = nullptr;
+		dMass mass;
 
-		getMass(mass);
+		getMass(&mass);
 
-		setMass(mass->mass, {position.x,position.y,position.z},mass->I);
+		setMass(mass.mass, {position.x,position.y,position.z},mass.I);
 
 		m_OriginPos = { position.x,position.y,position.z };
 
@@ -74,11 +79,11 @@ namespace cxc {
 		}));
 	}
 
-	void RigidBody3D::setRotation(const glm::mat4 rot) noexcept
+	void RigidBody3D::setRotation(const glm::mat3 rot) noexcept
 	{
-		dMatrix3 rot_mat = { rot[0][0],rot[1][0],rot[2][0],
-							rot[0][1],rot[1][1],rot[2][1],
-							rot[0][2],rot[1][2],rot[2][2]};
+		dMatrix3 rot_mat = { rot[0][0],rot[1][0],rot[2][0],0,
+							rot[0][1],rot[1][1],rot[2][1],0,
+							rot[0][2],rot[1][2],rot[2][2],0};
 
 		dBodySetRotation(m_BodyID,rot_mat);
 		m_pCollider->setGeomRotation(rot);
@@ -113,11 +118,15 @@ namespace cxc {
 		glm::mat3 ret;
 
 		const dReal *rot = dBodyGetRotation(m_BodyID);
-		ret = glm::transpose(glm::mat3({
-			rot[0],rot[1],rot[2],
-			rot[3],rot[4],rot[5],
-			rot[6],rot[7],rot[8]
-		}));
+		std::vector<dReal> _rot;
+		for (auto i = 0; i < 12; i++)
+			_rot.push_back(rot[i]);
+
+		ret = glm::mat3({
+			rot[0],rot[4],rot[8],
+			rot[1],rot[5],rot[9],
+			rot[2],rot[6],rot[10]
+		});
 		
 		return ret;
 	}
@@ -146,14 +155,14 @@ namespace cxc {
 							const glm::vec3 & center_pos,
 							dMatrix3 iner_mat) noexcept
 	{
-		dMass * mass = nullptr;
+		dMass mass;
 		
-		dMassSetParameters(mass,MassValue,
+		dMassSetParameters(&mass,MassValue,
 						center_pos.x,center_pos.y,center_pos.z,
 						iner_mat[0],iner_mat[4],iner_mat[8],
 						iner_mat[1],iner_mat[2],iner_mat[5]);
 
-		dBodySetMass(m_BodyID,mass);	
+		//dBodySetMass(m_BodyID,&mass);	
 	}
 
 	void RigidBody3D::getMass(dMass *mass) const noexcept
@@ -251,7 +260,9 @@ namespace cxc {
 
 	void RigidBody3D::setGravityMode(int mode) noexcept
 	{
-		dBodySetGravityMode(m_BodyID, mode);	
+		if (Initialized)
+			dBodySetGravityMode(m_BodyID, mode);
+		m_GravityMode = mode;
 	}
 
 	int RigidBody3D::getGravityMode() const

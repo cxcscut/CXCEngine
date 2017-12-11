@@ -3,6 +3,47 @@
 
 namespace cxc {
 
+	// Collision detection callback function
+	void SceneManager::nearCallback(void *data, dGeomID o1, dGeomID o2) noexcept
+	{
+
+		if (dGeomIsSpace(o1) || dGeomIsSpace(o2))
+		{
+			dSpaceCollide2(o1, o2, data, &nearCallback);
+
+			if (dGeomIsSpace(o1)) dSpaceCollide(dGeomGetSpace(o1), data, &nearCallback);
+			if (dGeomIsSpace(o2)) dSpaceCollide(dGeomGetSpace(o2), data, &nearCallback);
+		}
+		else {
+			int num;
+
+			dContact contacts[MAX_CONTACT_NUM];
+
+			for (num = 0; num < MAX_CONTACT_NUM; ++num)
+			{
+				contacts[num].surface.mode = dContactBounce | dContactSoftCFM;
+				contacts[num].surface.mu = dInfinity;
+				contacts[num].surface.mu2 = 0;
+				contacts[num].surface.bounce = 0.01;
+				contacts[num].surface.bounce_vel = 0.1;
+				contacts[num].surface.soft_cfm = 0.01;
+			}
+
+			int num_contact = dCollide(o1, o2, MAX_CONTACT_NUM, &contacts[0].geom, sizeof(dContactGeom));
+
+			if (num_contact > 0)
+			{
+				for (int i = 0; i < num_contact; ++i)
+				{
+					auto pSceneMgr = *reinterpret_cast<std::shared_ptr<SceneManager>*>(data);
+
+					dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
+					dJointAttach(joint, dGeomGetBody(o1), dGeomGetBody(o2));
+				}
+			}
+		}
+	}
+
 	SceneManager::SceneManager()
 		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500)),
 		m_TopLevelSpace(0)
@@ -72,7 +113,7 @@ namespace cxc {
 		dWorldSetCFM(m_WorldID, 1e-5);
 
 		// Create top-level space
-		dHashSpaceSetLevels(m_TopLevelSpace,0,5);
+		m_TopLevelSpace = dSimpleSpaceCreate(0);
 		
 		// Set gravity
 		dWorldSetGravity(m_WorldID,gravity.x,gravity.y,gravity.z);
@@ -87,14 +128,20 @@ namespace cxc {
 	void SceneManager::InitializePhysicalObjects() noexcept
 	{
 		for (auto object : m_ObjectMap) {
-			object.second->InitializeRigidBodies(m_WorldID);
 			object.second->AttachCollider(m_TopLevelSpace);
+			object.second->InitializeRigidBodies(m_WorldID);
 		}
 	}
 
-	void SceneManager::PhysicalLoop() noexcept
+	void SceneManager::ProcessingPhysics() noexcept
 	{
-		dSpaceCollide(m_TopLevelSpace,0,&nearCallback);
+		SynchronizeWorld();
+
+		//dSpaceCollide(m_TopLevelSpace,0,&nearCallback);
+
+		m_ObjectMap["sphere"]->ComputeCenterPos();
+		glm::vec3 pos = m_ObjectMap["sphere"]->GetCenterPos();
+		std::cout << pos.x << "," << -pos.z << "," << pos.y << std::endl;
 
 		dWorldQuickStep(m_WorldID, WOLRD_QUICK_STEPSIZE);
 
@@ -185,7 +232,14 @@ namespace cxc {
 
 	void SceneManager::SynchronizeWorld() noexcept
 	{
-
+		for (auto object : m_ObjectMap) {
+			for (auto shape : object.second->GetModelMap())
+			{
+				shape.second->UpdateTransMatrix();
+				shape.second->SetStateChanged(GL_TRUE);
+			}
+			object.second->SetStateChanged(GL_TRUE);
+		}
 	}
 
 	std::shared_ptr<Object3D > SceneManager::GetObject3D(const std::string &sprite_name) const noexcept

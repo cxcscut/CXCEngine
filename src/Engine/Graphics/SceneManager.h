@@ -65,7 +65,7 @@ namespace cxc {
 		// Camera interface
 		void InitCameraStatus(GLFWwindow * window) noexcept;
 		void SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
-			const glm::mat4 &ProjectionMatrix) noexcept;
+							const glm::mat4 &ProjectionMatrix) noexcept;
 		void UpdateCameraPos(GLFWwindow *window, float x, float y, GLuint height, GLuint width) noexcept;
 		void BindCameraUniforms() const noexcept;
 		void SetCameraMode(CameraModeType mode) noexcept;
@@ -94,9 +94,11 @@ namespace cxc {
 		
 		void InitializePhysicalObjects() noexcept;
 
-		void PhysicalLoop() noexcept;
+		void ProcessingPhysics() noexcept;
 
 		void SynchronizeWorld() noexcept;
+
+		static void nearCallback(void *data, dGeomID o1, dGeomID o2) noexcept;
 
 		// physics world
 		dWorldID m_WorldID;
@@ -122,47 +124,6 @@ namespace cxc {
 		glm::vec3 m_LightPos;
 
 	};
-
-	// Collision detection callback function
-	void nearCallback(void *data, dGeomID o1, dGeomID o2)
-	{
-
-		if (dGeomIsSpace(o1) || dGeomIsSpace(o2))
-		{
-			dSpaceCollide2(o1, o2, data, &nearCallback);
-
-			if (dGeomIsSpace(o1)) dSpaceCollide(dGeomGetSpace(o1), data, &nearCallback);
-			if (dGeomIsSpace(o2)) dSpaceCollide(dGeomGetSpace(o2), data, &nearCallback);
-		}
-		else {
-			int num;
-
-			dContact contacts[MAX_CONTACT_NUM];
-
-			for (num = 0; num < MAX_CONTACT_NUM; ++num)
-			{
-				contacts[num].surface.mode = dContactBounce | dContactSoftCFM;
-				contacts[num].surface.mu = dInfinity;
-				contacts[num].surface.mu2 = 0;
-				contacts[num].surface.bounce = 0.01;
-				contacts[num].surface.bounce_vel = 0.1;
-				contacts[num].surface.soft_cfm = 0.01;
-			}
-
-			int num_contact = dCollide(o1, o2, MAX_CONTACT_NUM, &contacts[0].geom, sizeof(dContactGeom));
-
-			if (num_contact > 0)
-			{
-				for (int i = 0; i < num_contact; ++i)
-				{
-					auto pSceneMgr = *reinterpret_cast<std::shared_ptr<SceneManager>*>(data);
-
-					dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
-					dJointAttach(joint, dGeomGetBody(o1), dGeomGetBody(o2));
-				}
-			}
-		}
-	}
 
 }
 #endif // CXC_SceneManager_H

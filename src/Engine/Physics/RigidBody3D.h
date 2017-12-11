@@ -35,7 +35,7 @@ namespace cxc {
 	public:
 
 		void setPossition(dReal x, dReal y, dReal z) noexcept;
-		void setRotation(const glm::mat4 rot) noexcept;
+		void setRotation(const glm::mat3 rot) noexcept;
 		void setLinearVelocity(dReal x, dReal y, dReal z) noexcept;
 		void setAngularVelocity(dReal x, dReal y, dReal z) noexcept;
 
@@ -92,6 +92,8 @@ namespace cxc {
 
 	private:
 
+		bool Initialized;
+
 		dWorldID m_WorldID;
 		dBodyID m_BodyID;
 
@@ -99,6 +101,8 @@ namespace cxc {
 		std::unique_ptr<Collider3D> m_pCollider;
 
 		glm::vec3 m_OriginPos;
+
+		int m_GravityMode;
 	};
 }
 

@@ -121,6 +121,7 @@ namespace cxc {
 	void Object3D::InitializeRigidBodies(dWorldID world) noexcept
 	{
 		for (auto shape : m_ModelMap) {
+			shape.second->createRigidBody(world);
 			shape.second->ComputeCenterPoint();
 			shape.second->Initialize(world, shape.second->GetCenterPos());
 		}
@@ -845,6 +846,12 @@ namespace cxc {
 
 	}
 
+	void Object3D::SetObjectGravityMode(int mode) noexcept
+	{
+		for (auto shape : m_ModelMap)
+			shape.second->setGravityMode(mode);
+	}
+
 	void Object3D::DrawObject() noexcept
 	{
 		auto pEngine = EngineFacade::GetInstance();
@@ -893,7 +900,6 @@ namespace cxc {
 				{
 					vertices_buffer.clear();
 
-					shape.second->UpdateTransMatrix();
 					vertices_buffer = std::move(shape.second->GetCurrentPos());
 					auto offset = GetVertexSubscript(shape.second->GetModelName()) * sizeof(glm::vec3);
 					glBindBuffer(GL_ARRAY_BUFFER, VBO_P);

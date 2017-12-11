@@ -230,6 +230,7 @@ namespace cxc {
 			m_pSceneMgr->initResources();
 
 			// Init physics engine
+			dInitODE();
 			m_pSceneMgr->CreatePhysicalWorld();
 			m_pSceneMgr->InitializePhysicalObjects();
 
@@ -322,7 +323,7 @@ namespace cxc {
 			}
 
 			// Processing physical status
-			m_pSceneMgr->PhysicalLoop();
+			m_pSceneMgr->ProcessingPhysics();
 
 			// Rendering scenes
 			RenderingScenes();

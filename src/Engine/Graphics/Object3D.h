@@ -123,6 +123,8 @@ namespace cxc {
 
 		void AttachCollider(dSpaceID space) noexcept;
 
+		void SetObjectGravityMode(int mode) noexcept;
+
 	// Private data access interface
 	public:
 
