@@ -46,7 +46,7 @@ namespace cxc {
 
 	SceneManager::SceneManager()
 		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500)),
-		m_TopLevelSpace(0)
+		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0)
 	{
 		m_pTextureMgr = TextureManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();
@@ -59,16 +59,17 @@ namespace cxc {
 		m_ObjectMap.clear();
 
 		// Destroy world
-		dWorldDestroy(m_WorldID);
+		if(m_WorldID)
+			dWorldDestroy(m_WorldID);
 		
 		// Destroy joint group
-		dJointGroupDestroy(m_ContactJoints);
+		if(m_ContactJoints)
+			dJointGroupDestroy(m_ContactJoints);
 		
 		// Destroy space
-		dSpaceDestroy(m_TopLevelSpace);
+		if(m_TopLevelSpace)
+			dSpaceDestroy(m_TopLevelSpace);
 
-		// Deallocation for extra memory of ODE runtime
-		dCloseODE();
 	}
 
 	void SceneManager::releaseBuffers() noexcept
@@ -131,21 +132,6 @@ namespace cxc {
 			object.second->AttachCollider(m_TopLevelSpace);
 			object.second->InitializeRigidBodies(m_WorldID);
 		}
-	}
-
-	void SceneManager::ProcessingPhysics() noexcept
-	{
-		SynchronizeWorld();
-
-		//dSpaceCollide(m_TopLevelSpace,0,&nearCallback);
-
-		m_ObjectMap["sphere"]->ComputeCenterPos();
-		glm::vec3 pos = m_ObjectMap["sphere"]->GetCenterPos();
-		std::cout << pos.x << "," << -pos.z << "," << pos.y << std::endl;
-
-		dWorldQuickStep(m_WorldID, WOLRD_QUICK_STEPSIZE);
-
-		dJointGroupEmpty(m_ContactJoints);
 	}
 
 	void SceneManager::InitCameraStatus(GLFWwindow * window) noexcept
@@ -228,18 +214,6 @@ namespace cxc {
 		auto it = m_ObjectMap.find(sprite_name);
 		if (it != m_ObjectMap.end())
 			m_ObjectMap.erase(it);
-	}
-
-	void SceneManager::SynchronizeWorld() noexcept
-	{
-		for (auto object : m_ObjectMap) {
-			for (auto shape : object.second->GetModelMap())
-			{
-				shape.second->UpdateTransMatrix();
-				shape.second->SetStateChanged(GL_TRUE);
-			}
-			object.second->SetStateChanged(GL_TRUE);
-		}
 	}
 
 	std::shared_ptr<Object3D > SceneManager::GetObject3D(const std::string &sprite_name) const noexcept

@@ -10,8 +10,8 @@ using namespace cxc;
 
 static const std::string plane_file = "Model\\plane.obj";
 static const std::string sphere_file = "Model\\sphere.obj";
-static const std::string VertexShaderPath = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
-static const std::string FragmentShaderPath = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
+static const std::string VertexShaderPath = "C:\\Users\\cxc123\\Desktop\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
+static const std::string FragmentShaderPath = "C:\\Users\\cxc123\\Desktop\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
 
 int main()
 {
@@ -27,6 +27,8 @@ int main()
 
 	plane->SetObjectGravityMode(0);
 	sphere->SetObjectGravityMode(1);
+
+	pEngine->SetGravity(0,-1,0);
 
 	pEngine->m_pWindowMgr->InitGL();
 

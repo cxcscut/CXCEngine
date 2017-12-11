@@ -72,16 +72,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;C:\Users\39317\Desktop\git\cxcengine\src\Engine;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics\ode;G:\FBX-SDK2018.1.1\lib\vs2015\x86\debug;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics;C:\Users\cxc123\Desktop\cxcengine\src\Engine;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;C:\Users\39317\Desktop\git\cxcengine\src\Engine;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\cxc123\Desktop\cxcengine\src\Engine\Debug;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics\ode;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.15063.0\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;C:\Users\39317\Desktop\git\cxcengine\src\Engine;$(IncludePath)</IncludePath>
-    <LibraryPath>G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics;C:\Users\cxc123\Desktop\cxcengine\src\Engine;G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;C:\Users\39317\Desktop\git\cxcengine\src\Engine;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\cxc123\Desktop\cxcengine\src\Engine\Release;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics\ode;G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -128,7 +128,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libfbxsdk.lib;glfw3.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ode.lib;glfw3.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

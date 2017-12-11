@@ -834,7 +834,7 @@ namespace cxc {
 
 		glGenBuffers(1, &VBO_P);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexPos.size(), &m_VertexPos.front(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexPos.size(), &m_VertexPos.front(), GL_STATIC_DRAW);
 
 		glGenBuffers(1, &VBO_A);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_A);
@@ -887,10 +887,11 @@ namespace cxc {
 
 			}
 		}
-		
+		/*
 		std::vector<glm::vec3> vertices_buffer;
 
 		// Updating coordinates position
+		
 		g_lock.lock();
 		if (CheckStateChanged())
 		{
@@ -911,7 +912,24 @@ namespace cxc {
 			SetStateChanged(GL_FALSE);
 		}
 		g_lock.unlock();
-		
+		*/
+
+		std::vector<glm::mat4> Ts;
+		std::vector<uint32_t> idx;
+		idx.reserve(m_ModelMap.size());
+		Ts.reserve(m_ModelMap.size());
+
+		for (auto shape : m_ModelMap)
+		{
+			Ts.emplace_back(shape.second->getTransMatrix());
+			idx.emplace_back(GetVertexSubscript(shape.second->GetModelName()));
+		}
+
+		GLuint T_MatrixID = glGetUniformLocation(ProgramID, "T");
+		GLuint IDX_ArrayID = glGetUniformLocation(ProgramID,"indices");
+		glUniformMatrix4fv(T_MatrixID, m_ModelMap.size(), GL_FALSE, &Ts.front()[0][0]);
+		glUniform1uiv(IDX_ArrayID,m_ModelMap.size(),&idx.front());
+
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);

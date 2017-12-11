@@ -110,7 +110,8 @@ namespace cxc {
 	EngineFacade::EngineFacade()
 		:
 		GameOver(GL_FALSE), VertexShaderPath(".\\Engine\\Shader\\StandardVertexShader.glsl"),
-		FragmentShaderPath(".\\Engine\\Shader\\StandardFragmentShader.glsl")
+		FragmentShaderPath(".\\Engine\\Shader\\StandardFragmentShader.glsl"),
+		m_Gravity(glm::vec3({0,-9.81f,0})), ODE_initialized(false)
 	{
 
 		m_pInputMgr = InputManager::GetInstance();
@@ -120,7 +121,9 @@ namespace cxc {
 
 	EngineFacade::~EngineFacade()
 	{
-
+		if(ODE_initialized)
+			// Deallocation for extra memory of ODE runtime
+			dCloseODE();
 	}
 
 	GLboolean EngineFacade::CreateAndDisplayWindow(GLint Width,
@@ -166,6 +169,14 @@ namespace cxc {
 			m_pSceneMgr->m_pRendererMgr->BindShaderWithExistingProgram(Type,vertex_shader_path,fragment_shader_path);
 
 		return GL_TRUE;
+	}
+
+	void EngineFacade::SetGravity(GLfloat x, GLfloat y, GLfloat z) noexcept
+	{
+		m_Gravity = glm::vec3({ x,y,z });
+
+		if(m_pSceneMgr->m_WorldID)
+			dWorldSetGravity(m_pSceneMgr->m_WorldID, x, y, z);
 	}
 
 	void EngineFacade::SetWindowParams(const WindowDescriptor &windes) noexcept
@@ -230,8 +241,8 @@ namespace cxc {
 			m_pSceneMgr->initResources();
 
 			// Init physics engine
-			dInitODE();
-			m_pSceneMgr->CreatePhysicalWorld();
+			dInitODE(); ODE_initialized = true;
+			m_pSceneMgr->CreatePhysicalWorld(m_Gravity);
 			m_pSceneMgr->InitializePhysicalObjects();
 
 			// Begin event looping
@@ -306,6 +317,17 @@ namespace cxc {
 		m_pSceneMgr->DrawScene();
 	}	
 
+	void EngineFacade::ProcessingPhysics() noexcept
+	{
+
+		//dSpaceCollide(m_TopLevelSpace,0,&nearCallback);
+
+		dWorldQuickStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
+
+		dJointGroupEmpty(m_pSceneMgr->m_ContactJoints);
+
+	}
+
 	void EngineFacade::GameLooping() noexcept
 	{
 
@@ -318,12 +340,12 @@ namespace cxc {
 			if (m_pSceneMgr->m_pCamera->m_CameraMode == CAMERA_FREE)
 			{
 				StoreAndSetMousePos();
-				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(),m_pInputMgr->GetXPos(),m_pInputMgr->GetYPos(),
-					m_pWindowMgr->GetWindowHeight(),m_pWindowMgr->GetWindowWidth());
+				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(), m_pInputMgr->GetXPos(), m_pInputMgr->GetYPos(),
+					m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowWidth());
 			}
 
 			// Processing physical status
-			m_pSceneMgr->ProcessingPhysics();
+			ProcessingPhysics();
 
 			// Rendering scenes
 			RenderingScenes();

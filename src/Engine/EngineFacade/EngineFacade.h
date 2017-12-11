@@ -92,6 +92,13 @@ namespace cxc {
 		void SetVertexShaderPath(const std::string &_VertexShaderPath) noexcept { VertexShaderPath = _VertexShaderPath; };
 		void SetFragmentShaderPath(const std::string &_FragmentShaderPath) noexcept { FragmentShaderPath = _FragmentShaderPath; };
 
+	// Physics
+	public:
+
+		void SetGravity(GLfloat x,GLfloat y,GLfloat z) noexcept;
+
+		void ProcessingPhysics() noexcept;
+
 	public:
 
 		// flag representing the status
@@ -104,6 +111,10 @@ namespace cxc {
 
 		// Rendering thread
 		std::unique_ptr<std::thread> m_RenderingThread;
+
+		glm::vec3 m_Gravity;
+
+		bool ODE_initialized;
 	};
 }
 

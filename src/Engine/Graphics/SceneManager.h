@@ -90,13 +90,9 @@ namespace cxc {
 	// Physics settings
 	public:
 
-		void CreatePhysicalWorld(const glm::vec3 &gravity = { 0,-9.81f,0 }) noexcept;
+		void CreatePhysicalWorld(const glm::vec3 & gravity) noexcept;
 		
 		void InitializePhysicalObjects() noexcept;
-
-		void ProcessingPhysics() noexcept;
-
-		void SynchronizeWorld() noexcept;
 
 		static void nearCallback(void *data, dGeomID o1, dGeomID o2) noexcept;
 

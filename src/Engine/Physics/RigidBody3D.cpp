@@ -12,8 +12,8 @@ namespace cxc {
 
 	RigidBody3D::~RigidBody3D()
 	{
-
-		destroyRigidBody();
+		if(m_BodyID)
+			destroyRigidBody();
 
 	}
 
