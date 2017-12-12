@@ -1,5 +1,7 @@
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\cxcengine.pdb
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\cxcengine.idb
+c:\users\39317\desktop\git\cxcengine\src\engine\debug\collider3d.obj
+c:\users\39317\desktop\git\cxcengine\src\engine\debug\rigidbody3d.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\camera.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\commandhandler.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\inputmanager.obj
@@ -13,8 +15,6 @@ c:\users\39317\desktop\git\cxcengine\src\engine\debug\shape.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\texture2d.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\texturemanger.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\filehelper.obj
-c:\users\39317\desktop\git\cxcengine\src\engine\debug\collider3d.obj
-c:\users\39317\desktop\git\cxcengine\src\engine\debug\rigidbody3d.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\parser.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\window.obj
 c:\users\39317\desktop\git\cxcengine\src\engine\debug\cxcengine.lib

@@ -1,4 +1,4 @@
 ﻿  FBXSDKTest.cpp
-c:\users\cxc123\desktop\cxcengine\src\examples\fbxsdk-test\fbxsdktest.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  FBXSDK-Test.vcxproj -> C:\Users\cxc123\Desktop\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.exe
-  FBXSDK-Test.vcxproj -> C:\Users\cxc123\Desktop\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.pdb (Partial PDB)
+c:\users\39317\desktop\git\cxcengine\src\examples\fbxsdk-test\fbxsdktest.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+  FBXSDK-Test.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.exe
+  FBXSDK-Test.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.pdb (Partial PDB)

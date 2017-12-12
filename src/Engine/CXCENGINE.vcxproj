@@ -65,12 +65,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.15063.0\um;$(ProjectDir)Physics;G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.15063.0\um;$(ProjectDir)Physics;G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
     <LibraryPath>G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics;G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics;G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
     <LibraryPath>G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

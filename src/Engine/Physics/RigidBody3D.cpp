@@ -7,7 +7,7 @@ namespace cxc {
 		m_BodyID(0),Initialized(false),m_GravityMode(0)
 	{
 
-		m_pCollider = std::make_unique<Collider3D>();
+		m_pCollider = std::make_shared<Collider3D>();
 	}
 
 	RigidBody3D::~RigidBody3D()
@@ -23,6 +23,11 @@ namespace cxc {
 		m_pCollider->createTriMeshGeom(space, vertices, indices);
 
 		m_pCollider->associateRigidBody(m_BodyID);
+	}
+
+	std::shared_ptr<Collider3D> RigidBody3D::getColliderPtr() noexcept
+	{
+		return m_pCollider;
 	}
 
 	void RigidBody3D::createRigidBody(dWorldID world) noexcept
@@ -56,14 +61,25 @@ namespace cxc {
 		setPossition(position.x,position.y,position.z);
 		setRotation(glm::mat3(1.0f));
 
-		dMass mass;
-
-		getMass(&mass);
-
-		setMass(mass.mass, {position.x,position.y,position.z},mass.I);
+		setMass(1, {position.x,position.y,position.z},glm::mat3(1.0f));
 
 		m_OriginPos = { position.x,position.y,position.z };
 
+	}
+
+	void RigidBody3D::UpdateMeshTransform() noexcept
+	{
+		auto R = getTransMatrix();
+		dReal trans_mat[] = { R[0][0],R[1][0],R[2][0],R[3][0],
+							R[0][1],R[1][1],R[2][1],R[3][1],
+							R[0][2],R[1][2],R[2][2],R[3][2],
+							0,0,0,1 };
+
+		dGeomTriMeshSetLastTransform(m_pCollider->getGeomID(), trans_mat);
+
+		auto pos = getPosition();
+		m_pCollider->setGeomPosition(pos.x,pos.y,pos.z);
+		m_pCollider->setGeomRotation(getRotation());
 	}
 
 	glm::mat4 RigidBody3D::getTransMatrix() const noexcept
@@ -153,14 +169,14 @@ namespace cxc {
 
 	void RigidBody3D::setMass(dReal MassValue,
 							const glm::vec3 & center_pos,
-							dMatrix3 iner_mat) noexcept
+							const glm::mat3 &I) noexcept
 	{
 		dMass mass;
 		
 		dMassSetParameters(&mass,MassValue,
 						center_pos.x,center_pos.y,center_pos.z,
-						iner_mat[0],iner_mat[4],iner_mat[8],
-						iner_mat[1],iner_mat[2],iner_mat[5]);
+						I[0][0],I[1][1],I[2][2],
+						I[1][0],I[2][0],I[2][1]);
 
 		//dBodySetMass(m_BodyID,&mass);	
 	}

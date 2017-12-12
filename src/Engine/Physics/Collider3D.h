@@ -38,6 +38,9 @@ namespace cxc {
 
 		void associateRigidBody(dBodyID body) noexcept;
 
+		dTriMeshDataID getTriMeshID() const noexcept { return m_TriMeshDataID; };
+		dGeomID getGeomID() const noexcept { return m_GeomID; };
+
 	private:
 
 		dTriMeshDataID m_TriMeshDataID;

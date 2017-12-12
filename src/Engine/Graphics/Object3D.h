@@ -125,6 +125,8 @@ namespace cxc {
 
 		void SetObjectGravityMode(int mode) noexcept;
 
+		void UpdateMeshTransMatrix() noexcept;
+
 	// Private data access interface
 	public:
 

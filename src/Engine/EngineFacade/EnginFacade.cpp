@@ -320,7 +320,9 @@ namespace cxc {
 	void EngineFacade::ProcessingPhysics() noexcept
 	{
 
-		//dSpaceCollide(m_TopLevelSpace,0,&nearCallback);
+		m_pSceneMgr->UpdateMeshTransMatrix();
+
+		dSpaceCollide(m_pSceneMgr->m_TopLevelSpace,0,&SceneManager::nearCallback);
 
 		dWorldQuickStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
 

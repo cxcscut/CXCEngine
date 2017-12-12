@@ -1,5 +1,5 @@
 #include "Collider3D.h"
-
+#
 namespace cxc {
 
 	Collider3D::Collider3D():
@@ -17,7 +17,9 @@ namespace cxc {
 	void Collider3D::createTriMeshGeom(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept
 	{
 		m_TriMeshDataID = dGeomTriMeshDataCreate();
-		dGeomTriMeshDataBuildDouble(m_TriMeshDataID, &vertices.front(), sizeof(glm::vec3), vertices.size(), &indices.front(), indices.size(), 3 * sizeof(uint32_t));
+		dGeomTriMeshDataBuildDouble(m_TriMeshDataID,
+									&vertices.front(), sizeof(glm::vec3), vertices.size(), 
+									&indices.front(), indices.size(), 3 * sizeof(uint32_t));
 
 		m_GeomID = dCreateTriMesh(space, m_TriMeshDataID, nullptr, nullptr, nullptr);
 	}
@@ -68,9 +70,9 @@ namespace cxc {
 		{
 			const dReal *rot = dGeomGetRotation(m_GeomID);
 			ret = glm::transpose(glm::mat3({
-				rot[0],rot[1],rot[2],
-				rot[3],rot[4],rot[5],
-				rot[6],rot[7],rot[8]
+					rot[0],rot[1],rot[2],
+					rot[3],rot[4],rot[5],
+					rot[6],rot[7],rot[8]
 			}));
 		}
 

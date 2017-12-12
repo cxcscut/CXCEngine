@@ -1,7 +1,5 @@
 #version 430 core
 
-#define MAX_SHAPE_NUM 100
-
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec3 vertexNormal_modelspace;
@@ -19,17 +17,11 @@ uniform mat4 V;
 uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
 
-uniform mat4 T[MAX_SHAPE_NUM];
-uniform int indices[MAX_SHAPE_NUM];
-
 int i = 0;
 
 void main(){
 
-	if(i < MAX_SHAPE_NUM && gl_VertexID == indices[i])
-		i++;
-
-	mat4 MVP = P * V * M * T[i];
+	mat4 MVP = P * V * M ;
 
 	gl_Position = MVP * vec4(vertexPosition_modelspace,1);
 	

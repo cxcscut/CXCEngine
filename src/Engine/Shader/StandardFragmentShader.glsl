@@ -11,15 +11,11 @@ uniform sampler2D Sampler;
 
 out vec3 color;
 
-uniform mat4 M;
-uniform mat4 V;
 uniform vec3 LightPosition_worldspace;
 uniform float tex_is_used;
 
 void main()
 {
-
-	mat4 MV = V * M;
 
 	vec3 LightColor = vec3(1,1,1);
 

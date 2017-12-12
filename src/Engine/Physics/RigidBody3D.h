@@ -23,6 +23,10 @@ namespace cxc {
 
 		glm::mat4 getTransMatrix() const noexcept;
 
+		std::shared_ptr<Collider3D> getColliderPtr() noexcept;
+
+		void UpdateMeshTransform() noexcept;
+
 		// Memory allocation and deallocation
 	public:
 
@@ -46,7 +50,7 @@ namespace cxc {
 
 		void setMass(dReal Mass,
 					const glm::vec3 & center_pos,
-					dMatrix3 iner_mat) noexcept;
+					const glm::mat3 &I) noexcept;
 
 		void getMass(dMass *mass) const noexcept;
 
@@ -98,7 +102,7 @@ namespace cxc {
 		dBodyID m_BodyID;
 
 		// Pointer to collider
-		std::unique_ptr<Collider3D> m_pCollider;
+		std::shared_ptr<Collider3D> m_pCollider;
 
 		glm::vec3 m_OriginPos;
 

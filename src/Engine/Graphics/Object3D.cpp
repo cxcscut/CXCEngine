@@ -728,7 +728,7 @@ namespace cxc {
 
 			auto it = m_VertexSubscript.find(shape.second->GetModelName());
 			if (it == m_VertexSubscript.end())
-				m_VertexSubscript.insert(std::make_pair(shape.second->GetModelName(), vbo_pos.size()));
+				m_VertexSubscript.insert(std::make_pair(shape.second->GetModelName(), ebo.size()));
 
 			for (size_t k = 0; k<inum; k++)
 				ebo.push_back(vbo_pos.size() + indices[k]);
@@ -806,6 +806,12 @@ namespace cxc {
 		}
 	}
 
+	void Object3D::UpdateMeshTransMatrix() noexcept
+	{
+		for (auto shape : m_ModelMap)
+			shape.second->UpdateMeshTransform();
+	}
+
 	void Object3D::InitBuffers() noexcept
 	{
 		std::vector<VertexAttri> m_VertexAttribs;
@@ -862,9 +868,6 @@ namespace cxc {
 
 		glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
 
-		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
-		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &m_ModelMatrix[0][0]);
-
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
 		auto tex_flag_loc = glGetUniformLocation(ProgramID, "tex_is_used");
 
@@ -887,48 +890,6 @@ namespace cxc {
 
 			}
 		}
-		/*
-		std::vector<glm::vec3> vertices_buffer;
-
-		// Updating coordinates position
-		
-		g_lock.lock();
-		if (CheckStateChanged())
-		{
-			for (auto shape : m_ModelMap)
-			{
-				if (shape.second->CheckStateChanged())
-				{
-					vertices_buffer.clear();
-
-					vertices_buffer = std::move(shape.second->GetCurrentPos());
-					auto offset = GetVertexSubscript(shape.second->GetModelName()) * sizeof(glm::vec3);
-					glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
-					glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(glm::vec3) * vertices_buffer.size(), &vertices_buffer.front());
-
-					shape.second->SetStateChanged(GL_FALSE);
-				}
-			}
-			SetStateChanged(GL_FALSE);
-		}
-		g_lock.unlock();
-		*/
-
-		std::vector<glm::mat4> Ts;
-		std::vector<uint32_t> idx;
-		idx.reserve(m_ModelMap.size());
-		Ts.reserve(m_ModelMap.size());
-
-		for (auto shape : m_ModelMap)
-		{
-			Ts.emplace_back(shape.second->getTransMatrix());
-			idx.emplace_back(GetVertexSubscript(shape.second->GetModelName()));
-		}
-
-		GLuint T_MatrixID = glGetUniformLocation(ProgramID, "T");
-		GLuint IDX_ArrayID = glGetUniformLocation(ProgramID,"indices");
-		glUniformMatrix4fv(T_MatrixID, m_ModelMap.size(), GL_FALSE, &Ts.front()[0][0]);
-		glUniform1uiv(IDX_ArrayID,m_ModelMap.size(),&idx.front());
 
 		glBindVertexArray(VAO);
 
@@ -946,8 +907,13 @@ namespace cxc {
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::COLOR_LOCATION));
 		glVertexAttribPointer(static_cast<GLuint>(Location::COLOR_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec3) + sizeof(glm::vec2))); // Color
 
-		glDrawElements(GL_TRIANGLES, indices_num, GL_UNSIGNED_INT, (void*)0);
+		for (auto shape : m_ModelMap) {
 
+			GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
+			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &shape.second->getTransMatrix()[0][0]);
+
+			glDrawElements(GL_TRIANGLES, shape.second->GetVertexIndices().size(), GL_UNSIGNED_INT, (void*)(GetVertexSubscript(shape.second->GetModelName())));
+		}
 	}
 
 	void Object3D::RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept

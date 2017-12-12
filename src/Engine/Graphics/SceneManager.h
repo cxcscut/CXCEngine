@@ -39,9 +39,6 @@ namespace cxc {
 	// Sprite creation
 	public:
 
-		// Loading scene from FBX
-		GLboolean LoadSceneFromFBX(const std::string &scenefile,const std::string &scene_name) noexcept;
-
 		// Create sprite from file
 		GLboolean CreateObject(const std::string &sprite_name,const std::string &sprite_file) noexcept;
 
@@ -95,6 +92,8 @@ namespace cxc {
 		void InitializePhysicalObjects() noexcept;
 
 		static void nearCallback(void *data, dGeomID o1, dGeomID o2) noexcept;
+
+		void UpdateMeshTransMatrix() noexcept;
 
 		// physics world
 		dWorldID m_WorldID;
