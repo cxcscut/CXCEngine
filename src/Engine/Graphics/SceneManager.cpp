@@ -11,12 +11,16 @@ namespace cxc {
 
 		dContact contacts[MAX_CONTACT_NUM];
 
+		dBodyID b1 = dGeomGetBody(o1);
+		dBodyID b2 = dGeomGetBody(o2);
+		if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact)) return;
+
 		for (num = 0; num < MAX_CONTACT_NUM; ++num)
 		{
 			contacts[num].surface.mode = dContactBounce | dContactSoftCFM;
 			contacts[num].surface.mu = dInfinity;
 			contacts[num].surface.mu2 = 0;
-			contacts[num].surface.bounce = 0.01;
+			contacts[num].surface.bounce = 0.1;
 			contacts[num].surface.bounce_vel = 0.1;
 			contacts[num].surface.soft_cfm = 0.01;
 		}
@@ -27,7 +31,7 @@ namespace cxc {
 		{
 			for (int i = 0; i < num_contact; ++i)
 			{
-				auto pSceneMgr = *reinterpret_cast<std::shared_ptr<SceneManager>*>(data);
+				auto pSceneMgr = reinterpret_cast<SceneManager*>(data);
 
 				dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
 				dJointAttach(joint, dGeomGetBody(o1), dGeomGetBody(o2));
@@ -105,13 +109,20 @@ namespace cxc {
 	{
 		// Create world
 		m_WorldID = dWorldCreate();
-
+		
 		// Setting parameters of world
 		dWorldSetERP(m_WorldID, 0.2);
 		dWorldSetCFM(m_WorldID, 1e-5);
 
-		// Create top-level space
-		m_TopLevelSpace = dSimpleSpaceCreate(0);
+		// Center and extent defines the size of root blocks
+		// Center of the root blocks
+		dReal center[3] = {0,0,0};
+
+		// Extents of the root blocks
+		dReal Extent[3] = {1000,1000,1000};
+
+		// Create top-level space using quadtree implementation
+		m_TopLevelSpace = dQuadTreeSpaceCreate(0, center, Extent, 4);
 		
 		// Set gravity
 		dWorldSetGravity(m_WorldID,gravity.x,gravity.y,gravity.z);
@@ -123,8 +134,7 @@ namespace cxc {
 	void SceneManager::InitializePhysicalObjects() noexcept
 	{
 		for (auto object : m_ObjectMap) {
-			object.second->AttachCollider(m_TopLevelSpace);
-			object.second->InitializeRigidBodies(m_WorldID);
+			object.second->InitializeRigidBodies(m_WorldID,m_TopLevelSpace);
 		}
 	}
 
@@ -141,7 +151,7 @@ namespace cxc {
 		}
 
 		// Set Camera pos
-		SetCameraParams(glm::vec3(0, 2000, 2000), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0),
+		SetCameraParams(m_pCamera->eye_pos, m_pCamera->origin, m_pCamera->up_vector,
 			glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f)
 		);
 
@@ -170,9 +180,12 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	void SceneManager::AddObject(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr) noexcept
+	void SceneManager::AddObject(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr,bool isKinematics) noexcept
 	{
 		m_ObjectMap.insert(std::make_pair(ObjectName, ObjectPtr));
+
+		ObjectPtr->isKinematics = isKinematics;
+
 	}
 
 	void SceneManager::DrawScene() noexcept

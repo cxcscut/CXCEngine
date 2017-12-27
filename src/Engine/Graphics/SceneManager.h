@@ -46,7 +46,7 @@ namespace cxc {
 		void DeleteObject(const std::string &sprite_name) noexcept;
 
 		// Add object to object map
-		void AddObject(const std::string &SpriteName,const std::shared_ptr<Object3D > &SpritePtr) noexcept;
+		void AddObject(const std::string &SpriteName,const std::shared_ptr<Object3D > &SpritePtr,bool isKinematics = false) noexcept;
 
 	// Data access interface
 	public:

@@ -1,5 +1,5 @@
 #include "RigidBody3D.h"
-
+#include <iostream>
 namespace cxc {
 		
 	RigidBody3D::RigidBody3D():
@@ -55,42 +55,46 @@ namespace cxc {
 		m_pCollider->setGeomPosition(x, y, z);
 	}
 
-	void RigidBody3D::Initialize(dWorldID world,const glm::vec3 &position) noexcept
+	void RigidBody3D::Initialize(dWorldID world) noexcept
 	{
 
-		setPossition(position.x,position.y,position.z);
-		setRotation(glm::mat3(1.0f));
+		auto _m = m_pCollider->GetMass();
 
-		setMass(1, {position.x,position.y,position.z},glm::mat3(1.0f));
+		dMassTranslate(&_m,-_m.c[0],-_m.c[1],-_m.c[2]);
 
-		m_OriginPos = { position.x,position.y,position.z };
+		dBodySetMass(m_BodyID,&_m);
 
 	}
 
 	void RigidBody3D::UpdateMeshTransform() noexcept
 	{
-		auto R = getTransMatrix();
-		dReal trans_mat[] = { R[0][0],R[1][0],R[2][0],R[3][0],
-							R[0][1],R[1][1],R[2][1],R[3][1],
-							R[0][2],R[1][2],R[2][2],R[3][2],
-							0,0,0,1 };
+		auto geom_id = m_pCollider->getGeomID();
 
-		dGeomTriMeshSetLastTransform(m_pCollider->getGeomID(), trans_mat);
+		if (dGeomGetClass(geom_id) == dTriMeshClass) {
 
-		auto pos = getPosition();
-		m_pCollider->setGeomPosition(pos.x,pos.y,pos.z);
-		m_pCollider->setGeomRotation(getRotation());
+			const dReal* pos = dGeomGetPosition(geom_id);
+			const dReal* rot = dGeomGetRotation(geom_id);
+
+			const dReal trans_mat[16] = {
+				rot[0],rot[4],rot[8],0,
+				rot[1],rot[5],rot[9],0,
+				rot[2],rot[6],rot[10],0,
+				pos[0],pos[1],pos[2],1
+			};
+	
+			dGeomTriMeshSetLastTransform(geom_id, *(dMatrix4*)(&trans_mat));
+		}
 	}
 
 	glm::mat4 RigidBody3D::getTransMatrix() const noexcept
 	{
-		auto R = getRotation();
-		auto pos = getPosition() - m_OriginPos;
+		auto R = dGeomGetRotation(m_pCollider->getGeomID());
+		auto pos = dGeomGetPosition(m_pCollider->getGeomID());
 
 		return glm::transpose(glm::mat4({
-			R[0][0],R[1][0],R[2][0],pos[0],
-			R[0][1],R[1][1],R[2][1],pos[1],
-			R[0][2],R[1][2],R[2][2],pos[2],
+			R[0],R[1],R[2],pos[0],
+			R[4],R[5],R[6],pos[1],
+			R[8],R[9],R[10],pos[2],
 			0,0,0,1
 		}));
 	}
@@ -101,8 +105,8 @@ namespace cxc {
 							rot[0][1],rot[1][1],rot[2][1],0,
 							rot[0][2],rot[1][2],rot[2][2],0};
 
-		dBodySetRotation(m_BodyID,rot_mat);
-		m_pCollider->setGeomRotation(rot);
+		dBodySetRotation(m_BodyID,rot_mat); 
+		dGeomSetRotation(m_pCollider->getGeomID(),rot_mat);
 	}
 
 	void RigidBody3D::setLinearVelocity(dReal x, dReal y, dReal z) noexcept
@@ -172,11 +176,6 @@ namespace cxc {
 							const glm::mat3 &I) noexcept
 	{
 		dMass mass;
-		
-		dMassSetParameters(&mass,MassValue,
-						center_pos.x,center_pos.y,center_pos.z,
-						I[0][0],I[1][1],I[2][2],
-						I[1][0],I[2][0],I[2][1]);
 
 		//dBodySetMass(m_BodyID,&mass);	
 	}

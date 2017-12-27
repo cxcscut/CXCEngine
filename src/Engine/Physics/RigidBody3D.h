@@ -33,7 +33,7 @@ namespace cxc {
 		void createRigidBody(dWorldID world) noexcept;
 		void destroyRigidBody() noexcept;
 
-		void Initialize(dWorldID world,const glm::vec3 &position) noexcept;
+		void Initialize(dWorldID world) noexcept;
 
 		// Properties 
 	public:
@@ -47,6 +47,7 @@ namespace cxc {
 		glm::mat3 getRotation() const;
 		glm::vec3 getLinearVelocity() const;
 		glm::vec3 getAngularVelocity() const;
+		dBodyID GetBodyID() const { return m_BodyID; };
 
 		void setMass(dReal Mass,
 					const glm::vec3 & center_pos,
@@ -103,8 +104,6 @@ namespace cxc {
 
 		// Pointer to collider
 		std::shared_ptr<Collider3D> m_pCollider;
-
-		glm::vec3 m_OriginPos;
 
 		int m_GravityMode;
 	};

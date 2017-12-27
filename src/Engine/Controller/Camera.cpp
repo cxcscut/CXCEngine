@@ -11,7 +11,7 @@ namespace cxc {
 		Speed(3.0f), MouseSpeed(0.005f),
 		DeltaTime(0.0f), CurrentTime(0.0f),
 		Position(glm::vec3(0, 3, 8)),
-		eye_pos(glm::vec3(16, 16, 16)), origin(glm::vec3(0, 0, 0)), up_vector(0, 1, 0),
+		origin(glm::vec3(0, 0, 0)), up_vector(0, 1, 0),
 		m_CameraMode(static_cast<CameraModeType>(CameraMode::CXC_CAMERA_FIXED))
 	{
 		ComputeAngles();

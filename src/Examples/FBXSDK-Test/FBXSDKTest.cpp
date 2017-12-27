@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#define dSINGLE
 #include "EngineFacade\EngineFacade.h"
 
 #pragma comment(lib,"CXCENGINE.lib")
@@ -22,10 +23,9 @@ int main()
 	if (!plane || !plane->CheckLoaded()) return 0;
 	if (!sphere || !sphere->CheckLoaded()) return 0;
 
-	pEngine->m_pSceneMgr->AddObject("plane", plane);
+	pEngine->m_pSceneMgr->AddObject("plane", plane,true);
 	pEngine->m_pSceneMgr->AddObject("sphere", sphere);
 
-	plane->SetObjectGravityMode(0);
 	sphere->SetObjectGravityMode(1);
 
 	pEngine->SetGravity(0,-0.1,0);
@@ -41,8 +41,8 @@ int main()
 	pEngine->m_pWindowMgr->SetWindowTitle("Engine test");
 	pEngine->m_pWindowMgr->isDecoraded = true;
 
-	pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(20, 20, 20);
-	pEngine->m_pSceneMgr->m_pCamera->ComputeViewMatrix();
+	pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
+	//pEngine->m_pSceneMgr->m_pCamera->ComputeViewMatrix();
 
 	pEngine->run(false);
 

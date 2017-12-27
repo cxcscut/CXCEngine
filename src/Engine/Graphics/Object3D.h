@@ -119,9 +119,7 @@ namespace cxc {
 	// Physics interface
 	public:
 
-		void InitializeRigidBodies(dWorldID world) noexcept;
-
-		void AttachCollider(dSpaceID space) noexcept;
+		void InitializeRigidBodies(dWorldID world,dSpaceID) noexcept;
 
 		void SetObjectGravityMode(int mode) noexcept;
 
@@ -205,6 +203,8 @@ namespace cxc {
 		// Texture ptr
 		std::vector<std::string> m_TexNames;
 
+		// Kinematics object has infinite mass such as walls and earth.
+		bool isKinematics;
 	};
 
 }

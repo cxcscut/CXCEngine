@@ -13,9 +13,10 @@
 namespace cxc {
 
 	Object3D::Object3D() :
-		ObjectName(""), m_ModelMap(),m_Material(),indices_num(0U),
-		TexSamplerHandle(0U),VAO(0U),EBO(0U),VBO_A(0U),VBO_P(0U),
-		isLoaded(false),m_ObjectTree(),stateChanged(GL_FALSE),enable(GL_TRUE)
+		ObjectName(""), m_ModelMap(), m_Material(), indices_num(0U),
+		TexSamplerHandle(0U), VAO(0U), EBO(0U), VBO_A(0U), VBO_P(0U),
+		isLoaded(false), m_ObjectTree(), stateChanged(GL_FALSE), enable(GL_TRUE),
+		isKinematics(false)
 	{
 
 		auto max_float = std::numeric_limits<float>::max();
@@ -118,19 +119,17 @@ namespace cxc {
 		MinCoords.z = std::fmin(pos.z, MinCoords.z);
 	}
 
-	void Object3D::InitializeRigidBodies(dWorldID world) noexcept
+	void Object3D::InitializeRigidBodies(dWorldID world,dSpaceID space) noexcept
 	{
 		for (auto shape : m_ModelMap) {
 			shape.second->createRigidBody(world);
 			shape.second->ComputeCenterPoint();
-			shape.second->Initialize(world, shape.second->GetCenterPos());
-		}
-	}
+			shape.second->addCollider(space, shape.second->GetVertexArray(), shape.second->GetVertexIndices());
+			shape.second->Initialize(world);
 
-	void Object3D::AttachCollider(dSpaceID space) noexcept
-	{
-		for (auto shape : m_ModelMap)
-			shape.second->addCollider(space,shape.second->GetVertexArray(),shape.second->GetVertexIndices());
+			if (isKinematics)
+				dBodySetKinematic(shape.second->GetBodyID());
+		}
 	}
 
 	void Object3D::IndexVertex(std::map<VertexIndexPacket, uint32_t> &VertexIndexMap,

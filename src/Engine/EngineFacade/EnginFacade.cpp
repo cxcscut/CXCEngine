@@ -35,19 +35,6 @@ namespace cxc {
 		pEngine->m_pSceneMgr->m_pCamera->ComputePosition();
 		pEngine->m_pSceneMgr->m_pCamera->ComputeViewMatrix();
 		pEngine->m_pSceneMgr->m_pCamera->BindViewMatrix(ProgramID);
-
-		//m_RM->SetLightPos(camera->eye_pos);
-		//m_RM->BindLightingUniforms();
-
-		// Rotate object 
-		/* 
-		// Rotate left and right
-		Engine->m_SceneManager->RotateAllSprites(glm::vec3(0,1,0),theta_xoz); 
-
-		// Rotate up and down
-		Engine->m_SceneManager->RotateAllSprites(glm::vec3(1,0,0),theta_y);
-		Engine->m_SceneManager->RotateAllSprites(glm::vec3(0,0,1), theta_y);
-		*/
 	}
 
 	void MouseCallBack(GLFWwindow *window, int button, int action, int mods)
@@ -101,10 +88,6 @@ namespace cxc {
 
 		camera->ComputeViewMatrix();
 		camera->BindViewMatrix(CurrentProgramID);
-
-		//Engine->GetRendermanagerPtr()->SetLightPos(camera->eye_pos);
-		//Engine->GetRendermanagerPtr()->BindLightingUniforms();
-
 	}
 
 	EngineFacade::EngineFacade()
@@ -322,7 +305,7 @@ namespace cxc {
 
 		m_pSceneMgr->UpdateMeshTransMatrix();
 
-		dSpaceCollide(m_pSceneMgr->m_TopLevelSpace,0,&SceneManager::nearCallback);
+		dSpaceCollide(m_pSceneMgr->m_TopLevelSpace,reinterpret_cast<void *>(m_pSceneMgr.get()),&SceneManager::nearCallback);
 
 		dWorldQuickStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
 
@@ -342,7 +325,7 @@ namespace cxc {
 			if (m_pSceneMgr->m_pCamera->m_CameraMode == CAMERA_FREE)
 			{
 				StoreAndSetMousePos();
-				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(), m_pInputMgr->GetXPos(), m_pInputMgr->GetYPos(),
+ 				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(), m_pInputMgr->GetXPos(), m_pInputMgr->GetYPos(),
 					m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowWidth());
 			}
 

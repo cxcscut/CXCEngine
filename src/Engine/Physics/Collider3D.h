@@ -1,7 +1,8 @@
 #ifndef CXC_PHYSICS_COLLIDER_H
 #define CXC_PHYSICS_COLLIDER_H
 
-#define MAX_CONTACT_NUM 1
+#define MAX_CONTACT_NUM 64
+#define DESITY 0.0001f
 
 #include "ode\ode.h"
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,10 +25,6 @@ namespace cxc {
 		void destroyTriMeshGeom() noexcept;
 
 		void setGeomPosition(dReal x, dReal y, dReal z) noexcept;
-		void setGeomRotation(const glm::mat4 & rot) noexcept;
-
-		glm::vec3 getGeomPosition() const noexcept;
-		glm::mat3 getGeomRotation() const noexcept;
 
 		dSpaceID getGeomSpace() const noexcept;
 		int getGeomClass() const noexcept;
@@ -41,11 +38,15 @@ namespace cxc {
 		dTriMeshDataID getTriMeshID() const noexcept { return m_TriMeshDataID; };
 		dGeomID getGeomID() const noexcept { return m_GeomID; };
 
+		dMass GetMass() const noexcept { return m; };
+
 	private:
 
 		dTriMeshDataID m_TriMeshDataID;
 		// Only single geom supported for each RigidBody3D
 		dGeomID m_GeomID;
+
+		dMass m;
 
 	};
 }

@@ -1,7 +1,35 @@
-﻿  正在生成代码
-  0 of 145 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+﻿  demo_moving_trimesh.cpp
+demo_moving_trimesh.cpp(35): warning C4603: “dsDrawBox”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(35): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(36): warning C4603: “dsDrawSphere”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(36): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(37): warning C4603: “dsDrawCylinder”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(37): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(38): warning C4603: “dsDrawCapsule”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(38): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(39): warning C4603: “dsDrawLine”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(39): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(40): warning C4603: “dsDrawTriangle”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(40): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(46): warning C4603: “NUM”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(46): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(47): warning C4603: “DENSITY”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(47): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(48): warning C4603: “GPB”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(48): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+demo_moving_trimesh.cpp(49): warning C4603: “MAX_CONTACTS”: 未定义宏或在预编译头使用后定义发生改变
+  demo_moving_trimesh.cpp(49): note: 将宏添加到预编译头中，而不是在此处定义
+  demo_moving_trimesh.cpp(591): note: 使用预编译头
+  正在生成代码
   已完成代码的生成
   FBXSDK-Test.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.exe
   FBXSDK-Test.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.pdb (Full PDB)
