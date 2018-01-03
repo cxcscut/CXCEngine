@@ -53,6 +53,12 @@ namespace cxc {
 
 	public:
 
+		void addObject(const std::shared_ptr<Object3D > &pObject,bool isKinematics = false) noexcept;
+
+		void MultiThreadingEnable() noexcept { MultiThreading = true; };
+
+	public:
+
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
 		GLboolean LoadShader(ShaderType Type,const std::string &vertex_shader_path,const std::string &fragment_shader_path);
@@ -65,7 +71,8 @@ namespace cxc {
 		void SetGraphicsLibVersion(GLint HighByte,GLint LowByte) noexcept;
 
 	public:
-
+		
+		void Init() noexcept;
 		void InitEngine() noexcept;
 		void CleanFrameBuffer() const noexcept;
 		void ActivateRenderer(ShaderType Type) const noexcept;
@@ -75,7 +82,7 @@ namespace cxc {
 		void RenderingScenes() const noexcept;
 		void GameLooping() noexcept;
 
-		void run(GLboolean Multithreading = GL_TRUE) noexcept;
+		void run() noexcept;
 		void waitForStop() noexcept;
 
 	// Data access interface
@@ -99,10 +106,28 @@ namespace cxc {
 
 		void ProcessingPhysics() noexcept;
 
+		void SuspendPhysics() noexcept { pause = true; };
+		
+		void ResumePhysics() noexcept { pause = false; };
+
 	public:
 
 		// flag representing the status
 		GLboolean GameOver;
+
+	public:
+
+		bool EngineInitilized;
+
+		std::condition_variable cv;
+
+		std::mutex m_InitLock,m_RunLock;
+
+		glm::vec3 m_Gravity;
+
+		bool ODE_initialized;
+
+		bool MultiThreading;
 
 	private:
 
@@ -112,9 +137,7 @@ namespace cxc {
 		// Rendering thread
 		std::unique_ptr<std::thread> m_RenderingThread;
 
-		glm::vec3 m_Gravity;
-
-		bool ODE_initialized;
+		bool pause;
 	};
 }
 

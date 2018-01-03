@@ -59,14 +59,6 @@ namespace cxc {
 	using RenderingThread =
 		std::function<void(void)>;
 
-	using KeyboardHandler =
-		std::function<void(void)>;
-
-	using ScrollHandler =
-		std::function<void(void)>;
-
-	typedef KeyboardHandler MouseHandler;
-
 	using ObjectTree = MultiTree<std::shared_ptr<Shape>>;
 	using TokenTree = MultiTree<std::string>;
 

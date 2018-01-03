@@ -51,14 +51,4 @@ namespace cxc {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-
-	void InputManager::ProcessKeyboardInput(const KeyboardHandler &KeyboardHandler) const noexcept
-	{
-		KeyboardHandler();
-	}
-
-	void InputManager::ProcessMouseInput(const MouseHandler &MouseHandler) const noexcept
-	{
-		MouseHandler();
-	}
 }

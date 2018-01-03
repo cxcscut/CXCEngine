@@ -88,8 +88,6 @@ namespace cxc {
 	public:
 
 		void CreatePhysicalWorld(const glm::vec3 & gravity) noexcept;
-		
-		void InitializePhysicalObjects() noexcept;
 
 		static void nearCallback(void *data, dGeomID o1, dGeomID o2) noexcept;
 

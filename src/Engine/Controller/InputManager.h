@@ -34,12 +34,6 @@ namespace cxc {
 		void SetMouseCordinates(GLdouble newxpos, GLdouble newypos) noexcept;
 		void SetInputModel(GLFWwindow *window) const noexcept;
 
-	// Input processing
-	public:
-
-		void ProcessKeyboardInput(const KeyboardHandler &KeyBoardHandler) const noexcept;
-		void ProcessMouseInput(const MouseHandler &MouseHandler) const noexcept;
-
 	// State update
 	public:
 

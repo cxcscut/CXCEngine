@@ -106,7 +106,10 @@ namespace cxc {
 	public:
 
 		virtual void Translation(const std::string &ModelName, const glm::vec3 &TranslationVector) noexcept;
+		virtual void Translation(const glm::vec3 &TranslationVector) noexcept;
+
 		virtual void Rotation(const std::string &ModelName, const glm::vec3 &RotationAxis, float Degree) noexcept;
+		virtual void Rotation(const glm::vec3 &RotationAxis, float Degree) noexcept;
 
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;

@@ -141,7 +141,8 @@ namespace cxc {
 			cos(HorizontalAngle - 3.14f / 2.0f)
 		);
 
-		glm::vec3 Up = glm::cross(Right, Direction); // glm::cross return the cross product of two input vectors
+		// glm::cross return the cross product of two input vectors
+		glm::vec3 Up = glm::cross(Right, Direction); 
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			Position += Direction * DeltaTime * Speed;

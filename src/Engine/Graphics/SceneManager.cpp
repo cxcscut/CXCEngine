@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "..\EngineFacade\EngineFacade.h"
+#include <iostream>
 
 namespace cxc {
 
@@ -32,6 +33,17 @@ namespace cxc {
 			for (int i = 0; i < num_contact; ++i)
 			{
 				auto pSceneMgr = reinterpret_cast<SceneManager*>(data);
+
+				auto rgbd3d_ptr1 = reinterpret_cast<Shape*>(dBodyGetData(b1));
+				auto rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b1));
+
+				// Suspend physical loop
+				EngineFacade::GetInstance()->SuspendPhysics();
+
+				assert(rgbd3d_ptr1);
+				assert(rgbd3d_ptr2);
+				
+				std::cout << rgbd3d_ptr1->GetModelName() << " AND " << rgbd3d_ptr2->GetModelName() << " COLLIDES" << std::endl;
 
 				dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
 				dJointAttach(joint, dGeomGetBody(o1), dGeomGetBody(o2));
@@ -131,13 +143,6 @@ namespace cxc {
 		m_ContactJoints = dJointGroupCreate(0);
 	}
 
-	void SceneManager::InitializePhysicalObjects() noexcept
-	{
-		for (auto object : m_ObjectMap) {
-			object.second->InitializeRigidBodies(m_WorldID,m_TopLevelSpace);
-		}
-	}
-
 	void SceneManager::InitCameraStatus(GLFWwindow * window) noexcept
 	{
 		m_pCamera->InitLastTime();
@@ -185,6 +190,8 @@ namespace cxc {
 		m_ObjectMap.insert(std::make_pair(ObjectName, ObjectPtr));
 
 		ObjectPtr->isKinematics = isKinematics;
+
+		ObjectPtr->InitializeRigidBodies(m_WorldID, m_TopLevelSpace);
 
 	}
 

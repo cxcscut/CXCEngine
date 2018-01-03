@@ -30,11 +30,13 @@ namespace cxc {
 		return m_pCollider;
 	}
 
-	void RigidBody3D::createRigidBody(dWorldID world) noexcept
+	void RigidBody3D::createRigidBody(dWorldID world,void *user_data) noexcept
 	{
 		m_WorldID = world;
 
 		m_BodyID = dBodyCreate(m_WorldID);
+
+		dBodySetData(m_BodyID,user_data);
 
 		dBodySetGravityMode(m_BodyID,m_GravityMode);
 
@@ -126,6 +128,9 @@ namespace cxc {
 		glm::vec3 ret;
 
 		const dReal *pos;
+
+		assert(m_BodyID);
+
 		pos = dBodyGetPosition(m_BodyID);
 
 		ret.x = pos[0]; ret.y = pos[1]; ret.z = pos[2];

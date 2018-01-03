@@ -1,7 +1,7 @@
 #ifndef CXC_PHYSICS_COLLIDER_H
 #define CXC_PHYSICS_COLLIDER_H
 
-#define MAX_CONTACT_NUM 64
+#define MAX_CONTACT_NUM 1
 #define DESITY 0.0001f
 
 #include "ode\ode.h"

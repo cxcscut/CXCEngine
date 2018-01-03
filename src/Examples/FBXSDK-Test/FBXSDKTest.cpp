@@ -14,37 +14,55 @@ static const std::string sphere_file = "Model\\sphere.obj";
 static const std::string VertexShaderPath = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
 static const std::string FragmentShaderPath = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
 
+auto plane = std::make_shared<Object3D>("plane", plane_file);
+auto sphere = std::make_shared<Object3D>("sphere", sphere_file);
+
 int main()
 {
+	// Accquire engine pointer
 	auto pEngine = EngineFacade::GetInstance();
 
-	auto plane = std::make_shared<Object3D>("plane",plane_file);
-	auto sphere = std::make_shared<Object3D>("sphere",sphere_file);
-	if (!plane || !plane->CheckLoaded()) return 0;
-	if (!sphere || !sphere->CheckLoaded()) return 0;
+	// Engine configuration
+	{
+		sphere->SetObjectGravityMode(0);
 
-	pEngine->m_pSceneMgr->AddObject("plane", plane,true);
-	pEngine->m_pSceneMgr->AddObject("sphere", sphere);
+		pEngine->SetGravity(0, -0.1, 0);
 
-	sphere->SetObjectGravityMode(1);
+		pEngine->m_pWindowMgr->InitGL();
 
-	pEngine->SetGravity(0,-0.1,0);
+		pEngine->m_pWindowMgr->SetWindowHeight(600);
+		pEngine->m_pWindowMgr->SetWindowWidth(800);
 
-	pEngine->m_pWindowMgr->InitGL();
+		pEngine->SetVertexShaderPath(VertexShaderPath);
+		pEngine->SetFragmentShaderPath(FragmentShaderPath);
 
-	pEngine->m_pWindowMgr->SetWindowHeight(600);
-	pEngine->m_pWindowMgr->SetWindowWidth(800);
+		pEngine->m_pWindowMgr->SetWindowTitle("Engine test");
+		pEngine->m_pWindowMgr->isDecoraded = true;
 
-	pEngine->SetVertexShaderPath(VertexShaderPath);
-	pEngine->SetFragmentShaderPath(FragmentShaderPath);
+		pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
 
-	pEngine->m_pWindowMgr->SetWindowTitle("Engine test");
-	pEngine->m_pWindowMgr->isDecoraded = true;
+		pEngine->MultiThreadingEnable();
+	}
 
-	pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
-	//pEngine->m_pSceneMgr->m_pCamera->ComputeViewMatrix();
+	pEngine->Init();
 
-	pEngine->run(false);
+	// Object definition
+	{
+		if (!plane || !plane->CheckLoaded()) return 0;
+		if (!sphere || !sphere->CheckLoaded()) return 0;
+
+		pEngine->addObject(plane, true);
+		pEngine->addObject(sphere);
+	}
+
+	// Start engine
+	pEngine->run();
+
+	// Add code here 
+	sphere->Translation(glm::vec3(0, -50, 0));
+
+	// Stop engine
+	pEngine->waitForStop();
 
     return 0;
 }

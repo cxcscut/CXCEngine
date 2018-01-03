@@ -122,7 +122,7 @@ namespace cxc {
 	void Object3D::InitializeRigidBodies(dWorldID world,dSpaceID space) noexcept
 	{
 		for (auto shape : m_ModelMap) {
-			shape.second->createRigidBody(world);
+			shape.second->createRigidBody(world,reinterpret_cast<void*>(shape.second.get()));
 			shape.second->ComputeCenterPoint();
 			shape.second->addCollider(space, shape.second->GetVertexArray(), shape.second->GetVertexIndices());
 			shape.second->Initialize(world);
@@ -646,6 +646,18 @@ namespace cxc {
 			return std::shared_ptr<Shape>(nullptr);
 		else
 			return it->second;
+	}
+
+	void Object3D::Translation(const glm::vec3 &TranslationVector) noexcept
+	{
+		for (auto shape : m_ModelMap)
+			shape.second->Translate(TranslationVector);
+	}
+
+	void Object3D::Rotation(const glm::vec3 &RotationAxis, float Degree) noexcept
+	{
+		for (auto shape : m_ModelMap)
+			shape.second->Rotate(RotationAxis,Degree);
 	}
 
 	void Object3D ::Translation(const std::string &ModelName, const glm::vec3 &TranslationVector) noexcept

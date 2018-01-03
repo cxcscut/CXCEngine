@@ -90,11 +90,78 @@ namespace cxc {
 		camera->BindViewMatrix(CurrentProgramID);
 	}
 
+	// Multi-threading rendering
+	auto RenderingFunc = [&]() {
+
+		auto pEngine = EngineFacade::GetInstance();
+		auto m_pWindowMgr = pEngine->m_pWindowMgr;
+		auto m_pSceneMgr = pEngine->m_pSceneMgr;
+
+		std::unique_lock<std::mutex> lk(pEngine->m_InitLock);
+
+		// Create window
+		if (!pEngine->CreateAndDisplayWindow(m_pWindowMgr->GetWindowWidth(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowTitle()))
+		{
+
+			// release program resources
+			m_pSceneMgr->m_pRendererMgr->releaseResources();
+
+			// shutdown and clean
+			glfwTerminate();
+			return;
+		}
+
+		if (!pEngine->LoadShader(CXC_SPRITE_SHADER_PROGRAM, pEngine->GetVertexShaderPath(), pEngine->GetFragmentShaderPath()))
+		{
+			// release program resources
+			m_pSceneMgr->m_pRendererMgr->releaseResources();
+
+			// shutdown and clean
+			glfwTerminate();
+			return;
+		}
+
+		// Init input mode
+		pEngine->InitEngine();
+		
+		// Init camera params and set input callback func
+		m_pSceneMgr->InitCameraStatus(m_pWindowMgr->GetWindowHandle());
+
+		// Init physics engine
+		dInitODE(); pEngine->ODE_initialized = true;
+		m_pSceneMgr->CreatePhysicalWorld(pEngine->m_Gravity);
+
+		pEngine->EngineInitilized = true;
+
+		lk.unlock();
+		pEngine->cv.notify_one();
+		pEngine->m_RunLock.lock();
+
+		m_pSceneMgr->initResources();
+
+		// Begin event looping
+		pEngine->GameLooping();
+
+		// release buffers resources
+		m_pSceneMgr->releaseBuffers();
+
+		// release program resources
+		m_pSceneMgr->m_pRendererMgr->releaseResources();
+
+		// Release texture resources
+		m_pSceneMgr->m_pTextureMgr->RemoveAllTexture();
+
+		// Shutdown GL context
+		pEngine->CleanGL();
+
+	};
+
 	EngineFacade::EngineFacade()
 		:
-		GameOver(GL_FALSE), VertexShaderPath(".\\Engine\\Shader\\StandardVertexShader.glsl"),
-		FragmentShaderPath(".\\Engine\\Shader\\StandardFragmentShader.glsl"),
-		m_Gravity(glm::vec3({0,-9.81f,0})), ODE_initialized(false)
+		GameOver(GL_FALSE),
+		m_Gravity(glm::vec3({0,-9.81f,0})),
+		ODE_initialized(false),pause(false),MultiThreading(false),
+		EngineInitilized(false)
 	{
 
 		m_pInputMgr = InputManager::GetInstance();
@@ -107,6 +174,11 @@ namespace cxc {
 		if(ODE_initialized)
 			// Deallocation for extra memory of ODE runtime
 			dCloseODE();
+	}
+
+	void EngineFacade::addObject(const std::shared_ptr<Object3D > &pObject,bool isKinematics) noexcept
+	{
+		m_pSceneMgr->AddObject(pObject->GetObjectName(),pObject,isKinematics);
 	}
 
 	GLboolean EngineFacade::CreateAndDisplayWindow(GLint Width,
@@ -127,6 +199,7 @@ namespace cxc {
 
 		m_pWindowMgr->InitContext();
 
+		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK)
 		{
 			return GL_FALSE;
@@ -184,11 +257,18 @@ namespace cxc {
 		}
 	}
 	
-	void EngineFacade::run(GLboolean Multithreading) noexcept
+	void EngineFacade::Init() noexcept
 	{
-		// Multi-threading rendering
-		auto RenderingFunc = [&]() {
+		if (MultiThreading)
+		{
+			m_RunLock.lock();
+			m_RenderingThread = std::make_unique<std::thread>(RenderingFunc);
 
+			std::unique_lock<std::mutex> lk(m_InitLock);
+			cv.wait(lk, [=] {return EngineInitilized; });
+		}
+		else
+		{
 			// Create window
 			if (!CreateAndDisplayWindow(m_pWindowMgr->GetWindowWidth(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowTitle()))
 			{
@@ -201,7 +281,7 @@ namespace cxc {
 				return;
 			}
 
-			if (!LoadShader(CXC_SPRITE_SHADER_PROGRAM, VertexShaderPath, FragmentShaderPath))
+			if (!LoadShader(CXC_SPRITE_SHADER_PROGRAM, GetVertexShaderPath(),GetFragmentShaderPath()))
 			{
 				// release program resources
 				m_pSceneMgr->m_pRendererMgr->releaseResources();
@@ -217,16 +297,20 @@ namespace cxc {
 			// Init camera params and set input callback func
 			m_pSceneMgr->InitCameraStatus(m_pWindowMgr->GetWindowHandle());
 
-			// Load texture
-			m_pSceneMgr->m_pTextureMgr->LoadAllTexture();
-
-			// Accuire resources
-			m_pSceneMgr->initResources();
-
 			// Init physics engine
-			dInitODE(); ODE_initialized = true;
+			dInitODE();ODE_initialized = true;
 			m_pSceneMgr->CreatePhysicalWorld(m_Gravity);
-			m_pSceneMgr->InitializePhysicalObjects();
+		}
+	}
+
+	void EngineFacade::run() noexcept
+	{
+		if (MultiThreading) {
+			m_RunLock.unlock();
+		}
+		else
+		{
+			m_pSceneMgr->initResources();
 
 			// Begin event looping
 			GameLooping();
@@ -242,18 +326,9 @@ namespace cxc {
 
 			// Shutdown GL context
 			CleanGL();
-
-		};
-
-		if (Multithreading)
-			// Begin rendering thread, it will be joined when waitForStop() invoked
-			m_RenderingThread = std::make_unique<std::thread>(RenderingFunc);
-		else
-			// Invocked in the main thread
-			RenderingFunc();
+		}
 
 	}
-
 
 	void EngineFacade::SetGraphicsLibVersion(GLint HighByte, GLint LowByte) noexcept
 	{
@@ -329,8 +404,12 @@ namespace cxc {
 					m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowWidth());
 			}
 
-			// Processing physical status
-			ProcessingPhysics();
+			if(!pause)
+				// Processing physical status
+				ProcessingPhysics();
+
+			// Load texture
+			m_pSceneMgr->m_pTextureMgr->LoadAllTexture();
 
 			// Rendering scenes
 			RenderingScenes();
