@@ -41,7 +41,7 @@ A demo for testing Open Dynamics Engine
 - [x] Winsock interface for remote connections
 - [x] Object recognition and analysis
 - [x] Optimization of draw calls 
-- [ ] Physics engine using Open Dynamics Engine
-- [ ] Animation
+- [x] Physics engine using Open Dynamics Engine
 - [ ] Motion planning for obstacle advoidance
+- [ ] Animation
 - [ ] GUI based on QT
