@@ -57,7 +57,7 @@ namespace cxc {
 		m_pCollider->setGeomPosition(x, y, z);
 	}
 
-	void RigidBody3D::Initialize(dWorldID world) noexcept
+	void RigidBody3D::InitializeMass(dWorldID world) noexcept
 	{
 
 		auto _m = m_pCollider->GetMass();

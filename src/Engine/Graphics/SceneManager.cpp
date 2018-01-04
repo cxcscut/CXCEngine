@@ -38,12 +38,12 @@ namespace cxc {
 				auto rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b1));
 
 				// Suspend physical loop
-				EngineFacade::GetInstance()->SuspendPhysics();
+				//EngineFacade::GetInstance()->SuspendPhysics();
 
 				assert(rgbd3d_ptr1);
 				assert(rgbd3d_ptr2);
 				
-				std::cout << rgbd3d_ptr1->GetModelName() << " AND " << rgbd3d_ptr2->GetModelName() << " COLLIDES" << std::endl;
+				//std::cout << rgbd3d_ptr1->GetModelName() << " AND " << rgbd3d_ptr2->GetModelName() << " COLLIDES" << std::endl;
 
 				dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
 				dJointAttach(joint, dGeomGetBody(o1), dGeomGetBody(o2));

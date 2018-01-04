@@ -1,9 +1,18 @@
-﻿  RigidBody3D.cpp
-Physics\RigidBody3D.cpp(141): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(170): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(179): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(261): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(271): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+﻿  Collider3D.cpp
+  RigidBody3D.cpp
+Physics\RigidBody3D.cpp(136): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(165): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(174): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(256): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+Physics\RigidBody3D.cpp(266): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
+  Camera.cpp
+  CommandHandler.cpp
+  InputManager.cpp
+  EnginFacade.cpp
+  Object3D.cpp
+  SceneManager.cpp
+  Shape.cpp
+  正在生成代码...
 FontsManager.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
 Font.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
   CXCENGINE.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Engine\Release\CXCENGINE.lib

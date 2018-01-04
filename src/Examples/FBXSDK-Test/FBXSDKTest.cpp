@@ -2,15 +2,18 @@
 //
 
 #include "stdafx.h"
-#define dSINGLE
+#define dDOUBLE
 #include "EngineFacade\EngineFacade.h"
 
 #pragma comment(lib,"CXCENGINE.lib")
 
 using namespace cxc;
 
+static const std::string sphere_file = "C:\\Users\\39317\\Desktop\\test.obj";
+//static const std::string plane_file = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Examples\\RobotSim\\Model\\plane.obj";
+//static const std::string sphere_file = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Examples\\RobotSim\\Model\\SZrobotr.obj";
 static const std::string plane_file = "Model\\plane.obj";
-static const std::string sphere_file = "Model\\sphere.obj";
+//static const std::string sphere_file = "Model\\sphere.obj";
 static const std::string VertexShaderPath = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
 static const std::string FragmentShaderPath = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
 
@@ -52,14 +55,15 @@ int main()
 		if (!sphere || !sphere->CheckLoaded()) return 0;
 
 		pEngine->addObject(plane, true);
-		pEngine->addObject(sphere);
+		pEngine->addObject(sphere,true);
+
 	}
 
 	// Start engine
 	pEngine->run();
 
 	// Add code here 
-	sphere->Translation(glm::vec3(0, -50, 0));
+	sphere->RotateWithArbitraryAxis("arm_right2",glm::vec3(0,0,0),glm::vec3(0,1,0),45.0f);
 
 	// Stop engine
 	pEngine->waitForStop();

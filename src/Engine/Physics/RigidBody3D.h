@@ -33,7 +33,7 @@ namespace cxc {
 		void createRigidBody(dWorldID world,void * user_data) noexcept;
 		void destroyRigidBody() noexcept;
 
-		void Initialize(dWorldID world) noexcept;
+		void InitializeMass(dWorldID world) noexcept;
 
 		// Properties 
 	public:

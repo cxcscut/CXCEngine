@@ -1,8 +1,9 @@
 #ifndef CXC_PHYSICS_COLLIDER_H
 #define CXC_PHYSICS_COLLIDER_H
 
-#define MAX_CONTACT_NUM 1
-#define DESITY 0.0001f
+#define MAX_CONTACT_NUM 16
+#define DESITY 0.0005f
+#define dDOUBLE
 
 #include "ode\ode.h"
 #include <glm/gtc/matrix_transform.hpp>

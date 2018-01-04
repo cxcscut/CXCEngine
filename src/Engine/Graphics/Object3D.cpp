@@ -121,15 +121,17 @@ namespace cxc {
 
 	void Object3D::InitializeRigidBodies(dWorldID world,dSpaceID space) noexcept
 	{
+		
 		for (auto shape : m_ModelMap) {
 			shape.second->createRigidBody(world,reinterpret_cast<void*>(shape.second.get()));
-			shape.second->ComputeCenterPoint();
 			shape.second->addCollider(space, shape.second->GetVertexArray(), shape.second->GetVertexIndices());
-			shape.second->Initialize(world);
 
 			if (isKinematics)
 				dBodySetKinematic(shape.second->GetBodyID());
+			else
+				shape.second->InitializeMass(world);
 		}
+		
 	}
 
 	void Object3D::IndexVertex(std::map<VertexIndexPacket, uint32_t> &VertexIndexMap,
@@ -917,13 +919,22 @@ namespace cxc {
 
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::COLOR_LOCATION));
 		glVertexAttribPointer(static_cast<GLuint>(Location::COLOR_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec3) + sizeof(glm::vec2))); // Color
-
+		
+		
 		for (auto shape : m_ModelMap) {
 
 			GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
-			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &shape.second->getTransMatrix()[0][0]);
 
-			glDrawElements(GL_TRIANGLES, shape.second->GetVertexIndices().size(), GL_UNSIGNED_INT, (void*)(GetVertexSubscript(shape.second->GetModelName())));
+			auto model_matrix = shape.second->getTransMatrix();
+
+			auto offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
+
+			auto idx_num = shape.second->GetVertexIndices().size();
+
+			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &model_matrix[0][0]);
+			
+			// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices 
+			glDrawElements(GL_TRIANGLES,idx_num , GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
 		}
 	}
 

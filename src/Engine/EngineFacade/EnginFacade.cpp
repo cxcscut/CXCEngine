@@ -382,7 +382,7 @@ namespace cxc {
 
 		dSpaceCollide(m_pSceneMgr->m_TopLevelSpace,reinterpret_cast<void *>(m_pSceneMgr.get()),&SceneManager::nearCallback);
 
-		dWorldQuickStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
+		dWorldStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
 
 		dJointGroupEmpty(m_pSceneMgr->m_ContactJoints);
 
@@ -403,11 +403,11 @@ namespace cxc {
  				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(), m_pInputMgr->GetXPos(), m_pInputMgr->GetYPos(),
 					m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowWidth());
 			}
-
+			
 			if(!pause)
 				// Processing physical status
 				ProcessingPhysics();
-
+				
 			// Load texture
 			m_pSceneMgr->m_pTextureMgr->LoadAllTexture();
 
