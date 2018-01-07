@@ -1,11 +1,4 @@
-﻿  Collider3D.cpp
-  RigidBody3D.cpp
-Physics\RigidBody3D.cpp(136): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(165): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(174): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(256): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(266): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-  Camera.cpp
+﻿  Camera.cpp
   CommandHandler.cpp
   InputManager.cpp
   EnginFacade.cpp

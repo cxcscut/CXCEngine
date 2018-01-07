@@ -16,6 +16,13 @@ namespace cxc {
 		dBodyID b2 = dGeomGetBody(o2);
 		if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact)) return;
 
+		auto rgbd3d_ptr1 = reinterpret_cast<Shape*>(dBodyGetData(b1));
+		auto rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b2));
+
+		// Do not check collision if tags are the same
+		if (rgbd3d_ptr1->CompareTag() == rgbd3d_ptr2->CompareTag())
+			return;
+
 		for (num = 0; num < MAX_CONTACT_NUM; ++num)
 		{
 			contacts[num].surface.mode = dContactBounce | dContactSoftCFM;
@@ -33,9 +40,6 @@ namespace cxc {
 			for (int i = 0; i < num_contact; ++i)
 			{
 				auto pSceneMgr = reinterpret_cast<SceneManager*>(data);
-
-				auto rgbd3d_ptr1 = reinterpret_cast<Shape*>(dBodyGetData(b1));
-				auto rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b1));
 
 				// Suspend physical loop
 				//EngineFacade::GetInstance()->SuspendPhysics();
@@ -65,18 +69,13 @@ namespace cxc {
 	{
 		m_ObjectMap.clear();
 
-		// Destroy world
-		if(m_WorldID)
-			dWorldDestroy(m_WorldID);
-		
 		// Destroy joint group
-		if(m_ContactJoints)
+		if (m_ContactJoints)
 			dJointGroupDestroy(m_ContactJoints);
-		
-		// Destroy space
-		if(m_TopLevelSpace)
-			dSpaceDestroy(m_TopLevelSpace);
 
+		// Destroy space
+		if (m_TopLevelSpace)
+			dSpaceDestroy(m_TopLevelSpace);
 	}
 
 	void SceneManager::releaseBuffers() noexcept

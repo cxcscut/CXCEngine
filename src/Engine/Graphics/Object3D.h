@@ -74,7 +74,7 @@ namespace cxc {
 		virtual ~Object3D();
 		
 		Object3D(const std::string &object_name);
-		Object3D(const std::string &Object_name,const std::string &filename, GLboolean _enable = GL_TRUE);
+		Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag = "" , GLboolean _enable = GL_TRUE);
 
 	// Obj file loading
 	public:
@@ -104,7 +104,6 @@ namespace cxc {
 		
 	// Model transformation
 	public:
-
 		virtual void Translation(const std::string &ModelName, const glm::vec3 &TranslationVector) noexcept;
 		virtual void Translation(const glm::vec3 &TranslationVector) noexcept;
 
@@ -166,6 +165,9 @@ namespace cxc {
 		void Enable() noexcept { enable = GL_TRUE; };
 		void Disable() noexcept { enable = GL_FALSE; };
 
+		void SetTag(const std::string &_tag) noexcept { tag = _tag; };
+		std::string CompareTag() noexcept { return tag; };
+
 	private:
 
 		// is enabled
@@ -173,6 +175,9 @@ namespace cxc {
 
 		// Name
 		std::string ObjectName;
+
+		// Tag for collision detection
+		std::string tag;
 
 		// Max, min and center coordinates
 		glm::vec3 MaxCoords, MinCoords, CenterCoords;

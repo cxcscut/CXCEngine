@@ -5,9 +5,12 @@ namespace cxc {
 
 	static double _x=0.0f, _y=0.0f;
 
+	std::function<void(int key, int scancode, int action, int mods)> 
+		EngineFacade::KeyInputCallBack = [=](int,int,int,int) {};
+
 	void KeyBoradCallBack(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
-		
+		std::invoke(EngineFacade::KeyInputCallBack,key,scancode,action,mods);
 	}
 
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)

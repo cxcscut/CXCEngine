@@ -29,6 +29,9 @@ namespace cxc {
 	// Date access interface
 	public:
 
+		void SetTag(const std::string &_tag) noexcept { tag = _tag; };
+		std::string CompareTag() noexcept { return tag; };
+
 		const std::vector<glm::vec3> &GetVertexArray() const noexcept;
 		const std::vector<glm::vec3> &GetNormalArray() const noexcept;
 		const std::vector<glm::vec3> &GetGeometricNormal() const noexcept;
@@ -67,6 +70,9 @@ namespace cxc {
 		void Rotate(const glm::vec3 &rotation_axis, GLfloat degree) noexcept;
 
 	private:
+
+		// Tag
+		std::string tag;
 
 		// Name of the model
 		std::string m_ModelName;

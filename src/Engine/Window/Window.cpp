@@ -9,7 +9,8 @@ namespace cxc {
 		LowByteVersion(3), HighByteVersion(4),
 		isForwardCompatible(GL_TRUE),
 		isEnableDepth(GL_TRUE), m_BackGroundColor(),
-		isReady(false),isDecoraded(false)
+		isReady(false),isDecoraded(false),
+		x_pos(m_WindowWidth/2),y_pos(m_WindowHeight/2)
 
  	{
 
@@ -124,7 +125,7 @@ namespace cxc {
 		else
 		{
 			// Set window pos
-			SetWindowPos(0,0);
+			SetWindowPos(x_pos,y_pos);
 			isReady = true;
 			return GL_TRUE;
 		}
@@ -132,7 +133,8 @@ namespace cxc {
 
 	void WindowManager::SetWindowPos(GLint x, GLint y) noexcept
 	{
-		glfwSetWindowPos(m_WindowHandle, x, y);
+		if(m_WindowHandle)
+			glfwSetWindowPos(m_WindowHandle, x, y);
 	}
 
 	bool WindowManager::InitGL() const noexcept {

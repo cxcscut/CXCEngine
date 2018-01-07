@@ -69,6 +69,7 @@ namespace cxc {
 		void SetBackGroundColor(float red, float green, float blue, float alpha) noexcept;
 		void SetWindowParams(const WindowDescriptor &windes) noexcept;
 		void SetGraphicsLibVersion(GLint HighByte,GLint LowByte) noexcept;
+		void InitWindowPosition(GLint x, GLint y) noexcept { m_pWindowMgr->x_pos = x; m_pWindowMgr->y_pos = y; };
 
 	public:
 		
@@ -128,6 +129,8 @@ namespace cxc {
 		bool ODE_initialized;
 
 		bool MultiThreading;
+
+		static std::function<void(int key, int scancode, int action, int mods)> KeyInputCallBack;
 
 	private:
 

@@ -52,10 +52,10 @@ namespace cxc {
 
 		bool InitGL() const noexcept;
 		bool isDecoraded;
+		GLint x_pos, y_pos;
 
 	private:
 
-		GLint x_pos, y_pos;
 		GLint m_WindowHeight, m_WindowWidth;
 		GLint m_SamplingLevel;
 		GLint LowByteVersion, HighByteVersion;

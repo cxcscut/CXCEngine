@@ -33,10 +33,11 @@ namespace cxc {
 		ObjectName = sprite_name;
 	}
 
-	Object3D::Object3D(const std::string &Object_name, const std::string &filename, GLboolean _enable)
+	Object3D::Object3D(const std::string &Object_name, const std::string &filename,const std::string &_tag, GLboolean _enable)
 		: Object3D()
 	{
 		ObjectName = Object_name;
+		tag = _tag;
 		LoadOBJFromFile(filename);
 		enable = _enable;
 	}
@@ -268,6 +269,8 @@ namespace cxc {
 		for (size_t s = 0; s < shapes.size(); ++s) 
 		{
 			auto drawobject = std::make_shared<Shape>();
+
+			drawobject->SetTag(tag);
 
 			drawobject->m_VertexCoords.reserve(shapes[s].mesh.indices.size());
 			drawobject->m_VertexIndices.reserve(shapes[s].mesh.indices.size());
@@ -927,6 +930,7 @@ namespace cxc {
 
 			auto model_matrix = shape.second->getTransMatrix();
 
+			// Offset in memory
 			auto offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
 
 			auto idx_num = shape.second->GetVertexIndices().size();
@@ -953,6 +957,7 @@ namespace cxc {
 		// Perform rotation on root node
 		// Move to world origin
 
+		/*
 		Translation(ModelName, -start);
 
 		// Rotation with coordinate axis
@@ -960,12 +965,26 @@ namespace cxc {
 
 		// Move back
 		Translation(ModelName, start);
+		*/
 
-		stateChanged = GL_TRUE;
+		glm::mat4 M = glm::translate(glm::rotate(glm::translate(glm::mat4(1.0f),start),degree,direction),-start);
+
+		// Perform rotation on root node
+		// Set 3x3 Rotation matrix 
+		ModelPtr->setRotation((glm::mat3)M);
+
+		// Set position vector
+		ModelPtr->setPossition(M[3][0],M[3][1],M[3][2]);
+
+		SetStateChanged(GL_TRUE);
 
 		auto ObjectNodePtr = ModelPtr->m_MyPtr;
 		if (!ObjectNodePtr)
 			return;
+
+		// Perform rotation on children node
+		for (auto &children : ObjectNodePtr->children)
+			RotateWithArbitraryAxis(children->root->GetModelName(),start,direction,degree);
 
 	}
 }
