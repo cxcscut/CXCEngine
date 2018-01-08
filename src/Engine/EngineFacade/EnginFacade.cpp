@@ -102,6 +102,8 @@ namespace cxc {
 
 		std::unique_lock<std::mutex> lk(pEngine->m_InitLock);
 
+		pEngine->m_pWindowMgr->InitGL();
+
 		// Create window
 		if (!pEngine->CreateAndDisplayWindow(m_pWindowMgr->GetWindowWidth(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowTitle()))
 		{
@@ -272,6 +274,8 @@ namespace cxc {
 		}
 		else
 		{
+			m_pWindowMgr->InitGL();
+
 			// Create window
 			if (!CreateAndDisplayWindow(m_pWindowMgr->GetWindowWidth(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowTitle()))
 			{

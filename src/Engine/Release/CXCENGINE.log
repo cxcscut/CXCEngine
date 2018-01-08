@@ -1,11 +1,4 @@
-﻿  Camera.cpp
-  CommandHandler.cpp
-  InputManager.cpp
-  EnginFacade.cpp
-  Object3D.cpp
-  SceneManager.cpp
-  Shape.cpp
-  正在生成代码...
+﻿  SceneManager.cpp
 FontsManager.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
 Font.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
   CXCENGINE.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Engine\Release\CXCENGINE.lib

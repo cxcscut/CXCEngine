@@ -8,6 +8,7 @@
 #include "Kinematics.cpp"
 
 #define MOVING_STEP 20.0f
+#define MOVING_ORIENTATION_STEP (glm::radians(45.0f))
 
 #pragma comment(lib,"CXCENGINE.lib")
 
@@ -62,6 +63,24 @@ auto keycallback = [=](int key, int scancode, int action, int mods) {
 		}
 	}
 
+	// PageUp pressed
+	if (glfwGetKey(pEngine->m_pWindowMgr->GetWindowHandle(), GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+	{
+		if (m_LeftPtr)
+		{
+			m_LeftPtr->MovingArmOffset(glm::vec3({ 0, 0,MOVING_STEP }));
+		}
+	}
+
+	// PageDown pressed
+	if (glfwGetKey(pEngine->m_pWindowMgr->GetWindowHandle(), GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+	{
+		if (m_LeftPtr)
+		{
+			m_LeftPtr->MovingArmOffset(glm::vec3({ 0, 0,-MOVING_STEP }));
+		}
+	}
+
 	if (glfwGetKey(pEngine->m_pWindowMgr->GetWindowHandle(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		pEngine->GameOver = true;
@@ -110,7 +129,7 @@ int main()
 				m_RightPtr = std::make_shared<Robothand>(type, hand_file);
 		};
 
-		auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane", plane_file, "env"); };
+		auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane", plane_file,"env"); };
 		auto LoadTable = [&]() {
 			Table = std::make_shared<Object3D>("table", table_file, "env");
 		};
@@ -123,6 +142,8 @@ int main()
 		plane.join();
 		table.join();
 
+		std::cout << m_LeftPtr->GetObjectTreePtr().size() << std::endl;
+
 		if (!Plane || !Plane->CheckLoaded()) return 0;
 		if (!m_LeftPtr || !m_LeftPtr->CheckLoaded()) return 0;
 
@@ -134,15 +155,16 @@ int main()
 
 	// Adding user code here 
 	{
+		Plane->Translation(glm::vec3(0,-1,0));
+
 		m_LeftPtr->InitOriginalDegrees();
+
+		m_LeftPtr->RotateJoint("arm_left2", 90.0f);
 
 		// Set initial pose of robot arm
 		m_LeftPtr->SetBaseDegrees({ 0,0,90,0,-90,0 });
 
-		m_LeftPtr->RotateJoint("arm_left2",90.0f);
-		m_LeftPtr->RotateJoint("arm_left3",45.0f);
-
-		//m_LeftPtr->MovingArm(0,-200,500,0,0,0);
+		m_LeftPtr->MovingArm(0,-200,500,0,0,0);
 	}
 
 	// Start engine

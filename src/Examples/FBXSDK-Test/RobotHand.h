@@ -79,6 +79,8 @@ public:
 
 	void MovingArmOffset(GLfloat x, GLfloat y, GLfloat z) noexcept { MovingArmOffset(glm::vec3({ x,y,z })); };
 	
+	void MovingArmOrientationOffset(GLfloat x, GLfloat y, GLfloat z) noexcept;
+
 public:
 
 	// Load motions from script

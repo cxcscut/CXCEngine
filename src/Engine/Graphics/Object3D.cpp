@@ -953,28 +953,22 @@ namespace cxc {
 		// while in the local coordinate system, matrix multiplication sequence should not be reversed
 		// here we use local coordinate system in which transformation matrix should be left-multiplied
 
-
 		// Perform rotation on root node
 		// Move to world origin
-
-		/*
-		Translation(ModelName, -start);
-
-		// Rotation with coordinate axis
-		Rotation(ModelName, direction, degree);
-
-		// Move back
-		Translation(ModelName, start);
-		*/
-
 		glm::mat4 M = glm::translate(glm::rotate(glm::translate(glm::mat4(1.0f),start),degree,direction),-start);
 
 		// Perform rotation on root node
 		// Set 3x3 Rotation matrix 
-		ModelPtr->setRotation((glm::mat3)M);
+		ModelPtr->setRotation((glm::mat3)M * ModelPtr->getRotation());
+
+		auto P = ModelPtr->getPosition();
 
 		// Set position vector
-		ModelPtr->setPossition(M[3][0],M[3][1],M[3][2]);
+		ModelPtr->setPossition(
+			M[0][0] * P.x + M[1][0] * P.y + M[2][0] * P.z + M[3][0],
+			M[0][1] * P.x + M[1][1] * P.y + M[2][1] * P.z + M[3][1],
+			M[0][2] * P.x + M[1][2] * P.y + M[2][2] * P.z + M[3][2]
+		);
 
 		SetStateChanged(GL_TRUE);
 

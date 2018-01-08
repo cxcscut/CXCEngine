@@ -106,10 +106,11 @@ C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\1
               _Kty=std::string,
               _Valty=std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>
           ]
+  RobotHand.cpp
   正在生成代码
-  75 of 2667 functions ( 2.8%) were compiled, the rest were copied from previous compilation.
+  1 of 2674 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    37 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   FBXSDK-Test.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.exe
   FBXSDK-Test.vcxproj -> C:\Users\39317\Desktop\git\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.pdb (Full PDB)

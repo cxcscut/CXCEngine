@@ -107,10 +107,7 @@ bool Robothand::LoadRobothand(HandType type,const std::string &model_file) noexc
 
 	SetObjectName(ObjectName);
 	
-	if (type == ROBOTHAND_LEFT)
-		SetTag("LeftHand");
-	else
-		SetTag("Righthand");
+	SetTag("robot");
 
 	if (!LoadOBJFromFile(model_file))
 		return false;
@@ -558,6 +555,41 @@ void Robothand::MovingArm(const std::vector<float> &eular_space) noexcept
 		for (size_t k = 0; k < arm_joint_names.size(); k++)
 			RotateJoint(arm_joint_names[k], -current_degree[k] + base_degree[k] - optimal_sol[k]);
 
+}
+
+void Robothand::MovingArmOrientationOffset(GLfloat x, GLfloat y, GLfloat z) noexcept
+{
+	std::vector<float> degrees;
+	std::vector<std::string> arm_joint_names;
+
+	auto pBaseDegrees = m_BaseDegrees.cbegin();
+	auto pJointDegrees = m_JointDegrees.cbegin();
+	for (size_t i = 0; i < ARM_JOINT_NUM - 1; i++) {
+		degrees.push_back(pBaseDegrees->second - pJointDegrees->second);
+		arm_joint_names.emplace_back(pBaseDegrees->first);
+		pBaseDegrees++; pJointDegrees++;
+	}
+
+	if (HType == ROBOTHAND_LEFT) {
+		degrees.push_back(GetBaseDegrees("palm_left") - GetJointDegree("palm_left"));
+		arm_joint_names.emplace_back("palm_left");
+	}
+	else {
+		degrees.push_back(GetBaseDegrees("palm_right") - GetJointDegree("palm_right"));
+		arm_joint_names.emplace_back("palm_right");
+	}
+
+	auto pose_matrix = KineSolver::ForwardKinematics(degrees);
+
+	auto pose_offset = KineSolver::EularSpaceToOrientation(std::vector<float>({0,0,0,x,y,z}));
+
+	auto target_pose = pose_offset * pose_matrix;
+
+	std::vector<float> optimal_sol;
+
+	if (KineSolver::getOptimalSolution(KineSolver::InverseKinematics(target_pose), target_pose, 0.1f, optimal_sol))
+		for (size_t k = 0; k < arm_joint_names.size(); k++)
+			RotateJoint(arm_joint_names[k], degrees[k] - optimal_sol[k]);
 }
 
 void Robothand::MovingArmOffset(const glm::vec3 &pos_offset) noexcept
