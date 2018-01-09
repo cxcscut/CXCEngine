@@ -19,7 +19,7 @@ namespace cxc {
 
 	void KeyBoradCallBack(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
-		EngineFacade::KeyInputCallBack,key,scancode,action,mods;
+		EngineFacade::KeyInputCallBack(key,scancode,action,mods);
 	}
 
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)

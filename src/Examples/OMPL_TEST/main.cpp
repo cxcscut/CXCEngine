@@ -153,6 +153,7 @@ int main()
 
 		if (!Plane || !Plane->CheckLoaded()) return 0;
 		if (!m_LeftPtr || !m_LeftPtr->CheckLoaded()) return 0;
+		//if (!Table || !Table->CheckLoaded()) return 0;
 
 		pEngine->addObject(Plane, true);
 		pEngine->addObject(m_LeftPtr,true);

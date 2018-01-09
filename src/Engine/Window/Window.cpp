@@ -6,7 +6,7 @@ namespace cxc {
 		: m_WindowHeight(300),
 		m_WindowWidth(400),
 		m_SamplingLevel(4),
-		LowByteVersion(3), HighByteVersion(3),
+		LowByteVersion(3), HighByteVersion(4),
 		isForwardCompatible(GL_TRUE),
 		isEnableDepth(GL_TRUE), m_BackGroundColor(),
 		isReady(false),isDecoraded(false),

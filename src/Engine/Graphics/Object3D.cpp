@@ -178,7 +178,6 @@ namespace cxc {
 
 	GLboolean Object3D::LoadOBJFromFile(const std::string &filename)
 	{
-
 		std::vector<tinyobj::material_t> materials;
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
