@@ -3,9 +3,21 @@
 
 #include "ode/ode.h"
 #include "Collider3D.h"
+
+#ifdef WIN32
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 #include <vector>
+
+#else
+
+#include <glm/gtc/matrix_transform.hpp>
+#include "ode/ode.h"
+
+#endif // WIN32
+
+#include <memory>
 
 namespace cxc {
 
@@ -35,7 +47,7 @@ namespace cxc {
 
 		void InitializeMass(dWorldID world) noexcept;
 
-		// Properties 
+		// Properties
 	public:
 
 		void setPossition(dReal x, dReal y, dReal z) noexcept;

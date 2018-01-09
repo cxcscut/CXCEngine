@@ -1,0 +1,312 @@
+# depslib dependency file v1.0
+1514435453 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Controller/Camera.cpp
+	"Camera.h"
+
+1515474984 /home/cxc123/Desktop/git/cxcengine/src/Engine/Controller/Camera.h
+	"..\General\DefineTypes.h"
+	"..\inl\Singleton.inl"
+	"../General/DefineTypes.h"
+	"../inl/Singleton.inl"
+
+1515475044 /home/cxc123/Desktop/git/cxcengine/src/Engine/General/DefineTypes.h
+	<string>
+	<vector>
+	<memory>
+	<iostream>
+	<fstream>
+	<sstream>
+	<unordered_map>
+	<map>
+	<functional>
+	<stack>
+	<deque>
+	<ctime>
+	<ratio>
+	<chrono>
+	<algorithm>
+	<thread>
+	<mutex>
+	<gl/glew.h>
+	<gl/glut.h>
+	<GLFW/glfw3.h>
+	<glm/glm.hpp>
+	<glm/gtc/matrix_transform.hpp>
+	"..\Libraries\Image_loader\stb_image.h"
+	"..\inl\MultiTree.inl"
+	<GL/glew.h>
+	<GL/glut.h>
+	<GL/glew.h>
+	<GLFW/glfw3.h>
+	<glm/glm.hpp>
+	<glm/gtc/matrix_transform.hpp>
+	"../Libraries/Image_loader/stb_image.h"
+	"../inl//MultiTree.inl"
+
+1511158342 /home/cxc123/Desktop/git/cxcengine/src/Engine/Libraries/Image_loader/stb_image.h
+	"stb_image.h"
+	<stdio.h>
+	<stdarg.h>
+	<stddef.h>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+	<stdio.h>
+	<assert.h>
+	<stdint.h>
+	<emmintrin.h>
+	<intrin.h>
+	<arm_neon.h>
+
+1511158342 /home/cxc123/Desktop/git/cxcengine/src/Engine/inl//MultiTree.inl
+	<memory>
+	<vector>
+
+1515474984 /home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/SceneManager.h
+	"..\General\DefineTypes.h"
+	"..\inl\Singleton.inl"
+	"..\Graphics\Object3D.h"
+	"..\Graphics\Shape.h"
+	"..\Graphics\TextureManager.h"
+	"..\Controller\Camera.h"
+	"../General/DefineTypes.h"
+	"../inl/Singleton.inl"
+	"../Graphics/Object3D.h"
+	"../Graphics/Shape.h"
+	"../Graphics/TextureManager.h"
+	"../Controller/Camera.h"
+
+1515473866 /home/cxc123/Desktop/git/cxcengine/src/Engine/inl/Singleton.inl
+	<memory>
+
+1515470746 /home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/Object3D.h
+	"..\General\DefineTypes.h"
+	"..\Libraries\TinyObjLoader\tiny_obj_loader.h"
+	"..\Physics\ode\ode.h"
+	"../General/DefineTypes.h"
+	"../Libraries/TinyObjLoader/tiny_obj_loader.h"
+	"../Physics/ode/ode.h"
+	"Shape.h"
+	"TextureManager.h"
+
+1511158342 /home/cxc123/Desktop/git/cxcengine/src/Engine/Libraries/TinyObjLoader/tiny_obj_loader.h
+	<map>
+	<string>
+	<vector>
+	<cassert>
+	<cctype>
+	<cmath>
+	<cstddef>
+	<cstdlib>
+	<cstring>
+	<utility>
+	<fstream>
+	<sstream>
+
+1512529731 /home/cxc123/Desktop/git/cxcengine/src/Engine/Physics/ode/ode.h
+	<ode/odeconfig.h>
+	<ode/compatibility.h>
+	<ode/common.h>
+	<ode/odeinit.h>
+	<ode/contact.h>
+	<ode/error.h>
+	<ode/memory.h>
+	<ode/odemath.h>
+	<ode/matrix.h>
+	<ode/timer.h>
+	<ode/rotation.h>
+	<ode/mass.h>
+	<ode/misc.h>
+	<ode/objects.h>
+	<ode/collision_space.h>
+	<ode/collision.h>
+	<ode/threading.h>
+	<ode/threading_impl.h>
+	<ode/export-dif.h>
+	<ode/odecpp.h>
+	<ode/odecpp_collision.h>
+
+1515470890 /home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/Shape.h
+	"..\General\DefineTypes.h"
+	"..\Graphics\Object3D.h"
+	"..\Controller\RendererManager.h"
+	"..\Physics\RigidBody3D.h"
+	"../General/DefineTypes.h"
+	"../Graphics/Object3D.h"
+	"../Controller/RendererManager.h"
+	"../Physics/RigidBody3D.h"
+
+1515470746 /home/cxc123/Desktop/git/cxcengine/src/Engine/Controller/RendererManager.h
+	"..\General\DefineTypes.h"
+	"..\inl\Singleton.inl"
+	"../General/DefineTypes.h"
+	"../inl/Singleton.inl"
+
+1515476249 /home/cxc123/Desktop/git/cxcengine/src/Engine/Physics/RigidBody3D.h
+	"ode/ode.h"
+	"Collider3D.h"
+	<glm/gtc/matrix_transform.hpp>
+	<memory>
+	<vector>
+	<glm/gtc/matrix_transform.hpp>
+	"ode/ode.h"
+	<memory>
+
+1515471217 /home/cxc123/Desktop/git/cxcengine/src/Engine/Physics/Collider3D.h
+	<vector>
+	"ode\ode.h"
+	<glm/gtc/matrix_transform.hpp>
+	"ode/ode.h"
+	<glm/gtc/matrix_transform.hpp>
+
+1515470934 /home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/TextureManager.h
+	"..\General\DefineTypes.h"
+	"..\Graphics\Texture2D.h"
+	"..\inl\Singleton.inl"
+	"../General/DefineTypes.h"
+	"../Graphics/Texture2D.h"
+	"../inl/Singleton.inl"
+
+1515470934 /home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/Texture2D.h
+	"..\General\DefineTypes.h"
+	"../General/DefineTypes.h"
+
+1515473913 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Controller/CommandHandler.cpp
+	"CommandHandler.h"
+	"..\EngineFacade\EngineFacade.h"
+	"../EngineFacade/EngineFacade.h"
+
+1515470746 /home/cxc123/Desktop/git/cxcengine/src/Engine/Controller/CommandHandler.h
+	"..\General\DefineTypes.h"
+	"..\Graphics\SceneManager.h"
+	"../General/DefineTypes.h"
+	"../Graphics/SceneManager.h"
+
+1515474758 /home/cxc123/Desktop/git/cxcengine/src/Engine/EngineFacade/EngineFacade.h
+	"..\General\EngineCompoents.h"
+	"..\General\DefineTypes.h"
+	"..\inl\Singleton.inl"
+	"../General/EngineCompoents.h"
+	"../General/DefineTypes.h"
+	"../inl/Singleton.inl"
+	<condition_variable>
+
+1515470746 /home/cxc123/Desktop/git/cxcengine/src/Engine/General/EngineCompoents.h
+	"..\Controller\RendererManager.h"
+	"..\Controller\Camera.h"
+	"..\Controller\InputManager.h"
+	"..\Graphics\TextureManager.h"
+	"..\Graphics\SceneManager.h"
+	"..\Window\Window.h"
+	"..\Script\Parser.h"
+	"..\Controller\CommandHandler.h"
+	"../Controller/RendererManager.h"
+	"../Controller/Camera.h"
+	"../Controller/InputManager.h"
+	"../Graphics/TextureManager.h"
+	"../Graphics/SceneManager.h"
+	"../Window/Window.h"
+	"../Script/Parser.h"
+	"../Controller/CommandHandler.h"
+
+1515470746 /home/cxc123/Desktop/git/cxcengine/src/Engine/Controller/InputManager.h
+	"..\General\DefineTypes.h"
+	"..\Graphics\Object3D.h"
+	"..\inl\Singleton.inl"
+	"../General/DefineTypes.h"
+	"../Graphics/Object3D.h"
+	"../inl/Singleton.inl"
+
+1515471045 /home/cxc123/Desktop/git/cxcengine/src/Engine/Window/Window.h
+	"..\General\DefineTypes.h"
+	"..\inl\Singleton.inl"
+	"../General/DefineTypes.h"
+	"../inl/Singleton.inl"
+
+1515471045 /home/cxc123/Desktop/git/cxcengine/src/Engine/Script/Parser.h
+	"..\General\DefineTypes.h"
+	"..\inl\Singleton.inl"
+	"../General/DefineTypes.h"
+	"../inl/Singleton.inl"
+
+1515139290 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Controller/InputManager.cpp
+	"InputManager.h"
+
+1511410755 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Controller/RendererManager.cpp
+	"RendererManager.h"
+
+1515475146 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/EngineFacade/EnginFacade.cpp
+	"EngineFacade.h"
+	"..\Graphics\SceneManager.h"
+	"../Graphics/SceneManager.h"
+
+1511158342 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/Font.cpp
+	"Font.h"
+
+1515470746 /home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/Font.h
+	"..\General\DefineTypes.h"
+	"../General/DefineTypes.h"
+
+1511158342 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/FontsManager.cpp
+	"FontsManager.h"
+
+1515470746 /home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/FontsManager.h
+	"..\General\DefineTypes.h"
+	"..\inl\Singleton.inl"
+	"../General/DefineTypes.h"
+	"../inl/Singleton.inl"
+	"Font.h"
+
+1515474935 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/SceneManager.cpp
+	"SceneManager.h"
+	"..\EngineFacade\EngineFacade.h"
+	"../EngineFacade/EngineFacade.h"
+	<iostream>
+
+1515476106 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/Object3D.cpp
+	"Object3D.h"
+	"..\Libraries\Image_loader\stb_image.h"
+	"..\Libraries\TinyObjLoader\tiny_obj_loader.h"
+	"..\Helper\FileHelper.h"
+	"..\EngineFacade\EngineFacade.h"
+	"../Helper/FileHelper.h"
+	"../EngineFacade/EngineFacade.h"
+
+1515470973 /home/cxc123/Desktop/git/cxcengine/src/Engine/Helper/FileHelper.h
+	"..\General\DefineTypes.h"
+	"..\inl\Singleton.inl"
+	"../General/DefineTypes.h"
+	"../inl/Singleton.inl"
+
+1515476106 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/Shape.cpp
+	"Shape.h"
+	"..\EngineFacade\EngineFacade.h"
+	"..\Physics\RigidBody3D.h"
+	"../EngineFacade/EngineFacade.h"
+	"../Physics/RigidBody3D.h"
+
+1515476166 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/Texture2D.cpp
+	"Texture2D.h"
+	"..\Helper\FileHelper.h"
+	"../Helper/FileHelper.h"
+
+1515476233 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Graphics/TextureManger.cpp
+	"TextureManager.h"
+	"..\Controller\RendererManager.h"
+	"../Controller/RendererManager.h"
+
+1511158342 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Helper/FileHelper.cpp
+	"FileHelper.h"
+
+1514358918 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Physics/Collider3D.cpp
+	"Collider3D.h"
+
+1515035850 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Physics/RigidBody3D.cpp
+	"RigidBody3D.h"
+	<iostream>
+
+1511158342 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Script/Parser.cpp
+	"Parser.h"
+
+1515122637 source:/home/cxc123/Desktop/git/cxcengine/src/Engine/Window/Window.cpp
+	"Window.h"
+

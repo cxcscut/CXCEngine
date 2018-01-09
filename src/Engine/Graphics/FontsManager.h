@@ -1,10 +1,20 @@
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
+#include "..\inl\Singleton.inl"
+
+#else
+
+#include "../General/DefineTypes.h"
+#include "../inl/Singleton.inl"
+
+#endif // WIN32
 
 #ifndef CXC_FONTSMANAGER_H
 #define CXC_FONTSMANAGER_H
 
 #include "Font.h"
-#include "..\inl\Singleton.inl"
+
 namespace cxc {
 
 	class FontsManager : public Singleton<FontsManager>

@@ -6,7 +6,7 @@ namespace cxc {
 		: m_WindowHeight(300),
 		m_WindowWidth(400),
 		m_SamplingLevel(4),
-		LowByteVersion(3), HighByteVersion(4),
+		LowByteVersion(3), HighByteVersion(3),
 		isForwardCompatible(GL_TRUE),
 		isEnableDepth(GL_TRUE), m_BackGroundColor(),
 		isReady(false),isDecoraded(false),
@@ -91,7 +91,7 @@ namespace cxc {
 	{
 		return m_WindowHandle;
 	}
-	
+
 	GLboolean WindowManager::isSupportForwardCompatible() const noexcept
 	{
 		return isForwardCompatible;
@@ -118,6 +118,7 @@ namespace cxc {
 
 	GLboolean WindowManager::_CreateWindow()
 	{
+
 		m_WindowHandle = glfwCreateWindow(m_WindowWidth, m_WindowHeight, m_WindowTitle.c_str(), nullptr, nullptr);
 
 		if (m_WindowHandle == nullptr)
@@ -147,11 +148,20 @@ namespace cxc {
 	GLboolean WindowManager::PrepareResourcesForCreating() const noexcept
 	{
 
-		glfwWindowHint(GLFW_SAMPLES, m_SamplingLevel);											// 4x sampling
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, HighByteVersion);							// high byte of version 
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, LowByteVersion);								// low byte of version
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, isForwardCompatible);						// forwarad compatible
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+        glfwWindowHint(GLFW_SAMPLES, m_SamplingLevel);					                // sampling
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, HighByteVersion);					// high byte of version
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, LowByteVersion);						// low byte of version
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, HighByteVersion);	                // forwarad compatible
+
+#ifdef WIN32
+
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+
+#else
+
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#endif
 
 		glfwWindowHint(GLFW_DECORATED, isDecoraded); // remove caption bar and frame
 
@@ -163,8 +173,8 @@ namespace cxc {
 		glfwMakeContextCurrent(m_WindowHandle);
 		glewExperimental = true;
 		glClearColor(m_BackGroundColor.Red,
-					m_BackGroundColor.Green, 
-					m_BackGroundColor.Blue, 
+					m_BackGroundColor.Green,
+					m_BackGroundColor.Blue,
 					m_BackGroundColor.Alpha);
 
 		if (isEnableDepth == GL_TRUE) {

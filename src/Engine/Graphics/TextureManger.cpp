@@ -1,5 +1,14 @@
 #include "TextureManager.h"
+
+#ifdef WIN32
+
 #include "..\Controller\RendererManager.h"
+
+#else
+
+#include "../Controller/RendererManager.h"
+
+#endif // WIN32
 
 namespace cxc {
 

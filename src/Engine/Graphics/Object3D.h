@@ -1,4 +1,18 @@
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
+
+#include"..\Libraries\TinyObjLoader\tiny_obj_loader.h"
+#include "..\Physics\ode\ode.h"
+
+#else
+
+#include "../General/DefineTypes.h"
+
+#include"../Libraries/TinyObjLoader/tiny_obj_loader.h"
+#include "../Physics/ode/ode.h"
+
+#endif // WIN32
 
 #ifndef CXC_DRAWOBJECT_H
 #define CXC_DRAWOBJECT_H
@@ -8,8 +22,6 @@
 
 #include "Shape.h"
 #include "TextureManager.h"
-#include"..\Libraries\TinyObjLoader\tiny_obj_loader.h"
-#include "..\Physics\ode\ode.h"
 
 class Shape;
 
@@ -63,7 +75,7 @@ namespace cxc {
 
 	};
 
-	class Object3D 
+	class Object3D
 	{
 
 	public:
@@ -72,7 +84,7 @@ namespace cxc {
 
 		explicit Object3D();
 		virtual ~Object3D();
-		
+
 		Object3D(const std::string &object_name);
 		Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag = "" , GLboolean _enable = GL_TRUE);
 
@@ -101,7 +113,7 @@ namespace cxc {
 		bool AddRoot(const std::string &ModelName) noexcept;
 		bool AddChild(const std::string &RootModelName,const std::string &ChildModelName) noexcept;
 		bool FindChild(const std::string &RootModelName,const std::string &TargetModelName,std::shared_ptr<ObjectTree> &RetModelPtr) noexcept;
-		
+
 	// Model transformation
 	public:
 		virtual void Translation(const std::string &ModelName, const glm::vec3 &TranslationVector) noexcept;
@@ -151,7 +163,7 @@ namespace cxc {
 		void SetLoaded() noexcept;
 
 		uint32_t GetObjectVertexNum() const noexcept;
-		
+
 		void GetObjectBuffers(std::vector<glm::vec3> &vbo_pos, std::vector<VertexAttri> &vbo_attrib, std::vector<uint32_t> &ebo) noexcept;
 		uint32_t GetVertexSubscript(const std::string &shape_name) noexcept;
 
@@ -184,7 +196,7 @@ namespace cxc {
 
 		// <ModelName , Pointer to Model>
 		std::unordered_map<std::string,std::shared_ptr<Shape>> m_ModelMap;
-		
+
 		// <ModelName , Material>
 		std::unordered_map<std::string, tinyobj::material_t> m_Material;
 
@@ -202,7 +214,7 @@ namespace cxc {
 		// Buffers ID
 		GLuint VBO_P, VBO_A, EBO, VAO;
 
-		// Number of indices 
+		// Number of indices
 		uint32_t indices_num;
 
 		// Texture handle

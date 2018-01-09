@@ -1,5 +1,15 @@
 #include "SceneManager.h"
+
+#ifdef WIN32
+
 #include "..\EngineFacade\EngineFacade.h"
+
+#else
+
+#include "../EngineFacade/EngineFacade.h"
+
+#endif // WIN32
+
 #include <iostream>
 
 namespace cxc {
@@ -46,7 +56,7 @@ namespace cxc {
 
 				assert(rgbd3d_ptr1);
 				assert(rgbd3d_ptr2);
-				
+
 				//std::cout << rgbd3d_ptr1->GetModelName() << " AND " << rgbd3d_ptr2->GetModelName() << " COLLIDES" << std::endl;
 
 				dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
@@ -86,7 +96,7 @@ namespace cxc {
 
 	void SceneManager::initResources() noexcept
 	{
-		// Init buffer objects 
+		// Init buffer objects
 		for (auto pObject : m_ObjectMap) {
 			pObject.second->InitBuffers();
 		}
@@ -120,7 +130,7 @@ namespace cxc {
 	{
 		// Create world
 		m_WorldID = dWorldCreate();
-		
+
 		// Setting parameters of world
 		dWorldSetERP(m_WorldID, 0.2);
 		dWorldSetCFM(m_WorldID, 1e-5);
@@ -134,7 +144,7 @@ namespace cxc {
 
 		// Create top-level space using quadtree implementation
 		m_TopLevelSpace = dQuadTreeSpaceCreate(0, center, Extent, 4);
-		
+
 		// Set gravity
 		dWorldSetGravity(m_WorldID,gravity.x,gravity.y,gravity.z);
 

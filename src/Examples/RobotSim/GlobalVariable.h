@@ -1,5 +1,12 @@
+#ifdef WIN32
 
 #include "..\..\Engine\General\DefineTypes.h"
+
+#else
+
+#include "../../Engine/General/DefineTypes.h"
+
+#endif // WIN32
 
 #ifndef ROBOTHAND_GLOBALS_H
 #define ROBOTHAND_GLOBALS_H
@@ -240,7 +247,7 @@ static const std::unordered_map<std::string, std::vector<double>> g_ActionExams_
 	{"动作 : 钳",{ 140,0,135,0,-75,0, -140,0,135,0,-75,0 }}
 };
 
-// Name mapping 
+// Name mapping
 static const std::unordered_map<std::string, std::string> g_NameMap = {
 	{"arm_left1","左-手臂1"},{"arm_right1","右-手臂1"},
 	{"arm_left2","左-手臂2"},{"arm_right2","右-手臂2"},

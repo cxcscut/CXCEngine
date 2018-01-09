@@ -5,9 +5,19 @@
 #define DESITY 0.0005f
 #define dDOUBLE
 
+#include <vector>
+
+#ifdef WIN32
+
 #include "ode\ode.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <vector>
+
+#else
+
+#include "ode/ode.h"
+#include <glm/gtc/matrix_transform.hpp>
+
+#endif // WIN32
 
 namespace cxc {
 

@@ -1,5 +1,14 @@
 #include "CommandHandler.h"
+
+#ifdef WIN32
+
 #include "..\EngineFacade\EngineFacade.h"
+
+#else
+
+#include "../EngineFacade/EngineFacade.h"
+
+#endif // WIN32
 
 auto EnginePtr = cxc::EngineFacade::GetInstance();
 
@@ -7,7 +16,7 @@ namespace cxc
 {
 
 	CommandHandler::CommandHandler() {}
-	
+
 	CommandHandler::~CommandHandler() {}
 
 	void CommandHandler::ProcessingCommandStr()
@@ -25,6 +34,6 @@ namespace cxc
 
 	void CommandHandler::MatchCommand(const std::string &command)
 	{
-		
+
 	}
 }

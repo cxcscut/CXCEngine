@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="CXCENGINE" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/CXCENGINE" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++11" />
+					<Add option="-g" />
+					<Add option="-std=c++14" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/CXCENGINE" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++11" />
+					<Add option="-Wextra" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="CXCENGINE_LIB">
+				<Option output="bin/CXCENGINE_LIB/CXCENGINE" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/CXCENGINE_LIB/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++11" />
+					<Add option="-Wall" />
+					<Add option="-std=c++14" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="../Controller/Camera.cpp" />
+		<Unit filename="../Controller/Camera.h" />
+		<Unit filename="../Controller/CommandHandler.cpp" />
+		<Unit filename="../Controller/CommandHandler.h" />
+		<Unit filename="../Controller/InputManager.cpp" />
+		<Unit filename="../Controller/InputManager.h" />
+		<Unit filename="../Controller/RendererManager.cpp" />
+		<Unit filename="../Controller/RendererManager.h" />
+		<Unit filename="../EngineFacade/EnginFacade.cpp" />
+		<Unit filename="../EngineFacade/EngineFacade.h" />
+		<Unit filename="../General/DefineTypes.h" />
+		<Unit filename="../General/EngineCompoents.h" />
+		<Unit filename="../Graphics/Font.cpp" />
+		<Unit filename="../Graphics/Font.h" />
+		<Unit filename="../Graphics/FontsManager.cpp" />
+		<Unit filename="../Graphics/FontsManager.h" />
+		<Unit filename="../Graphics/Object3D.cpp" />
+		<Unit filename="../Graphics/Object3D.h" />
+		<Unit filename="../Graphics/SceneManager.cpp" />
+		<Unit filename="../Graphics/SceneManager.h" />
+		<Unit filename="../Graphics/Shape.cpp" />
+		<Unit filename="../Graphics/Shape.h" />
+		<Unit filename="../Graphics/Texture2D.cpp" />
+		<Unit filename="../Graphics/Texture2D.h" />
+		<Unit filename="../Graphics/TextureManager.h" />
+		<Unit filename="../Graphics/TextureManger.cpp" />
+		<Unit filename="../Helper/FileHelper.cpp" />
+		<Unit filename="../Helper/FileHelper.h" />
+		<Unit filename="../Libraries/Image_loader/stb_image.h" />
+		<Unit filename="../Libraries/TinyObjLoader/tiny_obj_loader.h" />
+		<Unit filename="../Physics/Collider3D.cpp" />
+		<Unit filename="../Physics/Collider3D.h" />
+		<Unit filename="../Physics/RigidBody3D.cpp" />
+		<Unit filename="../Physics/RigidBody3D.h" />
+		<Unit filename="../Physics/ode/collision.h" />
+		<Unit filename="../Physics/ode/collision_space.h" />
+		<Unit filename="../Physics/ode/collision_trimesh.h" />
+		<Unit filename="../Physics/ode/common.h" />
+		<Unit filename="../Physics/ode/compatibility.h" />
+		<Unit filename="../Physics/ode/contact.h" />
+		<Unit filename="../Physics/ode/error.h" />
+		<Unit filename="../Physics/ode/export-dif.h" />
+		<Unit filename="../Physics/ode/mass.h" />
+		<Unit filename="../Physics/ode/matrix.h" />
+		<Unit filename="../Physics/ode/memory.h" />
+		<Unit filename="../Physics/ode/misc.h" />
+		<Unit filename="../Physics/ode/objects.h" />
+		<Unit filename="../Physics/ode/ode.h" />
+		<Unit filename="../Physics/ode/odeconfig.h" />
+		<Unit filename="../Physics/ode/odecpp.h" />
+		<Unit filename="../Physics/ode/odecpp_collision.h" />
+		<Unit filename="../Physics/ode/odeinit.h" />
+		<Unit filename="../Physics/ode/odemath.h" />
+		<Unit filename="../Physics/ode/odemath_legacy.h" />
+		<Unit filename="../Physics/ode/precision.h" />
+		<Unit filename="../Physics/ode/rotation.h" />
+		<Unit filename="../Physics/ode/threading.h" />
+		<Unit filename="../Physics/ode/threading_impl.h" />
+		<Unit filename="../Physics/ode/timer.h" />
+		<Unit filename="../Script/Parser.cpp" />
+		<Unit filename="../Script/Parser.h" />
+		<Unit filename="../Window/Window.cpp" />
+		<Unit filename="../Window/Window.h" />
+		<Unit filename="../inl/MultiTree.inl" />
+		<Unit filename="../inl/Singleton.inl" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

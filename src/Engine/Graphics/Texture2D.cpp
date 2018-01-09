@@ -1,6 +1,14 @@
 #include "Texture2D.h"
 
+#ifdef WIN32
+
 #include "..\Helper\FileHelper.h"
+
+#else
+
+#include "../Helper/FileHelper.h"
+
+#endif // WIN32
 
 namespace cxc {
 

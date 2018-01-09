@@ -1,11 +1,21 @@
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
-
-#ifndef CXC_MODELLOADER_H
-#define CXC_MODELLOADER_H
-
 #include "..\Graphics\Object3D.h"
 #include "..\Controller\RendererManager.h"
 #include "..\Physics\RigidBody3D.h"
+
+#else
+
+#include "../General/DefineTypes.h"
+#include "../Graphics/Object3D.h"
+#include "../Controller/RendererManager.h"
+#include "../Physics/RigidBody3D.h"
+
+#endif // WIN32
+
+#ifndef CXC_MODELLOADER_H
+#define CXC_MODELLOADER_H
 
 namespace cxc {
 
@@ -47,7 +57,7 @@ namespace cxc {
 		glm::mat4 GetModelMatrix() const noexcept;
 		std::shared_ptr<ObjectTree> GetMyPtr() const noexcept;
 		std::vector<glm::vec3> &GetKeyPoints() noexcept;
-		
+
 		GLboolean CheckStateChanged() const noexcept;
 		void SetStateChanged(GLboolean state) noexcept;
 

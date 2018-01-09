@@ -1,4 +1,13 @@
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
+
+#else
+
+#include "../General/DefineTypes.h"
+
+
+#endif // WIN32
 
 #ifndef CXC_TEXTURE2D_H
 #define CXC_TEXTURE2D_H

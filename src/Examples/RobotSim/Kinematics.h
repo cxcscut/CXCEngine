@@ -3,9 +3,17 @@
 
 #define ARM_JOINT_NUM 6U
 
+#ifdef WIN32
+
 #include "../../Engine/General/DefineTypes.h"
 
-// D-H parameters 
+#else
+
+#include "../../Engine/General/DefineTypes.h"
+
+#endif
+
+// D-H parameters
 
 // d
 static const std::vector<float> d = { 380.948f,0,0,-560.181f,0,94.77f };
@@ -38,7 +46,7 @@ public:
 	static std::vector<std::vector<float>> InverseKinematics(const glm::mat4 &pose);
 
 	static std::vector<std::vector<float>> InverseKinematics(const std::vector<float> &pose);
-	
+
 
 	// Select optimal solution
 	static GLboolean getOptimalSolution(std::vector<std::vector<float>> &solutions, const glm::mat4 &target_pose, float error, std::vector<float> &so);

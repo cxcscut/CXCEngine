@@ -5,7 +5,7 @@
 
 #include "../../Engine/General/DefineTypes.h"
 
-// D-H parameters 
+// D-H parameters
 
 // d
 static const std::vector<float> d = { 380.948f,0,0,-560.181f,0,94.77f };
@@ -38,12 +38,12 @@ public:
 	static std::vector<std::vector<float>> InverseKinematics(const glm::mat4 &pose);
 
 	static std::vector<std::vector<float>> InverseKinematics(const std::vector<float> &pose);
-	
+
 
 	// Select optimal solution
-	static GLboolean getOptimalSolution(std::vector<std::vector<float>> &solutions, const glm::mat4 &target_pose, float error, std::vector<float> &so);
+	static GLboolean getOptimalSolution(std::vector<std::vector<float>> solutions, const glm::mat4 &target_pose, float error, std::vector<float> &so);
 
-	static GLboolean getOptimalSolution(std::vector<std::vector<float>> &solutions, const std::vector<float> &target_pose, float error, std::vector<float> &so);
+	static GLboolean getOptimalSolution(std::vector<std::vector<float>> solutions, const std::vector<float> &target_pose, float error, std::vector<float> &so);
 
 	// Conversion from Eular space to orientation matrix
 	// <px,py,pz,p,g,a>

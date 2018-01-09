@@ -1,4 +1,4 @@
-#version 430 core
+#version 330 core
 
 in vec2 UV;
 in vec3 Color;
@@ -38,7 +38,7 @@ void main()
 
 	float cosAlpha = clamp(dot(E,R),0,1);
 
-	color =  MaterialAmbientColor + 
+	color =  MaterialAmbientColor +
 			 MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance * distance) +
 			 MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance * distance);
 

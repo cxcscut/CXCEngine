@@ -1,10 +1,21 @@
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
 #include "..\Graphics\Object3D.h"
 
+#include "..\inl\Singleton.inl"
+
+#else
+
+#include "../General/DefineTypes.h"
+#include "../Graphics/Object3D.h"
+
+#include "../inl/Singleton.inl"
+
+#endif // WIN32
+
 #ifndef CXC_INPUTS_H
 #define CXC_INPUTS_H
-
-#include "..\inl\Singleton.inl"
 
 namespace cxc {
 

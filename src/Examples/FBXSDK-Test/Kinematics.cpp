@@ -74,7 +74,7 @@ std::vector<std::vector<float>> KineSolver::_InvKine(const glm::mat4 &pose)
 		p = 0.0f;
 	else
 		p = asinf(sp) + asinf(cp);
-	
+
 	theta3_1 = glm::radians(180.0f) - p - ap;
 	theta3_2 = glm::radians(180.0f) + p - ap;
 
@@ -97,7 +97,7 @@ std::vector<std::vector<float>> KineSolver::_InvKine(const glm::mat4 &pose)
 
 	//****************************************************************************************************************
 
-	// theta 2 using theta1_1 
+	// theta 2 using theta1_1
 
 	glm::mat3 r01 = glm::transpose(glm::mat3({
 		cosf(theta1_1),0,sinf(theta1_1),
@@ -142,7 +142,7 @@ std::vector<std::vector<float>> KineSolver::_InvKine(const glm::mat4 &pose)
 		beta2 = 0.0f;
 	else
 		beta2 = asinf(beta_sp) + asinf(beta_cp);
-	
+
 	auto theta2_3 = glm::radians(90.0f) - (fabsf(beta1) + beta2);
 	auto theta2_4 = glm::radians(90.0f) + (fabsf(beta1) - beta2);
 
@@ -371,7 +371,7 @@ glm::mat4 KineSolver::EularSpaceToOrientation(const vector<float> &eular_space)
 	}));
 }
 
-GLboolean KineSolver::getOptimalSolution(std::vector<std::vector<float>> &solutions, const glm::mat4 &target_pose,float error, std::vector<float> &sol)
+GLboolean KineSolver::getOptimalSolution(std::vector<std::vector<float>> solutions, const glm::mat4 &target_pose,float error, std::vector<float> &sol)
 {
 	vector<float> errors;
 
@@ -396,7 +396,7 @@ GLboolean KineSolver::getOptimalSolution(std::vector<std::vector<float>> &soluti
 	}
 }
 
-GLboolean KineSolver::getOptimalSolution(std::vector<std::vector<float>> &solutions, const std::vector<float> &target_pose, float error, std::vector<float> &sol)
+GLboolean KineSolver::getOptimalSolution(std::vector<std::vector<float>> solutions, const std::vector<float> &target_pose, float error, std::vector<float> &sol)
 {
 	vector<float> errors;
 
@@ -430,5 +430,3 @@ std::vector<std::vector<float>> KineSolver::InverseKinematics(const std::vector<
 {
 	return _InvKine(EularSpaceToOrientation(pose));
 }
-
-#include "stdafx.h"

@@ -1,15 +1,28 @@
+
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
-
-#ifndef CXC_SceneManager_H
-#define CXC_SceneManager_H
-
-#define WOLRD_QUICK_STEPSIZE 0.05f
-
 #include "..\inl\Singleton.inl"
 #include "..\Graphics\Object3D.h"
 #include "..\Graphics\Shape.h"
 #include "..\Graphics\TextureManager.h"
 #include "..\Controller\Camera.h"
+
+#else
+
+#include "../General/DefineTypes.h"
+#include "../inl/Singleton.inl"
+#include "../Graphics/Object3D.h"
+#include "../Graphics/Shape.h"
+#include "../Graphics/TextureManager.h"
+#include "../Controller/Camera.h"
+
+#endif // WIN32
+
+#ifndef CXC_SceneManager_H
+#define CXC_SceneManager_H
+
+#define WOLRD_QUICK_STEPSIZE 0.05f
 
 namespace cxc {
 
@@ -30,7 +43,7 @@ namespace cxc {
 
 		explicit SceneManager();
 		~SceneManager();
-		
+
 		SceneManager(const SceneManager&) = delete;
 		SceneManager(const SceneManager&&) = delete;
 		SceneManager& operator=(const SceneManager&) = delete;
@@ -99,7 +112,7 @@ namespace cxc {
 		// Top level space
 		dSpaceID m_TopLevelSpace;
 
-		// Joint group 
+		// Joint group
 		dJointGroupID m_ContactJoints;
 
 	private:

@@ -1,5 +1,7 @@
 #include "Object3D.h"
 
+#ifdef WIN32
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "..\Libraries\Image_loader\stb_image.h"
 
@@ -9,6 +11,20 @@
 
 #include "..\Helper\FileHelper.h"
 #include "..\EngineFacade\EngineFacade.h"
+
+#else
+
+#include "../Helper/FileHelper.h"
+#include "../EngineFacade/EngineFacade.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "../Libraries/Image_loader/stb_image.h"
+
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "../Libraries/TinyObjLoader/tiny_obj_loader.h"
+
+#endif // WIN32
 
 namespace cxc {
 
@@ -81,9 +97,9 @@ namespace cxc {
 	{
 		glm::vec3 vector12 = vertex2 - vertex1;
 		glm::vec3 vector13 = vertex3 - vertex1;
-		
+
 		normal = glm::normalize(glm::cross(vector12,vector13));
-		
+
 	}
 
 	/*
@@ -122,7 +138,7 @@ namespace cxc {
 
 	void Object3D::InitializeRigidBodies(dWorldID world,dSpaceID space) noexcept
 	{
-		
+
 		for (auto shape : m_ModelMap) {
 			shape.second->createRigidBody(world,reinterpret_cast<void*>(shape.second.get()));
 			shape.second->addCollider(space, shape.second->GetVertexArray(), shape.second->GetVertexIndices());
@@ -132,7 +148,7 @@ namespace cxc {
 			else
 				shape.second->InitializeMass(world);
 		}
-		
+
 	}
 
 	void Object3D::IndexVertex(std::map<VertexIndexPacket, uint32_t> &VertexIndexMap,
@@ -145,7 +161,7 @@ namespace cxc {
 			VertexIndexMap[vertex] = subindex;
 			drawobject->m_VertexCoords.emplace_back(vertex.position);
 			drawobject->m_VertexIndices.emplace_back(subindex);
-			drawobject->m_TexCoords.emplace_back(vertex.texcoords);	
+			drawobject->m_TexCoords.emplace_back(vertex.texcoords);
 			drawobject->m_GeometricNormal.emplace_back(geo_normal);
 			drawobject->m_VertexNormals.emplace_back(vertex.normal);
 
@@ -236,7 +252,7 @@ namespace cxc {
 			// iteration on each shape
 			for (size_t s = 0; s < shapes.size(); ++s)
 			{
-				
+
 				// iteration on each face
 				for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); ++f)
 				{
@@ -266,7 +282,7 @@ namespace cxc {
 		}
 
 		// processing on each shape or Model
-		for (size_t s = 0; s < shapes.size(); ++s) 
+		for (size_t s = 0; s < shapes.size(); ++s)
 		{
 			auto drawobject = std::make_shared<Shape>();
 
@@ -286,7 +302,7 @@ namespace cxc {
 			drawobject->FragmentType = shapes[s].mesh.num_face_vertices[0];
 
 			// processing on each face
-			for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); ++f) 
+			for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); ++f)
 			{
 				// vertex position 0,1,2
 				auto idx0 = shapes[s].mesh.indices[3 * f + 0];
@@ -298,7 +314,7 @@ namespace cxc {
 				if ((current_material_id < 0) || (current_material_id >= static_cast<int>(materials.size()))) {
 					// Invaid material ID. Use default material.
 					// Default material is added to the last item in `materials`.
-					current_material_id = materials.size() - 1; 
+					current_material_id = materials.size() - 1;
 				}
 
 				glm::vec2 texcoord0, texcoord1, texcoord2;
@@ -312,7 +328,7 @@ namespace cxc {
 
 				// texcoords 0,1
 				if (attrib.texcoords.size()) {
-					if (idx0.texcoord_index >= 0) 
+					if (idx0.texcoord_index >= 0)
 						texcoord0 = glm::vec2(attrib.texcoords[2 * idx0.texcoord_index + 0], attrib.texcoords[2 * idx0.texcoord_index + 1]);
 					else
 						texcoord0 = glm::vec2(0.0f, 0.0f);
@@ -370,7 +386,7 @@ namespace cxc {
 				IndexVertex(vertex_index,geometric_normal,vertex0,vertex_num,drawobject.get(),attrib);
 				IndexVertex(vertex_index,geometric_normal,vertex1,vertex_num,drawobject.get(),attrib);
 				IndexVertex(vertex_index,geometric_normal,vertex2,vertex_num,drawobject.get(),attrib);
-				
+
 #else
 
 				// Add vertices
@@ -426,7 +442,7 @@ namespace cxc {
 				if ((current_material_id < 0) || (current_material_id >= static_cast<int>(materials.size()))) {
 					// Invaid material ID. Use default material.
 					// Default material is added to the last item in `materials`.
-					current_material_id = materials.size() - 1; 
+					current_material_id = materials.size() - 1;
 				}
 
 				glm::vec3 diffuse = glm::vec3(materials[current_material_id].diffuse[0],
@@ -492,7 +508,7 @@ namespace cxc {
 #endif
 
 			}
-			
+
 			drawobject->Num_of_faces = shapes[s].mesh.num_face_vertices.size();
 			drawobject->m_MaterialIDs.reserve(drawobject->Num_of_faces);
 
@@ -502,7 +518,7 @@ namespace cxc {
 			if (shapes[s].mesh.material_ids.size() > 0 && shapes[s].mesh.material_ids.size() > s)
 			{
 				auto i = shapes[s].mesh.material_ids[s];
-				if (i >= 0) 
+				if (i >= 0)
 					m_Material.insert(std::make_pair(shapes[s].name, materials[i]));
 				else
 					m_Material.insert(std::make_pair(shapes[s].name,materials.back()));
@@ -516,7 +532,7 @@ namespace cxc {
 			m_ModelMap.insert(std::make_pair(shapes[s].name,std::move(drawobject)));
 
 		} // shapes
-		
+
 		ComputeCenterPos();
 
 		/*
@@ -535,7 +551,7 @@ namespace cxc {
 	{
 		return ObjectName;
 	}
-	
+
 	void Object3D::ComputeCenterPos() noexcept
 	{
 		size_t count = 0U;
@@ -566,7 +582,7 @@ namespace cxc {
 			if (ModelPtr->m_MyPtr == nullptr)
 			{
 				auto ObjectNodePtr = std::make_shared<ObjectTree>(ModelPtr);
-				
+
 				// Memory allocation failed
 				if (!ObjectNodePtr)
 					return false;
@@ -631,14 +647,14 @@ namespace cxc {
 		auto RootNodePtr = ModelPtr->m_MyPtr;
 		if (!RootNodePtr)
 			return false;
-		
+
 		auto ChildNodePtr = GetModelByName(TargetModelName);
 		if (!ChildNodePtr)
 			return false;
 
 		return RootNodePtr->findChildNode(ChildNodePtr,RetModelPtr);
 	}
-	
+
 	std::vector<std::shared_ptr<ObjectTree>> &Object3D ::GetObjectTreePtr() noexcept
 	{
 		return m_ObjectTree;
@@ -671,10 +687,10 @@ namespace cxc {
 		auto ModelPtr = GetModelByName(ModelName);
 		if (!ModelPtr)
 			return;
-		
+
 		// Perform translation on root node
 		ModelPtr->Translate(TranslationVector);
-		
+
 		SetStateChanged(GL_TRUE);
 
 		auto ObjectNodePtr = ModelPtr->m_MyPtr;
@@ -689,7 +705,7 @@ namespace cxc {
 
 	void Object3D ::Rotation(const std::string &ModelName, const glm::vec3 &RotationAxis, float Degree) noexcept
 	{
-	
+
 		auto ModelPtr = GetModelByName(ModelName);
 		if (!ModelPtr)
 			return;
@@ -705,7 +721,7 @@ namespace cxc {
 		// Perform rotation on children node
 		for (auto &it : ObjectNodePtr->children)
 			Rotation(it->root->GetModelName(),RotationAxis,Degree);
-		
+
 	}
 
 	bool Object3D ::CheckCompoent(const std::string &CompoentName) const noexcept
@@ -753,7 +769,7 @@ namespace cxc {
 				vbo_attrib.emplace_back(VertexAttri(texcoord[i], normals[i], color[i]));
 				vbo_pos.emplace_back(vertex_coords[i]);
 			}
-			
+
 		}
 	}
 
@@ -922,8 +938,8 @@ namespace cxc {
 
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::COLOR_LOCATION));
 		glVertexAttribPointer(static_cast<GLuint>(Location::COLOR_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec3) + sizeof(glm::vec2))); // Color
-		
-		
+
+
 		for (auto shape : m_ModelMap) {
 
 			GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
@@ -936,8 +952,8 @@ namespace cxc {
 			auto idx_num = shape.second->GetVertexIndices().size();
 
 			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &model_matrix[0][0]);
-			
-			// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices 
+
+			// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
 			glDrawElements(GL_TRIANGLES,idx_num , GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
 		}
 	}
@@ -958,7 +974,7 @@ namespace cxc {
 		glm::mat4 M = glm::translate(glm::rotate(glm::translate(glm::mat4(1.0f),start),degree,direction),-start);
 
 		// Perform rotation on root node
-		// Set 3x3 Rotation matrix 
+		// Set 3x3 Rotation matrix
 		ModelPtr->setRotation((glm::mat3)M * ModelPtr->getRotation());
 
 		auto P = ModelPtr->getPosition();

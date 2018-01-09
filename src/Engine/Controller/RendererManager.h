@@ -1,9 +1,17 @@
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
+#include "..\inl\Singleton.inl"
+
+#else
+
+#include "../General/DefineTypes.h"
+#include "../inl/Singleton.inl"
+
+#endif // WIN32
 
 #ifndef CXC_RENDERERMANAGER_H
 #define CXC_RENDERERMANAGER_H
-
-#include "..\inl\Singleton.inl"
 
 namespace cxc {
 
@@ -33,7 +41,7 @@ namespace cxc {
 
 	class RendererManager final : public Singleton<RendererManager>
 	{
-	public: 
+	public:
 		friend Singleton<RendererManager>;
 
 		explicit RendererManager();
@@ -48,7 +56,7 @@ namespace cxc {
 	public:
 
 		GLboolean CreateShaderProgram(ProgramStruct &ret,
-								const std::string &vertex_file_path, 
+								const std::string &vertex_file_path,
 								const std::string &fragment_file_path);
 
 		GLint GetShaderProgramID(ShaderType Type) const noexcept;
@@ -59,9 +67,9 @@ namespace cxc {
 		GLboolean BindShaderWithExistingProgram(ShaderType Type,
 											const std::string &vertex_path,
 											const std::string &fragment_path) noexcept;
-		
+
 		void SetProgramID(ShaderType Type,GLint ProgramID) noexcept;
-		
+
 		void CreateProgram(ShaderType Type,ProgramStruct &program) noexcept;
 		void SetShaderStruct(ShaderType type,ProgramStruct &shader_struct) noexcept;
 
@@ -81,7 +89,7 @@ namespace cxc {
 		GLboolean CheckCompilationStatus(GLuint ShaderID) const noexcept;
 		GLboolean CheckLinkageStatus(GLuint ProgramID) const noexcept;
 		GLboolean LinkVertexAndFragmentShader(GLuint ProgramID, GLuint VertexShaderID, GLuint FragmentShaderID) const;
-		
+
 	};
 }
 

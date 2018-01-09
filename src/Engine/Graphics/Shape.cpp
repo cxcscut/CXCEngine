@@ -1,7 +1,17 @@
 
 #include "Shape.h"
+
+#ifdef WIN32
+
 #include "..\EngineFacade\EngineFacade.h"
 #include "..\Physics\RigidBody3D.h"
+
+#else
+
+#include "../EngineFacade/EngineFacade.h"
+#include "../Physics/RigidBody3D.h"
+
+#endif // WIN32
 
 namespace cxc {
 
@@ -12,7 +22,7 @@ namespace cxc {
 		m_VertexCoords(),m_VertexNormals(),m_TexCoords(),m_MaterialIDs(),m_VertexColor(),m_GeometricNormal(),
 		m_MyPtr(nullptr),m_TransformationMatrix(1.0f),m_ReposMatrix(1.0f)
 	{
-	
+
 	}
 
 	Shape::~Shape()
@@ -111,10 +121,10 @@ namespace cxc {
 	void Shape::ComputeCenterPoint() noexcept
 	{
 		glm::vec3 center_point = glm::vec3(0.0f,0.0f,0.0f);
-		
+
 		for (auto it : m_VertexCoords)
 			center_point += it;
-		
+
 		center_point /= m_VertexCoords.size();
 
 		m_CenterPos = LocalCoordsToGlobal(center_point);

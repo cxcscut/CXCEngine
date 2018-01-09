@@ -1,7 +1,7 @@
 #include "RigidBody3D.h"
 #include <iostream>
 namespace cxc {
-		
+
 	RigidBody3D::RigidBody3D():
 		m_WorldID(0),
 		m_BodyID(0),Initialized(false),m_GravityMode(0)
@@ -46,13 +46,13 @@ namespace cxc {
 
 	void RigidBody3D::destroyRigidBody() noexcept
 	{
-		
+
 		dBodyDestroy(m_BodyID);
 	}
 
 	void RigidBody3D::setPossition(dReal x, dReal y, dReal z) noexcept
 	{
-	
+
 		dBodySetPosition(m_BodyID,x,y,z);
 		m_pCollider->setGeomPosition(x, y, z);
 	}
@@ -83,7 +83,7 @@ namespace cxc {
 				rot[2],rot[6],rot[10],0,
 				pos[0],pos[1],pos[2],1
 			};
-	
+
 			dGeomTriMeshSetLastTransform(geom_id, *(dMatrix4*)(&trans_mat));
 		}
 	}
@@ -107,19 +107,19 @@ namespace cxc {
 							rot[0][1],rot[1][1],rot[2][1],0,
 							rot[0][2],rot[1][2],rot[2][2],0};
 
-		dBodySetRotation(m_BodyID,rot_mat); 
+		dBodySetRotation(m_BodyID,rot_mat);
 		dGeomSetRotation(m_pCollider->getGeomID(),rot_mat);
 	}
 
 	void RigidBody3D::setLinearVelocity(dReal x, dReal y, dReal z) noexcept
 	{
-	
+
 		dBodySetLinearVel(m_BodyID,x,y,z);
 	}
 
 	void RigidBody3D::setAngularVelocity(dReal x, dReal y, dReal z) noexcept
 	{
-	
+
 		dBodySetAngularVel(m_BodyID,x,y,z);
 	}
 
@@ -152,14 +152,14 @@ namespace cxc {
 			rot[1],rot[5],rot[9],
 			rot[2],rot[6],rot[10]
 		});
-		
+
 		return ret;
 	}
 
 	glm::vec3 RigidBody3D::getLinearVelocity() const
 	{
 		glm::vec3 linear_vel;
-		
+
 		const dReal * vel = dBodyGetLinearVel(m_BodyID);
 
 		linear_vel.x = vel[0]; linear_vel.y = vel[1]; linear_vel.z = vel[2];
@@ -182,25 +182,25 @@ namespace cxc {
 	{
 		dMass mass;
 
-		//dBodySetMass(m_BodyID,&mass);	
+		//dBodySetMass(m_BodyID,&mass);
 	}
 
 	void RigidBody3D::getMass(dMass *mass) const noexcept
 	{
-		
+
 		dBodyGetMass(m_BodyID,mass);
 
 	}
 
 	void RigidBody3D::addForce(dReal fx, dReal fy, dReal fz) noexcept
 	{
-		
+
 		dBodyAddForce(m_BodyID,fx,fy,fz);
 	}
 
 	void RigidBody3D::addTorque(dReal fx, dReal fy, dReal fz) noexcept
 	{
-		
+
 		dBodyAddTorque(m_BodyID,fx,fy,fz);
 	}
 
@@ -241,11 +241,11 @@ namespace cxc {
 	void RigidBody3D::addRelForceAtRelPos(dReal fx, dReal fy, dReal fz,
 										dReal px, dReal py, dReal pz) noexcept
 	{
-		
+
 		dBodyAddRelForceAtRelPos(m_BodyID,
 								fx, fy, fz,
 								px, py, pz);
-		
+
 	}
 
 	glm::vec3 RigidBody3D::getForce() const noexcept
@@ -254,7 +254,7 @@ namespace cxc {
 
 		const dReal *force = dBodyGetForce(m_BodyID);
 		ret.x = force[0]; ret.y = force[1]; ret.z = force[2];
-	
+
 		return ret;
 	}
 
@@ -264,7 +264,7 @@ namespace cxc {
 
 		const dReal *torque = dBodyGetForce(m_BodyID);
 		ret.x = torque[0]; ret.y = torque[1]; ret.z = torque[2];
-		
+
 		return ret;
 	}
 
@@ -287,7 +287,7 @@ namespace cxc {
 
 	int RigidBody3D::getGravityMode() const
 	{
-		
+
 		return dBodyGetGravityMode(m_BodyID);
 	}
 
@@ -298,7 +298,7 @@ namespace cxc {
 
 	dJointID RigidBody3D::getJoint(int index) const
 	{
-		
+
 		if (index >= dBodyGetNumJoints(m_BodyID))
 			return 0;
 		else

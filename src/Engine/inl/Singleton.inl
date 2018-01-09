@@ -23,12 +23,12 @@ namespace cxc {
 		Singleton(Singleton<_Tx> && object);
 
 		Singleton& operator=(Singleton<_Tx> & object) {
-			_pSingletonObejct.reset(object._pSingletonObejct.get());
-			_singleton.DeleteSingleton();
+			_pSingletonObject.reset(object._pSingletonObject.get());
+			object.DeleteSingleton();
 		}
 		Singleton& operator=(Singleton<_Tx> && object) {
-			_pSingletonObejct.reset(object._pSingletonObejct.get());
-			_singleton.DeleteSingleton();
+			_pSingletonObject.reset(object._pSingletonObject.get());
+			object.DeleteSingleton();
 		}
 
 	private:
@@ -58,14 +58,14 @@ namespace cxc {
 
 	template<typename _Tx>
 	Singleton<_Tx>::Singleton(Singleton<_Tx> & object) {
-		_pSingletonObejct.reset(object._pSingletonObejct.get());
-		_singleton.DeleteSingleton();
+		_pSingletonObject.reset(object._pSingletonObject.get());
+		object.DeleteSingleton();
 	}
 
 	template<typename _Tx>
 	Singleton<_Tx>::Singleton(Singleton<_Tx> && object) {
-		_pSingletonObejct.reset(object._pSingletonObejct.get());
-		_singleton.DeleteSingleton();
+		_pSingletonObject.reset(object._pSingletonObject.get());
+		object.DeleteSingleton();
 	}
 }
 

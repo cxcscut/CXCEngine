@@ -1,10 +1,18 @@
+
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
-#include "..\Graphics\SceneManager.h"
+#include "..\inl\Singleton.inl"
+
+#else
+
+#include "../General/DefineTypes.h"
+#include "../inl/Singleton.inl"
+
+#endif
 
 #ifndef CXC_CAMERA_H
 #define CXC_CAMERA_H
-
-#include "..\inl\Singleton.inl"
 
 namespace cxc {
 
@@ -13,7 +21,7 @@ namespace cxc {
 		CXC_CAMERA_FREE = 1
 	};
 
-	class Camera final 
+	class Camera final
 	{
 
 	public:
@@ -65,7 +73,7 @@ namespace cxc {
 		void ComputeAngles() noexcept;
 		void ComputePosition() noexcept;
 
-	// Private data 
+	// Private data
 	public:
 
 		// Matrices of camera

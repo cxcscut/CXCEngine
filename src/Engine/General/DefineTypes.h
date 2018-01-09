@@ -16,7 +16,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
-#include <fstream>    
+#include <fstream>
 #include <sstream>
 #include <unordered_map>
 #include <map>
@@ -32,7 +32,9 @@
 #include <thread>
 #include <mutex>
 
-// OpenGL 
+// OpenGL
+
+#ifdef WIN32
 
 #include <gl/glew.h>
 #include <gl/glut.h>
@@ -46,6 +48,23 @@
 
 // template
 #include "..\inl\MultiTree.inl"
+
+#else
+
+#include <GL/glew.h>
+#include <GL/glut.h>
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+
+#include "../Libraries/Image_loader/stb_image.h"
+#include "../inl//MultiTree.inl"
+
+#endif
 
 namespace cxc {
 

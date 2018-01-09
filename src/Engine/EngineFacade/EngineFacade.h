@@ -1,5 +1,18 @@
+#ifdef WIN32
+
 #include "..\General\EngineCompoents.h"
 #include "..\General\DefineTypes.h"
+#include "..\inl\Singleton.inl"
+
+#else
+
+#include "../General/EngineCompoents.h"
+#include "../General/DefineTypes.h"
+#include "../inl/Singleton.inl"
+
+#endif // WIN32
+
+#include <condition_variable>
 
 #define _CRT_SECURE_NO_WARINGS
 
@@ -10,8 +23,6 @@
 #define MIN_DISTANCE 500.0f
 #define ZOOMING_SPEED 100.0f
 #define MOUSE_ROTATE_ANGLE_SPEED 1.0f
-
-#include "..\inl\Singleton.inl"
 
 namespace cxc {
 
@@ -64,7 +75,7 @@ namespace cxc {
 		GLboolean LoadShader(ShaderType Type,const std::string &vertex_shader_path,const std::string &fragment_shader_path);
 
 	// Configuration
-	public: 
+	public:
 
 		void SetBackGroundColor(float red, float green, float blue, float alpha) noexcept;
 		void SetWindowParams(const WindowDescriptor &windes) noexcept;
@@ -72,7 +83,7 @@ namespace cxc {
 		void InitWindowPosition(GLint x, GLint y) noexcept { m_pWindowMgr->x_pos = x; m_pWindowMgr->y_pos = y; };
 
 	public:
-		
+
 		void Init() noexcept;
 		void InitEngine() noexcept;
 		void CleanFrameBuffer() const noexcept;
@@ -108,7 +119,7 @@ namespace cxc {
 		void ProcessingPhysics() noexcept;
 
 		void SuspendPhysics() noexcept { pause = true; };
-		
+
 		void ResumePhysics() noexcept { pause = false; };
 
 	public:

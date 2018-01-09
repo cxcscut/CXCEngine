@@ -6,7 +6,16 @@
 
 using HandType = int;
 
+#ifdef WIN32
+
 #include "..\..\Engine\EngineFacade\EngineFacade.h"
+
+#else
+
+#include "../../Engine/EngineFacade/EngineFacade.h"
+
+#endif // WIN32
+
 #include "GlobalVariable.h"
 
 #include "Kinematics.h"
@@ -43,8 +52,8 @@ public:
 
 	glm::vec3 GetOriginPos() const noexcept;
 
-public: 
-		
+public:
+
 	bool RotateJoint(const std::string &JointName,float degree) noexcept;
 
 	void ResetAllJointPose() noexcept;
@@ -78,7 +87,7 @@ public:
 	void MovingArmOffset(const glm::vec3 &pos_offset) noexcept;
 
 	void MovingArmOffset(GLfloat x, GLfloat y, GLfloat z) noexcept { MovingArmOffset(glm::vec3({ x,y,z })); };
-	
+
 	void MovingArmOrientationOffset(GLfloat x, GLfloat y, GLfloat z) noexcept;
 
 public:
@@ -127,17 +136,17 @@ private:
 	std::shared_ptr<Parser> script_parser;
 
 private:
-	
-	// Check input angle 
+
+	// Check input angle
 	bool CheckAngleConstraint(const std::string &JointName, float degree) const noexcept;
 
 	// build rotation axis
 	void LoadRotationAxis(HandType type) noexcept;
 
-	// Add root 
+	// Add root
 	void LoadRoot(HandType type) noexcept;
 
-	// Add child 
+	// Add child
 	void LoadChild(HandType type) noexcept;
 
 	// Add joint constraint

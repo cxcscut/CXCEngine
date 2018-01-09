@@ -1,10 +1,20 @@
-#include "..\General\DefineTypes.h"
+#ifdef WIN32
 
-#ifndef CXC_TEXTURE_MANAGER_H
-#define CXC_TEXTURE_MANAGER_H
+#include "..\General\DefineTypes.h"
 
 #include "..\Graphics\Texture2D.h"
 #include "..\inl\Singleton.inl"
+
+#else
+
+#include "../General/DefineTypes.h"
+
+#include "../Graphics/Texture2D.h"
+#include "../inl/Singleton.inl"
+#endif // WIN32
+
+#ifndef CXC_TEXTURE_MANAGER_H
+#define CXC_TEXTURE_MANAGER_H
 
 namespace cxc {
 
@@ -30,7 +40,7 @@ namespace cxc {
 		GLboolean LoadTexture(const std::string &tex_name, const std::string &tex_path);
 		void addTexture(const std::string &tex_name,const std::string &tex_path);
 		GLboolean DeleteTexture(const std::string &tex_name) noexcept;
-		
+
 		void LoadAllTexture() noexcept;
 
 	// Data access interface
@@ -48,10 +58,10 @@ namespace cxc {
 	private:
 
 		// <Texture name , Pointer to the texture>
-		std::unordered_map<std::string, std::shared_ptr<Texture2D>> m_TextureMap;		
+		std::unordered_map<std::string, std::shared_ptr<Texture2D>> m_TextureMap;
 
 		//  <Texture name, Texture file path>
-		std::unordered_map<std::string, std::string> m_TextPathList;					
+		std::unordered_map<std::string, std::string> m_TextPathList;
 
 		// Textures queue
 		std::deque<std::pair<std::string, std::string>> m_LoadingQueue;

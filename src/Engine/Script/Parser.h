@@ -1,10 +1,18 @@
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
+#include "..\inl\Singleton.inl"
+
+#else
+
+#include "../General/DefineTypes.h"
+#include "../inl/Singleton.inl"
+
+#endif // WIN32
 
 #ifndef CXC_PARSER_H
 #define CXC_PARSER_H
 #define PARSER_ERROR -1
-
-#include "..\inl\Singleton.inl"
 
 namespace cxc{
 
@@ -48,7 +56,7 @@ namespace cxc{
 		int error_lines;
 
 		bool Load;
-		
+
 		// if failed, return the number of lines that error occurs
 		int tokenize(const std::string &script) noexcept;
 

@@ -1,16 +1,25 @@
 #include "EngineFacade.h"
+
+#ifdef WIN32
+
 #include "..\Graphics\SceneManager.h"
+
+#else
+
+#include "../Graphics/SceneManager.h"
+
+#endif // WIN32
 
 namespace cxc {
 
 	static double _x=0.0f, _y=0.0f;
 
-	std::function<void(int key, int scancode, int action, int mods)> 
+	std::function<void(int key, int scancode, int action, int mods)>
 		EngineFacade::KeyInputCallBack = [=](int,int,int,int) {};
 
 	void KeyBoradCallBack(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
-		std::invoke(EngineFacade::KeyInputCallBack,key,scancode,action,mods);
+		EngineFacade::KeyInputCallBack,key,scancode,action,mods;
 	}
 
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)
@@ -28,7 +37,7 @@ namespace cxc {
 		// Update angles
 		pEngine->m_pSceneMgr->m_pCamera->ComputeAngles();
 
-		// Rotate Camera 
+		// Rotate Camera
 		pEngine->m_pSceneMgr->m_pCamera->theta_xoz += theta_xoz;
 		pEngine->m_pSceneMgr->m_pCamera->theta_y += theta_y;
 
@@ -55,7 +64,7 @@ namespace cxc {
 		}
 		else if(action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			// Remove the mouse callback 
+			// Remove the mouse callback
 			glfwSetCursorPosCallback(wHandle, nullptr);
 		}
 	}
@@ -71,8 +80,8 @@ namespace cxc {
 		glm::vec3 eye_direction = glm::normalize(camera->origin - camera->eye_pos);
 		float distance = glm::length(camera->eye_pos - camera->origin);
 
-		// y > 0 when srcoll up , y < 0 when scroll down 
-		if (y>0) 
+		// y > 0 when srcoll up , y < 0 when scroll down
+		if (y>0)
 		{
 			// srcoll up
 			if (distance > MIN_DISTANCE) {
@@ -81,12 +90,12 @@ namespace cxc {
 		}
 		else
 		{
-			
+
 			// scroll down
 			if (distance <= MAX_DISTANCE) {
 				camera->eye_pos -= ZOOMING_SPEED  * eye_direction;
 			}
-			
+
 		}
 
 		camera->ComputeViewMatrix();
@@ -113,6 +122,11 @@ namespace cxc {
 
 			// shutdown and clean
 			glfwTerminate();
+
+			lk.unlock();
+            pEngine->cv.notify_one();
+            pEngine->m_RunLock.lock();
+
 			return;
 		}
 
@@ -123,12 +137,17 @@ namespace cxc {
 
 			// shutdown and clean
 			glfwTerminate();
+
+			lk.unlock();
+            pEngine->cv.notify_one();
+            pEngine->m_RunLock.lock();
+
 			return;
 		}
 
 		// Init input mode
 		pEngine->InitEngine();
-		
+
 		// Init camera params and set input callback func
 		m_pSceneMgr->InitCameraStatus(m_pWindowMgr->GetWindowHandle());
 
@@ -217,7 +236,7 @@ namespace cxc {
 									const std::string &vertex_shader_path,
 									const std::string &fragment_shader_path)
 	{
-		
+
 		if (!m_pSceneMgr->m_pRendererMgr->isShaderLoaded(Type)) {
 			ProgramStruct m_ProgramStruct;
 			if (!m_pSceneMgr->m_pRendererMgr->CreateShaderProgram(m_ProgramStruct, vertex_shader_path, fragment_shader_path))
@@ -261,7 +280,7 @@ namespace cxc {
 			m_RenderingThread.reset();
 		}
 	}
-	
+
 	void EngineFacade::Init() noexcept
 	{
 		if (MultiThreading)
@@ -295,7 +314,7 @@ namespace cxc {
 
 				// shutdown and clean
 				glfwTerminate();
-				return;
+ 				return;
 			}
 
 			// Init input mode
@@ -380,7 +399,7 @@ namespace cxc {
 	{
 		ActivateRenderer(CXC_SPRITE_SHADER_PROGRAM);
 		m_pSceneMgr->DrawScene();
-	}	
+	}
 
 	void EngineFacade::ProcessingPhysics() noexcept
 	{
@@ -410,11 +429,11 @@ namespace cxc {
  				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(), m_pInputMgr->GetXPos(), m_pInputMgr->GetYPos(),
 					m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowWidth());
 			}
-			
+
 			if(!pause)
 				// Processing physical status
 				ProcessingPhysics();
-				
+
 			// Load texture
 			m_pSceneMgr->m_pTextureMgr->LoadAllTexture();
 

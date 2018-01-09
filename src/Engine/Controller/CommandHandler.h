@@ -1,5 +1,14 @@
+#ifdef WIN32
+
 #include "..\General\DefineTypes.h"
 #include "..\Graphics\SceneManager.h"
+
+#else
+
+#include "../General/DefineTypes.h"
+#include "../Graphics/SceneManager.h"
+
+#endif // WIN32
 
 class Robothand;
 
@@ -12,7 +21,7 @@ namespace cxc
 	{
 
 	public:
-		
+
 		CommandHandler();
 		~CommandHandler();
 

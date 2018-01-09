@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="OMPL_TEST" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/OMPL_TEST" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DGLEW_STATIC" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/OMPL_TEST" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add option="-std=c++14" />
+		</Compiler>
+		<Linker>
+			<Add option="/usr/local/lib/libode.a" />
+			<Add option="-lpthread" />
+			<Add option="-lGL" />
+			<Add option="-lGLU" />
+			<Add option="-lglfw3" />
+			<Add option="-lGLEW" />
+			<Add option="-lX11" />
+			<Add option="-lXxf86vm" />
+			<Add option="-ldl" />
+			<Add option="-lXrandr" />
+			<Add option="-lXinerama" />
+			<Add option="-lXcursor" />
+		</Linker>
+		<Unit filename="../../Engine/Controller/Camera.cpp" />
+		<Unit filename="../../Engine/Controller/Camera.h" />
+		<Unit filename="../../Engine/Controller/CommandHandler.cpp" />
+		<Unit filename="../../Engine/Controller/CommandHandler.h" />
+		<Unit filename="../../Engine/Controller/InputManager.cpp" />
+		<Unit filename="../../Engine/Controller/InputManager.h" />
+		<Unit filename="../../Engine/Controller/RendererManager.cpp" />
+		<Unit filename="../../Engine/Controller/RendererManager.h" />
+		<Unit filename="../../Engine/EngineFacade/EnginFacade.cpp" />
+		<Unit filename="../../Engine/EngineFacade/EngineFacade.h" />
+		<Unit filename="../../Engine/General/DefineTypes.h" />
+		<Unit filename="../../Engine/General/EngineCompoents.h" />
+		<Unit filename="../../Engine/Graphics/Font.cpp" />
+		<Unit filename="../../Engine/Graphics/Font.h" />
+		<Unit filename="../../Engine/Graphics/FontsManager.cpp" />
+		<Unit filename="../../Engine/Graphics/FontsManager.h" />
+		<Unit filename="../../Engine/Graphics/Object3D.cpp" />
+		<Unit filename="../../Engine/Graphics/Object3D.h" />
+		<Unit filename="../../Engine/Graphics/SceneManager.cpp" />
+		<Unit filename="../../Engine/Graphics/SceneManager.h" />
+		<Unit filename="../../Engine/Graphics/Shape.cpp" />
+		<Unit filename="../../Engine/Graphics/Shape.h" />
+		<Unit filename="../../Engine/Graphics/Texture2D.cpp" />
+		<Unit filename="../../Engine/Graphics/Texture2D.h" />
+		<Unit filename="../../Engine/Graphics/TextureManager.h" />
+		<Unit filename="../../Engine/Graphics/TextureManger.cpp" />
+		<Unit filename="../../Engine/Helper/FileHelper.cpp" />
+		<Unit filename="../../Engine/Helper/FileHelper.h" />
+		<Unit filename="../../Engine/Libraries/Image_loader/stb_image.h" />
+		<Unit filename="../../Engine/Libraries/TinyObjLoader/tiny_obj_loader.h" />
+		<Unit filename="../../Engine/Physics/Collider3D.cpp" />
+		<Unit filename="../../Engine/Physics/Collider3D.h" />
+		<Unit filename="../../Engine/Physics/RigidBody3D.cpp" />
+		<Unit filename="../../Engine/Physics/RigidBody3D.h" />
+		<Unit filename="../../Engine/Physics/ode/collision.h" />
+		<Unit filename="../../Engine/Physics/ode/collision_space.h" />
+		<Unit filename="../../Engine/Physics/ode/collision_trimesh.h" />
+		<Unit filename="../../Engine/Physics/ode/common.h" />
+		<Unit filename="../../Engine/Physics/ode/compatibility.h" />
+		<Unit filename="../../Engine/Physics/ode/contact.h" />
+		<Unit filename="../../Engine/Physics/ode/error.h" />
+		<Unit filename="../../Engine/Physics/ode/export-dif.h" />
+		<Unit filename="../../Engine/Physics/ode/mass.h" />
+		<Unit filename="../../Engine/Physics/ode/matrix.h" />
+		<Unit filename="../../Engine/Physics/ode/memory.h" />
+		<Unit filename="../../Engine/Physics/ode/misc.h" />
+		<Unit filename="../../Engine/Physics/ode/objects.h" />
+		<Unit filename="../../Engine/Physics/ode/ode.h" />
+		<Unit filename="../../Engine/Physics/ode/odeconfig.h" />
+		<Unit filename="../../Engine/Physics/ode/odecpp.h" />
+		<Unit filename="../../Engine/Physics/ode/odecpp_collision.h" />
+		<Unit filename="../../Engine/Physics/ode/odeinit.h" />
+		<Unit filename="../../Engine/Physics/ode/odemath.h" />
+		<Unit filename="../../Engine/Physics/ode/odemath_legacy.h" />
+		<Unit filename="../../Engine/Physics/ode/precision.h" />
+		<Unit filename="../../Engine/Physics/ode/rotation.h" />
+		<Unit filename="../../Engine/Physics/ode/threading.h" />
+		<Unit filename="../../Engine/Physics/ode/threading_impl.h" />
+		<Unit filename="../../Engine/Physics/ode/timer.h" />
+		<Unit filename="../../Engine/Script/Parser.cpp" />
+		<Unit filename="../../Engine/Script/Parser.h" />
+		<Unit filename="../../Engine/Shader/StandardFragmentShader.glsl" />
+		<Unit filename="../../Engine/Shader/StandardVertexShader.glsl" />
+		<Unit filename="../../Engine/Window/Window.cpp" />
+		<Unit filename="../../Engine/Window/Window.h" />
+		<Unit filename="../../Engine/inl/MultiTree.inl" />
+		<Unit filename="../../Engine/inl/Singleton.inl" />
+		<Unit filename="../FBXSDK-Test/GlobalVariable.h" />
+		<Unit filename="../FBXSDK-Test/Kinematics.cpp" />
+		<Unit filename="../FBXSDK-Test/Kinematics.h" />
+		<Unit filename="../FBXSDK-Test/RobotHand.cpp" />
+		<Unit filename="../FBXSDK-Test/RobotHand.h" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

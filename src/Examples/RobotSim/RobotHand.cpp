@@ -4,7 +4,7 @@ Robothand::Robothand():
 	HType(ROBOTHAND_LEFT), OriginPos(glm::vec3({0.0f,0.0f,0.0f}))
 {
 	script_parser = Parser::GetInstance();
-	
+
 }
 
 Robothand::Robothand(HandType type)
@@ -77,7 +77,7 @@ void Robothand::addKeyPoints(HandType type) noexcept
 
 void Robothand::addJointConstraint() noexcept
 {
-	
+
 }
 
 void Robothand::LoadRoot(HandType type) noexcept
@@ -96,7 +96,7 @@ void Robothand::LoadChild(HandType type) noexcept
 	auto childs = (type == ROBOTHAND_LEFT) ? g_ChildNodes_L : g_ChildNodes_R;
 
 	// Add child nodes
-	for (auto it : childs) 
+	for (auto it : childs)
 		AddChild(it.first, it.second);
 }
 
@@ -107,22 +107,22 @@ bool Robothand::LoadRobothand(HandType type) noexcept
 	auto ModelPath = (type == ROBOTHAND_LEFT) ? ModelPath_Lefthand : ModelPath_RightHand;
 
 	SetObjectName(ObjectName);
-	
+
 	if (!LoadOBJFromFile(ModelPath))
 		return false;
-	
+
 	LoadRotationAxis(type);
-	
+
 	LoadRoot(type);
-	
+
 	LoadChild(type);
-	
+
 	//addJointConstraint();
-	
+
 	addKeyPoints(type);
-	
+
 	addKnuckleLength(type);
-	
+
 	return true;
 }
 
@@ -200,7 +200,7 @@ glm::vec3 Robothand::RightToLeftCoordinateTrans(const glm::vec3 &vec) noexcept
 	return {vec.x,vec.y,-vec.z};
 }
 
-void Robothand::LoadRotationAxis(HandType type) noexcept 
+void Robothand::LoadRotationAxis(HandType type) noexcept
 {
 
 	auto axis = (type == ROBOTHAND_LEFT) ? g_Axis_L : g_Axis_R;
@@ -211,14 +211,14 @@ void Robothand::LoadRotationAxis(HandType type) noexcept
 		auto axis_pos = CoordinateSysTransToOGL(it.second.StartPoint);
 		auto axis_dir = CoordinateSysTransToOGL(it.second.Direction);
 
-		// store axis 
+		// store axis
 
-		auto it = m_Joint_Axis.find(Joint_name);
-		if (it == m_Joint_Axis.end())
+		auto _it = m_Joint_Axis.find(Joint_name);
+		if (_it == m_Joint_Axis.end())
 			m_Joint_Axis.insert(std::make_pair(Joint_name, std::make_shared<RotationAxis>(LeftToRightCoordinateTrans(axis_pos), LeftToRightCoordinateTrans(axis_dir))));
 		else
 			// if exist, then update it
-			it->second = std::make_shared<RotationAxis>(LeftToRightCoordinateTrans(axis_pos), LeftToRightCoordinateTrans(axis_dir));
+			_it->second = std::make_shared<RotationAxis>(LeftToRightCoordinateTrans(axis_pos), LeftToRightCoordinateTrans(axis_dir));
 
 	}
 
@@ -314,7 +314,7 @@ void Robothand::IntegralTranslation(float x, float y, float z) noexcept
 	{
 		auto RootModelPtr = it->root;
 		auto RootName = RootModelPtr->GetModelName();
-		
+
 		Translation(RootName,glm::vec3(x, z, -y));
 
 		UpdateRotationAxisPos(RootName, glm::vec3(x,z,-y));
@@ -586,7 +586,7 @@ void Robothand::MovingArmOffset(const glm::vec3 &pos_offset) noexcept
 	}
 
 	if (HType == ROBOTHAND_LEFT) {
-		degrees.push_back(GetBaseDegrees("palm_left") - GetJointDegree("palm_left")); 
+		degrees.push_back(GetBaseDegrees("palm_left") - GetJointDegree("palm_left"));
 		arm_joint_names.emplace_back("palm_left");
 	}
 	else {
@@ -608,5 +608,3 @@ void Robothand::MovingArmOffset(const glm::vec3 &pos_offset) noexcept
 		for (size_t k = 0; k < arm_joint_names.size(); k++)
 			RotateJoint(arm_joint_names[k], degrees[k] - optimal_sol[k]);
 }
-
-#include "stdafx.h"
