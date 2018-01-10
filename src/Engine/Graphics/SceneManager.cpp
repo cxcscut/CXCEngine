@@ -29,6 +29,10 @@ namespace cxc {
 		auto rgbd3d_ptr1 = reinterpret_cast<Shape*>(dBodyGetData(b1));
 		auto rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b2));
 
+        if(rgbd3d_ptr1->CompareTag() == "collision_free"
+            || rgbd3d_ptr2->CompareTag() == "collision_free")
+            return ;
+
 		// Do not check collision if tags are the same
 		if (rgbd3d_ptr1->CompareTag() == rgbd3d_ptr2->CompareTag())
 			return;
@@ -57,6 +61,8 @@ namespace cxc {
 				assert(rgbd3d_ptr1);
 				assert(rgbd3d_ptr2);
 
+                pSceneMgr->Collision = true;
+
 				//std::cout << rgbd3d_ptr1->GetModelName() << " AND " << rgbd3d_ptr2->GetModelName() << " COLLIDES" << std::endl;
 
 				dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
@@ -67,7 +73,7 @@ namespace cxc {
 
 	SceneManager::SceneManager()
 		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500)),
-		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0)
+		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false)
 	{
 		m_pTextureMgr = TextureManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();

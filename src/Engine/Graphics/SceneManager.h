@@ -115,6 +115,8 @@ namespace cxc {
 		// Joint group
 		dJointGroupID m_ContactJoints;
 
+        bool Collision;
+
 	private:
 
 		// <Object Name , Pointer to object>

@@ -293,6 +293,7 @@ namespace cxc {
 		}
 		else
 		{
+
 			m_pWindowMgr->InitGL();
 
 			// Create window
@@ -323,7 +324,7 @@ namespace cxc {
 			// Init camera params and set input callback func
 			m_pSceneMgr->InitCameraStatus(m_pWindowMgr->GetWindowHandle());
 
-			// Init physics engine
+            //Init physics engine
 			dInitODE();ODE_initialized = true;
 			m_pSceneMgr->CreatePhysicalWorld(m_Gravity);
 		}
@@ -336,6 +337,7 @@ namespace cxc {
 		}
 		else
 		{
+
 			m_pSceneMgr->initResources();
 
 			// Begin event looping
@@ -448,6 +450,7 @@ namespace cxc {
 		} while (!GameOver && glfwWindowShouldClose(WindowHandler) == 0);
 
 		GameOver = true;
+
 	}
 }
 

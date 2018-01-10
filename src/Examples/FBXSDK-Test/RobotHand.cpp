@@ -627,5 +627,7 @@ void Robothand::MovingArmOffset(const glm::vec3 &pos_offset) noexcept
 	if(KineSolver::getOptimalSolution(KineSolver::InverseKinematics(target_pose), target_pose,0.1f,optimal_sol))
 		for (size_t k = 0; k < arm_joint_names.size(); k++)
 			RotateJoint(arm_joint_names[k], degrees[k] - optimal_sol[k]);
+
+    std::cout << target_pose[3][0] << ","<<target_pose[3][1] << "," <<target_pose[3][2]<<std::endl;
 }
 

@@ -48,6 +48,7 @@
 			<Add option="-lXrandr" />
 			<Add option="-lXinerama" />
 			<Add option="-lXcursor" />
+			<Add option="-lompl" />
 		</Linker>
 		<Unit filename="../../Engine/Controller/Camera.cpp" />
 		<Unit filename="../../Engine/Controller/Camera.h" />
@@ -121,6 +122,12 @@
 		<Unit filename="../FBXSDK-Test/Kinematics.h" />
 		<Unit filename="../FBXSDK-Test/RobotHand.cpp" />
 		<Unit filename="../FBXSDK-Test/RobotHand.h" />
+		<Unit filename="ValidityChecker">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="ValidityChecker.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

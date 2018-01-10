@@ -3,12 +3,20 @@
 #include "../FBXSDK-Test/RobotHand.h"
 #include "../FBXSDK-Test/Kinematics.h"
 
+#include <ompl/base/spaces/RealVectorStateSpace.h>
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/geometric/planners/rrt/RRTConnect.h>
+#include <ompl/geometric/planners/rrt/RRTstar.h>
+#include <ompl/geometric/PathGeometric.h>
+
 using namespace std;
 
 #define MOVING_STEP 20.0f
 #define MOVING_ORIENTATION_STEP (glm::radians(45.0f))
 
 using namespace cxc;
+namespace ob = ompl::base;
+namespace og = ompl::geometric;
 
 #ifdef WIN32
 
@@ -32,6 +40,34 @@ static const std::string FragmentShaderPath = "../../Engine/Shader/StandardFragm
 
 std::shared_ptr<Robothand> m_LeftPtr, m_RightPtr;
 std::shared_ptr<Object3D> Table, Plane;
+
+bool isStateValid(const ob::State *state)
+{
+    auto pEngine = EngineFacade::GetInstance();
+
+    auto degrees = state->as<ob::RealVectorStateSpace::StateType>()->values;
+
+    m_LeftPtr->RotateJoint("arm_left2",degrees[0]);
+    m_LeftPtr->RotateJoint("arm_left3",degrees[1]);
+    m_LeftPtr->RotateJoint("arm_left4",degrees[2]);
+    m_LeftPtr->RotateJoint("arm_left5",degrees[3]);
+    m_LeftPtr->RotateJoint("arm_left6",degrees[4]);
+    m_LeftPtr->RotateJoint("palm_left",degrees[5]);
+
+    pEngine->ProcessingPhysics();
+
+     // Reset pose
+    m_LeftPtr->ResetAllJointPose();
+
+    if(pEngine->m_pSceneMgr->Collision)
+    {
+        pEngine->m_pSceneMgr->Collision = false;
+        return false;
+    }
+    else
+        return true;
+
+};
 
 auto keycallback = [=](int key, int scancode, int action, int mods) {
 	auto pEngine = EngineFacade::GetInstance();
@@ -163,8 +199,6 @@ int main()
 
 	// Adding user code here
 	{
-		Plane->Translation(glm::vec3(0,-1,0));
-
 		m_LeftPtr->InitOriginalDegrees();
 
 		m_LeftPtr->RotateJoint("arm_left2", 90.0f);
@@ -172,14 +206,94 @@ int main()
 		// Set initial pose of robot arm
 		m_LeftPtr->SetBaseDegrees({ 0,0,90,0,-90,0 });
 
-		//m_LeftPtr->MovingArm(0,-200,500,0,0,0);
+		m_LeftPtr->GetModelByName("arm_left1")->SetTag("Collision_free");
 	}
 
-	// Start engine
-	pEngine->run();
+    auto armStateSpace = ob::StateSpacePtr(new ob::RealVectorStateSpace(6));
+    ob::RealVectorBounds bounds(6);
 
-	// Waiting for stop when condition satisifies
-	pEngine->waitForStop();
+    for(auto i =0;i<6;i++)
+    {
+        bounds.setLow(i,-180.0f);
+        bounds.setHigh(i,180.0f);
+    }
+
+    armStateSpace->as<ob::RealVectorStateSpace>()->setBounds(bounds);
+
+    auto armSpaceInformation = ob::SpaceInformationPtr(new ob::SpaceInformation(armStateSpace));
+
+    armSpaceInformation->setStateValidityChecker(isStateValid);
+
+    armSpaceInformation->setup();
+
+    auto armProblemDefinition = ob::ProblemDefinitionPtr(new ob::ProblemDefinition(armSpaceInformation));
+
+    auto armPlanner = ob::PlannerPtr(new og::RRTConnect(armSpaceInformation));
+
+    armPlanner->setProblemDefinition(armProblemDefinition);
+    armPlanner->setup();
+
+    ob::ScopedState<> start_ompl(armStateSpace);
+    ob::ScopedState<> goal_ompl(armStateSpace);
+
+    // start state
+    start_ompl->as<ob::RealVectorStateSpace::StateType>()->values[0] = 0;
+    start_ompl->as<ob::RealVectorStateSpace::StateType>()->values[1] = 0;
+    start_ompl->as<ob::RealVectorStateSpace::StateType>()->values[2] = 90.0f;
+    start_ompl->as<ob::RealVectorStateSpace::StateType>()->values[3] = 0;
+    start_ompl->as<ob::RealVectorStateSpace::StateType>()->values[4] = -90.0f;
+    start_ompl->as<ob::RealVectorStateSpace::StateType>()->values[5] = 0;
+
+    // goal state
+    goal_ompl->as<ob::RealVectorStateSpace::StateType>()->values[0] = 90.0f;
+    goal_ompl->as<ob::RealVectorStateSpace::StateType>()->values[1] = -135.0f;
+    goal_ompl->as<ob::RealVectorStateSpace::StateType>()->values[2] = 135.0f;
+    goal_ompl->as<ob::RealVectorStateSpace::StateType>()->values[3] = 0;
+    goal_ompl->as<ob::RealVectorStateSpace::StateType>()->values[4] = 45.0f;
+    goal_ompl->as<ob::RealVectorStateSpace::StateType>()->values[5] = 0;
+
+    armProblemDefinition->setStartAndGoalStates(start_ompl, goal_ompl);
+
+    ompl::base::PlannerStatus solved = armPlanner->solve(3.0f);
+
+    if(solved){
+        std::cout << "solved!" <<std::endl;
+
+        std::cout <<std::endl;
+        std::cout << "Print path:"<<std::endl;
+
+        auto armPathInGridOmpl = armProblemDefinition->getSolutionPath();
+
+        std::vector<ompl::base::State*> path = std::static_pointer_cast<ompl::geometric::PathGeometric>(armPathInGridOmpl)->getStates();
+
+        std::cout << "States count = " << path.size() <<std::endl;
+
+        for(auto i = 0 ;i<path.size() ; i++)
+        {
+            std::cout << "States " <<i <<std::endl;
+            for(auto k = 0;k<6;k++)
+            {
+                std::cout << glm::degrees(path[i]->as<ob::RealVectorStateSpace::StateType>()->values[k]) <<std::endl;
+            }
+            std::cout <<std::endl;
+        }
+
+        auto goal = goal_ompl->as<ob::RealVectorStateSpace::StateType>()->values;
+
+        m_LeftPtr->RotateJoint("arm_left2",goal[0]);
+        m_LeftPtr->RotateJoint("arm_left3",goal[1]);
+        m_LeftPtr->RotateJoint("arm_left4",goal[2]);
+        m_LeftPtr->RotateJoint("arm_left5",goal[3]);
+        m_LeftPtr->RotateJoint("arm_left6",goal[4]);
+        m_LeftPtr->RotateJoint("palm_left",goal[5]);
+
+    }
+    else
+        std::cout << "solutions not found" <<std::endl;
+
+    pEngine->run();
+
+    pEngine->waitForStop();
 
     return 0;
 }

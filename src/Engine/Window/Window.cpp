@@ -148,10 +148,10 @@ namespace cxc {
 	GLboolean WindowManager::PrepareResourcesForCreating() const noexcept
 	{
 
-        glfwWindowHint(GLFW_SAMPLES, m_SamplingLevel);					                // sampling
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, HighByteVersion);					// high byte of version
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, LowByteVersion);						// low byte of version
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, HighByteVersion);	                // forwarad compatible
+        glfwWindowHint(GLFW_SAMPLES, 4);					                // sampling
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);					    // high byte of version
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);						// low byte of version
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);	            // forwarad compatible
 
 #ifdef WIN32
 
