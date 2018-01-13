@@ -265,9 +265,9 @@ int main()
 
     auto armProblemDefinition = ob::ProblemDefinitionPtr(new ob::ProblemDefinition(armSpaceInformation));
 
-    //auto armPlanner = ob::PlannerPtr(new og::RRTConnect(armSpaceInformation));
+    auto armPlanner = ob::PlannerPtr(new og::RRTConnect(armSpaceInformation));
 
-    auto armPlanner = ob::PlannerPtr(new og::SPARStwo(armSpaceInformation));
+    //auto armPlanner = ob::PlannerPtr(new og::SPARStwo(armSpaceInformation));
 
     armPlanner->setProblemDefinition(armProblemDefinition);
     armPlanner->setup();
@@ -293,7 +293,7 @@ int main()
 
     armProblemDefinition->setStartAndGoalStates(start_ompl, goal_ompl);
 
-    ompl::base::PlannerStatus solved = armPlanner->solve(30.0f);
+    ompl::base::PlannerStatus solved = armPlanner->solve(10.0f);
 
     if(solved){
         std::cout << "solved!" <<std::endl;
@@ -318,17 +318,6 @@ int main()
         }
 
         auto goal = goal_ompl->as<ob::RealVectorStateSpace::StateType>()->values;
-
-        DisplayState(path[1]);
-
-    /*
-        m_LeftPtr->RotateJoint("arm_left2",goal[0]);
-        m_LeftPtr->RotateJoint("arm_left3",goal[1]);
-        m_LeftPtr->RotateJoint("arm_left4",goal[2]);
-        m_LeftPtr->RotateJoint("arm_left5",goal[3]);
-        m_LeftPtr->RotateJoint("arm_left6",goal[4]);
-        m_LeftPtr->RotateJoint("palm_left",goal[5]);
-*/
     }
     else
         std::cout << "solutions not found" <<std::endl;

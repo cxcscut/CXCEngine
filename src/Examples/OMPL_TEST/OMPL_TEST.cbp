@@ -126,9 +126,6 @@
 		<Unit filename="ValidityChecker">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="ValidityChecker.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

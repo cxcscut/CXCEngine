@@ -410,7 +410,7 @@ namespace cxc {
 
 		dSpaceCollide(m_pSceneMgr->m_TopLevelSpace,reinterpret_cast<void *>(m_pSceneMgr.get()),&SceneManager::nearCallback);
 
-		dWorldStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
+		dWorldQuickStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
 
 		dJointGroupEmpty(m_pSceneMgr->m_ContactJoints);
 
