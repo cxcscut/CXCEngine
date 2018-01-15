@@ -72,8 +72,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;G:\opencv\opencv\build\x86\vc12\lib;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;G:\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Users\cxc123\Desktop\CxcEngine\src\Examples\RobotSim\5DT\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>G:\2018.1.1\include;G:\opencv\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;G:\opencv_downloads\opencv\build\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
+    <LibraryPath>G:\cxcengine\git\cxcengine\src\Engine\Physics\ode;G:\cxcengine\git\cxcengine\src\Examples\RobotSim\5DT\lib;G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;G:\opencv\opencv\build\x86\vc12\lib;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;G:\CxcEngine\src\Examples\RobotSim\5DT\lib;C:\Users\cxc123\Desktop\CxcEngine\src\Examples\RobotSim\5DT\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>G:\cxcengine\git\cxcengine\src\Engine\Physics;G:\2018.1.1\include;G:\opencv\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;G:\opencv_downloads\opencv\build\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>G:\git\CxcEngine\src\Examples\RobotSim\5DT\lib;$(LibraryPath)</LibraryPath>
@@ -109,7 +109,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libfbxsdk-md.lib;fgloved.lib;glfw3.lib;glew32.lib;opencv_ts300.lib;
+      <AdditionalDependencies>ode.lib;fgloved.lib;glfw3.lib;glew32.lib;opencv_ts300.lib;
 opencv_world300.lib;Kinect10.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -127,12 +127,14 @@ opencv_world300.lib;Kinect10.lib</AdditionalDependencies>
     <ClCompile Include="engine\graphics\Texture2D.cpp" />
     <ClCompile Include="engine\graphics\TextureManger.cpp" />
     <ClCompile Include="Engine\Helper\FileHelper.cpp" />
+    <ClCompile Include="Engine\Physics\Collider3D.cpp" />
+    <ClCompile Include="Engine\Physics\RigidBody3D.cpp" />
     <ClCompile Include="engine\script\Parser.cpp" />
     <ClCompile Include="engine\window\Window.cpp" />
+    <ClCompile Include="Examples\FBXSDK-Test\Kinematics.cpp" />
+    <ClCompile Include="Examples\FBXSDK-Test\RobotHand.cpp" />
     <ClCompile Include="Examples\RobotSim\CvvImage.cpp" />
     <ClCompile Include="Examples\RobotSim\KinectWin.cpp" />
-    <ClCompile Include="Examples\RobotSim\Kinematics.cpp" />
-    <ClCompile Include="examples\robotsim\RobotHand.cpp" />
     <ClCompile Include="examples\robotsim\RobotSim.cpp" />
     <ClCompile Include="examples\robotsim\RobotSimDlg.cpp" />
     <ClCompile Include="examples\robotsim\stdafx.cpp" />
@@ -156,14 +158,41 @@ opencv_world300.lib;Kinect10.lib</AdditionalDependencies>
     <ClInclude Include="engine\helper\FileHelper.h" />
     <ClInclude Include="engine\libraries\image_loader\stb_image.h" />
     <ClInclude Include="engine\libraries\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="Engine\Physics\Collider3D.h" />
+    <ClInclude Include="Engine\Physics\ode\collision.h" />
+    <ClInclude Include="Engine\Physics\ode\collision_space.h" />
+    <ClInclude Include="Engine\Physics\ode\collision_trimesh.h" />
+    <ClInclude Include="Engine\Physics\ode\common.h" />
+    <ClInclude Include="Engine\Physics\ode\compatibility.h" />
+    <ClInclude Include="Engine\Physics\ode\contact.h" />
+    <ClInclude Include="Engine\Physics\ode\error.h" />
+    <ClInclude Include="Engine\Physics\ode\export-dif.h" />
+    <ClInclude Include="Engine\Physics\ode\mass.h" />
+    <ClInclude Include="Engine\Physics\ode\matrix.h" />
+    <ClInclude Include="Engine\Physics\ode\memory.h" />
+    <ClInclude Include="Engine\Physics\ode\misc.h" />
+    <ClInclude Include="Engine\Physics\ode\objects.h" />
+    <ClInclude Include="Engine\Physics\ode\ode.h" />
+    <ClInclude Include="Engine\Physics\ode\odeconfig.h" />
+    <ClInclude Include="Engine\Physics\ode\odecpp.h" />
+    <ClInclude Include="Engine\Physics\ode\odecpp_collision.h" />
+    <ClInclude Include="Engine\Physics\ode\odeinit.h" />
+    <ClInclude Include="Engine\Physics\ode\odemath.h" />
+    <ClInclude Include="Engine\Physics\ode\odemath_legacy.h" />
+    <ClInclude Include="Engine\Physics\ode\precision.h" />
+    <ClInclude Include="Engine\Physics\ode\rotation.h" />
+    <ClInclude Include="Engine\Physics\ode\threading.h" />
+    <ClInclude Include="Engine\Physics\ode\threading_impl.h" />
+    <ClInclude Include="Engine\Physics\ode\timer.h" />
+    <ClInclude Include="Engine\Physics\RigidBody3D.h" />
     <ClInclude Include="engine\script\Parser.h" />
     <ClInclude Include="engine\window\Window.h" />
+    <ClInclude Include="Examples\FBXSDK-Test\Kinematics.h" />
+    <ClInclude Include="Examples\FBXSDK-Test\RobotHand.h" />
     <ClInclude Include="Examples\RobotSim\CvvImage.h" />
     <ClInclude Include="examples\robotsim\GlobalVariable.h" />
     <ClInclude Include="Examples\RobotSim\KinectWin.h" />
-    <ClInclude Include="Examples\RobotSim\Kinematics.h" />
     <ClInclude Include="examples\robotsim\Resource.h" />
-    <ClInclude Include="examples\robotsim\RobotHand.h" />
     <ClInclude Include="examples\robotsim\RobotSim.h" />
     <ClInclude Include="examples\robotsim\RobotSimDlg.h" />
     <ClInclude Include="examples\robotsim\stdafx.h" />

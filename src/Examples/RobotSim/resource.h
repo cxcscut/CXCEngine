@@ -44,6 +44,7 @@
 #define IDC_TEACH                       1033
 #define IDC_S12                         1034
 #define IDC_SENDACTION                  1035
+#define IDC_SENDFILE                    1035
 #define IDC_LINK                        1036
 #define IDC_S13                         1037
 #define IDC_CONNECT                     1038
@@ -56,7 +57,9 @@
 #define IDC_A13                         1045
 #define IDC_A0                          1046
 #define IDC_ROUTANGLE                   1047
+#define IDC_WRITEANGLE                  1047
 #define IDC_A1                          1048
+#define IDC_COMBOCLIENT                 1048
 #define IDC_ROUTPOS                     1049
 #define IDC_A3                          1050
 #define IDC_A4                          1051

@@ -9,27 +9,8 @@
 
 // KinectWin 对话框
 UINT Server_Th(LPVOID p);
-
-// Analysis result
-using AnalysisRet = struct AnalysisRet {
-	// 中心位置
-	float x, y;
-
-	// X轴夹角
-	float angle;
-
-	// 宽度
-	float width;
-
-	// 结果是否更新
-	bool result_update;
-
-	AnalysisRet() :
-		x(0.0f), y(0.0f), angle(0.0f), width(0.0f),result_update(false)
-	{};
-};
-
-static AnalysisRet analysis_ret;
+UINT Client_Th1(LPVOID p);
+UINT Client_Th2(LPVOID p);
 
 class KinectWin : public CDialogEx
 {
@@ -50,11 +31,11 @@ public:
 	int y;
 	int xd;
 	int yd;
+	
 	CEdit * send_edit; //发送框
 	IplImage *imageCut; //截图图片
 	CEdit* pEdit;
 	int count;
-
 	void DrawPicToHDC(IplImage *img, UINT ID);
 
 	void OnTimer(UINT_PTR nIDEvent);
@@ -78,7 +59,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 
-	afx_msg void OnBnClickedSelf();
+	//afx_msg void OnBnClickedSelf();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnBnClickedButton4();
 	afx_msg void OnBnClickedButton1();
@@ -90,5 +71,10 @@ public:
 	afx_msg void OnBnClickedReset();
 	CComboBox m_method;
 	afx_msg void OnCbnSelchangeCombo1();
-	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedConnect();
+	afx_msg void OnBnClickedSendfile();
+	afx_msg void OnBnClickedWriteangle();
+	// 选择连接的客户端
+	CComboBox clientType;
+	afx_msg void OnBnClickedCancel();
 };

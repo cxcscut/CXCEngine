@@ -1,0 +1,14 @@
+Left hand:
+thumb 23.3,0,0,0
+index 0,0,0,0
+middle 0,0,0,0
+ring 0,0,0,0
+little 0,0,0,0
+arm 90,0,0,0,0,0
+Right hand:
+thumb 0,0,0,0
+index 0,0,0,0
+middle 0,0,0,0
+ring 0,0,0,0
+little 0,0,0,0
+arm 90,0,0,0,0,0

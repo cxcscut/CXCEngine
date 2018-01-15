@@ -430,3 +430,7 @@ std::vector<std::vector<float>> KineSolver::InverseKinematics(const std::vector<
 {
 	return _InvKine(EularSpaceToOrientation(pose));
 }
+
+#include "stdafx.h"
+
+

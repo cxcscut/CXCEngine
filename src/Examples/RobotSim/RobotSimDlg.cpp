@@ -123,15 +123,15 @@ BOOL CRobotSimDlg::OnInitDialog()
 	auto start = std::chrono::system_clock::now();
 	auto LoadRobothand = [&](int type) {
 		if (type == ROBOTHAND_LEFT)
-			m_LeftPtr = std::make_shared<Robothand>(type);
+			m_LeftPtr = std::make_shared<Robothand>(type,".\\Examples\\RobotSim\\Model\\SZrobotl.obj");
 		else
-			m_RightPtr = std::make_shared<Robothand>(type);
+			m_RightPtr = std::make_shared<Robothand>(type,".\\Examples\\RobotSim\\Model\\SZrobotr.obj");
 	};
 
-	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile);};
+	auto LoadPlane = [&]() {Plane = std::make_shared<Object3D>("plane",PlaneFile,"env");};
 	auto LoadTable_and_widget= [&]() {
-		Table = std::make_shared<Object3D>("table", TableFile); 
-		Widget = std::make_shared<Object3D>("widget", WidgetFile);
+		Table = std::make_shared<Object3D>("table", TableFile,"env"); 
+		//Widget = std::make_shared<Object3D>("widget", WidgetFile);
 		
 	};
 
@@ -144,6 +144,36 @@ BOOL CRobotSimDlg::OnInitDialog()
 	right_hand.join();
 	plane.join();
 	table.join();
+
+	// Engine configuration
+	
+
+		m_Engine->SetGravity(0, -0.1, 0);
+
+		m_Engine->m_pWindowMgr->InitGL();
+
+		auto m_Hwnd = GetDlgItem(IDC_PIC)->m_hWnd;
+		RECT display_size;
+		m_PicCtrl.GetWindowRect(&display_size);
+
+		// Set display window size
+		m_Engine->m_pWindowMgr->SetWindowHeight(display_size.bottom - display_size.top);
+		m_Engine->m_pWindowMgr->SetWindowWidth(display_size.right - display_size.left);
+
+		m_Engine->SetVertexShaderPath("G:\\cxcengine\\git\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl");
+		m_Engine->SetFragmentShaderPath("G:\\cxcengine\\git\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl");
+
+		m_Engine->m_pWindowMgr->SetWindowTitle("Engine test");
+		m_Engine->m_pWindowMgr->isDecoraded = false;
+
+		m_Engine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
+
+		m_Engine->InitWindowPosition(0, 0);
+
+		m_Engine->MultiThreadingEnable();
+	
+
+	m_Engine->Init();
 
 	auto end = std::chrono::system_clock::now();
 	auto LoadingTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -159,11 +189,10 @@ BOOL CRobotSimDlg::OnInitDialog()
 	else
 		OutputInfo("ÊÖ±Û¼ÓÔØÊ§°Ü\r\n");
 	
-	m_Engine->m_pSceneMgr->AddObject(m_LeftPtr->GetObjectName(), m_LeftPtr);
-	m_Engine->m_pSceneMgr->AddObject(m_RightPtr->GetObjectName(), m_RightPtr);
-	m_Engine->m_pSceneMgr->AddObject(Plane->GetObjectName(), Plane);
-	m_Engine->m_pSceneMgr->AddObject(Table->GetObjectName(), Table);
-	m_Engine->m_pSceneMgr->AddObject(Widget->GetObjectName(), Widget);
+	m_Engine->addObject(m_LeftPtr,true);
+	m_Engine->addObject(m_RightPtr,true);
+	m_Engine->addObject(Plane,true);
+	m_Engine->addObject(Table,true);
 
 	// Init ComboBox
 	LoadCombobox();
@@ -175,7 +204,7 @@ BOOL CRobotSimDlg::OnInitDialog()
 	m_LeftPtr->InitOriginalDegrees();
 	m_RightPtr->InitOriginalDegrees();
 
-	Widget->RotateWithArbitraryAxis("widget", Widget->GetCenterPos(), glm::vec3({0,1,0}),glm::radians(90.0f));
+	//Widget->RotateWithArbitraryAxis("widget", Widget->GetCenterPos(), glm::vec3({0,1,0}),glm::radians(90.0f));
 
 	// Init hand pose
 	m_LeftPtr->IntegralTranslation(750, 0, 0);
@@ -188,14 +217,6 @@ BOOL CRobotSimDlg::OnInitDialog()
 
 	// Init OpenGL in main thread
 	m_Engine->m_pWindowMgr->InitGL();
-
-	auto m_Hwnd = GetDlgItem(IDC_PIC)->m_hWnd;
-	RECT display_size;
-	m_PicCtrl.GetWindowRect(&display_size);
-
-	// Set display window size
-	m_Engine->m_pWindowMgr->SetWindowHeight(display_size.bottom - display_size.top);
-	m_Engine->m_pWindowMgr->SetWindowWidth(display_size.right - display_size.left);
 
 	// Begin rendering thread
 	m_Engine->run();

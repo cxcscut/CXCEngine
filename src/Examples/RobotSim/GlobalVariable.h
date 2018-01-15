@@ -25,6 +25,9 @@ static const std::string WidgetFile = ".\\Examples\\RobotSim\\Model\\widget.obj"
 
 static const std::string ScriptDir = ".\\Examples\\RobotSim\\";
 
+static const std::string VertexShaderPath = "..\\Engine\\Shader\\StandardVertexShader.glsl";
+static const std::string FragmentShaderPath = "..\\Engine\\Shader\\StandardFragmentShader.glsl";
+
 // Glove calibration file
 static const std::string DataGloveCalibFile = ".\\Examples\\RobotSim\\5DT\\jc.cal";
 

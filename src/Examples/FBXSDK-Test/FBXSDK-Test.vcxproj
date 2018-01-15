@@ -80,8 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>G:\ode-0.13\ode\demo;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics;C:\Users\cxc123\Desktop\cxcengine\src\Engine;G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;C:\Users\39317\Desktop\git\cxcengine\src\Engine;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics\ode;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Release;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics\ode;G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>G:\cxcengine\git\cxcengine\src\Engine\Release;G:\cxcengine\git\cxcengine\src\Engine\Physics;G:\ode-0.13\ode\demo;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics;C:\Users\cxc123\Desktop\cxcengine\src\Engine;G:\FBX-SDK2018.1.1\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;C:\Users\39317\Desktop\git\cxcengine\src\Engine;$(IncludePath)</IncludePath>
+    <LibraryPath>G:\cxcengine\git\cxcengine\src\Engine\Release;G:\cxcengine\git\cxcengine\src\Engine\Physics\ode;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Physics\ode;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Release;C:\Users\cxc123\Desktop\cxcengine\src\Engine\Physics\ode;G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;C:\Users\39317\Desktop\git\cxcengine\src\Engine\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

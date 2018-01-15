@@ -51,9 +51,6 @@
     <ClCompile Include="engine\window\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="examples\robotsim\RobotHand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="examples\robotsim\RobotSim.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -64,9 +61,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Examples\RobotSim\GloveDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Examples\RobotSim\Kinematics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\graphics\SceneManager.cpp">
@@ -82,6 +76,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Helper\FileHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Examples\FBXSDK-Test\RobotHand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Physics\Collider3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Physics\RigidBody3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Examples\FBXSDK-Test\Kinematics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,9 +152,6 @@
     <ClInclude Include="examples\robotsim\Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="examples\robotsim\RobotHand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="examples\robotsim\RobotSim.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -164,9 +167,6 @@
     <ClInclude Include="Examples\RobotSim\GloveDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Examples\RobotSim\Kinematics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\graphics\SceneManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -174,6 +174,93 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Examples\RobotSim\CvvImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Examples\FBXSDK-Test\RobotHand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\collision_space.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\collision_trimesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\compatibility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\contact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\export-dif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\mass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\objects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\ode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\odeconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\odecpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\odecpp_collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\odeinit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\odemath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\odemath_legacy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\precision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\rotation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\threading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\threading_impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\ode\timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\Collider3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Physics\RigidBody3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Examples\FBXSDK-Test\Kinematics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

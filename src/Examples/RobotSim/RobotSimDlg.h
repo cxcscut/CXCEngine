@@ -34,15 +34,15 @@ protected:
 	// Inverse name mapping
 	std::unordered_map<std::string, std::string> m_InvNameMap;
 
-	// Robothand Ptr
-	std::shared_ptr<Robothand> m_LeftPtr, m_RightPtr;
-
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	// Robothand Ptr
+	std::shared_ptr<Robothand> m_LeftPtr, m_RightPtr;
+
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 	void OutputInfo(const CString &str);

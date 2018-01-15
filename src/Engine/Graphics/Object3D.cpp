@@ -2,15 +2,14 @@
 
 #ifdef WIN32
 
+#include "..\Helper\FileHelper.h"
+#include "..\EngineFacade\EngineFacade.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "..\Libraries\Image_loader\stb_image.h"
 
-
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "..\Libraries\TinyObjLoader\tiny_obj_loader.h"
-
-#include "..\Helper\FileHelper.h"
-#include "..\EngineFacade\EngineFacade.h"
 
 #else
 
@@ -19,7 +18,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../Libraries/Image_loader/stb_image.h"
-
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../Libraries/TinyObjLoader/tiny_obj_loader.h"

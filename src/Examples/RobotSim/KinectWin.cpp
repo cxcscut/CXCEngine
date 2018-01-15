@@ -5,16 +5,28 @@
 #include "KinectWin.h"
 #include "afxdialogex.h"
 #include "Resource.h"
-
-#include "..\..\Engine\Graphics\SceneManager.h"
+#include <fstream>
+#include <iomanip>
 
 SOCKET listen_sock;
 SOCKET sock;
+
+SOCKET sock1;
+SOCKET sock2;
+
+class CRobotSimDlg;
+
+#include "RobotSimDlg.h"
+
 std::string colorImagePath2 = "./images/pcd0055r.png"; //初始化截图地址
 std::vector<std::string> result;
 bool analyFlag=false;
 bool imageFlag = false;
 bool methodFlag = true;//分析方法，表示是否用fast-rcnn分析
+bool isRunning = true;
+
+bool remoteAnaly = false;
+bool remoteAngle = false;
 
 // KinectWin 对话框
 IMPLEMENT_DYNAMIC(KinectWin, CDialogEx)
@@ -149,11 +161,11 @@ void KinectWin::CaptureKinectDepthVideo()
 		NuiImageStreamReleaseFrame(depthStreamHandle, pImageFrame_depth);
 	}
 }
-
 void KinectWin::Update(CString str)
 {
 	pEdit = (CEdit*)GetDlgItem(IDC_EDIT1);
-	int nLength =pEdit->GetWindowTextLength();
+	
+	int nLength = pEdit->GetWindowTextLength();
 	//选定当前文本的末端  
 	pEdit->SetSel(nLength, nLength);
 	pEdit->ReplaceSel(str + _T("\r\n"));
@@ -176,13 +188,14 @@ void KinectWin::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMBO1, m_method);
+	DDX_Control(pDX, IDC_COMBOCLIENT, clientType);
 }
 
 
 
 BEGIN_MESSAGE_MAP(KinectWin, CDialogEx)
 	ON_WM_TIMER()
-	ON_BN_CLICKED(IDC_SELF, &KinectWin::OnBnClickedSelf)
+	//ON_BN_CLICKED(IDC_SELF, &KinectWin::OnBnClickedSelf)
 	ON_BN_CLICKED(IDC_BUTTON4, &KinectWin::OnBnClickedButton4)
 	ON_BN_CLICKED(IDC_BUTTON1, &KinectWin::OnBnClickedButton1)
 	ON_BN_CLICKED(IDCANCEL2, &KinectWin::OnBnClickedCancel2)
@@ -192,7 +205,10 @@ BEGIN_MESSAGE_MAP(KinectWin, CDialogEx)
 	ON_BN_CLICKED(IDC_ANALY, &KinectWin::OnBnClickedAnaly)
 	ON_BN_CLICKED(IDC_RESET, &KinectWin::OnBnClickedReset)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &KinectWin::OnCbnSelchangeCombo1)
-	ON_BN_CLICKED(IDC_BUTTON2, &KinectWin::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_CONNECT, &KinectWin::OnBnClickedConnect)
+	ON_BN_CLICKED(IDC_SENDFILE, &KinectWin::OnBnClickedSendfile)
+	ON_BN_CLICKED(IDC_WRITEANGLE, &KinectWin::OnBnClickedWriteangle)
+	ON_BN_CLICKED(IDCANCEL, &KinectWin::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
 
@@ -206,6 +222,10 @@ BOOL KinectWin::OnInitDialog()
 	m_method.AddString("SSD");
 	m_method.SetCurSel(0);
 
+	clientType.AddString("client1");
+	clientType.AddString("client2");
+	clientType.SetCurSel(0);
+
 	count = 0;
 	cvNamedWindow("view", CV_WINDOW_AUTOSIZE);
 	cvNamedWindow("depth", CV_WINDOW_AUTOSIZE);
@@ -214,11 +234,12 @@ BOOL KinectWin::OnInitDialog()
 	HWND hParent = ::GetParent(hWnd);
 	::SetParent(hWnd, GetDlgItem(IDC_STATIC)->m_hWnd);
 	::ShowWindow(hParent, SW_HIDE);//隐藏父窗口
-
+	
 	HWND hWndDept = (HWND)cvGetWindowHandle("depth");
 	HWND hParentDept = ::GetParent(hWndDept);
 	::SetParent(hWndDept, GetDlgItem(IDC_Dept)->m_hWnd);
 	::ShowWindow(hParentDept, SW_HIDE);//隐藏父窗口
+	
 
 	/*初始化所有编辑框*/
 	pEdit = (CEdit*)GetDlgItem(IDC_EDIT1);
@@ -237,10 +258,15 @@ BOOL KinectWin::OnInitDialog()
 	{
 		Update("打开kinect成功");
 	}
+
 	/*socket部分*/
 	AfxBeginThread(&Server_Th, 0); //初始化socket线程
 	send_edit = (CEdit *)GetDlgItem(IDC_ESEND);
 	send_edit->SetFocus();
+
+	//按钮灰色
+	GetDlgItem(IDC_SENDFILE)->EnableWindow(false);
+	GetDlgItem(IDC_REMOTE)->EnableWindow(false);
 
 	char name[80];
 	CString IP;
@@ -260,7 +286,7 @@ BOOL KinectWin::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE
 }
-
+/*
 void KinectWin::OnBnClickedSelf()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -273,7 +299,7 @@ void KinectWin::OnBnClickedSelf()
 	capture = 0;
 	SetTimer(1, 25, NULL); //定时器，定时时间和帧率一致
 }
-
+*/
 void KinectWin::OnBnClickedButton4()
 {
 	//创建读取下一帧的信号事件句柄，控制KINECT是否可以开始读取下一帧数据  
@@ -314,11 +340,6 @@ void KinectWin::DrawPicToHDC(IplImage * img, UINT ID)
 void KinectWin::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码	
-	/*
-	if (imageCut) cvReleaseImage(&imageCut);
-	imageCut = cvLoadImage(colorImagePath.c_str(), 1); //显示图片
-	DrawPicToHDC(imageCut, IDC_Cut);
-	Update("已打开截图图片");*/
 	CString filter;
 	filter = "所有图片(*.png;*.jpg)||";
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY, filter);
@@ -346,8 +367,8 @@ void KinectWin::OnBnClickedCancel2()
 	NuiShutdown();
 	}*/
 	if (analyFlag) {
-		closesocket(sock);
-		closesocket(listen_sock);
+		//close(sock);
+		//close(listen_sock);
 	}
 	else {
 		closesocket(sock);
@@ -374,8 +395,10 @@ void KinectWin::OnBnClickedButton5()
 		return;
 	}
 	Update("开始读取kinect深度摄像头数据");
+	
 	CRect rect;
 	CWnd *pWnd = GetDlgItem(IDC_Dept);
+	
 	pWnd->GetClientRect(&rect); //获取控件大小
 	xd = rect.Width();
 	yd = rect.Height();
@@ -412,7 +435,7 @@ UINT Server_Th(LPVOID p)
 {
 	//kinect线程
 	WSADATA wsaData;
-
+	 
 	WORD wVersion;
 
 	wVersion = MAKEWORD(2, 2);
@@ -425,7 +448,7 @@ UINT Server_Th(LPVOID p)
 	int res;
 	char msg[1024];
 	HWND hWnd = ::FindWindow(NULL, _T("Kinect"));      //得到对话框的句柄
-	if (!hWnd) return 0;
+	
 	KinectWin * dlg = (KinectWin *)KinectWin::FromHandle(hWnd); //由句柄得到对话框的对象指针
 	local_addr.sin_family = AF_INET;
 	local_addr.sin_port = htons(5150);
@@ -440,24 +463,53 @@ UINT Server_Th(LPVOID p)
 		dlg->Update("绑定错误");
 	}
 	listen(listen_sock, 1);
-	if ((sock = accept(listen_sock, (struct sockaddr *)&client_addr, &iaddrSize)) == INVALID_SOCKET)
-	{
-		dlg->Update("accept 失败");
-	}
-	else
-	{
-		CString port;
-		int temp = ntohs(client_addr.sin_port);
-		port.Format(_T("%d"), temp);
-		dlg->Update("已连接来自：" + CString(inet_ntoa(client_addr.sin_addr)) + "  端口：" + port);
-	}
 
-	//接收数据  
+	while (isRunning)
+	{
+		if ((sock=accept(listen_sock, (struct sockaddr *)&client_addr, &iaddrSize)) == INVALID_SOCKET)
+		{
+			dlg->Update("accept 失败");
+		}
+		else
+		{
+			CString port;
+			int temp = ntohs(client_addr.sin_port);
+			port.Format(_T("%d"), temp);
+			CString ipClient = CString(inet_ntoa(client_addr.sin_addr));
+			dlg->Update("已连接来自：" + ipClient + "  端口：" + port);
+			if (strcmp(ipClient, "125.216.243.10") == 0)
+			{
+				sock1 = sock;
+				AfxBeginThread(&Client_Th1, 0); //初始化socket线程
+				remoteAngle = true;
+				dlg->GetDlgItem(IDC_SENDFILE)->EnableWindow(true);
+				dlg->Update("已连接角度分析客户端");
+			}
+			else if (strcmp(ipClient, "125.216.243.115") == 0)
+			{
+				sock2 = sock;
+				remoteAnaly = true;
+				AfxBeginThread(&Client_Th2, 0); //初始化socket线程
+
+				dlg->GetDlgItem(IDC_REMOTE)->EnableWindow(true);
+				dlg->Update("已连接图片分析客户端");
+			}
+		}
+	}
+	return 0;
+}
+UINT Client_Th2(LPVOID p)
+{
+	int res;
+	char msg[1024];
+	HWND hWnd = ::FindWindow(NULL, _T("Kinect"));      //得到对话框的句柄
+	KinectWin * dlg = (KinectWin *)KinectWin::FromHandle(hWnd); //由句柄得到对话框的对象指针
+																//接收数据  
 	while (1)
 	{
-		if ((res = recv(sock, msg, 1024, 0)) == -1)
+		if ((res = recv(sock2, msg, 1024, 0)) == -1)
 		{
-			dlg->Update("失去连接");
+			dlg->Update("失去图片分析客户端连接");
 			break;
 		}
 		else
@@ -465,7 +517,7 @@ UINT Server_Th(LPVOID p)
 			int temp = strlen(msg);
 			msg[temp] = '\0';
 			if (strcmp(msg, "leave") == 0) {
-				AfxMessageBox(_T("失去连接！"));
+				dlg->Update("失去图片分析客户端连接");
 				break;
 			}
 			else if (strcmp(msg, "sendResult") == 0) {
@@ -496,13 +548,43 @@ UINT Server_Th(LPVOID p)
 				result.clear();
 			}
 			else {
-				dlg->Update("client:" + CString(msg));
+				dlg->Update("client1:" + CString(msg));
 				memset(msg, 0, 1024);
 			}
 		}
 	}
-	
-	dlg->OnBnClickedCancel2();
+	dlg->GetDlgItem(IDC_REMOTE)->EnableWindow(false);
+	return 0;
+}
+
+UINT Client_Th1(LPVOID p)
+{
+	int res;
+	char msg[1024];
+	HWND hWnd = ::FindWindow(NULL, _T("Kinect"));      //得到对话框的句柄
+	KinectWin * dlg = (KinectWin *)KinectWin::FromHandle(hWnd); //由句柄得到对话框的对象指针
+	while (1)
+	{
+		if ((res = recv(sock1, msg, 1024, 0)) == -1)
+		{
+			dlg->Update("失去角度分析客户端连接");
+			break;
+		}
+		else
+		{
+			int temp = strlen(msg);
+			msg[temp] = '\0';
+			if (strcmp(msg, "leave") == 0) {
+				dlg->Update("失去角度分析客户端连接");
+				break;
+			}
+			else {
+				dlg->Update("client2:" + CString(msg));
+				memset(msg, 0, 1024);
+			}
+		}
+	}
+	dlg->GetDlgItem(IDC_SENDFILE)->EnableWindow(false);
 	return 0;
 }
 
@@ -532,7 +614,7 @@ void KinectWin::OnBnClickedRemote()
 	//发送准备发送命令
 	memset(buffer, 0, BUFFER_SIZE);
 	strncpy(buffer, str, strlen(str));
-	if (send(sock, buffer, strlen(str), 0) == SOCKET_ERROR)
+	if (send(sock2, buffer, strlen(str), 0) == SOCKET_ERROR)
 	{
 		Update("发送失败");
 		return;
@@ -545,7 +627,7 @@ void KinectWin::OnBnClickedRemote()
 	//发送图片长度
 	memset(buffer, 0, sizeof(buffer));
 	memcpy(buffer, &file_size, sizeof(file_size) + 1);
-	if (send(sock, buffer, sizeof(file_size) + 1, 0) == SOCKET_ERROR)
+	if (send(sock2, buffer, sizeof(file_size) + 1, 0) == SOCKET_ERROR)
 	{
 		Update("发送失败");
 		return;
@@ -559,12 +641,11 @@ void KinectWin::OnBnClickedRemote()
 	do
 	{
 		::ReadFile(hFile, buffer, sizeof(buffer), &dwNumberOfBytesRead, NULL);
-		::send(sock, buffer, dwNumberOfBytesRead, 0);
+		::send(sock2, buffer, dwNumberOfBytesRead, 0);
 	} while (dwNumberOfBytesRead);
 	CloseHandle(hFile);
 	Update("成功发送图片");
 }
-
 
 void KinectWin::OnBnClickedAnaly()
 {
@@ -585,11 +666,6 @@ void KinectWin::OnBnClickedAnaly()
 	float anglef = atof(result[3].c_str());
 	float widthf = atof(result[4].c_str());
 
-	analysis_ret.x = xf;
-	analysis_ret.y = yf;
-	analysis_ret.angle = anglef;
-	analysis_ret.width = widthf;
-	analysis_ret.result_update = true;
 
 	xRaw[1] = xf - 0.5*widthf;
 	yRaw[1] = yf - 0.5*height;
@@ -656,27 +732,219 @@ void KinectWin::OnCbnSelchangeCombo1()
 }
 
 
-void KinectWin::OnBnClickedButton2()
+void KinectWin::OnBnClickedConnect()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	if (!analysis_ret.result_update)
+	send_edit = (CEdit *)GetDlgItem(IDC_ESEND);
+	send_edit->SetFocus();
+	CString str;
+	send_edit->GetWindowText(str);
+	char buffer[BUFFER_SIZE];
+	//发送准备发送命令
+	memset(buffer, 0, BUFFER_SIZE);
+	strncpy(buffer, str, strlen(str));
+	int nIndex = clientType.GetCurSel();
+	if (nIndex == 0) 
+	{
+		sock = sock1;
+	}
+	else 
+	{
+		sock = sock2;
+	}
+
+	if (send(sock, buffer, strlen(str), 0) == SOCKET_ERROR)
+	{
+		Update("发送失败");
+	}
+	else if (str == "")
+	{
+		AfxMessageBox(_T("请输入信息"));
+	}
+	else
+	{
+		Update("server:"+str);
+		send_edit->SetWindowText("");
+	}
+}
+
+
+void KinectWin::OnBnClickedSendfile()
+{
+	if (!remoteAngle) {
+		Update("未连接到角度分析客户端，请连接后分析");
+		return;
+	}
+	HANDLE hFile;
+	std::string txtPath = "angle.txt";
+	hFile = CreateFile(CString(txtPath.c_str()), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	unsigned long long file_size = 0;
+	file_size = GetFileSize(hFile, NULL);
+	char buffer[BUFFER_SIZE];
+	const char * str;
+	str = "sendAngle";
+	//发送准备发送命令
+	memset(buffer, 0, BUFFER_SIZE);
+	strncpy(buffer, str, strlen(str));
+	if (send(sock1, buffer, strlen(str), 0) == SOCKET_ERROR)
+	{
+		Update("发送失败");
+		return;
+	}
+	else
+	{
+		Update("server:准备发送角度文件");
+	}
+	//发送图片长度
+	memset(buffer, 0, sizeof(buffer));
+	memcpy(buffer, &file_size, sizeof(file_size) + 1);
+	if (send(sock1, buffer, sizeof(file_size) + 1, 0) == SOCKET_ERROR)
+	{
+		Update("发送失败");
+		return;
+	}
+	else
+	{
+		Update("开始发送角度文件");
+	}
+	memset(buffer, 0, sizeof(buffer));
+	DWORD dwNumberOfBytesRead;
+	do
+	{
+		::ReadFile(hFile, buffer, sizeof(buffer), &dwNumberOfBytesRead, NULL);
+		::send(sock1, buffer, dwNumberOfBytesRead, 0);
+	} while (dwNumberOfBytesRead);
+	CloseHandle(hFile);
+	Update("成功发送角度文件");
+}
+
+
+void KinectWin::OnBnClickedWriteangle()
+{
+	std::string SaveFileName = "angle.txt";
+
+	HWND hWnd = ::FindWindow(NULL, _T("深圳机械臂仿真"));
+	if (!hWnd) return;
+
+	auto Robot_Dlg = (CRobotSimDlg *)CRobotSimDlg::FromHandle(hWnd);
+	if (!Robot_Dlg) return;
+
+	// Saving file format
+	/* Left hand:
+	*  thumb thumb1|thumb2|thumb3|thumb4
+	*  index index1|index2|index3|index4
+	*  middle middle1|middle2|middle3|middle4
+	*  ring ring1|ring2|ring3|ring4
+	*  little little1|little2|little3|little4
+	*  arm arm2|arm3|arm4|arm5|arm6|palm
+	*
+	*  Right hand:
+	*  thumb thumb1|thumb2|thumb3|thumb4
+	*  index index1|index2|index3|index4
+	*  middle middle1|middle2|middle3|middle4
+	*  ring ring1|ring2|ring3|ring4
+	*  little little1|little2|little3|little4
+	*  arm arm2|arm3|arm4|arm5|arm6|palm
+	*/
+
+	if (!Robot_Dlg->m_LeftPtr || !Robot_Dlg->m_RightPtr)
 		return;
 
-	auto pSceneMgr = SceneManager::GetInstance();
+	std::ofstream out;
+	out.open("angle.txt");
 
-	auto pWidget = pSceneMgr->GetObject3D("widget");
-	if (!pWidget) return;
+	// S
+	out << std::setprecision(4);
 
-	pWidget->ComputeCenterPos();
-	auto current_pos = pWidget->GetCenterPos();
-	auto origin = glm::vec3({ table_origin.x,current_pos.y,table_origin.y });
-	auto destination = glm::vec3({ analysis_ret.x,analysis_ret.y,0.0f });
-	auto movement = glm::vec3({ destination.x,destination.z,-destination.y});
+	// Write left hand degrees
+	out << "Left hand:" << std::endl;
+	out << "thumb " << Robot_Dlg->m_LeftPtr->GetJointDegree("thumb_left1") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("thumb_left2") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("thumb_left3") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("thumb_left4") 
+		<< std::endl;
 
-	pWidget->g_lock.lock();
-	pWidget->Translation("widget", movement + origin - current_pos);
-	pWidget->RotateWithArbitraryAxis("widget", current_pos, glm::vec3(0, 1, 0),glm::radians(analysis_ret.angle));
-	pWidget->g_lock.unlock();
-	pWidget->Enable();
+	out << "index " << Robot_Dlg->m_LeftPtr->GetJointDegree("index_left1") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("index_left2") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("index_left3") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("index_left4") 
+		<< std::endl;
 
+	out << "middle " << Robot_Dlg->m_LeftPtr->GetJointDegree("middle_left1") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("middle_left2") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("middle_left3") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("middle_left4") 
+		<< std::endl;
+
+	out << "ring " << Robot_Dlg->m_LeftPtr->GetJointDegree("ring_left1") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("ring_left2") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("ring_left3") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("ring_left4") 
+		<< std::endl;
+
+	out << "little " << Robot_Dlg->m_LeftPtr->GetJointDegree("little_left1") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("little_left2") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("little_left3") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("little_left4") 
+		<< std::endl;
+
+	out << "arm " << Robot_Dlg->m_LeftPtr->GetJointDegree("arm_left2") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("arm_left3") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("arm_left4") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("arm_left5") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("arm_left6") << ","
+		<< Robot_Dlg->m_LeftPtr->GetJointDegree("palm_left")
+		<< std::endl;
+
+	// Write right hand degrees
+	out << "Right hand:" << std::endl;
+	out << "thumb " << Robot_Dlg->m_RightPtr->GetJointDegree("thumb_right1") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("thumb_right2") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("thumb_right3") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("thumb_right4") 
+		<< std::endl;
+
+	out << "index " << Robot_Dlg->m_RightPtr->GetJointDegree("index_right1") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("index_right2") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("index_right3") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("index_right4")
+		<< std::endl;
+
+	out << "middle " << Robot_Dlg->m_RightPtr->GetJointDegree("middle_right1") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("middle_right2") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("middle_right3") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("middle_right4")
+		<< std::endl;
+
+	out << "ring " << Robot_Dlg->m_RightPtr->GetJointDegree("ring_right1") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("ring_right2") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("ring_right3") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("ring_right4")
+		<< std::endl;
+
+	out << "little " << Robot_Dlg->m_RightPtr->GetJointDegree("little_right1") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("little_right2") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("little_right3") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("little_right4")
+		<< std::endl;
+
+	out << "arm " << Robot_Dlg->m_RightPtr->GetJointDegree("arm_right2") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("arm_right3") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("arm_right4") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("arm_right5") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("arm_right6") << ","
+		<< Robot_Dlg->m_RightPtr->GetJointDegree("palm_right")
+		<< std::endl;
+
+	out.close();
+}
+
+
+void KinectWin::OnBnClickedCancel()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	closesocket(sock);
+	closesocket(sock1);
+	closesocket(sock2);
+	closesocket(listen_sock);
+	CDialogEx::OnCancel();
 }

@@ -630,4 +630,5 @@ void Robothand::MovingArmOffset(const glm::vec3 &pos_offset) noexcept
 
     std::cout << target_pose[3][0] << ","<<target_pose[3][1] << "," <<target_pose[3][2]<<std::endl;
 }
+#include "stdafx.h"
 
