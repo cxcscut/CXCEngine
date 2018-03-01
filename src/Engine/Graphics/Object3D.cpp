@@ -532,6 +532,10 @@ namespace cxc {
 
 		ComputeCenterPos();
 
+		// Update AABB bounding box
+		AABB.max = MaxCoords;
+		AABB.min = MinCoords;
+
 		/*
 		// Calculate model matrix for each shapes
 		this->CalculateSizeVector();
@@ -994,5 +998,44 @@ namespace cxc {
 			RotateWithArbitraryAxis(children->root->GetModelName(),start,direction,degree);
 
 	}
+
+	CXCRect3::CXCRect3(const glm::vec3 &_max, const glm::vec3 &_min) :max(_max), min(_min) {};
+
+	CXCRect3::CXCRect3() :
+		max(glm::vec3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max())),
+		min(glm::vec3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()))
+	{}
+
+	CXCRect3::~CXCRect3()
+	{}
+
+	CXCRect3::CXCRect3(const CXCRect3 &other)
+	{
+		max = other.max;
+		min = other.min;
+	}
+
+	CXCRect3 &CXCRect3::operator=(const CXCRect3 &other)
+	{
+		max = other.max;
+		min = other.min;
+
+		return *this;
+	}
+
+	bool CXCRect3::isContain(const CXCRect3 &rhs)
+	{
+		return rhs.max.x <= max.x && rhs.min.x >= min.x &&
+			rhs.max.y <= max.y && rhs.min.y >= min.y &&
+			rhs.max.z <= max.z && rhs.min.z >= min.z;
+	}
+
+	bool CXCRect3::isIntersected(const CXCRect3 &other)
+	{
+		return ((min.x >= other.min.x && min.x <= other.max.x) || (other.min.x >= min.x && other.min.x <= max.x)) &&
+			((min.y >= other.min.y && min.y <= other.max.y) || (other.min.y >= min.y && other.min.y <= max.y)) &&
+			((min.z >= other.min.z && min.z <= other.max.z) || (other.min.z >= min.z && other.min.z <= max.z));
+	}
+
 }
 

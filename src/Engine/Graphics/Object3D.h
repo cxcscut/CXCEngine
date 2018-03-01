@@ -27,6 +27,25 @@ class Shape;
 
 namespace cxc {
 
+	class CXCRect3 {
+		
+	public:
+
+		CXCRect3(const glm::vec3 &_max, const glm::vec3 &_min);
+		CXCRect3();
+		~CXCRect3();
+
+		CXCRect3(const CXCRect3 &other);
+		CXCRect3 &operator=(const CXCRect3 &other);
+		
+		bool isContain(const CXCRect3 &rhs);
+		bool isIntersected(const CXCRect3 &other);
+
+	public:
+		glm::vec3 max, min;
+
+	};
+
 	using VertexIndexPacket = struct VertexIndexPacket {
 		glm::vec3 position;
 		glm::vec3 normal;
@@ -163,6 +182,7 @@ namespace cxc {
 		void SetLoaded() noexcept;
 
 		uint32_t GetObjectVertexNum() const noexcept;
+		CXCRect3 GetAABB() const noexcept{return AABB; };
 
 		void GetObjectBuffers(std::vector<glm::vec3> &vbo_pos, std::vector<VertexAttri> &vbo_attrib, std::vector<uint32_t> &ebo) noexcept;
 		uint32_t GetVertexSubscript(const std::string &shape_name) noexcept;
@@ -190,9 +210,12 @@ namespace cxc {
 
 		// Tag for collision detection
 		std::string tag;
-
+		
 		// Max, min and center coordinates
 		glm::vec3 MaxCoords, MinCoords, CenterCoords;
+
+		// AABB bounding box
+		CXCRect3 AABB;
 
 		// <ModelName , Pointer to Model>
 		std::unordered_map<std::string,std::shared_ptr<Shape>> m_ModelMap;

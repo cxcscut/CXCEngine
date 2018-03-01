@@ -73,12 +73,12 @@ namespace cxc {
 
 	SceneManager::SceneManager()
 		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500)),
-		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false)
+		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false),
+		m_Boundary()
 	{
 		m_pTextureMgr = TextureManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();
 		m_pRendererMgr = RendererManager::GetInstance();
-
 	}
 
 	SceneManager::~SceneManager()
@@ -106,6 +106,18 @@ namespace cxc {
 		for (auto pObject : m_ObjectMap) {
 			pObject.second->InitBuffers();
 		}
+	}
+
+	void SceneManager::BuildOctree() noexcept
+	{
+		if (pRoot) 
+			return;
+
+		pRoot = std::make_unique<OctreeNode>(m_Boundary,1);
+
+		for (auto piter = m_ObjectMap.begin(); piter != m_ObjectMap.end(); piter++)
+			pRoot->InsertObject(piter->second);
+		
 	}
 
 	const glm::vec3 &SceneManager::GetLightPos() const noexcept
@@ -188,6 +200,17 @@ namespace cxc {
 		m_pCamera->ComputeAngles();
 	}
 
+	void SceneManager::UpdateBoundary(const CXCRect3 &AABB) noexcept
+	{
+		m_Boundary.max.x = std::fmax(m_Boundary.max.x, AABB.max.x);
+		m_Boundary.max.y = std::fmax(m_Boundary.max.y, AABB.max.y);
+		m_Boundary.max.z = std::fmax(m_Boundary.max.z, AABB.max.z);
+
+		m_Boundary.min.x = std::fmin(m_Boundary.min.x, AABB.min.x);
+		m_Boundary.min.y = std::fmin(m_Boundary.min.y, AABB.min.y);
+		m_Boundary.min.z = std::fmin(m_Boundary.min.z, AABB.min.z);
+	}
+
 	GLboolean SceneManager::CreateObject(const std::string &Object_name,const std::string &Object_file) noexcept
 	{
 		auto tmp_object = std::make_shared<Object3D >(Object_name);
@@ -208,13 +231,22 @@ namespace cxc {
 
 		ObjectPtr->InitializeRigidBodies(m_WorldID, m_TopLevelSpace);
 
+		UpdateBoundary(ObjectPtr->GetAABB());
 	}
 
 	void SceneManager::DrawScene() noexcept
 	{
-		for (auto pObject : m_ObjectMap)
-			if(pObject.second->isEnable())
-				pObject.second->DrawObject();
+		if (!pRoot) {
+			// if Octree has not been built, draw all the objects
+			for (auto pObject : m_ObjectMap)
+				if (pObject.second->isEnable())
+					pObject.second->DrawObject();
+		}
+		else
+		{
+			// draw the objects that can be seen
+
+		}
 	}
 
 	void SceneManager::SetCameraMode(CameraModeType mode) noexcept
@@ -255,4 +287,139 @@ namespace cxc {
 		return m_ObjectMap;
 	}
 
+	OctreeNode::OctreeNode(const CXCRect3 &SceneSize,uint16_t _depth) : 
+		Objects(),p_ChildNodes()
+	{
+		AABB = SceneSize;
+		depth = _depth;
+	}
+
+	OctreeNode::OctreeNode() : AABB()
+	{
+
+	}
+
+	OctreeNode::~OctreeNode()
+	{
+	}
+
+	bool OctreeNode::InsertObject(std::shared_ptr<Object3D> pObject) noexcept
+	{
+		if (!pObject->GetAABB().isIntersected(AABB))
+			return false;
+
+		if (p_ChildNodes.empty())
+		{
+			// haven't partition the node
+			Objects.emplace(pObject);
+
+			// Partition space if number of objects excess PARTITION_MIN_NODENUM and depth does not excess 
+			// MAX_PARTITION_DEPTH
+			if (Objects.size() > PARTITION_MIN_NODENUM && depth < MAX_PARTITION_DEPTH)
+			{
+				// Partition the space
+				SpacePartition();
+
+				// move all the objects to subspace
+				while (!Objects.empty()) {
+					auto qe = Objects.front();
+					Objects.pop();
+
+					for (auto &subspace : p_ChildNodes)
+						if (qe->GetAABB().isIntersected(subspace->AABB))
+							subspace->InsertObject(qe);
+				}
+			}
+		}
+		else
+		{
+			// have already partitioned node, find the correct subspace and add it
+			for (auto &subspace : p_ChildNodes)
+				if (pObject->GetAABB().isIntersected(subspace->AABB))
+					subspace->InsertObject(pObject);
+		}
+
+		return true;
+	}
+
+	void OctreeNode::SpacePartition() noexcept
+	{
+		// Partition the space into 8 subspace
+		CXCRect3 subspace0,subspace1,subspace2,subspace3,
+			subspace4,subspace5,subspace6,subspace7;
+
+		// Upper space
+		// subspace 0
+		subspace0.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
+		subspace0.max.x = AABB.max.x;
+		subspace0.min.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
+		subspace0.max.y = AABB.max.y;
+		subspace0.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
+		subspace0.max.z = AABB.max.z;
+		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace0,depth + 1));
+
+		// subspace 1
+		subspace1.min.x = AABB.min.x;
+		subspace1.max.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
+		subspace1.min.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
+		subspace1.max.y = AABB.max.y;
+		subspace1.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
+		subspace1.max.z = AABB.max.z;
+		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace1, depth + 1));
+
+		// subspace 2
+		subspace2.min.x = AABB.min.x;
+		subspace2.max.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
+		subspace2.min.y = AABB.min.y;
+		subspace2.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
+		subspace2.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
+		subspace2.max.z = AABB.max.z;
+		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace2, depth + 1));
+
+		// subspace 3
+		subspace3.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
+		subspace3.max.x = AABB.max.x;
+		subspace3.min.y = AABB.min.y;
+		subspace3.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
+		subspace3.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
+		subspace3.max.z = AABB.max.z;
+		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace3, depth + 1));
+
+		// Downspace
+		// subspace 4
+		subspace4.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
+		subspace4.max.x = AABB.max.x;
+		subspace4.min.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
+		subspace4.max.y = AABB.max.y;
+		subspace4.min.z = AABB.min.z;
+		subspace4.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
+		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace4, depth + 1));
+
+		// subspace 5
+		subspace5.min.x = AABB.min.x;
+		subspace5.max.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
+		subspace5.min.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
+		subspace5.max.y = AABB.max.y;
+		subspace5.min.z = AABB.min.z;
+		subspace5.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
+		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace5, depth + 1));
+
+		// subspace 6
+		subspace6.min.x = AABB.min.x;
+		subspace6.max.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
+		subspace6.min.y = AABB.min.y;
+		subspace6.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
+		subspace6.min.z = AABB.min.z;
+		subspace6.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
+		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace6, depth + 1));
+
+		// subspace 7
+		subspace3.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
+		subspace3.max.x = AABB.max.x;
+		subspace3.min.y = AABB.min.y;
+		subspace3.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
+		subspace3.min.z = AABB.min.z;
+		subspace3.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
+		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace7, depth + 1));
+	}
 }

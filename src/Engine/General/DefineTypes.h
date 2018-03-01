@@ -27,6 +27,7 @@
 #include <ratio>
 #include <chrono>
 #include <algorithm>
+#include <queue>
 
 // Multi-threading Synchronization
 #include <thread>

@@ -67,7 +67,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>G:\2018.1.1\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;G:\opencv\opencv\build\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
+    <IncludePath>G:\cxcengine\src\Engine\Physics\ode;G:\2018.1.1\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;G:\opencv\opencv\build\include;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
     <LibraryPath>G:\opencv\opencv\build\x86\vc12\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;C:\Users\39317\Desktop\git\cxcengine\src\Examples\RobotSim\5DT\lib;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;G:\FBX-SDK2018.1.1\lib\vs2015\x86\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

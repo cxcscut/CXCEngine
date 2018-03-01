@@ -19,12 +19,49 @@
 
 #endif // WIN32
 
-#ifndef CXC_SceneManager_H
-#define CXC_SceneManager_H
+#ifndef CXC_SCENEMANAGER_H
+#define CXC_SCENEMANAGER_H
+
+#define PARTITION_MIN_NODENUM 4
+#define MAX_PARTITION_DEPTH 4
 
 #define WOLRD_QUICK_STEPSIZE 0.05f
 
 namespace cxc {
+
+	class OctreeNode {
+
+	public:
+
+		explicit OctreeNode(const CXCRect3 &SceneSize,uint16_t depth);
+		OctreeNode();
+
+		~OctreeNode();
+
+		OctreeNode(const OctreeNode&) = delete;
+		OctreeNode& operator=(const OctreeNode&) = delete;
+		
+	public:
+
+		bool InsertObject(std::shared_ptr<Object3D> pObject) noexcept;
+
+		void SpacePartition() noexcept;
+
+		CXCRect3 GetAABB() const noexcept { return AABB; };
+
+	private:
+		// Objects of the Node
+		std::queue<std::shared_ptr<Object3D>> Objects;
+
+		// Childrend Nodes ptr
+		std::vector<std::unique_ptr<OctreeNode>> p_ChildNodes;
+
+		// AABB bounding box of the node
+		CXCRect3 AABB;
+
+		// Current depth of the node
+		uint16_t depth;
+	};
 
 	enum class Location : GLuint {
 		VERTEX_LOCATION = 0,
@@ -49,17 +86,17 @@ namespace cxc {
 		SceneManager& operator=(const SceneManager&) = delete;
 		SceneManager& operator=(const SceneManager&&) = delete;
 
-	// Sprite creation
+	// Object creation
 	public:
 
-		// Create sprite from file
+		// Create Object from file
 		GLboolean CreateObject(const std::string &sprite_name,const std::string &sprite_file) noexcept;
 
 		// Delete object
 		void DeleteObject(const std::string &sprite_name) noexcept;
 
 		// Add object to object map
-		void AddObject(const std::string &SpriteName,const std::shared_ptr<Object3D > &SpritePtr,bool isKinematics = false) noexcept;
+		void AddObject(const std::string &SpriteName,const std::shared_ptr<Object3D> &ObjectPtr,bool isKinematics = false) noexcept;
 
 	// Data access interface
 	public:
@@ -88,6 +125,7 @@ namespace cxc {
 		void BindLightingUniforms(GLuint ProgramID) const;
 		void SetLightPos(const glm::vec3 &pos) noexcept;
 
+
 	// Draw call and resource management
 	public:
 
@@ -97,6 +135,7 @@ namespace cxc {
 
 		void releaseBuffers() noexcept;
 
+		void BuildOctree() noexcept;
 	// Physics settings
 	public:
 
@@ -119,6 +158,10 @@ namespace cxc {
 
 	private:
 
+		void UpdateBoundary(const CXCRect3 &AABB) noexcept;
+
+	private:
+
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<Object3D>> m_ObjectMap;
 
@@ -131,7 +174,11 @@ namespace cxc {
 		// Light position
 		glm::vec3 m_LightPos;
 
+		// Space partition
+		std::shared_ptr<OctreeNode> pRoot;
+
+		CXCRect3 m_Boundary;
 	};
 
 }
-#endif // CXC_SceneManager_H
+#endif // CXC_SCENEMANAGER_H
