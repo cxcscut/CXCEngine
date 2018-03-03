@@ -191,4 +191,32 @@ namespace cxc {
 		GLuint ProjectionMatrixLoc = glGetUniformLocation(ProgramID, "P");
 		glUniformMatrix4fv(ProjectionMatrixLoc, 1, GL_FALSE, &Projection[0][0]);
 	}
+
+	bool Camera::isVertexInFrustum(const glm::vec3 &v) const noexcept
+	{
+		glm::vec4 _v = glm::vec4(v.x,v.y,v.z,1);
+
+		_v = Projection * View * _v;
+		auto __v = glm::vec3(_v.x/_v.w,_v.y/_v.w,_v.z/_v.w);
+
+		return (__v.x - 1.0f <= 1e-7 && __v.x + 1.0f >= 1e-7) &&
+			(__v.y - 1.0f <= 1e-7 && __v.y + 1.0f >= 1e-7) &&
+			(__v.z - 1.0f <= 1e-7 && __v.z + 1.0f >= 1e-7);
+	}
+
+	bool Camera::isRectInFrustum(const glm::vec3 &max, const glm::vec3 &min) const noexcept
+	{
+		glm::vec4 _max = glm::vec4(max.x, max.y, max.z, 1);
+		glm::vec4 _min = glm::vec4(min.x, min.y, min.z, 1);
+
+		_max = Projection * View * _max;
+		_min = Projection * View * _min;
+
+		glm::vec3 nmax = glm::vec3(_max.x / _max.w, _max.y / _max.w, _max.z / _max.w);
+		glm::vec3 nmin = glm::vec3(_min.x / _min.w, _min.y / _min.w, _min.z / _min.w);
+
+		return ((nmin.x >= -1.0f && nmin.x <= 1.0f) || (nmin.x <= -1.0f && nmin.x <= 1.0f)) &&
+			((nmin.y >= -1.0f && nmin.y <= 1.0f) || (nmin.y <= -1.0f && nmin.y <= 1.0f)) &&
+			((nmin.z >= -1.0f && nmin.z <= 1.0f) || (nmin.z <= -1.0f && nmin.z <= 1.0f));
+	}
 }

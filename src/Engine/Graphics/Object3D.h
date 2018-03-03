@@ -38,8 +38,8 @@ namespace cxc {
 		CXCRect3(const CXCRect3 &other);
 		CXCRect3 &operator=(const CXCRect3 &other);
 		
-		bool isContain(const CXCRect3 &rhs);
-		bool isIntersected(const CXCRect3 &other);
+		bool isContain(const CXCRect3 &rhs) const noexcept;
+		bool isIntersected(const CXCRect3 &other) const noexcept;
 
 	public:
 		glm::vec3 max, min;

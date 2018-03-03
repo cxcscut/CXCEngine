@@ -1,7 +1,7 @@
 ﻿  正在生成代码
-  2666 of 2681 functions (99.4%) were compiled, the rest were copied from previous compilation.
-    107 functions were new in current compilation
+  0 of 2681 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
-  FBXSDK-Test.vcxproj -> G:\cxcengine\git\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.exe
-  FBXSDK-Test.vcxproj -> G:\cxcengine\git\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.pdb (Full PDB)
+  FBXSDK-Test.vcxproj -> G:\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.exe
+  FBXSDK-Test.vcxproj -> G:\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.pdb (Full PDB)

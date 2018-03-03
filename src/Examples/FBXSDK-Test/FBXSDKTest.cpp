@@ -14,12 +14,12 @@
 
 using namespace cxc;
 
-static const std::string hand_file = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Examples\\RobotSim\\Model\\SZrobotl.obj";
-static const std::string plane_file = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Examples\\RobotSim\\Model\\plane.obj";
-static const std::string table_file = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Examples\\RobotSim\\Model\\table.obj";
+static const std::string hand_file = "G:\\cxcengine\\src\\Examples\\RobotSim\\Model\\SZrobotl.obj";
+static const std::string plane_file = "G:\\cxcengine\\src\\Examples\\RobotSim\\Model\\plane.obj";
+static const std::string table_file = "G:\\cxcengine\\srcsrc\\Examples\\RobotSim\\Model\\table.obj";
 
-static const std::string VertexShaderPath = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
-static const std::string FragmentShaderPath = "C:\\Users\\39317\\Desktop\\git\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
+static const std::string VertexShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
+static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
 
 std::shared_ptr<Robothand> m_LeftPtr, m_RightPtr;
 std::shared_ptr<Object3D> Table, Plane;
@@ -108,20 +108,20 @@ int main()
 		pEngine->m_pWindowMgr->SetWindowTitle("Engine test");
 		pEngine->m_pWindowMgr->isDecoraded = true;
 
-		pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
-
-		EngineFacade::KeyInputCallBack = keycallback;
+		//pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
+		pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 40, 40);
+		//EngineFacade::KeyInputCallBack = keycallback;
 
 		pEngine->InitWindowPosition(200,200);
 
-		pEngine->MultiThreadingEnable();
+		//pEngine->MultiThreadingEnable();
 	}
 
 	pEngine->Init();
 
 	// Object definition and loading
 	{
-
+		/*
 		auto LoadRobothand = [&](int type) {
 			if (type == ROBOTHAND_LEFT)
 				m_LeftPtr = std::make_shared<Robothand>(type, hand_file);
@@ -143,18 +143,33 @@ int main()
 		table.join();
 
 		std::cout << m_LeftPtr->GetObjectTreePtr().size() << std::endl;
-
+		
 		if (!Plane || !Plane->CheckLoaded()) return 0;
 		if (!m_LeftPtr || !m_LeftPtr->CheckLoaded()) return 0;
 
 		pEngine->addObject(Plane, true);
 		pEngine->addObject(m_LeftPtr,true);
 		pEngine->addObject(Table,true);
+		*/
 
+		auto o1 = std::make_shared<Object3D>("o1","G:\\EngintestObj\\o1.obj");
+		auto o2 = std::make_shared<Object3D>("o2", "G:\\EngintestObj\\o2.obj");
+		auto o3 = std::make_shared<Object3D>("o3", "G:\\EngintestObj\\o3.obj");
+		auto o4 = std::make_shared<Object3D>("o4", "G:\\EngintestObj\\o4.obj");
+		auto o5 = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\o5.obj");
+		auto plane = std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj","env");
+
+		pEngine->addObject(plane,true);
+		pEngine->addObject(o1);
+		pEngine->addObject(o2);
+		pEngine->addObject(o3);
+		pEngine->addObject(o4);
+		pEngine->addObject(o5);
 	}
 
 	// Adding user code here 
 	{
+		/*
 		Plane->Translation(glm::vec3(0,-1,0));
 
 		m_LeftPtr->InitOriginalDegrees();
@@ -165,6 +180,7 @@ int main()
 		m_LeftPtr->SetBaseDegrees({ 0,0,90,0,-90,0 });
 
 		m_LeftPtr->MovingArm(0,-200,500,0,0,0);
+		*/
 	}
 
 	// Start engine

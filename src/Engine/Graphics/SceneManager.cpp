@@ -244,8 +244,38 @@ namespace cxc {
 		}
 		else
 		{
-			// draw the objects that can be seen
+			// Hashmap for objects 
+			std::unordered_set<std::shared_ptr<Object3D>> hash;
+			std::queue<std::shared_ptr<OctreeNode>> q;
 
+			q.push(pRoot);
+			// Tranversing octree tree and perform frustum culling
+			while (!q.empty())
+			{
+				auto pNode = q.front();
+				q.pop();
+
+				if (pNode->p_ChildNodes.empty())
+				{
+					for (auto pObject : pNode->Objects)
+					{
+						auto AABB = pObject->GetAABB();
+						if(m_pCamera->isRectInFrustum(AABB.max, AABB.min))
+							hash.insert(pObject);
+					}
+				}
+				else
+				{
+					for (auto subspace : pNode->p_ChildNodes) {
+						if(m_pCamera->isRectInFrustum(subspace->AABB.max,subspace->AABB.min))
+							q.push(subspace);
+					}
+				}
+			}
+
+			// Draw the remaining objects
+			for (auto piter = hash.begin(); piter != hash.end(); piter++)
+				(*piter)->DrawObject();
 		}
 	}
 
@@ -311,7 +341,7 @@ namespace cxc {
 		if (p_ChildNodes.empty())
 		{
 			// haven't partition the node
-			Objects.emplace(pObject);
+			Objects.push_back(pObject);
 
 			// Partition space if number of objects excess PARTITION_MIN_NODENUM and depth does not excess 
 			// MAX_PARTITION_DEPTH
@@ -322,10 +352,10 @@ namespace cxc {
 
 				// move all the objects to subspace
 				while (!Objects.empty()) {
-					auto qe = Objects.front();
-					Objects.pop();
+					auto qe = Objects.back();
+					Objects.pop_back();
 
-					for (auto &subspace : p_ChildNodes)
+					for (auto subspace : p_ChildNodes)
 						if (qe->GetAABB().isIntersected(subspace->AABB))
 							subspace->InsertObject(qe);
 				}
@@ -334,7 +364,7 @@ namespace cxc {
 		else
 		{
 			// have already partitioned node, find the correct subspace and add it
-			for (auto &subspace : p_ChildNodes)
+			for (auto subspace : p_ChildNodes)
 				if (pObject->GetAABB().isIntersected(subspace->AABB))
 					subspace->InsertObject(pObject);
 		}
@@ -356,7 +386,7 @@ namespace cxc {
 		subspace0.max.y = AABB.max.y;
 		subspace0.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
 		subspace0.max.z = AABB.max.z;
-		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace0,depth + 1));
+		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace0,depth + 1));
 
 		// subspace 1
 		subspace1.min.x = AABB.min.x;
@@ -365,7 +395,7 @@ namespace cxc {
 		subspace1.max.y = AABB.max.y;
 		subspace1.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
 		subspace1.max.z = AABB.max.z;
-		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace1, depth + 1));
+		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace1, depth + 1));
 
 		// subspace 2
 		subspace2.min.x = AABB.min.x;
@@ -374,7 +404,7 @@ namespace cxc {
 		subspace2.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
 		subspace2.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
 		subspace2.max.z = AABB.max.z;
-		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace2, depth + 1));
+		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace2, depth + 1));
 
 		// subspace 3
 		subspace3.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
@@ -383,7 +413,7 @@ namespace cxc {
 		subspace3.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
 		subspace3.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
 		subspace3.max.z = AABB.max.z;
-		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace3, depth + 1));
+		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace3, depth + 1));
 
 		// Downspace
 		// subspace 4
@@ -393,7 +423,7 @@ namespace cxc {
 		subspace4.max.y = AABB.max.y;
 		subspace4.min.z = AABB.min.z;
 		subspace4.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
-		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace4, depth + 1));
+		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace4, depth + 1));
 
 		// subspace 5
 		subspace5.min.x = AABB.min.x;
@@ -402,7 +432,7 @@ namespace cxc {
 		subspace5.max.y = AABB.max.y;
 		subspace5.min.z = AABB.min.z;
 		subspace5.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
-		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace5, depth + 1));
+		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace5, depth + 1));
 
 		// subspace 6
 		subspace6.min.x = AABB.min.x;
@@ -411,7 +441,7 @@ namespace cxc {
 		subspace6.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
 		subspace6.min.z = AABB.min.z;
 		subspace6.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
-		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace6, depth + 1));
+		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace6, depth + 1));
 
 		// subspace 7
 		subspace3.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
@@ -420,6 +450,70 @@ namespace cxc {
 		subspace3.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
 		subspace3.min.z = AABB.min.z;
 		subspace3.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
-		p_ChildNodes.emplace_back(std::make_unique<OctreeNode>(subspace7, depth + 1));
+		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace7, depth + 1));
+	}
+
+	void OctreeNode::RemoveObject(std::shared_ptr<Object3D> pTarget) noexcept
+	{
+		std::vector<OctreeNode*> NodesVec;
+		if (!FindNode(pTarget, NodesVec))
+			return;
+		else
+		{
+			for (auto node : NodesVec)
+			{
+				Objects.remove_if(
+					[&](const std::shared_ptr<Object3D> &p) {
+					return p == pTarget;
+				});
+			}
+		}
+		
+	}
+
+	bool OctreeNode::FindNode(std::shared_ptr<Object3D> pTarget, std::vector<OctreeNode*> &nodes) noexcept
+	{
+		if (AABB.isIntersected(pTarget->GetAABB()))
+		{
+			if (p_ChildNodes.empty())
+			{
+				for(auto pObject : Objects)
+					if (pTarget == pObject)
+					{
+						nodes.push_back(this);
+						return true;
+					}
+
+				return false;
+			}
+			else
+			{
+				bool ret = false;
+				for (auto pChild : p_ChildNodes)
+					ret = ret || pChild->FindNode(pTarget, nodes);
+
+				return ret;
+			}
+		}
+		else
+			return false;
+	}
+
+	void OctreeNode::FindObjects(const CXCRect3 &_AABB, std::vector<std::shared_ptr<Object3D>> &objects) noexcept
+	{
+		if (!AABB.isIntersected(_AABB))
+			return;
+
+		if (p_ChildNodes.empty())
+		{
+			for (auto pObject : Objects)
+				if (pObject->GetAABB().isIntersected(_AABB))
+					objects.push_back(pObject);
+		}
+		else
+		{
+			for (auto node : p_ChildNodes)
+				node->FindObjects(_AABB,objects);
+		}
 	}
 }

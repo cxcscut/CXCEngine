@@ -44,17 +44,22 @@ namespace cxc {
 	public:
 
 		bool InsertObject(std::shared_ptr<Object3D> pObject) noexcept;
+		void RemoveObject(std::shared_ptr<Object3D> pTarget) noexcept;
 
+		// Find all the objects that within the bounding box
+		void FindObjects(const CXCRect3 &_AABB, std::vector<std::shared_ptr<Object3D>> &objects ) noexcept;
 		void SpacePartition() noexcept;
 
-		CXCRect3 GetAABB() const noexcept { return AABB; };
+		// Find the nodes that contains the give object
+		bool FindNode(std::shared_ptr<Object3D> pTarget, std::vector<OctreeNode*> &nodes) noexcept;
 
-	private:
+	public:
+
 		// Objects of the Node
-		std::queue<std::shared_ptr<Object3D>> Objects;
+		std::list<std::shared_ptr<Object3D>> Objects;
 
 		// Childrend Nodes ptr
-		std::vector<std::unique_ptr<OctreeNode>> p_ChildNodes;
+		std::vector<std::shared_ptr<OctreeNode>> p_ChildNodes;
 
 		// AABB bounding box of the node
 		CXCRect3 AABB;

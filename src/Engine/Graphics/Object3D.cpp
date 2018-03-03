@@ -1023,14 +1023,14 @@ namespace cxc {
 		return *this;
 	}
 
-	bool CXCRect3::isContain(const CXCRect3 &rhs)
+	bool CXCRect3::isContain(const CXCRect3 &rhs) const noexcept
 	{
 		return rhs.max.x <= max.x && rhs.min.x >= min.x &&
 			rhs.max.y <= max.y && rhs.min.y >= min.y &&
 			rhs.max.z <= max.z && rhs.min.z >= min.z;
 	}
 
-	bool CXCRect3::isIntersected(const CXCRect3 &other)
+	bool CXCRect3::isIntersected(const CXCRect3 &other) const noexcept
 	{
 		return ((min.x >= other.min.x && min.x <= other.max.x) || (other.min.x >= min.x && other.min.x <= max.x)) &&
 			((min.y >= other.min.y && min.y <= other.max.y) || (other.min.y >= min.y && other.min.y <= max.y)) &&

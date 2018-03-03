@@ -340,6 +340,9 @@ namespace cxc {
 
 			m_pSceneMgr->initResources();
 
+			// Contruct octree
+			m_pSceneMgr->BuildOctree();
+
 			// Begin event looping
 			GameLooping();
 

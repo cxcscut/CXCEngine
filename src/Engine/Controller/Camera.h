@@ -35,9 +35,15 @@ namespace cxc {
 		Camera(const Camera &) = delete;
 		Camera& operator= (const Camera &) = delete;
 
-	public:
+		// Frustum culling
+	public :
+		
+		bool isVertexInFrustum(const glm::vec3 &v) const noexcept;
+		bool isRectInFrustum(const glm::vec3 &max, const glm::vec3 &min) const noexcept;
 
 		// Private data access interface
+	public:
+
 		glm::mat4 GetProjectionMatrix() const noexcept;
 		glm::mat4 GetViewMatrix() const noexcept;
 		GLfloat GetHrizontalAngle() const noexcept;
