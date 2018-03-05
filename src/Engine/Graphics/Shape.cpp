@@ -19,7 +19,7 @@ namespace cxc {
 		: m_VertexIndices(),
 		m_ModelMatrix(1.0f), stateChanged(GL_FALSE),
 		 m_ModelName(""), FragmentType(3), Num_of_faces(0),
-		m_VertexCoords(),m_VertexNormals(),m_TexCoords(),m_MaterialIDs(),m_VertexColor(),m_GeometricNormal(),
+		m_VertexCoords(),m_VertexNormals(),m_TexCoords(),m_MaterialIDs(),m_GeometricNormal(),
 		m_MyPtr(nullptr),m_TransformationMatrix(1.0f),m_ReposMatrix(1.0f)
 	{
 
@@ -66,11 +66,6 @@ namespace cxc {
 	const std::vector<uint32_t> &Shape::GetVertexIndices() const noexcept
 	{
 		return m_VertexIndices;
-	}
-
-	const std::vector<glm::vec3> &Shape::GetColorArray() const noexcept
-	{
-		return m_VertexColor;
 	}
 
 	void Shape::SetObjectTreePtr(const std::shared_ptr<ObjectTree> &ptr) noexcept

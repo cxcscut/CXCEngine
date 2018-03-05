@@ -1,7 +1,6 @@
 #version 430 core
 
 in vec2 UV;
-in vec3 Color;
 in vec3 Position_worldspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
@@ -13,15 +12,18 @@ out vec3 color;
 
 uniform vec3 LightPosition_worldspace;
 uniform float tex_is_used;
+uniform vec3 Kd;
+uniform vec3 Ks;
+uniform vec3 Ka;
 
 void main()
 {
 
 	vec3 LightColor = vec3(1,1,1);
 
-	vec3 MaterialDiffuseColor = Color * tex_is_used * (texture( Sampler, UV ).rgb -1.0f) + 1.0f*Color;
-	vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * MaterialDiffuseColor;
-	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
+	vec3 MaterialDiffuseColor = Kd * tex_is_used * (texture( Sampler, UV ).rgb -1.0f) + 1.0f * Kd;
+	vec3 MaterialAmbientColor = vec3(0.2,0.2,0.2) * Ka;
+	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3) * Ks;
 
 	float distance = length(LightPosition_worldspace - Position_worldspace);
 

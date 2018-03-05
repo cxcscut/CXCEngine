@@ -73,7 +73,6 @@ namespace cxc {
 	using VertexAttri = struct VertexAttri {
 		glm::vec2 texcoord;
 		glm::vec3 normal;
-		glm::vec3 color;
 
 		bool operator<(const VertexAttri that) const {
 			return memcmp((void*)this, (void*)&that, sizeof(VertexAttri)) > 0;
@@ -81,15 +80,13 @@ namespace cxc {
 
 		VertexAttri() :
 			texcoord(glm::vec2(0.0f, 0.0f)),
-			normal(glm::vec3(0.0f, 0.0f, 0.0f)),
-			color(glm::vec3(0.0f, 0.0f, 0.0f))
+			normal(glm::vec3(0.0f, 0.0f, 0.0f))
 		{}
 
-		VertexAttri(const glm::vec2 &uvs, const glm::vec3 &_normal, const glm::vec3 &_color)
+		VertexAttri(const glm::vec2 &uvs, const glm::vec3 &_normal)
 		{
 			normal = _normal;
 			texcoord = uvs;
-			color = _color;
 		}
 
 	};

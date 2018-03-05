@@ -3,10 +3,8 @@
 layout(location = 0) in vec3 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec3 vertexNormal_modelspace;
-layout(location = 3) in vec3 vertexColor;
 
 out vec2 UV;
-out vec3 Color;
 out vec3 Position_worldspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 LightDirection_cameraspace;
@@ -16,8 +14,9 @@ uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
-
-int i = 0;
+uniform vec3 Kd;
+uniform vec3 Ks;
+uniform vec3 Ka;
 
 void main(){
 
@@ -34,10 +33,8 @@ void main(){
 	vec3 LightPosition_cameraspace = (V * vec4(LightPosition_worldspace,1)).xyz;
 	LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
 
-	Normal_cameraspace = ( V * M * vec4(vertexNormal_modelspace,0)).xyz;
+	Normal_cameraspace = mat3(transpose(inverse(M))) * vertexNormal_modelspace;
 
 	UV = vertexUV;
-
-	Color = vertexColor;
 
 }

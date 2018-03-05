@@ -46,7 +46,6 @@ namespace cxc {
 		const std::vector<glm::vec3> &GetNormalArray() const noexcept;
 		const std::vector<glm::vec3> &GetGeometricNormal() const noexcept;
 		const std::vector<glm::vec2> &GetTexCoordArray() const noexcept;
-		const std::vector<glm::vec3> &GetColorArray() const noexcept;
 		const std::vector<uint32_t> &GetVertexIndices() const noexcept;
 		std::string GetModelName() const noexcept;
 		GLuint GetVertexNum() const noexcept;
@@ -104,9 +103,6 @@ namespace cxc {
 
 		// Vertex normals computed pre face
 		std::vector<glm::vec3> m_VertexNormals;
-
-		// Vertex color
-		std::vector<glm::vec3> m_VertexColor;
 
 		// UVs
 		std::vector<glm::vec2> m_TexCoords;

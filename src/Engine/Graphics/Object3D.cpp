@@ -160,7 +160,6 @@ namespace cxc {
 			drawobject->m_TexCoords.emplace_back(vertex.texcoords);
 			drawobject->m_GeometricNormal.emplace_back(geo_normal);
 			drawobject->m_VertexNormals.emplace_back(vertex.normal);
-
 			subindex++;
 
 			this->UpdateBoundaryCoords(vertex.position);
@@ -285,7 +284,6 @@ namespace cxc {
 
 			drawobject->m_VertexCoords.reserve(shapes[s].mesh.indices.size());
 			drawobject->m_VertexIndices.reserve(shapes[s].mesh.indices.size());
-			drawobject->m_VertexColor.reserve(shapes[s].mesh.indices.size());
 			drawobject->m_GeometricNormal.reserve(shapes[s].mesh.indices.size());
 			drawobject->m_TexCoords.reserve(shapes[s].mesh.indices.size());
 
@@ -423,11 +421,6 @@ namespace cxc {
 			// Compute vertex color per face
 			auto face_num = shapes[s].mesh.num_face_vertices.size();
 
-			// Initialize color array
-			vertex_num = drawobject->m_VertexCoords.size();
-			for (size_t i = 0; i < vertex_num; ++i)
-				drawobject->m_VertexColor.emplace_back(glm::vec3(0.0f,0.0f,0.0f));
-
 			// Compute colors
 			for (size_t f = 0; f < face_num; ++f)
 			{
@@ -439,13 +432,6 @@ namespace cxc {
 					// Default material is added to the last item in `materials`.
 					current_material_id = materials.size() - 1;
 				}
-
-				glm::vec3 diffuse = glm::vec3(materials[current_material_id].diffuse[0],
-											materials[current_material_id].diffuse[1],
-											materials[current_material_id].diffuse[2]
-				);
-
-
 
 				glm::vec3 normal0,normal1,normal2;
 
@@ -480,23 +466,6 @@ namespace cxc {
 				normal2 = drawobject->m_VertexNormals[3 * f + 2];
 
 #endif
-
-#endif
-				glm::vec3 color0 = normal0 * CXC_NORMAL_FACTOR + diffuse * CXC_DIFFUSE_FACTOR;
-				glm::vec3 color1 = normal1 * CXC_NORMAL_FACTOR + diffuse * CXC_DIFFUSE_FACTOR;
-				glm::vec3 color2 = normal2 * CXC_NORMAL_FACTOR + diffuse * CXC_DIFFUSE_FACTOR;
-
-#ifdef USE_EBO
-
-				drawobject->m_VertexColor[drawobject->m_VertexIndices[3 * f + 0]] = color0;
-				drawobject->m_VertexColor[drawobject->m_VertexIndices[3 * f + 1]] = color1;
-				drawobject->m_VertexColor[drawobject->m_VertexIndices[3 * f + 2]] = color2;
-
-#else
-
-				drawobject->m_VertexColor[3 * f + 0] = color0;
-				drawobject->m_VertexColor[3 * f + 1] = color1;
-				drawobject->m_VertexColor[3 * f + 2] = color2;
 
 #endif
 
@@ -752,7 +721,6 @@ namespace cxc {
 			else
 				normals = shape.second->GetNormalArray();
 			auto texcoord = shape.second->GetTexCoordArray();
-			auto color = shape.second->GetColorArray();
 			auto indices = shape.second->GetVertexIndices();
 
 			auto it = m_VertexSubscript.find(shape.second->GetModelName());
@@ -763,7 +731,7 @@ namespace cxc {
 				ebo.push_back(vbo_pos.size() + indices[k]);
 
 			for (size_t i = 0; i < vnum; ++i) {
-				vbo_attrib.emplace_back(VertexAttri(texcoord[i], normals[i], color[i]));
+				vbo_attrib.emplace_back(VertexAttri(texcoord[i], normals[i]));
 				vbo_pos.emplace_back(vertex_coords[i]);
 			}
 
@@ -831,7 +799,6 @@ namespace cxc {
 			glDeleteBuffers(1, &VBO_A);
 			glDisableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
 			glDisableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
-			glDisableVertexAttribArray(static_cast<GLuint>(Location::COLOR_LOCATION));
 		}
 	}
 
@@ -933,13 +900,16 @@ namespace cxc {
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
 		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec2))); // Normal
 
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::COLOR_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::COLOR_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec3) + sizeof(glm::vec2))); // Color
-
-
 		for (auto shape : m_ModelMap) {
 
 			GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
+			GLuint Ka_loc = glGetUniformLocation(ProgramID,"Ka");
+			GLuint Ks_loc = glGetUniformLocation(ProgramID, "Ks");
+			GLuint Kd_loc = glGetUniformLocation(ProgramID, "Kd");
+
+			glUniform3f(Ka_loc,m_Material[shape.first].ambient[0], m_Material[shape.first].ambient[1], m_Material[shape.first].ambient[2]);
+			glUniform3f(Kd_loc,m_Material[shape.first].diffuse[0], m_Material[shape.first].diffuse[1], m_Material[shape.first].diffuse[2]);
+			glUniform3f(Ks_loc,m_Material[shape.first].specular[0], m_Material[shape.first].specular[1], m_Material[shape.first].specular[2]);
 
 			auto model_matrix = shape.second->getTransMatrix();
 
