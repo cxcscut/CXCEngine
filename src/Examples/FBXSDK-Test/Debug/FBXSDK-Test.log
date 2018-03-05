@@ -1,7 +1,8 @@
-﻿  FBXSDKTest.cpp
-g:\cxcengine\src\examples\fbxsdk-test\fbxsdktest.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+﻿  RobotHand.cpp
+  FBXSDKTest.cpp
+f:\cxcengine\src\examples\fbxsdk-test\fbxsdktest.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
 c:\program files (x86)\microsoft visual studio\2017\professional\vc\tools\msvc\14.11.25503\include\utility(188): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-  g:\cxcengine\src\examples\fbxsdk-test\globalvariable.h(94): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<const char(&)[13],double,void,0>(_Other1,_Other2 &&) noexcept(false)”的引用
+  f:\cxcengine\src\examples\fbxsdk-test\globalvariable.h(94): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<const char(&)[13],double,void,0>(_Other1,_Other2 &&) noexcept(false)”的引用
           with
           [
               _Kty=std::string,
@@ -9,7 +10,7 @@ c:\program files (x86)\microsoft visual studio\2017\professional\vc\tools\msvc\1
               _Other1=const char (&)[13],
               _Other2=double
           ]
-  g:\cxcengine\src\examples\fbxsdk-test\globalvariable.h(88): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<const char(&)[13],double,void,0>(_Other1,_Other2 &&) noexcept(false)”的引用
+  f:\cxcengine\src\examples\fbxsdk-test\globalvariable.h(88): note: 参见对正在编译的函数 模板 实例化“std::pair<const _Kty,_Ty>::pair<const char(&)[13],double,void,0>(_Other1,_Other2 &&) noexcept(false)”的引用
           with
           [
               _Kty=std::string,
@@ -92,19 +93,20 @@ c:\program files (x86)\microsoft visual studio\2017\professional\vc\tools\msvc\1
               _Keyeq=std::equal_to<std::string>,
               _Alloc=std::allocator<std::pair<const std::string,uint16_t>>
           ]
-  g:\cxcengine\src\examples\fbxsdk-test\robothand.cpp(59): note: 参见对正在编译的函数 模板 实例化“std::pair<std::_List_iterator<std::_List_val<std::_List_simple_types<_Ty>>>,bool> std::unordered_map<std::string,uint16_t,std::hash<_Kty>,std::equal_to<_Kty>,std::allocator<_Ty>>::insert<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>,void>(_Valty &&)”的引用
+  f:\cxcengine\src\examples\fbxsdk-test\robothand.cpp(59): note: 参见对正在编译的函数 模板 实例化“std::pair<std::_List_iterator<std::_List_val<std::_List_simple_types<_Ty>>>,bool> std::unordered_map<std::string,uint16_t,std::hash<_Kty>,std::equal_to<_Kty>,std::allocator<_Ty>>::insert<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>,void>(_Valty &&)”的引用
           with
           [
               _Ty=std::pair<const std::string,uint16_t>,
               _Kty=std::string,
               _Valty=std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>
           ]
-  g:\cxcengine\src\examples\fbxsdk-test\robothand.cpp(59): note: 参见对正在编译的函数 模板 实例化“std::pair<std::_List_iterator<std::_List_val<std::_List_simple_types<_Ty>>>,bool> std::unordered_map<std::string,uint16_t,std::hash<_Kty>,std::equal_to<_Kty>,std::allocator<_Ty>>::insert<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>,void>(_Valty &&)”的引用
+  f:\cxcengine\src\examples\fbxsdk-test\robothand.cpp(59): note: 参见对正在编译的函数 模板 实例化“std::pair<std::_List_iterator<std::_List_val<std::_List_simple_types<_Ty>>>,bool> std::unordered_map<std::string,uint16_t,std::hash<_Kty>,std::equal_to<_Kty>,std::allocator<_Ty>>::insert<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>,void>(_Valty &&)”的引用
           with
           [
               _Ty=std::pair<const std::string,uint16_t>,
               _Kty=std::string,
               _Valty=std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>
           ]
-  FBXSDK-Test.vcxproj -> G:\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.exe
-  FBXSDK-Test.vcxproj -> G:\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.pdb (Partial PDB)
+  正在生成代码...
+  FBXSDK-Test.vcxproj -> F:\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.exe
+  FBXSDK-Test.vcxproj -> F:\cxcengine\src\Examples\FBXSDK-Test\Debug\FBXSDK-Test.pdb (Partial PDB)

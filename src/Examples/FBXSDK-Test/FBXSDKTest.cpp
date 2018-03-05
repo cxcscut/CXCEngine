@@ -14,14 +14,14 @@
 
 using namespace cxc;
 
-static const std::string hand_file = "G:\\cxcengine\\src\\Examples\\RobotSim\\Model\\SZrobotl.obj";
-static const std::string plane_file = "G:\\cxcengine\\src\\Examples\\RobotSim\\Model\\plane.obj";
-static const std::string table_file = "G:\\cxcengine\\srcsrc\\Examples\\RobotSim\\Model\\table.obj";
+static const std::string hand_file = "F:\\cxcengine\\src\\Examples\\RobotSim\\Model\\SZrobotl.obj";
+static const std::string plane_file = "F:\\cxcengine\\src\\Examples\\RobotSim\\Model\\plane.obj";
+static const std::string table_file = "F:\\cxcengine\\srcsrc\\Examples\\RobotSim\\Model\\table.obj";
 
-static const std::string VertexShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
-//static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
-//static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\LambertFS.glsl";
-static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\PhongFS.glsl";
+static const std::string VertexShaderPath = "F:\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
+//static const std::string FragmentShaderPath = "F:\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
+//static const std::string FragmentShaderPath = "F:\\cxcengine\\src\\Engine\\Shader\\LambertFS.glsl";
+static const std::string FragmentShaderPath = "F:\\cxcengine\\src\\Engine\\Shader\\Blinn-PhongFS.glsl";
 
 std::shared_ptr<Robothand> m_LeftPtr, m_RightPtr;
 std::shared_ptr<Object3D> Table, Plane;
@@ -154,19 +154,22 @@ int main()
 		pEngine->addObject(Table,true);
 		*/
 
-		auto o1 = std::make_shared<Object3D>("o1","G:\\EngintestObj\\sphere.obj");
-		//auto o2 = std::make_shared<Object3D>("o2", "G:\\EngintestObj\\o2.obj");
-		//auto o3 = std::make_shared<Object3D>("o3", "G:\\EngintestObj\\o3.obj");
-		//auto o4 = std::make_shared<Object3D>("o4", "G:\\EngintestObj\\o4.obj");
-		//auto o5 = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\o5.obj");
+		auto o1 = std::make_shared<Object3D>("o1","G:\\EngintestObj\\o1.obj");
+		auto o2 = std::make_shared<Object3D>("o2", "G:\\EngintestObj\\o2.obj");
+		auto o3 = std::make_shared<Object3D>("o3", "G:\\EngintestObj\\o3.obj");
+		auto o4 = std::make_shared<Object3D>("o4", "G:\\EngintestObj\\o4.obj");
+		auto o5 = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\o5.obj");
 		auto plane = std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj");
+
+		o1->SetObjectGravityMode(1);
+		o2->SetObjectGravityMode(2);
 
 		pEngine->addObject(plane,true);
 		pEngine->addObject(o1);
-		//pEngine->addObject(o2);
-		//pEngine->addObject(o3);
-		//pEngine->addObject(o4);
-		//pEngine->addObject(o5);
+		pEngine->addObject(o2);
+		pEngine->addObject(o3);
+		pEngine->addObject(o4);
+		pEngine->addObject(o5);
 	}
 
 	// Adding user code here 

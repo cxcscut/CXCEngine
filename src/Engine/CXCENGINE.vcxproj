@@ -174,8 +174,7 @@
     <None Include="inl\Singleton.inl" />
     <None Include="Physics\ode\precision.h.in" />
     <None Include="Shader\LambertFS.glsl" />
-    <None Include="Shader\PhongFS.glsl" />
-    <None Include="Shader\StandardFragmentShader.glsl" />
+    <None Include="Shader\Blinn-PhongFS.glsl" />
     <None Include="Shader\StandardVertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

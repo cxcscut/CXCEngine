@@ -19,17 +19,17 @@ uniform vec3 Ka;
 void main()
 {
 	
-	int shineness = 32;
+	int shineness = 8;
 
 	float distance = length(LightPosition_worldspace - Position_worldspace);
 
-	vec3 LightColor = vec3(1,1,1);
+	vec3 LightColor = vec3(1,1,1) ;
 
 	vec3 r = normalize(reflect(-LightDirection_cameraspace,Normal_cameraspace));
 	float cos_theta = clamp(dot(normalize(Normal_cameraspace),normalize(LightDirection_cameraspace)),0,1);
 	float cos_alpha = clamp(dot(r,normalize(EyeDirection_cameraspace)),0,1);
 
-	vec3 MaterialAmbientColor = Ka * LightColor;
+	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
 	vec3 MaterialDiffuseColor = Kd * LightColor * cos_theta;
 	vec3 MaterialSpecularColor = Ks * LightColor *  pow(cos_alpha,shineness);
 

@@ -66,15 +66,6 @@ namespace cxc {
 			const dReal* pos = dGeomGetPosition(geom_id);
 			const dReal* rot = dGeomGetRotation(geom_id);
 
-			/*
-			const dReal trans_mat[16] = {
-				rot[0],rot[4],rot[8],0,
-				rot[1],rot[5],rot[9],0,
-				rot[2],rot[6],rot[10],0,
-				pos[0],pos[1],pos[2],1
-			};
-			*/
-
 			const dReal trans_mat[16] = {
 				rot[0],rot[1],rot[2],0,
 				rot[4],rot[5],rot[6],0,
@@ -124,13 +115,10 @@ namespace cxc {
 	glm::vec3 RigidBody3D::getPosition() const
 	{
 		glm::vec3 ret;
-
 		const dReal *pos;
 
 		assert(m_BodyID);
-
 		pos = dBodyGetPosition(m_BodyID);
-
 		ret.x = pos[0]; ret.y = pos[1]; ret.z = pos[2];
 
 		return ret;

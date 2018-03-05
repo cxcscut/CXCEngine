@@ -208,7 +208,8 @@ namespace cxc {
 
 	void EngineFacade::addObject(const std::shared_ptr<Object3D > &pObject,bool isKinematics) noexcept
 	{
-		m_pSceneMgr->AddObject(pObject->GetObjectName(),pObject,isKinematics);
+		if(pObject)
+			m_pSceneMgr->AddObject(pObject->GetObjectName(),pObject,isKinematics);
 	}
 
 	GLboolean EngineFacade::CreateAndDisplayWindow(GLint Width,

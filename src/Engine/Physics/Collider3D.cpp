@@ -1,5 +1,5 @@
 #include "Collider3D.h"
-
+#include <iostream>
 namespace cxc {
 
 	Collider3D::Collider3D():
@@ -18,13 +18,13 @@ namespace cxc {
 	{
 		m_TriMeshDataID = dGeomTriMeshDataCreate();
 
-		// When using Double version of this function, nan occurs when dMassSetTrimesh invoked, but I don't know why it happens
+		// When using Double version of this function, nan occurs when dMassSetTrimesh invoked, but I don't know what's going on here
 		dGeomTriMeshDataBuildSingle(m_TriMeshDataID,
 									&vertices.front(), 3 * sizeof(float), vertices.size(), 
 									&indices.front(), indices.size(), 3 * sizeof(uint32_t));
 
 		m_GeomID = dCreateTriMesh(space, m_TriMeshDataID, nullptr, nullptr, nullptr);
-
+		
 		dMassSetTrimesh(&m, DESITY, m_GeomID);
 
 		dGeomSetPosition(m_GeomID,-m.c[0],-m.c[1],-m.c[2]);

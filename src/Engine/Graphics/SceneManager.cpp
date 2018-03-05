@@ -26,12 +26,18 @@ namespace cxc {
 		dBodyID b2 = dGeomGetBody(o2);
 		if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact)) return;
 
-		auto rgbd3d_ptr1 = reinterpret_cast<Shape*>(dBodyGetData(b1));
-		auto rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b2));
+		Shape *rgbd3d_ptr1 = nullptr, *rgbd3d_ptr2 = nullptr;
 
-        if(rgbd3d_ptr1->CompareTag() == "collision_free"
-            || rgbd3d_ptr2->CompareTag() == "collision_free")
-            return ;
+		// Only trimesh user data can be cast into Shape*
+		if(dGeomGetClass(o1) == dTriMeshClass)
+			rgbd3d_ptr1 = reinterpret_cast<Shape*>(dBodyGetData(b1));
+		if(dGeomGetClass(o2) == dTriMeshClass)
+			rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b2));
+
+		if ((rgbd3d_ptr1 && rgbd3d_ptr1->CompareTag() == "collision_free") || 
+			(rgbd3d_ptr2 && rgbd3d_ptr2->CompareTag() == "collision_free"))
+			return;
+		
 
 		/*
 		// Do not check collision if tags are the same
