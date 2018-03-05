@@ -33,9 +33,11 @@ namespace cxc {
             || rgbd3d_ptr2->CompareTag() == "collision_free")
             return ;
 
+		/*
 		// Do not check collision if tags are the same
 		if (rgbd3d_ptr1->CompareTag() == rgbd3d_ptr2->CompareTag())
 			return;
+			*/
 
 		for (num = 0; num < MAX_CONTACT_NUM; ++num)
 		{
@@ -273,6 +275,7 @@ namespace cxc {
 				}
 			}
 
+			//std::cout << "Drawing " << hash.size() << " objects" << std::endl;
 			// Draw the remaining objects
 			for (auto piter = hash.begin(); piter != hash.end(); piter++)
 				(*piter)->DrawObject();

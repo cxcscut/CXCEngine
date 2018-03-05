@@ -57,17 +57,6 @@ namespace cxc {
 		m_pCollider->setGeomPosition(x, y, z);
 	}
 
-	void RigidBody3D::InitializeMass(dWorldID world) noexcept
-	{
-
-		auto _m = m_pCollider->GetMass();
-
-		dMassTranslate(&_m,-_m.c[0],-_m.c[1],-_m.c[2]);
-
-		dBodySetMass(m_BodyID,&_m);
-
-	}
-
 	void RigidBody3D::UpdateMeshTransform() noexcept
 	{
 		auto geom_id = m_pCollider->getGeomID();
@@ -77,10 +66,19 @@ namespace cxc {
 			const dReal* pos = dGeomGetPosition(geom_id);
 			const dReal* rot = dGeomGetRotation(geom_id);
 
+			/*
 			const dReal trans_mat[16] = {
 				rot[0],rot[4],rot[8],0,
 				rot[1],rot[5],rot[9],0,
 				rot[2],rot[6],rot[10],0,
+				pos[0],pos[1],pos[2],1
+			};
+			*/
+
+			const dReal trans_mat[16] = {
+				rot[0],rot[1],rot[2],0,
+				rot[4],rot[5],rot[6],0,
+				rot[8],rot[9],rot[10],0,
 				pos[0],pos[1],pos[2],1
 			};
 
@@ -182,7 +180,7 @@ namespace cxc {
 	{
 		dMass mass;
 
-		//dBodySetMass(m_BodyID,&mass);
+		dBodySetMass(m_BodyID,&mass);
 	}
 
 	void RigidBody3D::getMass(dMass *mass) const noexcept

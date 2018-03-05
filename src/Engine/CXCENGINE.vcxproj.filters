@@ -215,5 +215,9 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="Physics\ode\precision.h.in" />
+    <None Include="Shader\StandardFragmentShader.glsl" />
+    <None Include="Shader\StandardVertexShader.glsl" />
+    <None Include="Shader\LambertFS.glsl" />
+    <None Include="Shader\PhongFS.glsl" />
   </ItemGroup>
 </Project>

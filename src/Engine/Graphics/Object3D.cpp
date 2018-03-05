@@ -143,8 +143,6 @@ namespace cxc {
 
 			if (isKinematics)
 				dBodySetKinematic(shape.second->GetBodyID());
-			else
-				shape.second->InitializeMass(world);
 		}
 
 	}
@@ -447,6 +445,8 @@ namespace cxc {
 											materials[current_material_id].diffuse[2]
 				);
 
+
+
 				glm::vec3 normal0,normal1,normal2;
 
 #ifdef USE_EBO
@@ -485,10 +485,6 @@ namespace cxc {
 				glm::vec3 color0 = normal0 * CXC_NORMAL_FACTOR + diffuse * CXC_DIFFUSE_FACTOR;
 				glm::vec3 color1 = normal1 * CXC_NORMAL_FACTOR + diffuse * CXC_DIFFUSE_FACTOR;
 				glm::vec3 color2 = normal2 * CXC_NORMAL_FACTOR + diffuse * CXC_DIFFUSE_FACTOR;
-
-				color0 = color0 * glm::vec3(0.5f, 0.5f, 0.5f) + glm::vec3(0.5f, 0.5f, 0.5f);
-				color1 = color1 * glm::vec3(0.5f, 0.5f, 0.5f) + glm::vec3(0.5f, 0.5f, 0.5f);
-				color2 = color2 * glm::vec3(0.5f, 0.5f, 0.5f) + glm::vec3(0.5f, 0.5f, 0.5f);
 
 #ifdef USE_EBO
 

@@ -173,6 +173,10 @@
     <None Include="inl\MultiTree.inl" />
     <None Include="inl\Singleton.inl" />
     <None Include="Physics\ode\precision.h.in" />
+    <None Include="Shader\LambertFS.glsl" />
+    <None Include="Shader\PhongFS.glsl" />
+    <None Include="Shader\StandardFragmentShader.glsl" />
+    <None Include="Shader\StandardVertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

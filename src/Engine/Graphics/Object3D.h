@@ -154,6 +154,8 @@ namespace cxc {
 
 		void InitializeRigidBodies(dWorldID world,dSpaceID) noexcept;
 
+		// 0 - gravity off
+		// 1 - gravity on
 		void SetObjectGravityMode(int mode) noexcept;
 
 		void UpdateMeshTransMatrix() noexcept;

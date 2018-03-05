@@ -277,17 +277,25 @@ namespace cxc {
 
 		std::string VertexShaderCode, FragmentShaderCode;
 
-		if (LoadVertexShader(vertex_file_path, VertexShaderCode) == GL_FALSE)
+		if (LoadVertexShader(vertex_file_path, VertexShaderCode) == GL_FALSE) {
+			std::cout << "VS load failed" << std::endl;
 			return GL_FALSE;
+		}
 
-		if (LoadFragmentShader(fragment_file_path, FragmentShaderCode) == GL_FALSE)
+		if (LoadFragmentShader(fragment_file_path, FragmentShaderCode) == GL_FALSE) {
+			std::cout << "FS load failed" << std::endl;
 			return GL_FALSE;
+		}
 
-		if (CompileShader(VertexShaderID, VertexShaderCode) != GL_TRUE)
+		if (CompileShader(VertexShaderID, VertexShaderCode) != GL_TRUE) {
+			std::cout << "VS compile failed" <<std::endl;
 			return GL_FALSE;
+		}
 
-		if (CompileShader(FragmentShaderID, FragmentShaderCode) != GL_TRUE)
+		if (CompileShader(FragmentShaderID, FragmentShaderCode) != GL_TRUE) {
+			std::cout << "FS compile failed" << std::endl;
 			return GL_FALSE;
+		}
 
 		if (LinkVertexAndFragmentShader(ProgramID, VertexShaderID, FragmentShaderID) != GL_TRUE)
 			return GL_FALSE;

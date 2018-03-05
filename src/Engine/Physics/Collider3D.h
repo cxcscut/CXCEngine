@@ -1,8 +1,8 @@
 #ifndef CXC_PHYSICS_COLLIDER_H
 #define CXC_PHYSICS_COLLIDER_H
 
-#define MAX_CONTACT_NUM 1
-#define DESITY 0.0005f
+#define MAX_CONTACT_NUM 64
+#define DESITY 5.0f
 #define dDOUBLE
 
 #include <vector>

@@ -163,6 +163,9 @@ namespace cxc {
 
 		m_pSceneMgr->initResources();
 
+		// Construct Octree
+		m_pSceneMgr->BuildOctree();
+
 		// Begin event looping
 		pEngine->GameLooping();
 
@@ -177,6 +180,9 @@ namespace cxc {
 
 		// Shutdown GL context
 		pEngine->CleanGL();
+
+		// release the lock
+		pEngine->m_RunLock.unlock();
 
 	};
 
@@ -413,7 +419,7 @@ namespace cxc {
 
 		dSpaceCollide(m_pSceneMgr->m_TopLevelSpace,reinterpret_cast<void *>(m_pSceneMgr.get()),&SceneManager::nearCallback);
 
-		dWorldQuickStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
+		dWorldStep(m_pSceneMgr->m_WorldID, WOLRD_QUICK_STEPSIZE);
 
 		dJointGroupEmpty(m_pSceneMgr->m_ContactJoints);
 

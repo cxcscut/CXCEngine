@@ -25,7 +25,7 @@
 #define PARTITION_MIN_NODENUM 4
 #define MAX_PARTITION_DEPTH 4
 
-#define WOLRD_QUICK_STEPSIZE 0.05f
+#define WOLRD_QUICK_STEPSIZE 0.02f
 
 namespace cxc {
 

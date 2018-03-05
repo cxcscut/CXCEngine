@@ -19,7 +19,8 @@ static const std::string plane_file = "G:\\cxcengine\\src\\Examples\\RobotSim\\M
 static const std::string table_file = "G:\\cxcengine\\srcsrc\\Examples\\RobotSim\\Model\\table.obj";
 
 static const std::string VertexShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
-static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
+//static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
+static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\LambertFS.glsl";
 
 std::shared_ptr<Robothand> m_LeftPtr, m_RightPtr;
 std::shared_ptr<Object3D> Table, Plane;
@@ -95,7 +96,7 @@ int main()
 	// Engine configuration
 	{
 
-		pEngine->SetGravity(0, -0.1, 0);
+		pEngine->SetGravity(0, -0.5f, 0);
 
 		pEngine->m_pWindowMgr->InitGL();
 
@@ -109,12 +110,12 @@ int main()
 		pEngine->m_pWindowMgr->isDecoraded = true;
 
 		//pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
-		pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 40, 40);
+		pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 80, 80);
 		//EngineFacade::KeyInputCallBack = keycallback;
 
 		pEngine->InitWindowPosition(200,200);
 
-		//pEngine->MultiThreadingEnable();
+		pEngine->MultiThreadingEnable();
 	}
 
 	pEngine->Init();
@@ -157,7 +158,7 @@ int main()
 		auto o3 = std::make_shared<Object3D>("o3", "G:\\EngintestObj\\o3.obj");
 		auto o4 = std::make_shared<Object3D>("o4", "G:\\EngintestObj\\o4.obj");
 		auto o5 = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\o5.obj");
-		auto plane = std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj","env");
+		auto plane = std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj");
 
 		pEngine->addObject(plane,true);
 		pEngine->addObject(o1);

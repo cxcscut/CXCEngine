@@ -214,9 +214,20 @@ namespace cxc {
 
 		glm::vec3 nmax = glm::vec3(_max.x / _max.w, _max.y / _max.w, _max.z / _max.w);
 		glm::vec3 nmin = glm::vec3(_min.x / _min.w, _min.y / _min.w, _min.z / _min.w);
+		
+		bool ret = false;
+		ret = ret || isVertexInFrustum(max) || isVertexInFrustum(min) ||
+			isVertexInFrustum(glm::vec3(min.x, max.y, min.z)) ||
+			isVertexInFrustum(glm::vec3(max.x, min.y, min.z)) ||
+			isVertexInFrustum(glm::vec3(max.x, max.y, min.z)) ||
+			isVertexInFrustum(glm::vec3(min.x, min.y, max.z)) ||
+			isVertexInFrustum(glm::vec3(min.x, max.y, max.z)) ||
+			isVertexInFrustum(glm::vec3(max.x, min.y, max.z));
 
-		return ((nmin.x >= -1.0f && nmin.x <= 1.0f) || (nmin.x <= -1.0f && nmin.x <= 1.0f)) &&
-			((nmin.y >= -1.0f && nmin.y <= 1.0f) || (nmin.y <= -1.0f && nmin.y <= 1.0f)) &&
-			((nmin.z >= -1.0f && nmin.z <= 1.0f) || (nmin.z <= -1.0f && nmin.z <= 1.0f));
+		return ret || (
+			(nmax.x >= 1.0f && nmin.x <= -1.0f) || (nmax.x <= -1.0f && nmin.x >= 1.0f) ||
+			(nmax.y >= 1.0f && nmin.y <= -1.0f) || (nmax.y <= -1.0f && nmin.y >= 1.0f) &&
+			((nmin.x >= -1.0f && nmin.x <= 1.0f) || (nmin.x <= -1.0f && -1.0f <= nmax.x))
+			);
 	}
 }
