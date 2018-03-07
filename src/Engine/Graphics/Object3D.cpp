@@ -920,8 +920,13 @@ namespace cxc {
 			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &model_matrix[0][0]);
 
 			// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
-			glDrawElements(GL_TRIANGLES,idx_num , GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
+			glDrawElements(GL_TRIANGLES, idx_num, GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
 		}
+	}
+
+	void Object3D::DrawShadow() noexcept
+	{
+
 	}
 
 	void Object3D::RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept

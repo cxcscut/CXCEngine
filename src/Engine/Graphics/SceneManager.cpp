@@ -79,11 +79,13 @@ namespace cxc {
 	SceneManager::SceneManager()
 		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500)),
 		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false),
-		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
+		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f),
+		FBO(0),depthTexture(0)
 	{
 		m_pTextureMgr = TextureManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();
 		m_pRendererMgr = RendererManager::GetInstance();
+
 	}
 
 	SceneManager::~SceneManager()
@@ -250,6 +252,13 @@ namespace cxc {
 
 	void SceneManager::DrawScene() noexcept
 	{
+		GLint ProgramID = m_pRendererMgr->GetShaderProgramID("StandardShader");
+		if (ProgramID < 0)
+			return;
+
+		glUseProgram(ProgramID);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		if (!pRoot) {
 			// if Octree has not been built, draw all the objects
 			for (auto pObject : m_ObjectMap)
@@ -336,6 +345,69 @@ namespace cxc {
 	const std::unordered_map<std::string, std::shared_ptr<Object3D >> &SceneManager::GetObjectMap() const noexcept
 	{
 		return m_ObjectMap;
+	}
+
+	bool SceneManager::InitShadowShader() noexcept
+	{
+		auto pEngine = EngineFacade::GetInstance();
+		auto pWindowMgr = pEngine->m_pWindowMgr;
+
+		glm::vec3 LightInvDir = glm::vec3(0.5f,2,2);
+
+		depthProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f);
+		depthViewMatrix = glm::lookAt(m_LightPos,m_LightPos - LightInvDir, glm::vec3(0,1,0));
+		depthMVP = depthProjectionMatrix * depthViewMatrix;
+
+		// Create framebuffer object for rendering
+		glGenFramebuffers(1, &FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+		// Depth texture
+		glGenTextures(1, &depthTexture);
+		glBindTexture(GL_TEXTURE_2D, depthTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, pWindowMgr->GetWindowWidth(),
+			pWindowMgr->GetWindowHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+
+		// Attach the depth texture to the depth attachment point
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+
+		// Disable the color output
+		glDrawBuffer(GL_NONE);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cerr << "Framebuffer is not complete" << std::endl;
+			return;
+		}
+	}
+
+	void SceneManager::RenderShadowShader() noexcept
+	{
+		GLint ShadowProgramID = m_pRendererMgr->GetShaderProgramID("ShadowShader");
+		if (ShadowProgramID < 0)
+			return;
+
+		auto pEngine = EngineFacade::GetInstance();
+		auto pWindowMgr = pEngine->m_pWindowMgr;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glViewport(0, 0, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight());
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(ShadowProgramID);
+		
+		for (auto object : m_ObjectMap)
+			object.second->DrawShadow();
 	}
 
 	OctreeNode::OctreeNode(const CXCRect3 &SceneSize) : 

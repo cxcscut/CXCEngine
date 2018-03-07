@@ -163,6 +163,12 @@ namespace cxc {
 
 		m_pSceneMgr->initResources();
 
+		if (!m_pSceneMgr->InitShadowShader())
+		{
+			std::cerr << "Failed to init shadow shader"<<std::endl;
+			return;
+		}
+
 		// Construct Octree
 		m_pSceneMgr->BuildOctree();
 
@@ -351,6 +357,12 @@ namespace cxc {
 
 			m_pSceneMgr->initResources();
 
+			if (!m_pSceneMgr->InitShadowShader())
+			{
+				std::cerr << "Failed to init shadow shader" << std::endl;
+				return;
+			}
+
 			// Contruct octree
 			m_pSceneMgr->BuildOctree();
 
@@ -393,13 +405,6 @@ namespace cxc {
 			glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	void EngineFacade::ActivateRenderer() const noexcept
-	{
-		auto id = m_pSceneMgr->m_pRendererMgr->GetActiveShader();
-		if(id)
-			glUseProgram(id);
-	}
-
 	void EngineFacade::StoreAndSetMousePos() noexcept
 	{
 		m_pInputMgr->UpdateMousePos(m_pWindowMgr->GetWindowHandle());
@@ -413,7 +418,8 @@ namespace cxc {
 
 	void EngineFacade::RenderingScenes() const noexcept
 	{
-		ActivateRenderer();
+		m_pSceneMgr->RenderShadowShader();
+
 		m_pSceneMgr->DrawScene();
 	}
 

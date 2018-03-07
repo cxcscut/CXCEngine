@@ -179,6 +179,9 @@ namespace cxc {
 	// Draw call and resource management
 	public:
 
+		bool InitShadowShader() noexcept;
+		void RenderShadowShader() noexcept;
+
 		void DrawScene() noexcept;
 
 		void initResources() noexcept;
@@ -212,6 +215,9 @@ namespace cxc {
 
 	private:
 
+		// Spot light
+		glm::mat4 depthProjectionMatrix, depthViewMatrix, depthMVP;
+
 		// Hashmap for culling
 		std::unordered_set<std::shared_ptr<Object3D>> hash;
 
@@ -219,7 +225,8 @@ namespace cxc {
 		std::unordered_map<std::string, std::shared_ptr<Object3D>> m_ObjectMap;
 
 		// Buffer object ID
-		GLuint VAO, EBO, VBO_P, VBO_A;
+		GLuint VAO, EBO, VBO_P, VBO_A, FBO;
+		GLuint depthTexture;
 
 		// Vertex indices number
 		uint32_t TotalIndicesNum;

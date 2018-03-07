@@ -87,7 +87,6 @@ namespace cxc {
 		void Init() noexcept;
 		void InitEngine() noexcept;
 		void CleanFrameBuffer() const noexcept;
-		void ActivateRenderer() const noexcept;
 		void CleanGL() noexcept {glfwTerminate();};
 		void StoreAndSetMousePos() noexcept;
 
