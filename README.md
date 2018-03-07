@@ -42,6 +42,8 @@ A demo for testing Open Dynamics Engine
 - [x] Object recognition and analysis
 - [x] Optimization of draw calls 
 - [x] Physics engine using Open Dynamics Engine
+- [x] Blinn-Phong shading
+- [ ] Shadowmap && Normalmap
 - [ ] Motion planning for obstacle advoidance
 - [ ] Animation
 - [ ] GUI based on QT

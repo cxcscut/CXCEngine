@@ -28,7 +28,6 @@
 #include <ratio>
 #include <chrono>
 #include <algorithm>
-#include <list>
 #include <queue>
 
 // Multi-threading Synchronization

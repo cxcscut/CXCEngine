@@ -97,6 +97,7 @@ namespace cxc {
 	public:
 
 		friend class SceneManager;
+		friend class OctreeNode;
 
 		explicit Object3D();
 		virtual ~Object3D();
@@ -228,6 +229,9 @@ namespace cxc {
 		// Object tree
 		std::vector<std::shared_ptr<ObjectTree>> m_ObjectTree;
 
+		// Codes of the OctreeNode that contain the object
+		std::unordered_set<std::string> m_OctreePtrs;
+
 		GLboolean stateChanged;
 
 		// if obj file has been loaded
@@ -242,7 +246,7 @@ namespace cxc {
 		// Texture handle
 		GLuint TexSamplerHandle;
 
-		// Texture ptr
+		// Texture names
 		std::vector<std::string> m_TexNames;
 
 		// Kinematics object has infinite mass such as walls and earth.

@@ -107,9 +107,9 @@ C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\1
               _Valty=std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,float>
           ]
   正在生成代码
-  1 of 1699 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  95 of 1706 functions ( 5.6%) were compiled, the rest were copied from previous compilation.
+    12 functions were new in current compilation
+    18 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   FBXSDK-Test.vcxproj -> G:\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.exe
   FBXSDK-Test.vcxproj -> G:\cxcengine\src\Examples\FBXSDK-Test\Release\FBXSDK-Test.pdb (Full PDB)

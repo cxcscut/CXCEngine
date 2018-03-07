@@ -25,7 +25,7 @@ namespace cxc {
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)
 	{
 		auto pEngine = EngineFacade::GetInstance();
-		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetActiveShader();
 		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
 
 		double dx = x-_x, dy = y-_y;
@@ -73,7 +73,7 @@ namespace cxc {
 	{
 		auto pEngine = EngineFacade::GetInstance();
 		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
-		auto CurrentProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+		auto CurrentProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetActiveShader();
 		auto camera = pEngine->m_pSceneMgr->m_pCamera;
 		if (!wHandle) return;
 
@@ -130,7 +130,7 @@ namespace cxc {
 			return;
 		}
 
-		if (!pEngine->LoadShader(CXC_SPRITE_SHADER_PROGRAM, pEngine->GetVertexShaderPath(), pEngine->GetFragmentShaderPath()))
+		if (!pEngine->LoadShader(pEngine->GetProgramName(), pEngine->GetVertexShaderPath(), pEngine->GetFragmentShaderPath()))
 		{
 			// release program resources
 			m_pSceneMgr->m_pRendererMgr->releaseResources();
@@ -239,22 +239,26 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	GLboolean EngineFacade::LoadShader(ShaderType Type,
+	GLboolean EngineFacade::LoadShader(const std::string &name,
 									const std::string &vertex_shader_path,
 									const std::string &fragment_shader_path)
 	{
 
-		if (!m_pSceneMgr->m_pRendererMgr->isShaderLoaded(Type)) {
+		if (!m_pSceneMgr->m_pRendererMgr->isShaderLoaded(name)) {
 			ProgramStruct m_ProgramStruct;
 			if (!m_pSceneMgr->m_pRendererMgr->CreateShaderProgram(m_ProgramStruct, vertex_shader_path, fragment_shader_path))
 				return GL_FALSE;
-			m_pSceneMgr->m_pRendererMgr->CreateProgram(Type,m_ProgramStruct);
+			m_pSceneMgr->m_pRendererMgr->AddProgram(name, m_ProgramStruct);
 
+			m_pSceneMgr->m_pRendererMgr->ActiveShader(name);
+
+			ProgramName = name;
 			return GL_TRUE;
 		}
 		else
-			m_pSceneMgr->m_pRendererMgr->BindShaderWithExistingProgram(Type,vertex_shader_path,fragment_shader_path);
+			m_pSceneMgr->m_pRendererMgr->ActiveShader(name);
 
+		ProgramName = name;
 		return GL_TRUE;
 	}
 
@@ -315,7 +319,7 @@ namespace cxc {
 				return;
 			}
 
-			if (!LoadShader(CXC_SPRITE_SHADER_PROGRAM, GetVertexShaderPath(),GetFragmentShaderPath()))
+			if (!LoadShader(ProgramName, GetVertexShaderPath(),GetFragmentShaderPath()))
 			{
 				// release program resources
 				m_pSceneMgr->m_pRendererMgr->releaseResources();
@@ -389,9 +393,9 @@ namespace cxc {
 			glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	void EngineFacade::ActivateRenderer(ShaderType Type) const noexcept
+	void EngineFacade::ActivateRenderer() const noexcept
 	{
-		auto id = m_pSceneMgr->m_pRendererMgr->GetShaderProgramID(Type);
+		auto id = m_pSceneMgr->m_pRendererMgr->GetActiveShader();
 		if(id)
 			glUseProgram(id);
 	}
@@ -409,7 +413,7 @@ namespace cxc {
 
 	void EngineFacade::RenderingScenes() const noexcept
 	{
-		ActivateRenderer(CXC_SPRITE_SHADER_PROGRAM);
+		ActivateRenderer();
 		m_pSceneMgr->DrawScene();
 	}
 

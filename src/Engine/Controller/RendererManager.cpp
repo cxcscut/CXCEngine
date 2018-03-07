@@ -3,7 +3,6 @@
 namespace cxc {
 
 	RendererManager::RendererManager()
-		: FontShader(),SpriteShader()
 	{
 	}
 
@@ -14,157 +13,42 @@ namespace cxc {
 
 	void RendererManager::releaseResources() noexcept
 	{
-		auto programid = GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
-		if (programid)
-			glDeleteProgram(programid);
+		for (auto shader : m_Shaders)
+			glDeleteProgram(shader.second.ProgramID);
 	}
 
-	GLint RendererManager::GetShaderProgramID(ShaderType Type) const noexcept
+	GLint RendererManager::GetShaderProgramID(const std::string &name) const noexcept
 	{
-		switch (Type)
-		{
-		case CXC_SPRITE_SHADER_PROGRAM:
-			return SpriteShader.ProgramID;
-			break;
-		case CXC_FONT_SHADER_PROGRAM:
-			return FontShader.ProgramID;
-			break;
-		default:
+		auto it = m_Shaders.find(name);
+		if (it != m_Shaders.end())
+			return it->second.ProgramID;
+		else
 			return -1;
-			break;
-		}
 	}
 
-	GLboolean RendererManager::isShaderLoaded(ShaderType Type) const noexcept
+	GLboolean RendererManager::isShaderLoaded(const std::string &name) const noexcept
 	{
-		switch (Type)
-		{
-		case CXC_SPRITE_SHADER_PROGRAM:
-			if (SpriteShader.ProgramID)
-				return GL_TRUE;
-			else
-				return GL_FALSE;
-			break;
-		case CXC_FONT_SHADER_PROGRAM:
-			if (FontShader.ProgramID)
-				return GL_TRUE;
-			else
-				return GL_FALSE;
-			break;
-		default:
+		auto it = m_Shaders.find(name);
+		if (it != m_Shaders.end())
+			return it->second.ProgramID != 0;
+		else
 			return GL_FALSE;
-			break;
-		}
 	}
 
-	GLboolean RendererManager::BindShaderWithExistingProgram(ShaderType Type,
+	GLboolean RendererManager::BindShaderWithExistingProgram(const std::string &name,
 															const std::string &vertex_path,
 															const std::string &fragment_path) noexcept
 	{
-		GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-		GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-		GLint ProgramID;
-
-		std::string VertexShaderCode, FragmentShaderCode;
-
-		if (LoadVertexShader(vertex_path, VertexShaderCode) == GL_FALSE)
-			return GL_FALSE;
-
-		if (LoadFragmentShader(fragment_path, FragmentShaderCode) == GL_FALSE)
-			return GL_FALSE;
-
-		if (CompileShader(VertexShaderID, VertexShaderCode) != GL_TRUE)
-			return GL_FALSE;
-
-		if (CompileShader(FragmentShaderID, FragmentShaderCode) != GL_TRUE)
-			return GL_FALSE;
-
-		switch (Type)
-		{
-		case CXC_SPRITE_SHADER_PROGRAM:
-			ProgramID = SpriteShader.ProgramID;
-			break;
-		case CXC_FONT_SHADER_PROGRAM:
-			ProgramID = FontShader.ProgramID;
-			break;
-		default:
-			return GL_FALSE;
-			break;
-		}
-
-		if (LinkVertexAndFragmentShader(ProgramID, VertexShaderID, FragmentShaderID) != GL_TRUE)
-			return GL_FALSE;
+		ActiveShader(name);
 
 		return GL_TRUE;
 	}
 
-	void RendererManager::SetProgramID(ShaderType Type,GLint ProgramID) noexcept
+	void RendererManager::SetProgramID(const std::string &name,GLint _ProgramID) noexcept
 	{
-		switch (Type)
-		{
-		case CXC_SPRITE_SHADER_PROGRAM:
-			SpriteShader.ProgramID = ProgramID;
-			break;
-		case CXC_FONT_SHADER_PROGRAM:
-			FontShader.ProgramID = ProgramID;
-			break;
-		default:
-			break;
-		}
-	}
-
-	GLboolean RendererManager::GetVertexShaderArray(ShaderType Type, std::vector<GLint> &VertexArray) const noexcept
-	{
-		switch (Type)
-		{
-		case CXC_SPRITE_SHADER_PROGRAM:
-			if (SpriteShader.ProgramID)
-			{
-				VertexArray = SpriteShader.VertexShader;
-				return GL_TRUE;
-			}
-			else
-				return GL_FALSE;
-			break;
-		case CXC_FONT_SHADER_PROGRAM:
-			if (FontShader.ProgramID)
-			{
-				VertexArray = FontShader.VertexShader;
-				return GL_TRUE;
-			}
-			else
-				return GL_FALSE;
-			break;
-		default:
-			return GL_FALSE;
-		}
-	}
-
-	GLboolean RendererManager::GetFragmentShaderArray(ShaderType Type, std::vector<GLint> &FragmentArray) const noexcept
-	{
-		switch (Type)
-		{
-		case CXC_SPRITE_SHADER_PROGRAM:
-			if (SpriteShader.ProgramID)
-			{
-				FragmentArray = SpriteShader.FragmentShader;
-				return GL_TRUE;
-			}
-			else
-				return GL_FALSE;
-			break;
-		case CXC_FONT_SHADER_PROGRAM:
-			if (FontShader.ProgramID)
-			{
-				FragmentArray = FontShader.FragmentShader;
-				return GL_TRUE;
-			}
-			else
-				return GL_FALSE;
-			break;
-		default:
-			return GL_FALSE;
-		}
+		auto it = m_Shaders.find(name);
+		if (it != m_Shaders.end())
+			it->second.ProgramID = _ProgramID;
 	}
 
 	GLboolean RendererManager::CheckCompilationStatus(GLuint ShaderID) const noexcept
@@ -250,21 +134,22 @@ namespace cxc {
 			return GL_TRUE;
 	}
 
-	void RendererManager::CreateProgram(ShaderType Type,ProgramStruct &program) noexcept
+	void RendererManager::AddProgram(const std::string &name,ProgramStruct &program) noexcept
 	{
 		if (!program.ProgramID) return;
 
-		switch (Type)
-		{
-		case CXC_SPRITE_SHADER_PROGRAM:
-			SpriteShader = program;
-			break;
-		case CXC_FONT_SHADER_PROGRAM:
-			FontShader = program;
-			break;
-		default:
-			break;
-		}
+		auto it = m_Shaders.find(name);
+		if (it != m_Shaders.end())
+			it->second = program;
+		else
+			m_Shaders.insert(std::make_pair(name,program));
+	}
+
+	void RendererManager::ActiveShader(const std::string &name) noexcept
+	{
+		auto ID = GetShaderProgramID(name);
+		if (ID > 0) 
+			ActiveProgram = ID;
 	}
 
 	GLboolean RendererManager::CreateShaderProgram(ProgramStruct &ret,
@@ -305,16 +190,11 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	void RendererManager::SetShaderStruct(ShaderType type, ProgramStruct &shader_struct) noexcept
+	void RendererManager::SetShaderStruct(const std::string &name, ProgramStruct &shader_struct) noexcept
 	{
-		if (type == CXC_SPRITE_SHADER_PROGRAM)
-		{
-			SpriteShader = shader_struct;
-		}
-		else
-		{
-			FontShader = shader_struct;
-		}
+		auto it = m_Shaders.find(name);
+		if (it != m_Shaders.end())
+			it->second = shader_struct;
 	}
 
 }

@@ -847,7 +847,7 @@ namespace cxc {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_ElementBuffer.size(), &m_ElementBuffer.front(), GL_STATIC_DRAW);
 
 	}
-
+	
 	void Object3D::SetObjectGravityMode(int mode) noexcept
 	{
 		for (auto shape : m_ModelMap)
@@ -857,7 +857,7 @@ namespace cxc {
 	void Object3D::DrawObject() noexcept
 	{
 		auto pEngine = EngineFacade::GetInstance();
-		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
+		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetActiveShader();
 
 		pEngine->m_pSceneMgr->BindCameraUniforms();
 		pEngine->m_pSceneMgr->BindLightingUniforms(ProgramID);
@@ -865,13 +865,13 @@ namespace cxc {
 		glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
 
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
-		auto tex_flag_loc = glGetUniformLocation(ProgramID, "tex_is_used");
+		GLuint texflag_loc = glGetUniformLocation(ProgramID, "isUseTex");
 
-		// Reset the flag
-		glUniform1f(tex_flag_loc, 0.0f);
+		glUniform1i(texflag_loc,0);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
+		// Using texture
 		for (auto tex_name : m_TexNames)
 		{
 			auto tex_ptr = pEngine->m_pSceneMgr->m_pTextureMgr->GetTexPtr(tex_name);
@@ -882,7 +882,7 @@ namespace cxc {
 
 				glUniform1i(TexSamplerHandle,0);
 
-				glUniform1f(tex_flag_loc, 1.0f);
+				glUniform1i(texflag_loc, 1);
 
 			}
 		}
@@ -915,7 +915,6 @@ namespace cxc {
 
 			// Offset in memory
 			auto offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
-
 			auto idx_num = shape.second->GetVertexIndices().size();
 
 			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &model_matrix[0][0]);

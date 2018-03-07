@@ -22,50 +22,94 @@
 #ifndef CXC_SCENEMANAGER_H
 #define CXC_SCENEMANAGER_H
 
-#define PARTITION_MIN_NODENUM 4
-#define MAX_PARTITION_DEPTH 4
+#define PARTITION_MIN_NODENUM 8
+#define MAX_PARTITION_DEPTH 8
+#define MOVE_NORTH 1
+#define MOVE_SOUTH 2
+#define MOVE_EAST 3
+#define MOVE_WEST 4
+#define MOVE_UP 5
+#define MOVE_DOWN 6
 
 #define WOLRD_QUICK_STEPSIZE 0.02f
 
 namespace cxc {
 
+	class OctreeRoot;
+
 	class OctreeNode {
 
 	public:
 
-		explicit OctreeNode(const CXCRect3 &SceneSize,uint16_t depth);
-		OctreeNode();
+		explicit OctreeNode(const CXCRect3 &SceneSize);
 
 		~OctreeNode();
-
-		OctreeNode(const OctreeNode&) = delete;
-		OctreeNode& operator=(const OctreeNode&) = delete;
 		
 	public:
 
 		bool InsertObject(std::shared_ptr<Object3D> pObject) noexcept;
-		void RemoveObject(std::shared_ptr<Object3D> pTarget) noexcept;
 
 		// Find all the objects that within the bounding box
 		void FindObjects(const CXCRect3 &_AABB, std::vector<std::shared_ptr<Object3D>> &objects ) noexcept;
 		void SpacePartition() noexcept;
+		void SpaceMerge() noexcept;
 
 		// Find the nodes that contains the give object
 		bool FindNode(std::shared_ptr<Object3D> pTarget, std::vector<OctreeNode*> &nodes) noexcept;
 
+		static bool isNorth(char ch);
+		static bool isSouth(char ch);
+		static bool isEast(char ch);
+		static bool isWest(char ch);
+		static bool isUp(char ch);
+		static bool isDown(char ch);
+
+		bool isBoundaryNode() const noexcept;
+
+		std::string GetNorthCode() const noexcept;
+		std::string GetSouthCode() const noexcept;
+		std::string GetEastCode() const noexcept;
+		std::string GetWestCode() const noexcept;
+		std::string GetUpCode() const noexcept;
+		std::string GetDownCode() const noexcept;
+		int GetObjNum() const noexcept;
+
+		void MoveAndAdjust(const std::string &name,int direction);
+
 	public:
 
-		// Objects of the Node
-		std::list<std::shared_ptr<Object3D>> Objects;
+		OctreeRoot* m_rootPtr;
+		OctreeNode* parent;
 
-		// Childrend Nodes ptr
-		std::vector<std::shared_ptr<OctreeNode>> p_ChildNodes;
+		// Objects of the Node
+		std::unordered_map<std::string,std::shared_ptr<Object3D>> Objects;
 
 		// AABB bounding box of the node
 		CXCRect3 AABB;
 
-		// Current depth of the node
-		uint16_t depth;
+		bool isLeaf;
+
+		// Code of the node
+		std::string code;
+	};
+
+	class OctreeRoot : public OctreeNode
+	{
+	public:
+
+		OctreeRoot(const glm::vec3 &center, const CXCRect3 &size);
+		~OctreeRoot();
+
+	public:
+
+		std::shared_ptr<OctreeNode> FindNode(const std::string &code) noexcept;
+		std::shared_ptr<OctreeNode> CreateSpace(const std::string &code, const CXCRect3 &AABB) noexcept;;
+		void RemoveNode(const std::string &name) noexcept;
+
+	private:
+
+		std::unordered_map<std::string, std::shared_ptr<OctreeNode>> Nodes;
+
 	};
 
 	enum class Location : GLuint {
@@ -129,7 +173,8 @@ namespace cxc {
 		const glm::vec3 &GetLightPos() const noexcept;
 		void BindLightingUniforms(GLuint ProgramID) const;
 		void SetLightPos(const glm::vec3 &pos) noexcept;
-
+		void SetCenter(const glm::vec3 &center) noexcept { m_SceneCenter = center; };
+		void SetSize(float size) noexcept { m_SceneSize = size; };
 
 	// Draw call and resource management
 	public:
@@ -167,6 +212,9 @@ namespace cxc {
 
 	private:
 
+		// Hashmap for culling
+		std::unordered_set<std::shared_ptr<Object3D>> hash;
+
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<Object3D>> m_ObjectMap;
 
@@ -179,8 +227,12 @@ namespace cxc {
 		// Light position
 		glm::vec3 m_LightPos;
 
+		glm::vec3 m_SceneCenter;
+
+		float m_SceneSize;
+
 		// Space partition
-		std::shared_ptr<OctreeNode> pRoot;
+		std::shared_ptr<OctreeRoot> pRoot;
 
 		CXCRect3 m_Boundary;
 	};

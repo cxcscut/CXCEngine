@@ -108,6 +108,7 @@
     <ClCompile Include="controller\InputManager.cpp" />
     <ClCompile Include="controller\RendererManager.cpp" />
     <ClCompile Include="enginefacade\EnginFacade.cpp" />
+    <ClCompile Include="Graphics\Animation.cpp" />
     <ClCompile Include="graphics\Font.cpp" />
     <ClCompile Include="graphics\FontsManager.cpp" />
     <ClCompile Include="graphics\Object3D.cpp" />
@@ -129,6 +130,7 @@
     <ClInclude Include="enginefacade\EngineFacade.h" />
     <ClInclude Include="general\DefineTypes.h" />
     <ClInclude Include="general\EngineCompoents.h" />
+    <ClInclude Include="Graphics\Animation.h" />
     <ClInclude Include="graphics\Font.h" />
     <ClInclude Include="graphics\FontsManager.h" />
     <ClInclude Include="graphics\Object3D.h" />
@@ -173,7 +175,6 @@
     <None Include="inl\MultiTree.inl" />
     <None Include="inl\Singleton.inl" />
     <None Include="Physics\ode\precision.h.in" />
-    <None Include="Shader\LambertFS.glsl" />
     <None Include="Shader\Blinn-PhongFS.glsl" />
     <None Include="Shader\StandardVertexShader.glsl" />
   </ItemGroup>

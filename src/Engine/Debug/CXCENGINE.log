@@ -1,19 +1,11 @@
-﻿  Collider3D.cpp
+﻿  SceneManager.cpp
   正在生成代码...
   正在编译...
   Shape.cpp
-  SceneManager.cpp
   Object3D.cpp
   EnginFacade.cpp
-  InputManager.cpp
   CommandHandler.cpp
-  RigidBody3D.cpp
-Physics\RigidBody3D.cpp(122): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(151): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(160): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(242): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
-Physics\RigidBody3D.cpp(252): warning C4244: “=”: 从“const dReal”转换到“float”，可能丢失数据
   正在生成代码...
 FontsManager.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
 Font.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
-  CXCENGINE.vcxproj -> F:\cxcengine\src\Engine\Debug\CXCENGINE.lib
+  CXCENGINE.vcxproj -> G:\cxcengine\src\Engine\Debug\CXCENGINE.lib

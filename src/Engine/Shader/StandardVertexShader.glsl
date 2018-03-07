@@ -31,7 +31,7 @@ void main(){
 	EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
 
 	vec3 LightPosition_cameraspace = (V * vec4(LightPosition_worldspace,1)).xyz;
-	LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
+	LightDirection_cameraspace = LightPosition_cameraspace;
 
 	Normal_cameraspace = mat3(transpose(inverse(M))) * vertexNormal_modelspace;
 

@@ -66,6 +66,9 @@
     <ClCompile Include="Physics\Collider3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="controller\Camera.h">
@@ -206,6 +209,9 @@
     <ClInclude Include="Physics\Collider3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="inl\MultiTree.inl">
@@ -216,7 +222,6 @@
     </None>
     <None Include="Physics\ode\precision.h.in" />
     <None Include="Shader\StandardVertexShader.glsl" />
-    <None Include="Shader\LambertFS.glsl" />
     <None Include="Shader\Blinn-PhongFS.glsl" />
   </ItemGroup>
 </Project>

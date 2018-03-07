@@ -59,26 +59,30 @@ namespace cxc {
 								const std::string &vertex_file_path,
 								const std::string &fragment_file_path);
 
-		GLint GetShaderProgramID(ShaderType Type) const noexcept;
-		GLboolean GetVertexShaderArray(ShaderType Type,std::vector<GLint> &VertexArray) const noexcept;
-		GLboolean GetFragmentShaderArray(ShaderType Type,std::vector<GLint> &VertexArray) const noexcept;
-		GLboolean isShaderLoaded(ShaderType Type) const noexcept;
+		GLint GetShaderProgramID(const std::string &shadername) const noexcept;
 
-		GLboolean BindShaderWithExistingProgram(ShaderType Type,
+		GLboolean isShaderLoaded(const std::string &name) const noexcept;
+
+		GLboolean BindShaderWithExistingProgram(const std::string &name,
 											const std::string &vertex_path,
 											const std::string &fragment_path) noexcept;
 
-		void SetProgramID(ShaderType Type,GLint ProgramID) noexcept;
+		void SetProgramID(const std::string &name,GLint ProgramID) noexcept;
 
-		void CreateProgram(ShaderType Type,ProgramStruct &program) noexcept;
-		void SetShaderStruct(ShaderType type,ProgramStruct &shader_struct) noexcept;
+		void AddProgram(const std::string &name,ProgramStruct &program) noexcept;
+		void SetShaderStruct(const std::string &name,ProgramStruct &shader_struct) noexcept;
 
 		void releaseResources() noexcept;
+
+		void ActiveShader(const std::string &name) noexcept;
+		GLuint GetActiveShader() const noexcept { return ActiveProgram; };
 
 	// Private date
 	private:
 
-		ProgramStruct SpriteShader, FontShader;
+		std::map<std::string, ProgramStruct> m_Shaders;
+
+		GLuint ActiveProgram;
 
 	// Status checking
 	private:

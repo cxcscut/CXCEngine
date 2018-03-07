@@ -29,21 +29,18 @@ namespace cxc {
 		Shape *rgbd3d_ptr1 = nullptr, *rgbd3d_ptr2 = nullptr;
 
 		// Only trimesh user data can be cast into Shape*
-		if(dGeomGetClass(o1) == dTriMeshClass)
+		if(b1 && dGeomGetClass(o1) == dTriMeshClass)
 			rgbd3d_ptr1 = reinterpret_cast<Shape*>(dBodyGetData(b1));
-		if(dGeomGetClass(o2) == dTriMeshClass)
+		if(b2 && dGeomGetClass(o2) == dTriMeshClass)
 			rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b2));
 
 		if ((rgbd3d_ptr1 && rgbd3d_ptr1->CompareTag() == "collision_free") || 
 			(rgbd3d_ptr2 && rgbd3d_ptr2->CompareTag() == "collision_free"))
 			return;
 		
-
-		/*
 		// Do not check collision if tags are the same
 		if (rgbd3d_ptr1->CompareTag() == rgbd3d_ptr2->CompareTag())
 			return;
-			*/
 
 		for (num = 0; num < MAX_CONTACT_NUM; ++num)
 		{
@@ -82,7 +79,7 @@ namespace cxc {
 	SceneManager::SceneManager()
 		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500)),
 		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false),
-		m_Boundary()
+		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
 	{
 		m_pTextureMgr = TextureManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();
@@ -121,7 +118,16 @@ namespace cxc {
 		if (pRoot) 
 			return;
 
-		pRoot = std::make_unique<OctreeNode>(m_Boundary,1);
+		CXCRect3 AABB;
+		AABB.max.x = m_SceneCenter.x + m_SceneSize / 2;
+		AABB.max.y = m_SceneCenter.y + m_SceneSize / 2;
+		AABB.max.z = m_SceneCenter.z + m_SceneSize / 2;
+
+		AABB.min.x = m_SceneCenter.x - m_SceneSize / 2;
+		AABB.min.y = m_SceneCenter.y - m_SceneSize / 2;
+		AABB.min.z = m_SceneCenter.z - m_SceneSize / 2;
+
+		pRoot = std::make_shared<OctreeRoot>(m_SceneCenter, AABB);
 
 		for (auto piter = m_ObjectMap.begin(); piter != m_ObjectMap.end(); piter++)
 			pRoot->InsertObject(piter->second);
@@ -252,31 +258,35 @@ namespace cxc {
 		}
 		else
 		{
-			// Hashmap for objects 
-			std::unordered_set<std::shared_ptr<Object3D>> hash;
 			std::queue<std::shared_ptr<OctreeNode>> q;
 
 			q.push(pRoot);
+			
 			// Tranversing octree tree and perform frustum culling
 			while (!q.empty())
 			{
 				auto pNode = q.front();
 				q.pop();
 
-				if (pNode->p_ChildNodes.empty())
+				if (pNode->isLeaf)
 				{
 					for (auto pObject : pNode->Objects)
 					{
-						auto AABB = pObject->GetAABB();
+						if (!pObject.second->isEnable())
+							continue;
+
+						auto AABB = pObject.second->GetAABB();
 						if(m_pCamera->isRectInFrustum(AABB.max, AABB.min))
-							hash.insert(pObject);
+								hash.insert(pObject.second);
 					}
 				}
 				else
 				{
-					for (auto subspace : pNode->p_ChildNodes) {
-						if(m_pCamera->isRectInFrustum(subspace->AABB.max,subspace->AABB.min))
-							q.push(subspace);
+					for (std::size_t k = 0; k < 8; k++)
+					{
+						auto pChildNode = pRoot->FindNode(pNode->code + std::to_string(k));
+						if (m_pCamera->isRectInFrustum(pChildNode->AABB.max, pChildNode->AABB.min))
+							q.push(pChildNode);
 					}
 				}
 			}
@@ -285,6 +295,8 @@ namespace cxc {
 			// Draw the remaining objects
 			for (auto piter = hash.begin(); piter != hash.end(); piter++)
 				(*piter)->DrawObject();
+
+			hash.clear();
 		}
 	}
 
@@ -300,8 +312,8 @@ namespace cxc {
 
 	void SceneManager::BindCameraUniforms() const noexcept
 	{
-		auto SpriteProgramID = m_pRendererMgr->GetShaderProgramID(CXC_SPRITE_SHADER_PROGRAM);
-		m_pCamera->BindCameraUniforms(SpriteProgramID);
+		auto ActiveProgramID = m_pRendererMgr->GetActiveShader();
+		m_pCamera->BindCameraUniforms(ActiveProgramID);
 	}
 
 	void SceneManager::DeleteObject(const std::string &sprite_name) noexcept
@@ -326,20 +338,15 @@ namespace cxc {
 		return m_ObjectMap;
 	}
 
-	OctreeNode::OctreeNode(const CXCRect3 &SceneSize,uint16_t _depth) : 
-		Objects(),p_ChildNodes()
-	{
-		AABB = SceneSize;
-		depth = _depth;
-	}
-
-	OctreeNode::OctreeNode() : AABB()
+	OctreeNode::OctreeNode(const CXCRect3 &SceneSize) : 
+		Objects(),AABB(SceneSize),isLeaf(true)
 	{
 
 	}
 
 	OctreeNode::~OctreeNode()
 	{
+
 	}
 
 	bool OctreeNode::InsertObject(std::shared_ptr<Object3D> pObject) noexcept
@@ -347,35 +354,42 @@ namespace cxc {
 		if (!pObject->GetAABB().isIntersected(AABB))
 			return false;
 
-		if (p_ChildNodes.empty())
+		if (isLeaf)
 		{
 			// haven't partition the node
-			Objects.push_back(pObject);
+			Objects.insert(std::make_pair(pObject->GetObjectName(),pObject));
+			pObject->m_OctreePtrs.insert(code);
 
-			// Partition space if number of objects excess PARTITION_MIN_NODENUM and depth does not excess 
-			// MAX_PARTITION_DEPTH
-			if (Objects.size() > PARTITION_MIN_NODENUM && depth < MAX_PARTITION_DEPTH)
+			// Partition space if number of objects excess PARTITION_MIN_NODENUM 
+			// and depth does not excess MAX_PARTITION_DEPTH
+			if (Objects.size() > PARTITION_MIN_NODENUM && code.size() < MAX_PARTITION_DEPTH)
 			{
 				// Partition the space
 				SpacePartition();
+				isLeaf = false;
 
-				// move all the objects to subspace
-				while (!Objects.empty()) {
-					auto qe = Objects.back();
-					Objects.pop_back();
-
-					for (auto subspace : p_ChildNodes)
-						if (qe->GetAABB().isIntersected(subspace->AABB))
-							subspace->InsertObject(qe);
+				// Empty the objects list fo the current node
+				for (auto p = Objects.begin(); p != Objects.end();)
+				{
+					p->second->m_OctreePtrs.erase(p->second->m_OctreePtrs.find(code));
+					auto q = p;
+					InsertObject(p->second);
+					p++;
+					Objects.erase(q);
 				}
 			}
 		}
 		else
 		{
 			// have already partitioned node, find the correct subspace and add it
-			for (auto subspace : p_ChildNodes)
-				if (pObject->GetAABB().isIntersected(subspace->AABB))
-					subspace->InsertObject(pObject);
+			assert(m_rootPtr);
+			for (std::size_t k = 0; k < 8; k++)
+			{
+				auto pNode = m_rootPtr->FindNode(code + std::to_string(k));
+				assert(pNode);
+
+				pNode->InsertObject(pObject);
+			}
 		}
 
 		return true;
@@ -387,6 +401,18 @@ namespace cxc {
 		CXCRect3 subspace0,subspace1,subspace2,subspace3,
 			subspace4,subspace5,subspace6,subspace7;
 
+		/*
+		* Upper Level :
+		* | 0 | 1 |
+		* | 2 | 3 |
+		* 
+		* Bottom Level :
+		* | 4 | 5 |
+		* | 6 | 7 |
+		*/
+		auto proot = m_rootPtr;
+
+		assert(proot);
 		// Upper space
 		// subspace 0
 		subspace0.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
@@ -395,7 +421,9 @@ namespace cxc {
 		subspace0.max.y = AABB.max.y;
 		subspace0.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
 		subspace0.max.z = AABB.max.z;
-		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace0,depth + 1));
+		auto pNode = proot->CreateSpace(code + std::to_string(0),subspace0);
+		pNode->m_rootPtr = proot;
+		pNode->parent = this;
 
 		// subspace 1
 		subspace1.min.x = AABB.min.x;
@@ -404,7 +432,9 @@ namespace cxc {
 		subspace1.max.y = AABB.max.y;
 		subspace1.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
 		subspace1.max.z = AABB.max.z;
-		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace1, depth + 1));
+		pNode = proot->CreateSpace(code + std::to_string(1), subspace1);
+		pNode->m_rootPtr = proot;
+		pNode->parent = this;
 
 		// subspace 2
 		subspace2.min.x = AABB.min.x;
@@ -413,7 +443,9 @@ namespace cxc {
 		subspace2.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
 		subspace2.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
 		subspace2.max.z = AABB.max.z;
-		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace2, depth + 1));
+		pNode = proot->CreateSpace(code + std::to_string(2), subspace2);
+		pNode->m_rootPtr = proot;
+		pNode->parent = this;
 
 		// subspace 3
 		subspace3.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
@@ -422,7 +454,9 @@ namespace cxc {
 		subspace3.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
 		subspace3.min.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
 		subspace3.max.z = AABB.max.z;
-		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace3, depth + 1));
+		pNode = proot->CreateSpace(code + std::to_string(3), subspace3);
+		pNode->m_rootPtr = proot;
+		pNode->parent = this;
 
 		// Downspace
 		// subspace 4
@@ -432,7 +466,9 @@ namespace cxc {
 		subspace4.max.y = AABB.max.y;
 		subspace4.min.z = AABB.min.z;
 		subspace4.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
-		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace4, depth + 1));
+		pNode = proot->CreateSpace(code + std::to_string(4), subspace4);
+		pNode->m_rootPtr = proot;
+		pNode->parent = this;
 
 		// subspace 5
 		subspace5.min.x = AABB.min.x;
@@ -441,7 +477,8 @@ namespace cxc {
 		subspace5.max.y = AABB.max.y;
 		subspace5.min.z = AABB.min.z;
 		subspace5.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
-		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace5, depth + 1));
+		pNode = proot->CreateSpace(code + std::to_string(5), subspace5);
+		pNode->m_rootPtr = proot;
 
 		// subspace 6
 		subspace6.min.x = AABB.min.x;
@@ -450,7 +487,9 @@ namespace cxc {
 		subspace6.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
 		subspace6.min.z = AABB.min.z;
 		subspace6.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
-		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace6, depth + 1));
+		pNode = proot->CreateSpace(code + std::to_string(6), subspace6);
+		pNode->m_rootPtr = proot;
+		pNode->parent = this;
 
 		// subspace 7
 		subspace3.min.x = AABB.max.x - (AABB.max.x - AABB.min.x) / 2;
@@ -459,35 +498,20 @@ namespace cxc {
 		subspace3.max.y = AABB.max.y - (AABB.max.y - AABB.min.y) / 2;
 		subspace3.min.z = AABB.min.z;
 		subspace3.max.z = AABB.max.z - (AABB.max.z - AABB.min.z) / 2;
-		p_ChildNodes.push_back(std::make_shared<OctreeNode>(subspace7, depth + 1));
-	}
+		pNode = proot->CreateSpace(code + std::to_string(7), subspace7);
+		pNode->m_rootPtr = proot;
+		pNode->parent = this;
 
-	void OctreeNode::RemoveObject(std::shared_ptr<Object3D> pTarget) noexcept
-	{
-		std::vector<OctreeNode*> NodesVec;
-		if (!FindNode(pTarget, NodesVec))
-			return;
-		else
-		{
-			for (auto node : NodesVec)
-			{
-				Objects.remove_if(
-					[&](const std::shared_ptr<Object3D> &p) {
-					return p == pTarget;
-				});
-			}
-		}
-		
 	}
 
 	bool OctreeNode::FindNode(std::shared_ptr<Object3D> pTarget, std::vector<OctreeNode*> &nodes) noexcept
 	{
 		if (AABB.isIntersected(pTarget->GetAABB()))
 		{
-			if (p_ChildNodes.empty())
+			if (isLeaf)
 			{
 				for(auto pObject : Objects)
-					if (pTarget == pObject)
+					if (pTarget == pObject.second)
 					{
 						nodes.push_back(this);
 						return true;
@@ -498,8 +522,12 @@ namespace cxc {
 			else
 			{
 				bool ret = false;
-				for (auto pChild : p_ChildNodes)
-					ret = ret || pChild->FindNode(pTarget, nodes);
+				for (std::size_t k = 0; k < 8; k++)
+				{
+					assert(m_rootPtr);
+					auto pNode = m_rootPtr->FindNode(code + std::to_string(k));
+					ret = ret || pNode->FindNode(pTarget, nodes);
+				}
 
 				return ret;
 			}
@@ -513,16 +541,365 @@ namespace cxc {
 		if (!AABB.isIntersected(_AABB))
 			return;
 
-		if (p_ChildNodes.empty())
+		if (isLeaf)
 		{
 			for (auto pObject : Objects)
-				if (pObject->GetAABB().isIntersected(_AABB))
-					objects.push_back(pObject);
+				if (pObject.second->GetAABB().isIntersected(_AABB))
+					objects.push_back(pObject.second);
 		}
 		else
 		{
-			for (auto node : p_ChildNodes)
-				node->FindObjects(_AABB,objects);
+			assert(m_rootPtr);
+			for (std::size_t k = 0; k < 8; k++)
+			{
+				auto pNode = m_rootPtr->FindNode(code + std::to_string(k));
+				pNode->FindObjects(_AABB,objects);
+			}
 		}
+	}
+
+	bool OctreeNode::isNorth(char ch)
+	{
+		return ch == '0' || ch == '1' 
+			|| ch == '4' || ch == '5';
+	}
+
+	bool OctreeNode::isSouth(char ch)
+	{
+		return ch == '2' || ch == '3'
+			|| ch == '6' || ch == '7';
+	}
+
+	bool OctreeNode::isEast(char ch)
+	{
+		return ch == '1' || ch == '3'
+			|| ch == '5' || ch == '7';
+	}
+
+	bool OctreeNode::isWest(char ch)
+	{
+		return ch == '0' || ch == '2'
+			|| ch == '4' || ch == '6';
+	}
+
+	bool OctreeNode::isUp(char ch)
+	{
+		return ch == '0' || ch == '1'
+			|| ch == '2' || ch == '3';
+	}
+
+	bool OctreeNode::isDown(char ch)
+	{
+		return ch == '4' || ch == '5'
+			|| ch == '6' || ch == '7';
+	}
+
+	bool OctreeNode::isBoundaryNode() const noexcept
+	{
+		for (auto ch : code)
+		{
+			if (!OctreeNode::isNorth(ch) && !OctreeNode::isSouth(ch) &&
+				!OctreeNode::isEast(ch) && !OctreeNode::isWest(ch) &&
+				!OctreeNode::isUp(ch) && !OctreeNode::isDown(ch))
+				return false;
+		}
+
+		return true;
+	}
+
+	std::string OctreeNode::GetNorthCode() const noexcept
+	{
+		std::string ret = code;
+		if ((OctreeNode::isNorth(ret.back())))
+		{
+			for (std::size_t k = ret.size() - 1; k >= 0; k++)
+			{
+				if (OctreeNode::isNorth(ret[k]))
+					ret[k] += 2;
+				else
+				{
+					ret[k] -= 2;
+					break;
+				}
+			}
+		}
+		else if (OctreeNode::isSouth(ret.back()))
+			ret[ret.size() - 1] -= 2;
+
+		return ret;
+	}
+
+	std::string OctreeNode::GetSouthCode() const noexcept
+	{
+		std::string ret = code;
+		if (OctreeNode::isSouth(ret.back()))
+		{
+			for (std::size_t k = ret.size() - 1; k >= 0; k++)
+			{
+				if (OctreeNode::isSouth(ret[k]))
+					ret[k] -= 2;
+				else
+				{
+					ret[k] += 2;
+					break;
+				}
+			}
+		}
+		else if (OctreeNode::isNorth(ret.back()))
+			ret[ret.size() - 1] += 2;
+
+		return ret;
+	}
+
+	std::string OctreeNode::GetEastCode() const noexcept
+	{
+		std::string ret = code;
+		if (OctreeNode::isEast(ret.back()))
+		{
+			for (std::size_t k = ret.size() - 1; k >= 0; k++)
+			{
+				if (OctreeNode::isEast(ret[k]))
+					ret[k] -= 1;
+				else
+				{
+					ret[k] += 1;
+					break;
+				}
+			}
+		}
+		else if (OctreeNode::isWest(ret.back()))
+			ret[ret.size() - 1] += 1;
+
+		return ret;
+	}
+
+	std::string OctreeNode::GetWestCode() const noexcept
+	{
+		std::string ret = code;
+		if (OctreeNode::isWest(ret.back()))
+		{
+			for (std::size_t k = ret.size() - 1; k >= 0; k++)
+			{
+				if (OctreeNode::isWest(ret[k]))
+					ret[k] += 1;
+				else
+				{
+					ret[k] -= 1;
+					break;
+				}
+			}
+		}
+		else if (OctreeNode::isEast(ret.back()))
+			ret[ret.size() - 1] -= 1;
+
+		return ret;
+	}
+
+	std::string OctreeNode::GetUpCode() const noexcept
+	{
+		std::string ret = code;
+		if (OctreeNode::isDown(ret.back()))
+			ret[ret.size() - 1] += 4;
+		else
+		{
+			for (std::size_t k = ret.size() - 1; k >= 0; k++)
+			{
+				if (OctreeNode::isUp(ret[k]))
+					ret[k] += 4;
+				else {
+					ret[k] -= 4;
+					break;
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	std::string OctreeNode::GetDownCode() const noexcept
+	{
+		std::string ret = code;
+		if (OctreeNode::isUp(ret.back()))
+			ret[ret.size() - 1] -= 4;
+		else
+		{
+			for (std::size_t k = ret.size() - 1; k >= 0; k++)
+			{
+				if (OctreeNode::isDown(ret[k]))
+					ret[k] -= 4;
+				else
+				{
+					ret[k] += 4;
+					break;
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	void OctreeNode::MoveAndAdjust(const std::string &name,int direction)
+	{
+		auto it = Objects.find(name);
+		if (it == Objects.end())
+			return;
+
+		std::string newCode;
+		auto pObject = it->second;
+
+		switch (direction)
+		{
+		case MOVE_NORTH :
+			newCode = GetNorthCode();
+			break;
+		case MOVE_SOUTH:
+			newCode = GetSouthCode();
+			break;
+		case MOVE_EAST:
+			newCode = GetEastCode();
+			break;
+		case MOVE_WEST:
+			newCode = GetWestCode();
+			break;
+		case MOVE_UP:
+			newCode = GetUpCode();
+			break;
+		case MOVE_DOWN:
+			newCode = GetDownCode();
+			break;
+		default:
+			return;
+		}
+
+		auto proot = m_rootPtr;
+
+		assert(proot);
+		
+		auto pNode = proot->FindNode(newCode);
+
+		if (!pNode)
+		{
+			// Low level move into high level
+			newCode.pop_back();
+			while (!proot->FindNode(newCode))
+				newCode.pop_back();
+
+			// Insert into next node
+			auto pTargetNode = proot->FindNode(newCode);
+			if(pObject->AABB.isIntersected(pTargetNode->AABB) &&
+				pObject->m_OctreePtrs.find(pTargetNode->code) != pObject->m_OctreePtrs.end())
+				pTargetNode->InsertObject(pObject);
+
+			// Remove from the current node when their AABBs do not intersect
+			if (!AABB.isIntersected(pObject->AABB))
+			{
+				Objects.erase(Objects.find(pObject->GetObjectName()));
+				pObject->m_OctreePtrs.erase(pObject->m_OctreePtrs.find(code));
+
+				// Merge space if the number of objects less than PARTITION_MIN_NODENUM
+				if (parent->GetObjNum() < PARTITION_MIN_NODENUM)
+					parent->SpaceMerge();
+				
+			}
+		}
+		else
+		{
+			// High level move into low level or equal level
+			// Insert into next node
+			if (pNode->AABB.isIntersected(pObject->AABB) &&
+				pObject->m_OctreePtrs.find(pNode->code) != pObject->m_OctreePtrs.end())
+				pNode->InsertObject(pObject);
+
+			// Remove from the current node when their AABBs do not intersect
+			if (!AABB.isIntersected(pObject->AABB))
+			{
+				Objects.erase(Objects.find(pObject->GetObjectName()));
+				pObject->m_OctreePtrs.erase(pObject->m_OctreePtrs.find(code));
+
+				// Merge space if the number of objects less than PARTITION_MIN_NODENUM
+				if (parent->GetObjNum() < PARTITION_MIN_NODENUM)
+					parent->SpaceMerge();
+			}
+		}
+	}
+
+	int OctreeNode::GetObjNum() const noexcept {
+		auto sum = 0;
+
+		for (std::size_t k = 0; k < 8; k++)
+		{
+			auto pNode = m_rootPtr->FindNode(code + std::to_string(k));
+			if (pNode)
+			{
+				if (pNode->isLeaf)
+					sum += pNode->Objects.size();
+				else
+					sum += pNode->GetObjNum();
+			}
+		}
+
+		return sum;
+	}
+
+	void OctreeRoot::RemoveNode(const std::string &code) noexcept
+	{
+		auto it = Nodes.find(code);
+		if (it != Nodes.end())
+			Nodes.erase(it);
+	}
+
+	void OctreeNode::SpaceMerge() noexcept
+	{
+		for (std::size_t k = 0; k < 8; k++)
+		{
+			auto pNode = m_rootPtr->FindNode(code + std::to_string(k));
+			if (pNode)
+			{
+				for (auto piter = pNode->Objects.begin(); piter != pNode->Objects.end();)
+				{
+					Objects.insert(std::make_pair(piter->first,piter->second));
+					piter->second->m_OctreePtrs.erase(pNode->code);
+					piter->second->m_OctreePtrs.insert(code);
+					pNode->Objects.erase(piter->second->GetObjectName());
+				}
+
+				m_rootPtr->RemoveNode(pNode->code);
+			}
+		}
+
+		isLeaf = true;
+	}
+
+	OctreeRoot::OctreeRoot(const glm::vec3 &center,const CXCRect3 &size)
+		: OctreeNode(size)
+	{
+		m_rootPtr = this;
+		parent = nullptr;
+		code = "";
+		SpacePartition();
+		isLeaf = false;
+	}
+
+	OctreeRoot::~OctreeRoot()
+	{
+
+	}
+
+	std::shared_ptr<OctreeNode> OctreeRoot::FindNode(const std::string &code) noexcept
+	{
+		auto it = Nodes.find(code);
+		if (it != Nodes.end())
+			return it->second;
+		else
+			return nullptr;
+	}
+
+	std::shared_ptr<OctreeNode> OctreeRoot::CreateSpace(const std::string &code, const CXCRect3 &AABB) noexcept
+	{
+		auto pNode = std::make_shared<OctreeNode>(AABB);
+		pNode->code = code;
+		Nodes.insert(std::make_pair(code, pNode));
+
+		return pNode;
 	}
 }

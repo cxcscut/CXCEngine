@@ -72,7 +72,7 @@ namespace cxc {
 
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
-		GLboolean LoadShader(ShaderType Type,const std::string &vertex_shader_path,const std::string &fragment_shader_path);
+		GLboolean LoadShader(const std::string &name,const std::string &vertex_shader_path,const std::string &fragment_shader_path);
 
 	// Configuration
 	public:
@@ -87,7 +87,7 @@ namespace cxc {
 		void Init() noexcept;
 		void InitEngine() noexcept;
 		void CleanFrameBuffer() const noexcept;
-		void ActivateRenderer(ShaderType Type) const noexcept;
+		void ActivateRenderer() const noexcept;
 		void CleanGL() noexcept {glfwTerminate();};
 		void StoreAndSetMousePos() noexcept;
 
@@ -108,9 +108,10 @@ namespace cxc {
 		// Shader path
 		std::string GetVertexShaderPath() const noexcept { return VertexShaderPath; }
 		std::string GetFragmentShaderPath() const noexcept { return FragmentShaderPath; }
+		std::string GetProgramName() const noexcept { return ProgramName; };
 		void SetVertexShaderPath(const std::string &_VertexShaderPath) noexcept { VertexShaderPath = _VertexShaderPath; };
 		void SetFragmentShaderPath(const std::string &_FragmentShaderPath) noexcept { FragmentShaderPath = _FragmentShaderPath; };
-
+		void SetSceneSize(const glm::vec3 &center, float size) noexcept { m_pSceneMgr->SetCenter(center); m_pSceneMgr->SetSize(size); };
 	// Physics
 	public:
 
@@ -146,7 +147,7 @@ namespace cxc {
 	private:
 
 		// Shader path
-		std::string VertexShaderPath,FragmentShaderPath;
+		std::string ProgramName,VertexShaderPath,FragmentShaderPath;
 
 		// Rendering thread
 		std::unique_ptr<std::thread> m_RenderingThread;
