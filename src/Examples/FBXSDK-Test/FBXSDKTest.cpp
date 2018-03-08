@@ -19,9 +19,9 @@ static const std::string plane_file = "G:\\cxcengine\\src\\Examples\\RobotSim\\M
 static const std::string table_file = "G:\\cxcengine\\srcsrc\\Examples\\RobotSim\\Model\\table.obj";
 
 static const std::string VertexShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
-//static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardFragmentShader.glsl";
-//static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\LambertFS.glsl";
 static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\Blinn-PhongFS.glsl";
+static const std::string ShadowVS = "G:\\cxcengine\\src\\Engine\\Shader\\depthTextureVS.glsl";
+static const std::string ShadowFS = "G:\\cxcengine\\src\\Engine\\Shader\\depthTextureFS.glsl";
 
 std::shared_ptr<Robothand> m_LeftPtr, m_RightPtr;
 std::shared_ptr<Object3D> Table, Plane;
@@ -93,32 +93,32 @@ int main()
 {
 	// Accquire engine pointer
 	auto pEngine = EngineFacade::GetInstance();
-
+	auto pRender = std::make_shared<BaseRender>(VertexShaderPath, FragmentShaderPath);
+	auto pShadow = std::make_shared<ShadowMapRender>(800,600,glm::vec3(0,50,-100),ShadowVS,ShadowFS);
+	pShadow->SetLightPos(glm::vec3(100,100,-100));
 	// Engine configuration
 	{
 
 		pEngine->SetGravity(0, -0.5f, 0);
-
 		pEngine->m_pWindowMgr->InitGL();
 
 		pEngine->m_pWindowMgr->SetWindowHeight(600);
 		pEngine->m_pWindowMgr->SetWindowWidth(800);
-
-		pEngine->SetVertexShaderPath(VertexShaderPath);
-		pEngine->SetFragmentShaderPath(FragmentShaderPath);
-
-		pEngine->m_pWindowMgr->SetWindowTitle("Engine test");
+		// A "StandardShader must be provided"
+		pEngine->addShader("StandardShader", pRender.get());
+		pEngine->addShader("ShadowRender",pShadow.get());
+		pEngine->m_pWindowMgr->SetWindowTitle("Powered by CXCEngine");
 		pEngine->m_pWindowMgr->isDecoraded = true;
 
 		//pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
 		pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 80, 80);
-		pEngine->m_pSceneMgr->SetLightPos(glm::vec3(0,100,-100));
+		pEngine->m_pSceneMgr->SetLightPos(glm::vec3(0,50,-100));
 		//EngineFacade::KeyInputCallBack = keycallback;
 		pEngine->SetSceneSize(glm::vec3(0,0,0),4000);
 
 		pEngine->InitWindowPosition(200,200);
 
-		//pEngine->MultiThreadingEnable();
+		pEngine->MultiThreadingEnable();
 	}
 
 	pEngine->Init();
@@ -163,13 +163,11 @@ int main()
 		//auto o5 = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\o5.obj");
 
 		auto sphere = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\sphere.obj","sphere");
-		auto skeleton = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\skeleton.obj","skeleton");
-		auto plane = std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj");
-
+		//auto skeleton = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\skeleton.obj","skeleton");
+		auto env= std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj","env");
 		sphere->SetObjectGravityMode(1);
 
-		pEngine->addObject(plane,true);
-		//pEngine->addObject(skeleton);
+		pEngine->addObject(env,true);
 		pEngine->addObject(sphere);
 	}
 

@@ -223,5 +223,7 @@
     <None Include="Physics\ode\precision.h.in" />
     <None Include="Shader\StandardVertexShader.glsl" />
     <None Include="Shader\Blinn-PhongFS.glsl" />
+    <None Include="Shader\depthTextureFS.glsl" />
+    <None Include="Shader\depthTextureVS.glsl" />
   </ItemGroup>
 </Project>

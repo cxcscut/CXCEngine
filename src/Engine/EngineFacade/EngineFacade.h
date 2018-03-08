@@ -72,7 +72,7 @@ namespace cxc {
 
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
-		GLboolean LoadShader(const std::string &name,const std::string &vertex_shader_path,const std::string &fragment_shader_path);
+		void addShader(const std::string &name,BaseRender *Render);
 
 	// Configuration
 	public:
@@ -90,7 +90,7 @@ namespace cxc {
 		void CleanGL() noexcept {glfwTerminate();};
 		void StoreAndSetMousePos() noexcept;
 
-		void RenderingScenes() const noexcept;
+		void RenderingScenes() noexcept;
 		void GameLooping() noexcept;
 
 		void run() noexcept;
@@ -105,11 +105,6 @@ namespace cxc {
 		std::shared_ptr<SceneManager> m_pSceneMgr;
 
 		// Shader path
-		std::string GetVertexShaderPath() const noexcept { return VertexShaderPath; }
-		std::string GetFragmentShaderPath() const noexcept { return FragmentShaderPath; }
-		std::string GetProgramName() const noexcept { return ProgramName; };
-		void SetVertexShaderPath(const std::string &_VertexShaderPath) noexcept { VertexShaderPath = _VertexShaderPath; };
-		void SetFragmentShaderPath(const std::string &_FragmentShaderPath) noexcept { FragmentShaderPath = _FragmentShaderPath; };
 		void SetSceneSize(const glm::vec3 &center, float size) noexcept { m_pSceneMgr->SetCenter(center); m_pSceneMgr->SetSize(size); };
 	// Physics
 	public:
@@ -126,6 +121,11 @@ namespace cxc {
 
 		// flag representing the status
 		GLboolean GameOver;
+
+		std::vector<std::pair<std::string, BaseRender*>> Renders;
+
+		// Must be call after Init()
+		void ActiveRender(const std::string &name);
 
 	public:
 
@@ -144,9 +144,6 @@ namespace cxc {
 		static std::function<void(int key, int scancode, int action, int mods)> KeyInputCallBack;
 
 	private:
-
-		// Shader path
-		std::string ProgramName,VertexShaderPath,FragmentShaderPath;
 
 		// Rendering thread
 		std::unique_ptr<std::thread> m_RenderingThread;

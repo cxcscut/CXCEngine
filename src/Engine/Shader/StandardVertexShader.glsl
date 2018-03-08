@@ -9,6 +9,7 @@ out vec3 Position_worldspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 LightDirection_cameraspace;
 out vec3 Normal_cameraspace;
+out vec4 ShadowCoord;
 
 uniform mat4 P;
 uniform mat4 V;
@@ -18,9 +19,13 @@ uniform vec3 Kd;
 uniform vec3 Ks;
 uniform vec3 Ka;
 
-void main(){
+uniform mat4 depthBiasMVP;
 
-	mat4 MVP = P * V * M ;
+mat4 MVP = P * V * M ;
+
+void main(){
+	
+	ShadowCoord = depthBiasMVP * vec4(vertexPosition_modelspace,1);
 
 	gl_Position = MVP * vec4(vertexPosition_modelspace,1);
 

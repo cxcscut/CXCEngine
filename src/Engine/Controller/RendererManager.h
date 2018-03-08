@@ -15,29 +15,64 @@
 
 namespace cxc {
 
-	typedef struct ProgramStruct {
-		GLint ProgramID;
-		std::vector<GLint> VertexShader;
-		std::vector<GLint> FragmentShader;
+	class BaseRender
+	{
 
-		ProgramStruct& operator=(const ProgramStruct & rhs) {
-			this->ProgramID = rhs.ProgramID;
-			this->VertexShader = rhs.VertexShader;
-			this->FragmentShader = rhs.FragmentShader;
-			return *this;
-		}
-		void clear() {
-			ProgramID = 0;
-			VertexShader.clear();
-			FragmentShader.clear();
-		}
-		void ReConstruct(GLint ID, GLint VertexShaderID, GLint FragmentShaderID) {
-			this->clear();
-			ProgramID = ID;
-			VertexShader.emplace_back(VertexShaderID);
-			FragmentShader.emplace_back(FragmentShaderID);
-		}
-	} ProgramStruct;
+	public:
+		BaseRender(const std::string &vertex_file_path,const std::string &fragment_file_path);
+		virtual ~BaseRender();
+
+	public:
+
+		GLuint GetProgramID() { return ProgramID; };
+
+		bool CreateShaderProgram();
+
+		void ActiveShader();
+
+	protected:
+
+		bool LoadVertexShader(const std::string &vertex_file_path, std::string &vertex_shader_code) const;
+		bool LoadFragmentShader(const std::string &fragment_file_path, std::string &fragment_shader_code) const;
+		bool CompileShader(GLuint ShaderID, const std::string &SourceCode) const;
+		bool CheckCompilationStatus(GLuint ShaderID) const noexcept;
+		bool CheckLinkageStatus(GLuint ProgramID) const noexcept;
+		bool LinkVertexAndFragmentShader(GLuint ProgramID, GLuint VertexShaderID, GLuint FragmentShaderID) const;
+
+	protected:
+
+		GLuint ProgramID;
+		std::string VertexShaderPath, FragmentShaderPath;
+		GLuint VertexShader, FragmentShader;
+
+	};
+
+	class ShadowMapRender : public BaseRender
+	{
+	public:
+
+		ShadowMapRender(GLuint WindowWidth, GLuint WindowHeight, const glm::vec3 &lightPos,
+			const std::string &vertex_file_path, const std::string &fragment_file_path);
+		~ShadowMapRender();
+
+		bool InitShadowMapRender() noexcept;
+
+		GLuint GetFBO() const noexcept;
+		GLuint GetWidth() const noexcept;
+		GLuint GetHeight() const noexcept;
+		glm::mat4 GetDepthVP() const noexcept;
+		glm::vec3 GetLightPos() const noexcept;
+		void SetLightPos(const glm::vec3 &pos) noexcept;
+		GLuint GetDepthTexture() const noexcept;
+
+	private:
+
+		GLuint m_FBO, depthTexture;
+		GLuint WindowWidth, WindowHeight;
+
+		glm::vec3 LightPosition,LightPos;
+		glm::mat4 depthProjectionMatrix, depthViewMatrix,depthVP;
+	};
 
 	class RendererManager final : public Singleton<RendererManager>
 	{
@@ -55,45 +90,18 @@ namespace cxc {
 
 	public:
 
-		GLboolean CreateShaderProgram(ProgramStruct &ret,
-								const std::string &vertex_file_path,
-								const std::string &fragment_file_path);
-
-		GLint GetShaderProgramID(const std::string &shadername) const noexcept;
-
-		GLboolean isShaderLoaded(const std::string &name) const noexcept;
-
-		GLboolean BindShaderWithExistingProgram(const std::string &name,
-											const std::string &vertex_path,
-											const std::string &fragment_path) noexcept;
-
-		void SetProgramID(const std::string &name,GLint ProgramID) noexcept;
-
-		void AddProgram(const std::string &name,ProgramStruct &program) noexcept;
-		void SetShaderStruct(const std::string &name,ProgramStruct &shader_struct) noexcept;
-
-		void releaseResources() noexcept;
-
-		void ActiveShader(const std::string &name) noexcept;
-		GLuint GetActiveShader() const noexcept { return ActiveProgram; };
+		GLint GetRenderProgramID(const std::string &name) const noexcept;
+		void addRender(const std::string &name,BaseRender * pRender) noexcept;
+		void deleteRender(const std::string &name) noexcept;
+		void ActivateRender(const std::string &name) noexcept;
+		GLuint GetCurrentActiveProgramID() const noexcept ;
+		BaseRender* GetRenderPtr(const std::string &name) noexcept;
 
 	// Private date
 	private:
 
-		std::map<std::string, ProgramStruct> m_Shaders;
-
-		GLuint ActiveProgram;
-
-	// Status checking
-	private:
-
-		GLboolean LoadVertexShader(const std::string &vertex_file_path, std::string &vertex_shader_code) const;
-		GLboolean LoadFragmentShader(const std::string &fragment_file_path, std::string &fragment_shader_code) const;
-		GLboolean CompileShader(GLuint ShaderID, const std::string &SourceCode) const;
-		GLboolean CheckCompilationStatus(GLuint ShaderID) const noexcept;
-		GLboolean CheckLinkageStatus(GLuint ProgramID) const noexcept;
-		GLboolean LinkVertexAndFragmentShader(GLuint ProgramID, GLuint VertexShaderID, GLuint FragmentShaderID) const;
-
+		std::unordered_map<std::string,BaseRender*> m_Renders;
+		BaseRender *CurrentActiveRender;
 	};
 }
 

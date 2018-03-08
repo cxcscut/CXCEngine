@@ -144,7 +144,6 @@ namespace cxc {
 			if (isKinematics)
 				dBodySetKinematic(shape.second->GetBodyID());
 		}
-
 	}
 
 	void Object3D::IndexVertex(std::map<VertexIndexPacket, uint32_t> &VertexIndexMap,
@@ -857,7 +856,15 @@ namespace cxc {
 	void Object3D::DrawObject() noexcept
 	{
 		auto pEngine = EngineFacade::GetInstance();
-		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetActiveShader();
+		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetCurrentActiveProgramID();
+
+		auto pShadowRender = dynamic_cast<ShadowMapRender*>(pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
+		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
+			return;
+
+		// Draw the scene on screen
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0,0,pEngine->m_pWindowMgr->GetWindowWidth(),pEngine->m_pWindowMgr->GetWindowHeight());
 
 		pEngine->m_pSceneMgr->BindCameraUniforms();
 		pEngine->m_pSceneMgr->BindLightingUniforms(ProgramID);
@@ -866,6 +873,8 @@ namespace cxc {
 
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
 		GLuint texflag_loc = glGetUniformLocation(ProgramID, "isUseTex");
+		GLuint depthBiasMVP_loc = glGetUniformLocation(ProgramID,"depthBiasMVP");
+		GLuint ShadowMapSampler_loc = glGetUniformLocation(ProgramID,"shadowmap");
 
 		glUniform1i(texflag_loc,0);
 
@@ -877,7 +886,8 @@ namespace cxc {
 			auto tex_ptr = pEngine->m_pSceneMgr->m_pTextureMgr->GetTexPtr(tex_name);
 			if (tex_ptr)
 			{
-
+				// Bind the object's texture to texture unit 0
+				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, tex_ptr->GetTextureID());
 
 				glUniform1i(TexSamplerHandle,0);
@@ -900,7 +910,27 @@ namespace cxc {
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
 		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec2))); // Normal
 
+		uint32_t offset, idx_num;
+
+		// the bias for depthMVP
+		glm::mat4 biasMatrix(
+			0.5, 0.0, 0.0, 0.0,
+			0.0, 0.5, 0.0, 0.0,
+			0.0, 0.0, 0.5, 0.0,
+			0.5, 0.5, 0.5, 1.0
+		);
+
+		glm::mat4 depthBiasMVP; 
+
+		// Bind depth texture to the texture unit 1
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, pShadowRender->GetDepthTexture());
+		glUniform1i(ShadowMapSampler_loc, 1);
+
 		for (auto shape : m_ModelMap) {
+
+			depthBiasMVP = biasMatrix * pShadowRender->GetDepthVP() * shape.second->getTransMatrix();
+			glUniformMatrix4fv(depthBiasMVP_loc,1,GL_FALSE,&depthBiasMVP[0][0]);
 
 			GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
 			GLuint Ka_loc = glGetUniformLocation(ProgramID,"Ka");
@@ -914,8 +944,8 @@ namespace cxc {
 			auto model_matrix = shape.second->getTransMatrix();
 
 			// Offset in memory
-			auto offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
-			auto idx_num = shape.second->GetVertexIndices().size();
+			offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
+			idx_num = shape.second->GetVertexIndices().size();
 
 			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &model_matrix[0][0]);
 
@@ -926,7 +956,44 @@ namespace cxc {
 
 	void Object3D::DrawShadow() noexcept
 	{
+		auto pEngine = EngineFacade::GetInstance();
+		auto pShadowRender = dynamic_cast<ShadowMapRender*>(pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
+		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
+			return;
 
+		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetFBO());
+		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(pShadowRender->GetProgramID());
+
+		GLuint depthMVP_Loc = glGetUniformLocation(pShadowRender->GetProgramID(), "depthMVP");
+		glm::mat4 depthMVP;
+		uint32_t offset;
+		uint32_t index_num;
+		
+		glBindVertexArray(VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+		// Render to texture for all objects
+		for (auto shape : m_ModelMap)
+		{
+			depthMVP = pShadowRender->GetDepthVP() * shape.second->getTransMatrix();
+			glUniformMatrix4fv(depthMVP_Loc, 1, GL_FALSE, &depthMVP[0][0]);
+
+			offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
+			index_num = shape.second->GetVertexIndices().size();
+
+			glDrawElements(GL_TRIANGLES, index_num, GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
+		}
 	}
 
 	void Object3D::RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept

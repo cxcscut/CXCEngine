@@ -25,7 +25,7 @@ namespace cxc {
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)
 	{
 		auto pEngine = EngineFacade::GetInstance();
-		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetActiveShader();
+		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetCurrentActiveProgramID();
 		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
 
 		double dx = x-_x, dy = y-_y;
@@ -73,7 +73,7 @@ namespace cxc {
 	{
 		auto pEngine = EngineFacade::GetInstance();
 		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
-		auto CurrentProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetActiveShader();
+		auto CurrentProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetCurrentActiveProgramID();
 		auto camera = pEngine->m_pSceneMgr->m_pCamera;
 		if (!wHandle) return;
 
@@ -117,9 +117,6 @@ namespace cxc {
 		if (!pEngine->CreateAndDisplayWindow(m_pWindowMgr->GetWindowWidth(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowTitle()))
 		{
 
-			// release program resources
-			m_pSceneMgr->m_pRendererMgr->releaseResources();
-
 			// shutdown and clean
 			glfwTerminate();
 
@@ -129,24 +126,50 @@ namespace cxc {
 
 			return;
 		}
-
-		if (!pEngine->LoadShader(pEngine->GetProgramName(), pEngine->GetVertexShaderPath(), pEngine->GetFragmentShaderPath()))
+		
+		if (pEngine->Renders.empty())
 		{
-			// release program resources
-			m_pSceneMgr->m_pRendererMgr->releaseResources();
-
 			// shutdown and clean
 			glfwTerminate();
 
 			lk.unlock();
-            pEngine->cv.notify_one();
-            pEngine->m_RunLock.lock();
+			pEngine->cv.notify_one();
+			pEngine->m_RunLock.lock();
 
 			return;
+		}
+		else
+		{
+			while (!pEngine->Renders.empty())
+			{
+				auto pair = pEngine->Renders.back();
+				pEngine->Renders.pop_back();
+
+				if (pair.second->CreateShaderProgram())
+				{
+					m_pSceneMgr->m_pRendererMgr->addRender(pair.first,pair.second);
+				}
+				else
+				{
+					// shutdown and clean
+					glfwTerminate();
+
+					lk.unlock();
+					pEngine->cv.notify_one();
+					pEngine->m_RunLock.lock();
+
+					return;
+				}
+			}
 		}
 
 		// Init input mode
 		pEngine->InitEngine();
+
+		auto pShadowRender = dynamic_cast<ShadowMapRender*>
+			(pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
+		if (pShadowRender)
+			pShadowRender->InitShadowMapRender();
 
 		// Init camera params and set input callback func
 		m_pSceneMgr->InitCameraStatus(m_pWindowMgr->GetWindowHandle());
@@ -163,12 +186,6 @@ namespace cxc {
 
 		m_pSceneMgr->initResources();
 
-		if (!m_pSceneMgr->InitShadowShader())
-		{
-			std::cerr << "Failed to init shadow shader"<<std::endl;
-			return;
-		}
-
 		// Construct Octree
 		m_pSceneMgr->BuildOctree();
 
@@ -177,9 +194,6 @@ namespace cxc {
 
 		// release buffers resources
 		m_pSceneMgr->releaseBuffers();
-
-		// release program resources
-		m_pSceneMgr->m_pRendererMgr->releaseResources();
 
 		// Release texture resources
 		m_pSceneMgr->m_pTextureMgr->RemoveAllTexture();
@@ -245,27 +259,14 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	GLboolean EngineFacade::LoadShader(const std::string &name,
-									const std::string &vertex_shader_path,
-									const std::string &fragment_shader_path)
+	void EngineFacade::ActiveRender(const std::string &name)
 	{
+		m_pSceneMgr->m_pRendererMgr->ActivateRender(name);
+	}
 
-		if (!m_pSceneMgr->m_pRendererMgr->isShaderLoaded(name)) {
-			ProgramStruct m_ProgramStruct;
-			if (!m_pSceneMgr->m_pRendererMgr->CreateShaderProgram(m_ProgramStruct, vertex_shader_path, fragment_shader_path))
-				return GL_FALSE;
-			m_pSceneMgr->m_pRendererMgr->AddProgram(name, m_ProgramStruct);
-
-			m_pSceneMgr->m_pRendererMgr->ActiveShader(name);
-
-			ProgramName = name;
-			return GL_TRUE;
-		}
-		else
-			m_pSceneMgr->m_pRendererMgr->ActiveShader(name);
-
-		ProgramName = name;
-		return GL_TRUE;
+	void EngineFacade::addShader(const std::string &name, BaseRender *Render)
+	{
+		Renders.emplace_back(std::make_pair(name,Render));
 	}
 
 	void EngineFacade::SetGravity(GLfloat x, GLfloat y, GLfloat z) noexcept
@@ -317,26 +318,39 @@ namespace cxc {
 			if (!CreateAndDisplayWindow(m_pWindowMgr->GetWindowWidth(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowTitle()))
 			{
 
-				// release program resources
-				m_pSceneMgr->m_pRendererMgr->releaseResources();
-
 				// shutdown and clean
 				glfwTerminate();
 				return;
 			}
 
-			if (!LoadShader(ProgramName, GetVertexShaderPath(),GetFragmentShaderPath()))
+			if (Renders.empty())
+				return;
+			else
 			{
-				// release program resources
-				m_pSceneMgr->m_pRendererMgr->releaseResources();
+				while(!Renders.empty())
+				{
+					auto pair = Renders.back();
+					Renders.pop_back();
 
-				// shutdown and clean
-				glfwTerminate();
- 				return;
+					if (pair.second->CreateShaderProgram())
+					{
+						m_pSceneMgr->m_pRendererMgr->addRender(pair.first,pair.second);
+					}
+					else
+					{
+						glfwTerminate();
+						return;
+					}
+				}
 			}
 
 			// Init input mode
 			InitEngine();
+
+			auto pShadowRender = dynamic_cast<ShadowMapRender*>
+				(m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
+			if (pShadowRender)
+				pShadowRender->InitShadowMapRender();
 
 			// Init camera params and set input callback func
 			m_pSceneMgr->InitCameraStatus(m_pWindowMgr->GetWindowHandle());
@@ -357,12 +371,6 @@ namespace cxc {
 
 			m_pSceneMgr->initResources();
 
-			if (!m_pSceneMgr->InitShadowShader())
-			{
-				std::cerr << "Failed to init shadow shader" << std::endl;
-				return;
-			}
-
 			// Contruct octree
 			m_pSceneMgr->BuildOctree();
 
@@ -371,9 +379,6 @@ namespace cxc {
 
 			// release buffers resources
 			m_pSceneMgr->releaseBuffers();
-
-			// release program resources
-			m_pSceneMgr->m_pRendererMgr->releaseResources();
 
 			// Release texture resources
 			m_pSceneMgr->m_pTextureMgr->RemoveAllTexture();
@@ -416,10 +421,12 @@ namespace cxc {
 		m_pWindowMgr->SetBackGroundColor(red,green,blue,alpha);
 	}
 
-	void EngineFacade::RenderingScenes() const noexcept
+	void EngineFacade::RenderingScenes() noexcept
 	{
-		m_pSceneMgr->RenderShadowShader();
+		ActiveRender("ShadowRender");
+		m_pSceneMgr->DrawShadowMap();
 
+		ActiveRender("StandardShader");
 		m_pSceneMgr->DrawScene();
 	}
 
