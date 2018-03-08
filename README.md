@@ -4,6 +4,7 @@
 
  **CxcEngine** is a tiny cross-platform OpenGL engine developed with C++ 11 which can be used in 3D graphics rendering, it supports muliti-thread redering, basic shading and model loading from obj format file which can be exported by 3DS MAX or blender.
 
+[Blinn-Phong shading with shadowmap](http://github.com/cxcscut/CxcEngine/raw/master/Img/Shading.bmp)
 ## Dependencies
 
 - **OpenGL Library**  
@@ -27,8 +28,6 @@ It is a robot hand simulation program in which you can load and draw the robot h
 
 [6-DOF Robot arm and 21-DOF dexterous hand simulation](http://github.com/cxcscut/CxcEngine/raw/master/Img/robot.bmp)
 
-### ODE-Test
-A demo for testing Open Dynamics Engine 
 
 ## Current Progress:
 
