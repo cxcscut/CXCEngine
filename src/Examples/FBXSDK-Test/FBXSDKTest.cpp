@@ -91,11 +91,15 @@ auto keycallback = [=](int key, int scancode, int action, int mods) {
 
 int main()
 {
+	glm::vec3 LightPos = glm::vec3(100,120,-200);
+
 	// Accquire engine pointer
 	auto pEngine = EngineFacade::GetInstance();
 	auto pRender = std::make_shared<BaseRender>(VertexShaderPath, FragmentShaderPath);
-	auto pShadow = std::make_shared<ShadowMapRender>(800,600,glm::vec3(0,50,-100),ShadowVS,ShadowFS);
-	pShadow->SetLightPos(glm::vec3(100,100,-100));
+	auto pShadow = std::make_shared<ShadowMapRender>(1920,1080, LightPos,ShadowVS,ShadowFS);
+	pShadow->SetLightPos(LightPos);
+	pShadow->SetLightSourceType(ShadowMapRender::LightSourceType::SpotLight);
+	pShadow->SetLightInvDir(LightPos);
 	// Engine configuration
 	{
 
@@ -104,15 +108,16 @@ int main()
 
 		pEngine->m_pWindowMgr->SetWindowHeight(600);
 		pEngine->m_pWindowMgr->SetWindowWidth(800);
+
 		// A "StandardShader must be provided"
-		pEngine->addShader("StandardShader", pRender.get());
+		pEngine->addShader("StandardRender", pRender.get());
 		pEngine->addShader("ShadowRender",pShadow.get());
 		pEngine->m_pWindowMgr->SetWindowTitle("Powered by CXCEngine");
 		pEngine->m_pWindowMgr->isDecoraded = true;
 
 		//pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 2000, 2000);
 		pEngine->m_pSceneMgr->m_pCamera->eye_pos = glm::vec3(0, 80, 80);
-		pEngine->m_pSceneMgr->SetLightPos(glm::vec3(0,50,-100));
+		pEngine->m_pSceneMgr->SetLightPos(LightPos);
 		//EngineFacade::KeyInputCallBack = keycallback;
 		pEngine->SetSceneSize(glm::vec3(0,0,0),4000);
 
@@ -164,11 +169,15 @@ int main()
 
 		auto sphere = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\sphere.obj","sphere");
 		//auto skeleton = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\skeleton.obj","skeleton");
-		auto env= std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj","env");
+		auto plane= std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj","env");
+		auto wall = std::make_shared<Object3D>("wall","G:\\EngintestObj\\wall.obj","env");
+		auto pole = std::make_shared<Object3D>("pole","G:\\EngintestObj\\pole.obj","env");
 		sphere->SetObjectGravityMode(1);
 
-		pEngine->addObject(env,true);
 		pEngine->addObject(sphere);
+		pEngine->addObject(plane,true);
+		pEngine->addObject(wall,true);
+		pEngine->addObject(pole,true);
 	}
 
 	// Adding user code here 

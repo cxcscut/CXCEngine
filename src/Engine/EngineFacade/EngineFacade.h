@@ -124,9 +124,6 @@ namespace cxc {
 
 		std::vector<std::pair<std::string, BaseRender*>> Renders;
 
-		// Must be call after Init()
-		void ActiveRender(const std::string &name);
-
 	public:
 
 		bool EngineInitilized;

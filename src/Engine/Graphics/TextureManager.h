@@ -21,6 +21,11 @@ namespace cxc {
 	class TextureManager final : public Singleton<TextureManager>
 	{
 
+		enum class TextureUnit : uint16_t {
+			UserTextureUnit,
+			ShadowTextureUnit
+		};
+
 	public:
 
 		friend Singleton<TextureManager>;

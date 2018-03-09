@@ -139,7 +139,6 @@ namespace cxc {
 
 
 	RendererManager::RendererManager()
-		: CurrentActiveRender(nullptr)
 	{
 	}
 
@@ -151,11 +150,17 @@ namespace cxc {
 	ShadowMapRender::ShadowMapRender(GLuint Width, GLuint Height,const glm::vec3 &lightpos,
 		const std::string &vertex_file_path, const std::string &fragment_file_path)
 		:m_FBO(0),depthTexture(0),BaseRender(vertex_file_path,fragment_file_path),
-		WindowWidth(Width),WindowHeight(Height),
-		depthProjectionMatrix(1.0f),depthViewMatrix(1.0f),
-		depthVP(1.0f),LightPosition(lightpos), LightPos(glm::vec3(0,100, 100))
+		WindowWidth(Width),WindowHeight(Height), ShadowCubeMap(0),
+		depthProjectionMatrix(1.0f),depthViewMatrix(1.0f), 
+		LightType(LightSourceType::ParallelLight),LightInvDir(glm::vec3(0.5f, 2, 2)),
+		depthVP(1.0f),LightPosition(lightpos)
 	{
-
+		CubeMapIterator[0] = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f) };
+		CubeMapIterator[1] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, glm::vec3(-1.0f,0.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f) };
+		CubeMapIterator[2] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f) };
+		CubeMapIterator[3] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, glm::vec3(0.0f,-1.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f) };
+		CubeMapIterator[4] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,-1.0f,0.0f) };
+		CubeMapIterator[5] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,-1.0f,0.0f) };
 	}
 
 	ShadowMapRender::~ShadowMapRender()
@@ -163,14 +168,27 @@ namespace cxc {
 	
 	}
 
+	void ShadowMapRender::SetTransformationMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept
+	{
+		depthProjectionMatrix = Projection;
+		depthViewMatrix = View;
+
+		depthVP = Projection * View;
+	}
+
 	void ShadowMapRender::SetLightPos(const glm::vec3 &pos) noexcept
 	{
-		LightPos = pos;
+		LightPosition = pos;
+	}
+
+	ShadowMapRender::CubeMapCameraPose* ShadowMapRender::GetCameraPose() noexcept
+	{
+		return CubeMapIterator;
 	}
 
 	glm::vec3 ShadowMapRender::GetLightPos() const noexcept
 	{
-		return LightPos;
+		return LightPosition;
 	}
 
 	GLuint ShadowMapRender::GetFBO() const noexcept
@@ -198,43 +216,104 @@ namespace cxc {
 		return depthTexture;
 	}
 
+	void ShadowMapRender::SetLightSourceType(LightSourceType type) noexcept
+	{
+		LightType = type;
+	}
+
+	void ShadowMapRender::SetLightInvDir(const glm::vec3 & dir) noexcept
+	{
+		LightInvDir = dir;
+	}
+
+	ShadowMapRender::LightSourceType ShadowMapRender::GetLightSourceType() const noexcept
+	{
+		return LightType;
+	}
+
+	glm::vec3 ShadowMapRender::GetLightInvDir() const noexcept
+	{
+		return LightInvDir;
+	}
+
+	GLuint ShadowMapRender::GetShadowCubeMap() const noexcept
+	{
+		return ShadowCubeMap;
+	}
+
 	bool ShadowMapRender::InitShadowMapRender() noexcept
 	{
-
-		// Parallel light
-		depthProjectionMatrix = glm::ortho<float>(-100, 100, -100, 100, -100, 200);
-		depthViewMatrix = glm::lookAt(LightPos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-		depthVP = depthProjectionMatrix * depthViewMatrix;
-
 		// Create framebuffer object for rendering
 		glGenFramebuffers(1, &m_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
-		// Depth texture
-		glGenTextures(1, &depthTexture);
-		glBindTexture(GL_TEXTURE_2D, depthTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, WindowWidth,
-			WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		if (LightType == ShadowMapRender::LightSourceType::ParallelLight ||
+			LightType == ShadowMapRender::LightSourceType::SpotLight)
+		{
+			// Two pass shadow map
+			if (LightType == ShadowMapRender::LightSourceType::ParallelLight) {
+				// Parallel light
+				depthProjectionMatrix = glm::ortho<float>(-100, 100, -100, 100, -100, 200);
+				depthViewMatrix = glm::lookAt(LightPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+				depthVP = depthProjectionMatrix * depthViewMatrix;
+			}
+			else
+			{
+				// Spot Light
+				depthProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 1000.0f);
+				depthViewMatrix = glm::lookAt(LightPosition,LightPosition - LightInvDir,glm::vec3(0,1,0));
+				depthVP = depthProjectionMatrix * depthViewMatrix;
+			}
 
-		// Attach the depth texture to the depth attachment point
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+			// Depth texture
+			glGenTextures(1, &depthTexture);
+			glBindTexture(GL_TEXTURE_2D, depthTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, WindowWidth,
+				WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 
-		// Disable the color output
-		glDrawBuffer(GL_NONE);
+			// Attach the depth texture to the depth attachment point
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+
+			// Disable the color output and input
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+		}
+		else if (LightType == ShadowMapRender::LightSourceType::PointLight)
+		{
+			// Multipass shadow map with Point light
+
+			// Create Cube map for multipass
+			glGenTextures(1, &ShadowCubeMap);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, ShadowCubeMap);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+			for (uint16_t i = 0; i < 6; i++)
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT32, WindowWidth,WindowHeight, 0 , GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+
+			// Disable  the color output and input
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+		}
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
 			std::cerr << "Framebuffer is not complete" << std::endl;
 
-			if(m_FBO)
+			if (m_FBO)
 				glDeleteFramebuffers(1, &m_FBO);
-			if(depthTexture)
+			if (depthTexture)
 				glDeleteTextures(1, &depthTexture);
 
 			return false;
@@ -271,23 +350,6 @@ namespace cxc {
 		auto it = m_Renders.find(name);
 		if (it != m_Renders.end())
 			m_Renders.erase(it);
-	}
-
-	void RendererManager::ActivateRender(const std::string &name) noexcept
-	{
-		auto it = m_Renders.find(name);
-		if (it != m_Renders.end()) {
-			it->second->ActiveShader();
-			CurrentActiveRender = it->second;
-		}
-	}
-
-	GLuint RendererManager::GetCurrentActiveProgramID() const noexcept
-	{
-		if (CurrentActiveRender)
-			return CurrentActiveRender->GetProgramID();
-		else
-			return 0;
 	}
 
 }

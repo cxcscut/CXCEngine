@@ -240,6 +240,11 @@ namespace cxc {
 
 	void SceneManager::AddObject(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr,bool isKinematics) noexcept
 	{
+		if (!ObjectPtr->CheckLoaded())
+		{
+			std::cerr << "Failed to add Object " << ObjectPtr->GetObjectName() << std::endl;
+			return;
+		}
 		m_ObjectMap.insert(std::make_pair(ObjectName, ObjectPtr));
 
 		ObjectPtr->isKinematics = isKinematics;
@@ -249,20 +254,123 @@ namespace cxc {
 		UpdateBoundary(ObjectPtr->GetAABB());
 	}
 
+	void SceneManager::DrawSceneWithPointLight(ShadowMapRender *pRender) noexcept
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+
+		// Draw 6 faces of cube map
+		for (uint16_t k = 0; k < 6; k++)
+		{
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			auto pCameraPose = pRender->GetCameraPose();
+
+			// Draw shadow of one face into the cube map 
+			glBindFramebuffer(GL_FRAMEBUFFER,pRender->GetFBO());
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pRender->GetShadowCubeMap(), 0);
+			
+			// Set the depth matrix correspondingly
+			pRender->SetTransformationMatrix(glm::perspective(glm::radians(90.0f), 4.0f / 3.0f, 0.1f, 1000.0f),
+				glm::lookAt(pRender->GetLightPos(), pRender->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector));
+
+			for (auto pObject : m_ObjectMap)
+				if (pObject.second->isEnable())
+					pObject.second->DrawShadow(pRender);
+		}
+
+		// Draw scene
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
+		if (!pRoot) {
+			// if Octree has not been built, draw all the objects
+			for (auto pObject : m_ObjectMap)
+				if (pObject.second->isEnable())
+					pObject.second->DrawObjectWithPointLight();
+		}
+		else
+		{
+			std::queue<std::shared_ptr<OctreeNode>> q;
+
+			q.push(pRoot);
+
+			// Tranversing octree tree and perform frustum culling
+			while (!q.empty())
+			{
+				auto pNode = q.front();
+				q.pop();
+
+				if (pNode->isLeaf)
+				{
+					for (auto pObject : pNode->Objects)
+					{
+						if (!pObject.second->isEnable())
+							continue;
+
+						auto AABB = pObject.second->GetAABB();
+						if (m_pCamera->isRectInFrustum(AABB.max, AABB.min))
+							hash.insert(pObject.second);
+					}
+				}
+				else
+				{
+					for (std::size_t k = 0; k < 8; k++)
+					{
+						auto pChildNode = pRoot->FindNode(pNode->code + std::to_string(k));
+						if (m_pCamera->isRectInFrustum(pChildNode->AABB.max, pChildNode->AABB.min))
+							q.push(pChildNode);
+					}
+				}
+			}
+
+			//std::cout << "Drawing " << hash.size() << " objects" << std::endl;
+			// Draw the remaining objects
+			for (auto piter = hash.begin(); piter != hash.end(); piter++)
+				(*piter)->DrawObjectWithPointLight();
+
+			hash.clear();
+		}
+	}
+
 	void SceneManager::DrawShadowMap() noexcept
 	{
+		auto pShadowRender = dynamic_cast<ShadowMapRender*>(m_pRendererMgr->GetRenderPtr("ShadowRender"));
+		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
+			return;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetFBO());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+
 		for (auto pObject : m_ObjectMap)
 			if (pObject.second->isEnable())
-				pObject.second->DrawShadow();
+				pObject.second->DrawShadow(pShadowRender);
 	}
 
 	void SceneManager::DrawScene() noexcept
 	{
-		GLint ProgramID = m_pRendererMgr->GetCurrentActiveProgramID();
+		auto pEngine = EngineFacade::GetInstance();
+		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
+		if (!pRender) return;
+
+		GLint ProgramID = pRender->GetProgramID();
 		if (ProgramID < 0)
 			return;
 
 		glUseProgram(ProgramID);
+
+		// Draw the scene on screen
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 		if (!pRoot) {
 			// if Octree has not been built, draw all the objects
@@ -326,7 +434,10 @@ namespace cxc {
 
 	void SceneManager::BindCameraUniforms() const noexcept
 	{
-		auto ActiveProgramID = m_pRendererMgr->GetCurrentActiveProgramID();
+		auto pEngine = EngineFacade::GetInstance();
+		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
+		if (!pRender) return;
+		auto ActiveProgramID = pRender->GetProgramID();;
 		m_pCamera->BindCameraUniforms(ActiveProgramID);
 	}
 

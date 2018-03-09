@@ -9,6 +9,7 @@ in vec4 ShadowCoord;
 
 uniform sampler2D Sampler;
 uniform sampler2DShadow shadowmap;
+uniform samplerCube shadowmapCube;
 
 out vec3 color;
 uniform vec3 LightPosition_worldspace;
@@ -16,6 +17,7 @@ uniform vec3 Kd;
 uniform vec3 Ks;
 uniform vec3 Ka;
 uniform int isUseTex;
+uniform int isPointLight;
 
 vec2 poissonDisk[16] = vec2[]( 
    vec2( -0.94201624, -0.39906216 ), 
@@ -57,16 +59,18 @@ void main()
 	float cos_theta = clamp(dot(normalize(Normal_cameraspace),normalize(LightDirection_cameraspace)),0,1);
 	float cos_alpha = clamp(dot(normalize(Normal_cameraspace),H),0,1);
 
-	float bias = 0.005;
+	float bias = clamp(0.0001*tan(acos(cos_theta)),0,0.00001);
 
 	float visibility = 1.0;
 
 	// 4x sampling
 	for (int i=0;i<4;i++){
-	
-		int index = i;
-
-		visibility -= 0.2*(1.0-texture( shadowmap, vec3(ShadowCoord.xy + poissonDisk[index]/700.0,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
+		if(isPointLight > 0){
+			 visibility -= 0.2*(1.0-textureCube( shadowmapCube, vec4((ShadowCoord.xyz + poissonDisk[i]/700.0)/ShadowCoord.w,  (ShadowCoord.z-bias)/ShadowCoord.w)));
+		}
+		else{
+			visibility -= 0.2*(1.0-texture( shadowmap, vec3((ShadowCoord.xy + poissonDisk[i]/700.0)/ShadowCoord.w,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
+		}
 	}
 
 	vec3 MaterialAmbientColor = Ka * vec3(0.3,0.3,0.3);
@@ -75,7 +79,7 @@ void main()
 	if(isUseTex > 0)
 		MaterialDiffuseColor = LightColor * LightPower * cos_theta * texture2D(Sampler,UV) / distance;
 	else
-		MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / (distance * distance);
+		MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / distance;
 
 	vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha,shineness) / distance;
 

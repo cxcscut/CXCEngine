@@ -51,6 +51,18 @@ namespace cxc {
 	{
 	public:
 
+		using CubeMapCameraPose = struct CubeMapCameraPose {
+			GLenum CubeMapFace;
+			glm::vec3 Direction;
+			glm::vec3 UpVector;
+		};
+
+		enum class LightSourceType : uint16_t{
+			ParallelLight, 
+			SpotLight, 
+			PointLight
+		};
+
 		ShadowMapRender(GLuint WindowWidth, GLuint WindowHeight, const glm::vec3 &lightPos,
 			const std::string &vertex_file_path, const std::string &fragment_file_path);
 		~ShadowMapRender();
@@ -64,14 +76,26 @@ namespace cxc {
 		glm::vec3 GetLightPos() const noexcept;
 		void SetLightPos(const glm::vec3 &pos) noexcept;
 		GLuint GetDepthTexture() const noexcept;
+		void SetLightSourceType(LightSourceType type) noexcept;
+		LightSourceType GetLightSourceType() const noexcept;
+		void SetLightInvDir(const glm::vec3 & dir) noexcept;
+		glm::vec3 GetLightInvDir() const noexcept;
+		CubeMapCameraPose* GetCameraPose() noexcept;
+		GLuint GetShadowCubeMap() const noexcept;
 
+		void SetTransformationMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept;
 	private:
 
 		GLuint m_FBO, depthTexture;
 		GLuint WindowWidth, WindowHeight;
 
-		glm::vec3 LightPosition,LightPos;
+		glm::vec3 LightPosition,LightInvDir;
 		glm::mat4 depthProjectionMatrix, depthViewMatrix,depthVP;
+		LightSourceType LightType;
+
+		// for point light source
+		GLuint ShadowCubeMap;
+		CubeMapCameraPose CubeMapIterator[6];
 	};
 
 	class RendererManager final : public Singleton<RendererManager>
@@ -93,15 +117,12 @@ namespace cxc {
 		GLint GetRenderProgramID(const std::string &name) const noexcept;
 		void addRender(const std::string &name,BaseRender * pRender) noexcept;
 		void deleteRender(const std::string &name) noexcept;
-		void ActivateRender(const std::string &name) noexcept;
-		GLuint GetCurrentActiveProgramID() const noexcept ;
 		BaseRender* GetRenderPtr(const std::string &name) noexcept;
 
 	// Private date
 	private:
 
 		std::unordered_map<std::string,BaseRender*> m_Renders;
-		BaseRender *CurrentActiveRender;
 	};
 }
 

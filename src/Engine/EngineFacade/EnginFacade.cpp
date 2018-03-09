@@ -25,7 +25,10 @@ namespace cxc {
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)
 	{
 		auto pEngine = EngineFacade::GetInstance();
-		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetCurrentActiveProgramID();
+		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
+		if (!pRender) return;
+
+		auto ProgramID = pRender->GetProgramID();
 		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
 
 		double dx = x-_x, dy = y-_y;
@@ -73,7 +76,10 @@ namespace cxc {
 	{
 		auto pEngine = EngineFacade::GetInstance();
 		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
-		auto CurrentProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetCurrentActiveProgramID();
+		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
+		if (!pRender) return;
+
+		auto CurrentProgramID = pRender->GetProgramID();
 		auto camera = pEngine->m_pSceneMgr->m_pCamera;
 		if (!wHandle) return;
 
@@ -259,11 +265,6 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	void EngineFacade::ActiveRender(const std::string &name)
-	{
-		m_pSceneMgr->m_pRendererMgr->ActivateRender(name);
-	}
-
 	void EngineFacade::addShader(const std::string &name, BaseRender *Render)
 	{
 		Renders.emplace_back(std::make_pair(name,Render));
@@ -423,11 +424,18 @@ namespace cxc {
 
 	void EngineFacade::RenderingScenes() noexcept
 	{
-		ActiveRender("ShadowRender");
-		m_pSceneMgr->DrawShadowMap();
-
-		ActiveRender("StandardShader");
-		m_pSceneMgr->DrawScene();
+		auto pShadow = dynamic_cast<ShadowMapRender*>(m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
+		if (pShadow->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight) 
+		{
+			// Point light
+			m_pSceneMgr->DrawSceneWithPointLight(pShadow);
+		}
+		else
+		{
+			// Parallel light or spot light
+			m_pSceneMgr->DrawShadowMap();
+			m_pSceneMgr->DrawScene();
+		}
 	}
 
 	void EngineFacade::ProcessingPhysics() noexcept

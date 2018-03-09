@@ -853,17 +853,129 @@ namespace cxc {
 			shape.second->setGravityMode(mode);
 	}
 
-	void Object3D::DrawObject() noexcept
+	void Object3D::DrawObjectWithPointLight() noexcept
 	{
 		auto pEngine = EngineFacade::GetInstance();
-		auto ProgramID = pEngine->m_pSceneMgr->m_pRendererMgr->GetCurrentActiveProgramID();
+		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
+		if (!pRender) return;
+		auto ProgramID = pRender->GetProgramID();
 
 		auto pShadowRender = dynamic_cast<ShadowMapRender*>(pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
 		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
 			return;
 
-		// Draw the scene on screen
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glUseProgram(ProgramID);
+		glViewport(0, 0, pEngine->m_pWindowMgr->GetWindowWidth(), pEngine->m_pWindowMgr->GetWindowHeight());
+
+		pEngine->m_pSceneMgr->BindCameraUniforms();
+		pEngine->m_pSceneMgr->BindLightingUniforms(ProgramID);
+
+		glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
+
+		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
+		GLuint texflag_loc = glGetUniformLocation(ProgramID, "isUseTex");
+		GLuint depthBiasMVP_loc = glGetUniformLocation(ProgramID, "depthBiasMVP");
+		GLuint ShadowCubeSampler_loc = glGetUniformLocation(ProgramID, "shadowmapCube");
+		GLuint isPointLight_loc = glGetUniformLocation(ProgramID,"isPointLight");
+
+		glUniform1i(texflag_loc, 0);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// Using texture
+		for (auto tex_name : m_TexNames)
+		{
+			auto tex_ptr = pEngine->m_pSceneMgr->m_pTextureMgr->GetTexPtr(tex_name);
+			if (tex_ptr)
+			{
+				// Bind the object's texture to texture unit 0
+				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureManager::TextureUnit::UserTextureUnit);
+				glBindTexture(GL_TEXTURE_2D, tex_ptr->GetTextureID());
+
+				glUniform1i(TexSamplerHandle, 0);
+				glUniform1i(texflag_loc, 1);
+			}
+		}
+
+		glBindVertexArray(VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_A);
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::TEXTURE_LOCATION), 2, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(0)); // Texcoords
+
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec2))); // Normal
+
+		uint32_t offset, idx_num;
+
+		// the bias for depthMVP to map the NDC coordinate from [-1,1] to [0,1] which is a necessity for texture sampling
+		glm::mat4 biasMatrix(
+			0.5, 0.0, 0.0, 0.0,
+			0.0, 0.5, 0.0, 0.0,
+			0.0, 0.0, 0.5, 0.0,
+			0.5, 0.5, 0.5, 1.0
+		);
+
+		glm::mat4 depthBiasMVP;
+
+		// Bind depth texture to the texture unit 1
+		// We use texture unit 0 for the objectss texture sampling 
+		// while texture unit 1 for depth buffer sampling
+		glActiveTexture(GL_TEXTURE0 + (GLuint)TextureManager::TextureUnit::ShadowTextureUnit);
+		glBindTexture(GL_TEXTURE_2D, pShadowRender->GetShadowCubeMap());
+		glUniform1i(ShadowCubeSampler_loc, 1);
+		glUniform1i(isPointLight_loc, 1);
+
+		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
+		GLuint Ka_loc = glGetUniformLocation(ProgramID, "Ka");
+		GLuint Ks_loc = glGetUniformLocation(ProgramID, "Ks");
+		GLuint Kd_loc = glGetUniformLocation(ProgramID, "Kd");
+
+		for (auto shape : m_ModelMap) {
+
+			glUniform3f(Ka_loc, m_Material[shape.first].ambient[0], m_Material[shape.first].ambient[1], m_Material[shape.first].ambient[2]);
+			glUniform3f(Kd_loc, m_Material[shape.first].diffuse[0], m_Material[shape.first].diffuse[1], m_Material[shape.first].diffuse[2]);
+			glUniform3f(Ks_loc, m_Material[shape.first].specular[0], m_Material[shape.first].specular[1], m_Material[shape.first].specular[2]);
+
+			auto model_matrix = shape.second->getTransMatrix();
+
+			// Offset in memory
+			offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
+			idx_num = shape.second->GetVertexIndices().size();
+
+			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &model_matrix[0][0]);
+			
+			auto pCameraPose = pShadowRender->GetCameraPose();
+
+			for (uint16_t k = 0; k < 6; k++) {
+
+				auto depthVP = glm::perspective(glm::radians(90.0f), 4.0f / 3.0f, 0.1f, 1000.0f) *
+					glm::lookAt(pShadowRender->GetLightPos(), pShadowRender->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector);
+
+				depthBiasMVP = biasMatrix * pShadowRender->GetDepthVP() * shape.second->getTransMatrix();
+				glUniformMatrix4fv(depthBiasMVP_loc, 1, GL_FALSE, &depthBiasMVP[0][0]);
+				// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
+				glDrawElements(GL_TRIANGLES, idx_num, GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
+			}
+		}
+	}
+
+	void Object3D::DrawObject() noexcept
+	{
+		auto pEngine = EngineFacade::GetInstance();
+		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
+		if (!pRender) return;
+		auto ProgramID = pRender->GetProgramID();
+
+		auto pShadowRender = dynamic_cast<ShadowMapRender*>(pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
+		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
+			return;
+
+		glUseProgram(ProgramID);
 		glViewport(0,0,pEngine->m_pWindowMgr->GetWindowWidth(),pEngine->m_pWindowMgr->GetWindowHeight());
 
 		pEngine->m_pSceneMgr->BindCameraUniforms();
@@ -887,13 +999,11 @@ namespace cxc {
 			if (tex_ptr)
 			{
 				// Bind the object's texture to texture unit 0
-				glActiveTexture(GL_TEXTURE0);
+				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureManager::TextureUnit::UserTextureUnit);
 				glBindTexture(GL_TEXTURE_2D, tex_ptr->GetTextureID());
 
 				glUniform1i(TexSamplerHandle,0);
-
 				glUniform1i(texflag_loc, 1);
-
 			}
 		}
 
@@ -912,7 +1022,7 @@ namespace cxc {
 
 		uint32_t offset, idx_num;
 
-		// the bias for depthMVP
+		// the bias for depthMVP to map the NDC coordinate from [-1,1] to [0,1] which is a necessity for texture sampling
 		glm::mat4 biasMatrix(
 			0.5, 0.0, 0.0, 0.0,
 			0.0, 0.5, 0.0, 0.0,
@@ -923,19 +1033,21 @@ namespace cxc {
 		glm::mat4 depthBiasMVP; 
 
 		// Bind depth texture to the texture unit 1
-		glActiveTexture(GL_TEXTURE1);
+		// We use texture unit 0 for the objectss texture sampling 
+		// while texture unit 1 for depth buffer sampling
+		glActiveTexture(GL_TEXTURE0 + (GLuint)TextureManager::TextureUnit::ShadowTextureUnit);
 		glBindTexture(GL_TEXTURE_2D, pShadowRender->GetDepthTexture());
 		glUniform1i(ShadowMapSampler_loc, 1);
+
+		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
+		GLuint Ka_loc = glGetUniformLocation(ProgramID, "Ka");
+		GLuint Ks_loc = glGetUniformLocation(ProgramID, "Ks");
+		GLuint Kd_loc = glGetUniformLocation(ProgramID, "Kd");
 
 		for (auto shape : m_ModelMap) {
 
 			depthBiasMVP = biasMatrix * pShadowRender->GetDepthVP() * shape.second->getTransMatrix();
 			glUniformMatrix4fv(depthBiasMVP_loc,1,GL_FALSE,&depthBiasMVP[0][0]);
-
-			GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
-			GLuint Ka_loc = glGetUniformLocation(ProgramID,"Ka");
-			GLuint Ks_loc = glGetUniformLocation(ProgramID, "Ks");
-			GLuint Kd_loc = glGetUniformLocation(ProgramID, "Kd");
 
 			glUniform3f(Ka_loc,m_Material[shape.first].ambient[0], m_Material[shape.first].ambient[1], m_Material[shape.first].ambient[2]);
 			glUniform3f(Kd_loc,m_Material[shape.first].diffuse[0], m_Material[shape.first].diffuse[1], m_Material[shape.first].diffuse[2]);
@@ -954,19 +1066,11 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::DrawShadow() noexcept
+	void Object3D::DrawShadow(ShadowMapRender* pShadowRender) noexcept
 	{
 		auto pEngine = EngineFacade::GetInstance();
-		auto pShadowRender = dynamic_cast<ShadowMapRender*>(pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
-		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
-			return;
 
-		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetFBO());
 		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(pShadowRender->GetProgramID());
 

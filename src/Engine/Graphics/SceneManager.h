@@ -181,6 +181,7 @@ namespace cxc {
 
 		void DrawScene() noexcept;
 		void DrawShadowMap() noexcept;
+		void DrawSceneWithPointLight(ShadowMapRender *pRender) noexcept;
 
 		void initResources() noexcept;
 
