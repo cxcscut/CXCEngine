@@ -59,19 +59,25 @@ void main()
 	float cos_theta = clamp(dot(normalize(Normal_cameraspace),normalize(LightDirection_cameraspace)),0,1);
 	float cos_alpha = clamp(dot(normalize(Normal_cameraspace),H),0,1);
 
-	float bias = clamp(0.0001*tan(acos(cos_theta)),0,0.00001);
+	float bias = 0.0005;
 
 	float visibility = 1.0;
 
 	// 4x sampling
 	for (int i=0;i<4;i++){
+
+		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
+
 		if(isPointLight > 0){
-			 visibility -= 0.2*(1.0-textureCube( shadowmapCube, vec4((ShadowCoord.xyz + poissonDisk[i]/700.0)/ShadowCoord.w,  (ShadowCoord.z-bias)/ShadowCoord.w)));
+			if ( texture( shadowmapCube, Position_worldspace - LightPosition_worldspace + poissonDisk[index]/700.0 ).z  <  ShadowCoord.z-bias ){
+				visibility-=0.2;
+			}		
 		}
 		else{
-			visibility -= 0.2*(1.0-texture( shadowmap, vec3((ShadowCoord.xy + poissonDisk[i]/700.0)/ShadowCoord.w,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
+			visibility -= 0.2*(1.0-texture( shadowmap, vec3((ShadowCoord.xy + poissonDisk[index]/700.0)/ShadowCoord.w,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
 		}
 	}
+	
 
 	vec3 MaterialAmbientColor = Ka * vec3(0.3,0.3,0.3);
 	vec3 MaterialDiffuseColor;

@@ -926,7 +926,7 @@ namespace cxc {
 		// We use texture unit 0 for the objectss texture sampling 
 		// while texture unit 1 for depth buffer sampling
 		glActiveTexture(GL_TEXTURE0 + (GLuint)TextureManager::TextureUnit::ShadowTextureUnit);
-		glBindTexture(GL_TEXTURE_2D, pShadowRender->GetShadowCubeMap());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, pShadowRender->GetShadowCubeMap());
 		glUniform1i(ShadowCubeSampler_loc, 1);
 		glUniform1i(isPointLight_loc, 1);
 
@@ -951,16 +951,13 @@ namespace cxc {
 			
 			auto pCameraPose = pShadowRender->GetCameraPose();
 
-			for (uint16_t k = 0; k < 6; k++) {
+			auto depthVP = glm::perspective(glm::radians(90.0f), 4.0f / 3.0f, 0.1f, 1000.0f) *
+				glm::lookAt(pShadowRender->GetLightPos(), pShadowRender->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector);
 
-				auto depthVP = glm::perspective(glm::radians(90.0f), 4.0f / 3.0f, 0.1f, 1000.0f) *
-					glm::lookAt(pShadowRender->GetLightPos(), pShadowRender->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector);
-
-				depthBiasMVP = biasMatrix * pShadowRender->GetDepthVP() * shape.second->getTransMatrix();
-				glUniformMatrix4fv(depthBiasMVP_loc, 1, GL_FALSE, &depthBiasMVP[0][0]);
-				// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
-				glDrawElements(GL_TRIANGLES, idx_num, GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
-			}
+			depthBiasMVP = biasMatrix * depthVP * shape.second->getTransMatrix();
+			glUniformMatrix4fv(depthBiasMVP_loc, 1, GL_FALSE, &depthBiasMVP[0][0]);
+			// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
+			glDrawElements(GL_TRIANGLES, idx_num, GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
 		}
 	}
 

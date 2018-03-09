@@ -256,6 +256,9 @@ namespace cxc {
 
 	void SceneManager::DrawSceneWithPointLight(ShadowMapRender *pRender) noexcept
 	{
+		auto pEngine = EngineFacade::GetInstance();
+		auto pWindowMgr = pEngine->m_pWindowMgr;
+
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 
@@ -267,7 +270,8 @@ namespace cxc {
 			auto pCameraPose = pRender->GetCameraPose();
 
 			// Draw shadow of one face into the cube map 
-			glBindFramebuffer(GL_FRAMEBUFFER,pRender->GetFBO());
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER,pRender->GetFBO());
+			glViewport(0,0,pRender->GetWidth(),pRender->GetHeight());
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pRender->GetShadowCubeMap(), 0);
 			
 			// Set the depth matrix correspondingly
@@ -281,9 +285,9 @@ namespace cxc {
 
 		// Draw scene
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0,0,pWindowMgr->GetWindowWidth(),pWindowMgr->GetWindowHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
 		if (!pRoot) {
