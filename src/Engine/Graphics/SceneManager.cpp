@@ -254,92 +254,6 @@ namespace cxc {
 		UpdateBoundary(ObjectPtr->GetAABB());
 	}
 
-	void SceneManager::DrawSceneWithPointLight(ShadowMapRender *pRender) noexcept
-	{
-		auto pEngine = EngineFacade::GetInstance();
-		auto pWindowMgr = pEngine->m_pWindowMgr;
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-
-		// Draw 6 faces of cube map
-		for (uint16_t k = 0; k < 6; k++)
-		{
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			auto pCameraPose = pRender->GetCameraPose();
-
-			// Draw shadow of one face into the cube map 
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER,pRender->GetFBO());
-			glViewport(0,0,pRender->GetWidth(),pRender->GetHeight());
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pRender->GetShadowCubeMap(), 0);
-			
-			// Set the depth matrix correspondingly
-			pRender->SetTransformationMatrix(glm::perspective(glm::radians(90.0f), 4.0f / 3.0f, 0.1f, 1000.0f),
-				glm::lookAt(pRender->GetLightPos(), pRender->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector));
-
-			for (auto pObject : m_ObjectMap)
-				if (pObject.second->isEnable())
-					pObject.second->DrawShadow(pRender);
-		}
-
-		// Draw scene
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0,0,pWindowMgr->GetWindowWidth(),pWindowMgr->GetWindowHeight());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glCullFace(GL_BACK);
-
-		if (!pRoot) {
-			// if Octree has not been built, draw all the objects
-			for (auto pObject : m_ObjectMap)
-				if (pObject.second->isEnable())
-					pObject.second->DrawObjectWithPointLight();
-		}
-		else
-		{
-			std::queue<std::shared_ptr<OctreeNode>> q;
-
-			q.push(pRoot);
-
-			// Tranversing octree tree and perform frustum culling
-			while (!q.empty())
-			{
-				auto pNode = q.front();
-				q.pop();
-
-				if (pNode->isLeaf)
-				{
-					for (auto pObject : pNode->Objects)
-					{
-						if (!pObject.second->isEnable())
-							continue;
-
-						auto AABB = pObject.second->GetAABB();
-						if (m_pCamera->isRectInFrustum(AABB.max, AABB.min))
-							hash.insert(pObject.second);
-					}
-				}
-				else
-				{
-					for (std::size_t k = 0; k < 8; k++)
-					{
-						auto pChildNode = pRoot->FindNode(pNode->code + std::to_string(k));
-						if (m_pCamera->isRectInFrustum(pChildNode->AABB.max, pChildNode->AABB.min))
-							q.push(pChildNode);
-					}
-				}
-			}
-
-			//std::cout << "Drawing " << hash.size() << " objects" << std::endl;
-			// Draw the remaining objects
-			for (auto piter = hash.begin(); piter != hash.end(); piter++)
-				(*piter)->DrawObjectWithPointLight();
-
-			hash.clear();
-		}
-	}
-
 	void SceneManager::DrawShadowMap() noexcept
 	{
 		auto pShadowRender = dynamic_cast<ShadowMapRender*>(m_pRendererMgr->GetRenderPtr("ShadowRender"));
@@ -347,14 +261,36 @@ namespace cxc {
 			return;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetFBO());
+		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
+		if (pShadowRender->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight)
+		{
+			// Draw 6 faces of cube map
+			for (uint16_t k = 0; k < 6; k++)
+			{
+				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		for (auto pObject : m_ObjectMap)
-			if (pObject.second->isEnable())
-				pObject.second->DrawShadow(pShadowRender);
+				auto pCameraPose = pShadowRender->GetCameraPose();
+
+				// Draw shadow of one face into the cube map 
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pShadowRender->GetShadowCubeMap(), 0);
+				// Set the depth matrix correspondingly
+				pShadowRender->SetTransformationMatrix(glm::perspective(90.0f, 1.0f, 1.0f, 10.0f),
+					glm::lookAt(pShadowRender->GetLightPos(), pShadowRender->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector));
+
+				for (auto pObject : m_ObjectMap)
+					if (pObject.second->isEnable())
+						pObject.second->DrawShadow(pShadowRender);
+			}
+		}
+		else {
+			for (auto pObject : m_ObjectMap)
+				if (pObject.second->isEnable())
+					pObject.second->DrawShadow(pShadowRender);
+		}
 	}
 
 	void SceneManager::DrawScene() noexcept

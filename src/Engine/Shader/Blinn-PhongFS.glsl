@@ -63,13 +63,15 @@ void main()
 
 	float visibility = 1.0;
 
+	vec3 LightDir = Position_worldspace - LightPosition_worldspace;
+
 	// 4x sampling
 	for (int i=0;i<4;i++){
 
 		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
 
 		if(isPointLight > 0){
-			if ( texture( shadowmapCube, Position_worldspace - LightPosition_worldspace + poissonDisk[index]/700.0 ).z  <  ShadowCoord.z-bias ){
+			if ( texture( shadowmapCube, LightDir + poissonDisk[index]/700.0 ).r <  distance - bias ){
 				visibility-=0.2;
 			}		
 		}
@@ -77,7 +79,6 @@ void main()
 			visibility -= 0.2*(1.0-texture( shadowmap, vec3((ShadowCoord.xy + poissonDisk[index]/700.0)/ShadowCoord.w,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
 		}
 	}
-	
 
 	vec3 MaterialAmbientColor = Ka * vec3(0.3,0.3,0.3);
 	vec3 MaterialDiffuseColor;
@@ -92,5 +93,4 @@ void main()
 	color = MaterialAmbientColor +
 			visibility * MaterialSpecularColor +
 			visibility * MaterialDiffuseColor;
-
 }

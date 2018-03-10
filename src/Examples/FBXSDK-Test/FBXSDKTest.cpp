@@ -91,14 +91,14 @@ auto keycallback = [=](int key, int scancode, int action, int mods) {
 
 int main()
 {
-	glm::vec3 LightPos = glm::vec3(50,80,0);
+	glm::vec3 LightPos = glm::vec3(50,50,-120);
 
 	// Accquire engine pointer
 	auto pEngine = EngineFacade::GetInstance();
 	auto pRender = std::make_shared<BaseRender>(VertexShaderPath, FragmentShaderPath);
 	auto pShadow = std::make_shared<ShadowMapRender>(1920,1080, LightPos,ShadowVS,ShadowFS);
 	pShadow->SetLightPos(LightPos);
-	pShadow->SetLightSourceType(ShadowMapRender::LightSourceType::PointLight);
+	pShadow->SetLightSourceType(ShadowMapRender::LightSourceType::SpotLight);
 	pShadow->SetLightInvDir(LightPos);
 	// Engine configuration
 	{
@@ -170,14 +170,14 @@ int main()
 		auto sphere = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\sphere.obj","sphere");
 		//auto skeleton = std::make_shared<Object3D>("o5", "G:\\EngintestObj\\skeleton.obj","skeleton");
 		auto plane= std::make_shared<Object3D>("plane","G:\\EngintestObj\\plane.obj","env");
-		//auto wall = std::make_shared<Object3D>("wall","G:\\EngintestObj\\wall.obj","env");
-		//auto pole = std::make_shared<Object3D>("pole","G:\\EngintestObj\\pole.obj","env");
+		auto wall = std::make_shared<Object3D>("wall","G:\\EngintestObj\\wall.obj","env");
+		auto pole = std::make_shared<Object3D>("pole","G:\\EngintestObj\\pole.obj","env");
 		sphere->SetObjectGravityMode(1);
 
 		pEngine->addObject(sphere);
 		pEngine->addObject(plane,true);
-		//pEngine->addObject(wall,true);
-		//pEngine->addObject(pole,true);
+		pEngine->addObject(wall,true);
+		pEngine->addObject(pole,true);
 	}
 
 	// Adding user code here 

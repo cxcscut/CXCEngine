@@ -424,18 +424,8 @@ namespace cxc {
 
 	void EngineFacade::RenderingScenes() noexcept
 	{
-		auto pShadow = dynamic_cast<ShadowMapRender*>(m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
-		if (pShadow->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight) 
-		{
-			// Point light
-			m_pSceneMgr->DrawSceneWithPointLight(pShadow);
-		}
-		else
-		{
-			// Parallel light or spot light
-			m_pSceneMgr->DrawShadowMap();
-			m_pSceneMgr->DrawScene();
-		}
+		m_pSceneMgr->DrawShadowMap();
+		m_pSceneMgr->DrawScene();
 	}
 
 	void EngineFacade::ProcessingPhysics() noexcept

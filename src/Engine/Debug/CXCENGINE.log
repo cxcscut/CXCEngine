@@ -1,4 +1,6 @@
-﻿  Object3D.cpp
+﻿  SceneManager.cpp
+  RendererManager.cpp
+  正在生成代码...
 FontsManager.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
 Font.obj : warning LNK4221: 此对象文件未定义任何之前未定义的公共符号，因此任何耗用此库的链接操作都不会使用此文件
   CXCENGINE.vcxproj -> G:\cxcengine\src\Engine\Debug\CXCENGINE.lib
