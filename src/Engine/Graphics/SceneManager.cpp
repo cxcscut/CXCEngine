@@ -260,9 +260,18 @@ namespace cxc {
 		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
 			return;
 
+		auto pCameraPose = pShadowRender->GetCameraPose();
+
 		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetFBO());
 		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		if (pShadowRender->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight) {
+			// Clear the six face of the cube map for the next rendering
+			for (uint16_t i = 0; i < 6; i++) {
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[i].CubeMapFace, pShadowRender->GetShadowCubeMap(), 0);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+		}
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
@@ -271,9 +280,7 @@ namespace cxc {
 			// Draw 6 faces of cube map
 			for (uint16_t k = 0; k < 6; k++)
 			{
-				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				auto pCameraPose = pShadowRender->GetCameraPose();
-
+				
 				// Draw shadow of one face into the cube map 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pShadowRender->GetShadowCubeMap(), 0);
 				glBindTexture(GL_TEXTURE_CUBE_MAP,pShadowRender->GetShadowCubeMap());
@@ -287,6 +294,7 @@ namespace cxc {
 			}
 		}
 		else {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			for (auto pObject : m_ObjectMap)
 				if (pObject.second->isEnable())
 					pObject.second->DrawShadow(pShadowRender);

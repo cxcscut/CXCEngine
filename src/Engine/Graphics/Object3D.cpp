@@ -975,12 +975,9 @@ namespace cxc {
 
 		glUseProgram(pShadowRender->GetProgramID());
 
-		GLuint depthVP_Loc = glGetUniformLocation(pShadowRender->GetProgramID(), "depthVP");
-		GLuint M_loc = glGetUniformLocation(pShadowRender->GetProgramID(), "M");
-		GLuint isPointLight_loc = glGetUniformLocation(pShadowRender->GetProgramID(), "isPointLight");
-		GLuint LightPos_loc = glGetUniformLocation(pShadowRender->GetProgramID(), "LightPosition_worldspace");
+		GLuint depthMVP_Loc = glGetUniformLocation(pShadowRender->GetProgramID(), "depthMVP");
 
-		glm::mat4 depthVP,M;
+		glm::mat4 depthMVP;
 		uint32_t offset;
 		uint32_t index_num;
 		
@@ -995,17 +992,9 @@ namespace cxc {
 		// Render to texture for all objects
 		for (auto shape : m_ModelMap)
 		{
-			depthVP = pShadowRender->GetDepthVP();
-			M = shape.second->getTransMatrix();
+			depthMVP = pShadowRender->GetDepthVP() * shape.second->getTransMatrix();
 			
-			if (pShadowRender->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight)
-			{
-				glUniform1i(isPointLight_loc, 1);
-				glUniform3i(LightPos_loc, pShadowRender->GetLightPos().x, pShadowRender->GetLightPos().y, pShadowRender->GetLightPos().z);
-			}
-
-			glUniformMatrix4fv(depthVP_Loc, 1, GL_FALSE, &depthVP[0][0]);
-			glUniformMatrix4fv(M_loc, 1, GL_FALSE, &M[0][0]);
+			glUniformMatrix4fv(depthMVP_Loc, 1, GL_FALSE, &depthMVP[0][0]);
 
 			offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
 			index_num = shape.second->GetVertexIndices().size();

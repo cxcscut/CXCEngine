@@ -12,5 +12,5 @@ newmtl wire_229166215
 	Kd 0.8980 0.6510 0.8431
 	Ks 0.3500 0.3500 0.3500
 	Ke 0.0000 0.0000 0.0000
-	map_Ka G:\EngintestObj\wall_1.jpg
-	map_Kd G:\EngintestObj\wall_1.jpg
+	map_Ka G:\cxcengine\src\Examples\FBXSDK-Test\Model\wall_1.jpg
+	map_Kd G:\cxcengine\src\Examples\FBXSDK-Test\Model\wall_1.jpg
