@@ -272,13 +272,13 @@ namespace cxc {
 			for (uint16_t k = 0; k < 6; k++)
 			{
 				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 				auto pCameraPose = pShadowRender->GetCameraPose();
 
 				// Draw shadow of one face into the cube map 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pShadowRender->GetShadowCubeMap(), 0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP,pShadowRender->GetShadowCubeMap());
 				// Set the depth matrix correspondingly
-				pShadowRender->SetTransformationMatrix(glm::perspective(90.0f, 1.0f, 1.0f, 10.0f),
+				pShadowRender->SetTransformationMatrix(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f),
 					glm::lookAt(pShadowRender->GetLightPos(), pShadowRender->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector));
 
 				for (auto pObject : m_ObjectMap)

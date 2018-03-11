@@ -45,6 +45,17 @@ float random(vec3 seed, int i){
 	return fract(sin(dot_product) * 43758.5453);
 }
 
+float VectorToDepthValue(vec3 Vec)
+{
+    vec3 AbsVec = abs(Vec);
+    float LocalZcomp = max(AbsVec.x, max(AbsVec.y, AbsVec.z));
+
+    const float f = 1000.0;
+    const float n = 0.1;
+    float NormZComp = (f+n) / (f-n) - (2*f*n)/(f-n)/LocalZcomp;
+    return (NormZComp + 1.0) * 0.5;
+}
+
 void main()
 {
 	
@@ -70,8 +81,10 @@ void main()
 
 		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
 
+		float testDepth = VectorToDepthValue(LightPosition_worldspace - Position_worldspace);
+
 		if(isPointLight > 0){
-			if ( texture( shadowmapCube, LightDir + poissonDisk[index]/700.0 ).r <  distance - bias ){
+			if ( textureCube( shadowmapCube, LightDir + poissonDisk[index]/700.0 ).z < testDepth - bias ){
 				visibility-=0.2;
 			}		
 		}

@@ -91,14 +91,14 @@ auto keycallback = [=](int key, int scancode, int action, int mods) {
 
 int main()
 {
-	glm::vec3 LightPos = glm::vec3(50,50,-120);
+	glm::vec3 LightPos = glm::vec3(150,50,0);
 
 	// Accquire engine pointer
 	auto pEngine = EngineFacade::GetInstance();
 	auto pRender = std::make_shared<BaseRender>(VertexShaderPath, FragmentShaderPath);
-	auto pShadow = std::make_shared<ShadowMapRender>(1920,1080, LightPos,ShadowVS,ShadowFS);
+	auto pShadow = std::make_shared<ShadowMapRender>(1920,1920, LightPos,ShadowVS,ShadowFS);
 	pShadow->SetLightPos(LightPos);
-	pShadow->SetLightSourceType(ShadowMapRender::LightSourceType::SpotLight);
+	pShadow->SetLightSourceType(ShadowMapRender::LightSourceType::PointLight);
 	pShadow->SetLightInvDir(LightPos);
 	// Engine configuration
 	{

@@ -164,7 +164,6 @@ namespace cxc {
 
 		Projection = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
 
-
 		View = glm::lookAt(
 			Position,
 			Position + Direction,
