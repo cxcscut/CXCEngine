@@ -5,7 +5,8 @@
  **CxcEngine** is a tiny cross-platform OpenGL engine developed with C++ 11 which can be used in 3D graphics rendering, it supports muliti-thread redering, basic shading and model loading from obj format file which can be exported by 3DS MAX or blender.
 
 [ShadowMapping of Directional light](http://github.com/cxcscut/CxcEngine/raw/master/Img/Shading.bmp)
-[ShadowMapping of Directional light](http://github.com/cxcscut/CxcEngine/raw/master/Img/Shading.bmp)
+
+[ShadowMapping of Omni-Directional light](http://github.com/cxcscut/CxcEngine/raw/master/Img/Omni-Directional ShadowMapping.bmp)
 
 ## Dependencies
 
