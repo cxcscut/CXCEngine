@@ -6,7 +6,7 @@
 
 ![ShadowMapping of Directional light](http://github.com/cxcscut/CxcEngine/raw/master/Img/Shading.bmp)
 
-![ShadowMapping of Omni-Directional light](http://github.com/cxcscut/CxcEngine/raw/master/Img/Omni-Directional ShadowMapping.bmp)
+![ShadowMapping of Omni-Directional light]
 
 ## Dependencies
 
