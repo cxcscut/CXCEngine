@@ -19,7 +19,7 @@ static const std::string plane_file = "G:\\cxcengine\\src\\Examples\\RobotSim\\M
 static const std::string table_file = "G:\\cxcengine\\srcsrc\\Examples\\RobotSim\\Model\\table.obj";
 
 static const std::string VertexShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
-static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\PhongFS.glsl";
+static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\Blinn-PhongFS.glsl";
 static const std::string ShadowVS = "G:\\cxcengine\\src\\Engine\\Shader\\depthTextureVS.glsl";
 static const std::string ShadowFS = "G:\\cxcengine\\src\\Engine\\Shader\\depthTextureFS.glsl";
 
@@ -103,15 +103,13 @@ auto keycallback = [=](int key, int scancode, int action, int mods) {
 
 int main()
 {
-	glm::vec3 LightPos = glm::vec3(50,100,-100);
+	glm::vec3 LightPos = glm::vec3(80,80,0);
 
 	// Accquire engine pointer
 	auto pEngine = EngineFacade::GetInstance();
 	auto pRender = std::make_shared<BaseRender>(VertexShaderPath, FragmentShaderPath);
-	auto pShadow = std::make_shared<ShadowMapRender>(1920,1920, LightPos,ShadowVS,ShadowFS);
-	pShadow->SetLightPos(LightPos);
-	pShadow->SetLightSourceType(ShadowMapRender::LightSourceType::SpotLight);
-	pShadow->SetLightInvDir(LightPos);
+	auto pShadow = std::make_shared<ShadowMapRender>(1920,1920, ShadowVS,ShadowFS);
+	pShadow->CreateLightInfo(LightPos,-LightPos,LightType::Omni_Directional);
 	// Engine configuration
 	{
 

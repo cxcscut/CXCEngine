@@ -69,6 +69,9 @@
     <ClCompile Include="Graphics\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Lighting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="controller\Camera.h">
@@ -212,6 +215,9 @@
     <ClInclude Include="Graphics\Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Lighting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="inl\MultiTree.inl">
@@ -224,6 +230,6 @@
     <None Include="Shader\StandardVertexShader.glsl" />
     <None Include="Shader\depthTextureFS.glsl" />
     <None Include="Shader\depthTextureVS.glsl" />
-    <None Include="Shader\PhongFS.glsl" />
+    <None Include="Shader\Blinn-PhongFS.glsl" />
   </ItemGroup>
 </Project>

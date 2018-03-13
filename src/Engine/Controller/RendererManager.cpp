@@ -117,6 +117,11 @@ namespace cxc {
 			return GL_TRUE;
 	}
 
+	void BaseRender::CreateLightInfo(const glm::vec3 &pos, const glm::vec3 &dir,LightType type,InteractionType interactive)
+	{
+		pLightInfo = std::make_shared<BaseLighting>(pos,dir,type,interactive);
+	}
+
 	bool BaseRender::LinkVertexAndFragmentShader(GLuint ProgramID, GLuint VertexShader, GLuint FragmentShader) const
 	{
 		glAttachShader(ProgramID, VertexShader);
@@ -147,13 +152,11 @@ namespace cxc {
 
 	}
 
-	ShadowMapRender::ShadowMapRender(GLuint Width, GLuint Height,const glm::vec3 &lightpos,
+	ShadowMapRender::ShadowMapRender(GLuint Width, GLuint Height,
 		const std::string &vertex_file_path, const std::string &fragment_file_path)
 		:m_FBO(0),depthTexture(0),BaseRender(vertex_file_path,fragment_file_path),
 		WindowWidth(Width),WindowHeight(Height), ShadowCubeMap(0),
-		depthProjectionMatrix(1.0f),depthViewMatrix(1.0f), 
-		LightType(LightSourceType::ParallelLight),LightInvDir(glm::vec3(0.5f, 2, 2)),
-		depthVP(1.0f),LightPosition(lightpos)
+		depthProjectionMatrix(1.0f),depthViewMatrix(1.0f), depthVP(1.0f)
 	{
 		CubeMapIterator[0] = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f) };
 		CubeMapIterator[1] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, glm::vec3(-1.0f,0.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f) };
@@ -176,9 +179,10 @@ namespace cxc {
 		depthVP = Projection * View;
 	}
 
-	void ShadowMapRender::SetLightPos(const glm::vec3 &pos) noexcept
+	void BaseRender::SetLightPos(const glm::vec3 &pos) noexcept
 	{
-		LightPosition = pos;
+		if (pLightInfo)
+			pLightInfo->SetLightPos(pos);
 	}
 
 	ShadowMapRender::CubeMapCameraPose* ShadowMapRender::GetCameraPose() noexcept
@@ -186,9 +190,12 @@ namespace cxc {
 		return CubeMapIterator;
 	}
 
-	glm::vec3 ShadowMapRender::GetLightPos() const noexcept
+	glm::vec3 BaseRender::GetLightPos() const noexcept
 	{
-		return LightPosition;
+		if (pLightInfo)
+			return pLightInfo->GetLightPos();
+		else
+			return glm::vec3(0,0,0);
 	}
 
 	GLuint ShadowMapRender::GetFBO() const noexcept
@@ -216,24 +223,19 @@ namespace cxc {
 		return depthTexture;
 	}
 
-	void ShadowMapRender::SetLightSourceType(LightSourceType type) noexcept
+	void BaseRender::SetLightType(LightType type) noexcept
 	{
-		LightType = type;
+		if (pLightInfo)
+			pLightInfo->SetLightType(type);
 	}
 
-	void ShadowMapRender::SetLightInvDir(const glm::vec3 & dir) noexcept
-	{
-		LightInvDir = dir;
-	}
 
-	ShadowMapRender::LightSourceType ShadowMapRender::GetLightSourceType() const noexcept
+	LightType BaseRender::GetLightType() const noexcept
 	{
-		return LightType;
-	}
+		if (pLightInfo)
+			return pLightInfo->GetLightType();
 
-	glm::vec3 ShadowMapRender::GetLightInvDir() const noexcept
-	{
-		return LightInvDir;
+		return LightType::InvalidType;
 	}
 
 	GLuint ShadowMapRender::GetShadowCubeMap() const noexcept
@@ -247,21 +249,26 @@ namespace cxc {
 		glGenFramebuffers(1, &m_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
-		if (LightType == ShadowMapRender::LightSourceType::ParallelLight ||
-			LightType == ShadowMapRender::LightSourceType::SpotLight)
+		if (!pLightInfo)
+			return false;
+
+		auto Type = pLightInfo->GetLightType();
+
+		if (Type == LightType::Directional ||
+			Type == LightType::Spot)
 		{
 			// Two pass shadow map
-			if (LightType == ShadowMapRender::LightSourceType::ParallelLight) {
+			if (Type == LightType::Directional) {
 				// Parallel light
 				depthProjectionMatrix = glm::ortho<float>(-100, 100, -100, 100, -100, 200);
-				depthViewMatrix = glm::lookAt(LightPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+				depthViewMatrix = glm::lookAt(pLightInfo->GetLightPos(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 				depthVP = depthProjectionMatrix * depthViewMatrix;
 			}
 			else
 			{
 				// Spot Light
-				depthProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 1000.0f);
-				depthViewMatrix = glm::lookAt(LightPosition,LightPosition - LightInvDir,glm::vec3(0,1,0));
+				depthProjectionMatrix = glm::perspective(glm::radians(90.0f), 4.0f / 3.0f, 0.1f, 1000.0f);
+				depthViewMatrix = glm::lookAt(pLightInfo->GetLightPos(),pLightInfo->GetLightPos() + pLightInfo->GetDirection(),glm::vec3(0,-1,0));
 				depthVP = depthProjectionMatrix * depthViewMatrix;
 			}
 
@@ -284,7 +291,7 @@ namespace cxc {
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 		}
-		else if (LightType == ShadowMapRender::LightSourceType::PointLight)
+		else if (Type == LightType::Omni_Directional)
 		{
 			// Multipass shadow map with Point light
 			glEnable(GL_TEXTURE_CUBE_MAP);

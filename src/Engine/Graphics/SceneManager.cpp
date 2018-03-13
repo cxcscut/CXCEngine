@@ -77,7 +77,7 @@ namespace cxc {
 	}
 
 	SceneManager::SceneManager()
-		: m_ObjectMap(),TotalIndicesNum(0U), m_LightPos(glm::vec3(0, 1500, 1500)),
+		: m_ObjectMap(),TotalIndicesNum(0U),
 		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false),
 		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
 	{
@@ -265,17 +265,17 @@ namespace cxc {
 		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetFBO());
 		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
 
-		if (pShadowRender->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight) {
+		if (pShadowRender->GetLightType() == LightType::Omni_Directional) {
 			// Clear the six face of the cube map for the next rendering
 			for (uint16_t i = 0; i < 6; i++) {
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[i].CubeMapFace, pShadowRender->GetShadowCubeMap(), 0);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glClear(GL_DEPTH_BUFFER_BIT);
 			}
 		}
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-		if (pShadowRender->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight)
+		if (pShadowRender->GetLightType() == LightType::Omni_Directional)
 		{
 			// Draw 6 faces of cube map
 			for (uint16_t k = 0; k < 6; k++)
@@ -294,7 +294,7 @@ namespace cxc {
 			}
 		}
 		else {
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT);
 			for (auto pObject : m_ObjectMap)
 				if (pObject.second->isEnable())
 					pObject.second->DrawShadow(pShadowRender);

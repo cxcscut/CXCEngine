@@ -2,11 +2,13 @@
 
 #include "..\General\DefineTypes.h"
 #include "..\inl\Singleton.inl"
+#include "..\Graphics\Lighting.h"
 
 #else
 
 #include "../General/DefineTypes.h"
 #include "../inl/Singleton.inl"
+#include "../Graphics/Lighting.h"
 
 #endif // WIN32
 
@@ -27,8 +29,14 @@ namespace cxc {
 		GLuint GetProgramID() { return ProgramID; };
 
 		bool CreateShaderProgram();
+		void CreateLightInfo(const glm::vec3 &pos,const glm::vec3 &dir,LightType type,InteractionType interactive);
 
 		void ActiveShader();
+
+		glm::vec3 GetLightPos() const noexcept;
+		void SetLightPos(const glm::vec3 &pos) noexcept;
+		void SetLightType(LightType type) noexcept;
+		LightType GetLightType() const noexcept;
 
 	protected:
 
@@ -44,6 +52,7 @@ namespace cxc {
 		GLuint ProgramID;
 		std::string VertexShaderPath, FragmentShaderPath;
 		GLuint VertexShader, FragmentShader;
+		std::shared_ptr<BaseLighting> pLightInfo;
 
 	};
 
@@ -57,13 +66,7 @@ namespace cxc {
 			glm::vec3 UpVector;
 		};
 
-		enum class LightSourceType : uint16_t{
-			ParallelLight, 
-			SpotLight, 
-			PointLight
-		};
-
-		ShadowMapRender(GLuint WindowWidth, GLuint WindowHeight, const glm::vec3 &lightPos,
+		ShadowMapRender(GLuint WindowWidth, GLuint WindowHeight, 
 			const std::string &vertex_file_path, const std::string &fragment_file_path);
 		~ShadowMapRender();
 
@@ -73,13 +76,7 @@ namespace cxc {
 		GLuint GetWidth() const noexcept;
 		GLuint GetHeight() const noexcept;
 		glm::mat4 GetDepthVP() const noexcept;
-		glm::vec3 GetLightPos() const noexcept;
-		void SetLightPos(const glm::vec3 &pos) noexcept;
 		GLuint GetDepthTexture() const noexcept;
-		void SetLightSourceType(LightSourceType type) noexcept;
-		LightSourceType GetLightSourceType() const noexcept;
-		void SetLightInvDir(const glm::vec3 & dir) noexcept;
-		glm::vec3 GetLightInvDir() const noexcept;
 		CubeMapCameraPose* GetCameraPose() noexcept;
 		GLuint GetShadowCubeMap() const noexcept;
 
@@ -88,10 +85,7 @@ namespace cxc {
 
 		GLuint m_FBO, depthTexture;
 		GLuint WindowWidth, WindowHeight;
-
-		glm::vec3 LightPosition,LightInvDir;
 		glm::mat4 depthProjectionMatrix, depthViewMatrix,depthVP;
-		LightSourceType LightType;
 
 		// for point light source
 		GLuint ShadowCubeMap;

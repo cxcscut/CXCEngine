@@ -871,11 +871,13 @@ namespace cxc {
 		pEngine->m_pSceneMgr->BindLightingUniforms(ProgramID);
 
 		glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
+		glm::vec3 eye_pos = pEngine->m_pSceneMgr->m_pCamera->eye_pos;
 
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
 		GLuint texflag_loc = glGetUniformLocation(ProgramID, "isUseTex");
 		GLuint depthBiasMVP_loc = glGetUniformLocation(ProgramID,"depthBiasMVP");
 		GLuint ShadowMapSampler_loc = glGetUniformLocation(ProgramID,"shadowmap");
+		GLuint Eyepos_loc = glGetUniformLocation(ProgramID,"EyePosition_worldspace");
 
 		glUniform1i(texflag_loc,0);
 
@@ -925,7 +927,7 @@ namespace cxc {
 		// We use texture unit 0 for the objectss texture sampling 
 		// while texture unit 1 for depth buffer sampling
 		glActiveTexture(GL_TEXTURE0 + (GLuint)TextureManager::TextureUnit::ShadowTextureUnit);
-		if (pShadowRender->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight)
+		if (pShadowRender->GetLightType() == LightType::Omni_Directional)
 			glBindTexture(GL_TEXTURE_CUBE_MAP, pShadowRender->GetShadowCubeMap());
 		else
 			glBindTexture(GL_TEXTURE_2D, pShadowRender->GetDepthTexture());
@@ -945,8 +947,9 @@ namespace cxc {
 			glUniform3f(Ka_loc,m_Material[shape.first].ambient[0], m_Material[shape.first].ambient[1], m_Material[shape.first].ambient[2]);
 			glUniform3f(Kd_loc,m_Material[shape.first].diffuse[0], m_Material[shape.first].diffuse[1], m_Material[shape.first].diffuse[2]);
 			glUniform3f(Ks_loc,m_Material[shape.first].specular[0], m_Material[shape.first].specular[1], m_Material[shape.first].specular[2]);
+			glUniform3f(Eyepos_loc,eye_pos.x,eye_pos.y,eye_pos.z);
 
-			if (pShadowRender->GetLightSourceType() == ShadowMapRender::LightSourceType::PointLight)
+			if (pShadowRender->GetLightType() == LightType::Omni_Directional)
 			{
 				glUniform1i(shadowmapCube_loc, (GLuint)TextureManager::TextureUnit::ShadowTextureUnit);
 				glUniform1i(isPointLight_loc, 1);
