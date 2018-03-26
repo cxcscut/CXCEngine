@@ -772,7 +772,7 @@ namespace cxc {
 	{
 		std::string ret = code;
 		if (OctreeNode::isDown(ret.back()))
-			ret[ret.size() - 1] += 4;
+			ret[ret.size() - 1] -= 4;
 		else
 		{
 			for (std::size_t k = ret.size() - 1; k >= 0; k++)
@@ -793,7 +793,7 @@ namespace cxc {
 	{
 		std::string ret = code;
 		if (OctreeNode::isUp(ret.back()))
-			ret[ret.size() - 1] -= 4;
+			ret[ret.size() - 1] += 4;
 		else
 		{
 			for (std::size_t k = ret.size() - 1; k >= 0; k++)
