@@ -21,7 +21,7 @@
 - **GLM**  
   The OpenGL mathematics library including glm.hpp and matrix_transformation.hpp etc.
 - **Open Dynamics Engine**  
-  Used for loading the FBX file exported from 3DS MAX.
+  Physics Engine
   
 ## Projects
 
