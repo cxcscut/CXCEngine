@@ -45,7 +45,10 @@ It is a robot hand simulation program in which you can load and draw the robot h
 - [x] Optimization of draw calls 
 - [x] Physics engine using Open Dynamics Engine
 - [x] Blinn-Phong shading
-- [ ] Shadowmap && Normalmap
-- [ ] Motion planning for obstacle advoidance
-- [ ] Animation
-- [ ] GUI based on QT
+- [x] Shadowmap & Normalmap
+## To do list
+- [ ] Multi-threading for physics engine
+- [ ] Deferred Rendering
+- [ ] Skeleton Animation
+- [ ] LightMap & LightMap Cache
+
