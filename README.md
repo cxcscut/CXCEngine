@@ -32,7 +32,7 @@ It is a robot hand simulation program in which you can load and draw the robot h
 ![6-DOF Robot arm and 21-DOF dexterous hand simulation](http://github.com/cxcscut/CxcEngine/raw/master/Img/robot.bmp)
 
 
-## Current Progress:
+## Works have been done:
 
 - [x] **Forward Kinematics**
 - [x] Script parser and interface
