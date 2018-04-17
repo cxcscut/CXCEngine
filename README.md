@@ -34,18 +34,33 @@ It is a robot hand simulation program in which you can load and draw the robot h
 
 ## Works have been done:
 
-- [x] **Forward Kinematics**
-- [x] Script parser and interface
-- [x] GUI based on MFC
-- [x] Data glove interface
-- [x] **Inverse Kinematics**
-- [x] Kinect sensor interface
-- [x] Winsock interface for remote connections
-- [x] Object recognition and analysis
+### Rendering
+
 - [x] Optimization of draw calls 
-- [x] Physics engine using Open Dynamics Engine
 - [x] Blinn-Phong shading
 - [x] Shadowmap & Normalmap
+
+### Physics
+
+- [x] Open Dynamics Engine Intergration
+
+### Kinematics
+
+- [x] Forward Kinematics
+- [x] Inverse Kinematics
+
+### Scripting Interface
+
+- [x] Script parser and interface
+
+### Network Interface
+- [x] Winsock for remote connection
+
+### Other Functionalities
+- [x] Data glove interface
+- [x] Kinect sensor interface
+- [x] Object recognition and analysis
+
 ## To do list
 - [ ] Multi-threading for physics engine
 - [ ] Deferred Rendering
