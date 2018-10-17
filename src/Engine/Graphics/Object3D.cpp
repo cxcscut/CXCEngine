@@ -2,7 +2,7 @@
 
 #ifdef WIN32
 
-#include "..\Helper\FileHelper.h"
+#include "..\Common\FileHelper.h"
 #include "..\EngineFacade\EngineFacade.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -13,7 +13,7 @@
 
 #else
 
-#include "../Helper/FileHelper.h"
+#include "../Common/FileHelper.h"
 #include "../EngineFacade/EngineFacade.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -853,7 +853,7 @@ namespace cxc {
 			shape.second->setGravityMode(mode);
 	}
 
-	void Object3D::DrawObject() noexcept
+	void Object3D::RenderingTick() noexcept
 	{
 		auto pEngine = EngineFacade::GetInstance();
 		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");

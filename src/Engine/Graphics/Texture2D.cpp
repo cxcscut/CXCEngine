@@ -2,11 +2,11 @@
 
 #ifdef WIN32
 
-#include "..\Helper\FileHelper.h"
+#include "..\Common\FileHelper.h"
 
 #else
 
-#include "../Helper/FileHelper.h"
+#include "../Common/FileHelper.h"
 
 #endif // WIN32
 

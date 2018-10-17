@@ -373,7 +373,7 @@ namespace cxc {
 			m_pSceneMgr->initResources();
 
 			// Contruct octree
-			m_pSceneMgr->BuildOctree();
+			// m_pSceneMgr->BuildOctree();
 
 			// Begin event looping
 			GameLooping();
@@ -424,8 +424,7 @@ namespace cxc {
 
 	void EngineFacade::RenderingScenes() noexcept
 	{
-		m_pSceneMgr->DrawShadowMap();
-		m_pSceneMgr->DrawScene();
+		m_pSceneMgr->TickScene();
 	}
 
 	void EngineFacade::ProcessingPhysics() noexcept
@@ -457,9 +456,11 @@ namespace cxc {
 					m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowWidth());
 			}
 
+			/* Disable the physics for testing purposes
 			if(!pause)
 				// Processing physical status
 				ProcessingPhysics();
+			*/
 
 			// Load texture
 			m_pSceneMgr->m_pTextureMgr->LoadAllTexture();

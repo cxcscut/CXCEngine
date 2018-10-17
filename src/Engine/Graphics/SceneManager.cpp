@@ -254,7 +254,7 @@ namespace cxc {
 		UpdateBoundary(ObjectPtr->GetAABB());
 	}
 
-	void SceneManager::DrawShadowMap() noexcept
+	void SceneManager::PrepareShadowMap() noexcept
 	{
 		auto pShadowRender = dynamic_cast<ShadowMapRender*>(m_pRendererMgr->GetRenderPtr("ShadowRender"));
 		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
@@ -301,6 +301,15 @@ namespace cxc {
 		}
 	}
 
+	void SceneManager::TickScene() noexcept
+	{
+		// Generating the shadow map
+		PrepareShadowMap();
+
+		// Draw the scene
+		DrawScene();
+	}
+
 	void SceneManager::DrawScene() noexcept
 	{
 		auto pEngine = EngineFacade::GetInstance();
@@ -324,7 +333,7 @@ namespace cxc {
 			// if Octree has not been built, draw all the objects
 			for (auto pObject : m_ObjectMap)
 				if (pObject.second->isEnable())
-					pObject.second->DrawObject();
+					pObject.second->RenderingTick();
 		}
 		else
 		{
@@ -364,7 +373,7 @@ namespace cxc {
 			//std::cout << "Drawing " << hash.size() << " objects" << std::endl;
 			// Draw the remaining objects
 			for (auto piter = hash.begin(); piter != hash.end(); piter++)
-				(*piter)->DrawObject();
+				(*piter)->RenderingTick();
 
 			hash.clear();
 		}

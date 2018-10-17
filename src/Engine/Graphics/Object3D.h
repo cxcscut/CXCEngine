@@ -142,7 +142,7 @@ namespace cxc {
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
 
-		virtual void DrawObject() noexcept;
+		virtual void RenderingTick() noexcept;
 		virtual void DrawShadow(ShadowMapRender* pRender) noexcept;
 
 		void InitBuffers() noexcept;

@@ -135,7 +135,12 @@ namespace cxc {
 		SceneManager& operator=(const SceneManager&) = delete;
 		SceneManager& operator=(const SceneManager&&) = delete;
 
-	// Object creation
+	// Scene loading from fbx file via FBX SDKs
+	public :
+
+
+
+	// Object loading from obj files
 	public:
 
 		// Create Object from file
@@ -179,8 +184,9 @@ namespace cxc {
 	// Draw call and resource management
 	public:
 
+		void TickScene() noexcept;
 		void DrawScene() noexcept;
-		void DrawShadowMap() noexcept;
+		void PrepareShadowMap() noexcept;
 
 		void initResources() noexcept;
 
