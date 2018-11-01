@@ -86,26 +86,11 @@ void main()
 
 	float testDepth = VectorToDepthValue(LightPosition_worldspace - Position_worldspace);
 
-	// 4x sampling
-	for (int i=0;i<4;i++){
-
-		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
-
-		if(isPointLight > 0){
-			if ( textureCube( shadowmapCube, LightDir + poissonDisk[index]/700.0 ).z < testDepth - PointLightBias){
-				visibility-=0.2;
-			}		
-		}
-		else{
-			visibility -= 0.2*(1.0-texture( shadowmap, vec3((ShadowCoord.xy + poissonDisk[index]/700.0)/ShadowCoord.w,  (ShadowCoord.z-bias)/ShadowCoord.w) ));
-		}
-	}
-
 	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
 	vec3 MaterialDiffuseColor;
 
 	if(isUseTex > 0)
-		MaterialDiffuseColor = LightColor * LightPower * cos_theta * texture2D(Sampler,UV) / distance ;
+		MaterialDiffuseColor = LightColor * LightPower * cos_theta / distance ;
 	else
 		MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / distance ;
 

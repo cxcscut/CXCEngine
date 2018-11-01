@@ -3,10 +3,10 @@
 
 #ifdef WIN32
 
-#include "..\Controller\RendererManager.h"
+#include "..\Graphics\RendererManager.h"
 #include "..\Controller\Camera.h"
 #include "..\Controller\InputManager.h"
-#include "..\Graphics\TextureManager.h"
+#include "..\Graphics\MaterialManager.h"
 #include "..\Graphics\SceneManager.h"
 #include "..\Window\Window.h"
 #include "..\Script\Parser.h"
@@ -14,10 +14,10 @@
 
 #else
 
-#include "../Controller/RendererManager.h"
+#include "../Graphics/RendererManager.h"
 #include "../Controller/Camera.h"
 #include "../Controller/InputManager.h"
-#include "../Graphics/TextureManager.h"
+#include "../Graphics/MaterialManager.h"
 #include "../Graphics/SceneManager.h"
 #include "../Window/Window.h"
 #include "../Script/Parser.h"

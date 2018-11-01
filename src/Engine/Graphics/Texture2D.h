@@ -53,6 +53,9 @@ namespace cxc {
 		void releaseTexture() noexcept;
 	private:
 
+		// File name of the texture
+		std::string FileName;
+
 		// Texture ID
 		GLuint TextureID;
 

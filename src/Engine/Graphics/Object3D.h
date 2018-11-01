@@ -20,12 +20,12 @@
 #define CXC_NORMAL_FACTOR 0.2f
 #define CXC_DIFFUSE_FACTOR (1.0f - CXC_NORMAL_FACTOR)
 
-#include "Shape.h"
-#include "TextureManager.h"
-
-class Shape;
-
 namespace cxc {
+
+	class ShadowMapRender;
+	class MaterialManager;
+	class TextureManager;
+	class Shape;
 
 	class CXCRect3 {
 		
@@ -70,28 +70,7 @@ namespace cxc {
 		};
 	};
 
-	using VertexAttri = struct VertexAttri {
-		glm::vec2 texcoord;
-		glm::vec3 normal;
-
-		bool operator<(const VertexAttri that) const {
-			return memcmp((void*)this, (void*)&that, sizeof(VertexAttri)) > 0;
-		};
-
-		VertexAttri() :
-			texcoord(glm::vec2(0.0f, 0.0f)),
-			normal(glm::vec3(0.0f, 0.0f, 0.0f))
-		{}
-
-		VertexAttri(const glm::vec2 &uvs, const glm::vec3 &_normal)
-		{
-			normal = _normal;
-			texcoord = uvs;
-		}
-
-	};
-
-	class Object3D
+	class Object3D : public std::enable_shared_from_this<Object3D>
 	{
 
 	public:
@@ -109,6 +88,7 @@ namespace cxc {
 	public:
 
 		GLboolean LoadOBJFromFile(const std::string &filename);
+		GLboolean LoadingObjectModel() { return LoadOBJFromFile(FileName); };
 
 	// Vertex Processing
 	public:
@@ -146,7 +126,7 @@ namespace cxc {
 		virtual void DrawShadow(ShadowMapRender* pRender) noexcept;
 
 		void InitBuffers() noexcept;
-		void releaseBuffers() noexcept;
+		void ReleaseBuffers() noexcept;
 
 	// Physics interface
 	public:
@@ -161,9 +141,6 @@ namespace cxc {
 
 	// Private data access interface
 	public:
-
-		// global lock
-		std::mutex g_lock;
 
 		bool CheckLoadingStatus() const noexcept;
 		void SetObjectName(const std::string &Name) noexcept;
@@ -185,7 +162,6 @@ namespace cxc {
 		uint32_t GetObjectVertexNum() const noexcept;
 		CXCRect3 GetAABB() const noexcept{return AABB; };
 
-		void GetObjectBuffers(std::vector<glm::vec3> &vbo_pos, std::vector<VertexAttri> &vbo_attrib, std::vector<uint32_t> &ebo) noexcept;
 		uint32_t GetVertexSubscript(const std::string &shape_name) noexcept;
 
 		void ComputeCenterPos() noexcept;
@@ -206,6 +182,9 @@ namespace cxc {
 		// is enabled
 		GLboolean enable;
 
+		// File name
+		std::string FileName;
+		
 		// Name
 		std::string ObjectName;
 
@@ -218,11 +197,11 @@ namespace cxc {
 		// AABB bounding box
 		CXCRect3 AABB;
 
-		// <ModelName , Pointer to Model>
+		// <ShapeName , Pointer to Model>
 		std::unordered_map<std::string,std::shared_ptr<Shape>> m_ModelMap;
 
-		// <ModelName , Material>
-		std::unordered_map<std::string, tinyobj::material_t> m_Material;
+		// <ShapeName , Material Name>
+		std::unordered_map<std::string, std::string> Materials;
 
 		// Subscript of shape's vertex in vbo
 		std::unordered_map<std::string, uint32_t> m_VertexSubscript;
@@ -237,18 +216,6 @@ namespace cxc {
 
 		// if obj file has been loaded
 		bool isLoaded;
-
-		// Buffers ID
-		GLuint VBO_P, VBO_A, EBO, VAO;
-
-		// Number of indices
-		uint32_t indices_num;
-
-		// Texture handle
-		GLuint TexSamplerHandle;
-
-		// Texture names
-		std::vector<std::string> m_TexNames;
 
 		// Kinematics object has infinite mass such as walls and earth.
 		bool isKinematics;

@@ -12,14 +12,16 @@
 #define CXC_LIGHTING_H
 
 namespace cxc {
-	enum class LightType : uint16_t {
+	enum class eLightType : uint16_t {
 		Directional,
 		Spot,
-		Omni_Directional,
+		OmniDirectional,
+		Area,
+		Volumetric,
 		InvalidType
 	};
 
-	enum class InteractionType : uint16_t {
+	enum class eInteractionType : uint16_t {
 		Dynamic,
 		Static
 	};
@@ -27,34 +29,51 @@ namespace cxc {
 	class BaseLighting
 	{
 
+		friend class FBXSDKUtil;
+
 	public:
 
-		BaseLighting(const glm::vec3 &pos, const glm::vec3 &dir,LightType type,InteractionType interactive);
+		BaseLighting();
+		BaseLighting(const glm::vec3 &pos, const glm::vec3 &dir, eLightType type, eInteractionType interactive);
 		virtual ~BaseLighting();
 
 	public:
 
 		void SetLightPos(const glm::vec3 &pos) noexcept;
-		void SetLightType(LightType type) noexcept;
+		void SetLightType(eLightType type) noexcept;
 		void SetDirection(const glm::vec3 &dir) noexcept;
 
 		glm::vec3 GetDirection() const noexcept;
-		LightType GetLightType() const noexcept;
+		eLightType GetLightType() const noexcept;
 		glm::vec3 GetLightPos() const noexcept;;
 
 	private:
 
-		glm::vec3 LightPos;
-		glm::vec3 LightDirection;
-		LightType Type;
-		InteractionType Interactive;
-	};
+		std::string LightName;
 
+		glm::vec3 LightColor;
+
+		glm::vec3 LightPos;
+
+		glm::vec3 LightDirection;
+
+		double LightIntensity;
+
+		eLightType LightType;
+
+		eInteractionType Interactive;
+
+		bool bCastLight;
+
+		bool bCastShadow;
+
+	};
+	
 	class DynamicLighting : public BaseLighting
 	{
 	public :
 
-		DynamicLighting(const glm::vec3 &pos, const glm::vec3 &dir, LightType type);
+		DynamicLighting(const glm::vec3 &pos, const glm::vec3 &dir, eLightType type);
 		~DynamicLighting();
 
 	public:
@@ -64,7 +83,7 @@ namespace cxc {
 		GLuint GetLightMapFBO() const noexcept;
 
 	private:
-
+	
 		GLuint LightMapTexture;
 		GLuint LightMapFBO;
 	};

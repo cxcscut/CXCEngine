@@ -103,31 +103,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common\FBXSDKUtility.cpp" />
     <ClCompile Include="controller\Camera.cpp" />
     <ClCompile Include="controller\CommandHandler.cpp" />
     <ClCompile Include="controller\InputManager.cpp" />
-    <ClCompile Include="controller\RendererManager.cpp" />
+    <ClCompile Include="Graphics\RendererManager.cpp" />
     <ClCompile Include="enginefacade\EnginFacade.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
     <ClCompile Include="graphics\Font.cpp" />
     <ClCompile Include="graphics\FontsManager.cpp" />
     <ClCompile Include="Graphics\Lighting.cpp" />
+    <ClCompile Include="Graphics\Material.cpp" />
     <ClCompile Include="graphics\Object3D.cpp" />
     <ClCompile Include="graphics\SceneManager.cpp" />
     <ClCompile Include="graphics\Shape.cpp" />
     <ClCompile Include="graphics\Texture2D.cpp" />
-    <ClCompile Include="graphics\TextureManger.cpp" />
-    <ClCompile Include="helper\FileHelper.cpp" />
+    <ClCompile Include="graphics\MaterialManager.cpp" />
+    <ClCompile Include="Common\FileHelper.cpp" />
+    <ClCompile Include="Graphics\TextureManager.cpp" />
     <ClCompile Include="Physics\Collider3D.cpp" />
     <ClCompile Include="Physics\RigidBody3D.cpp" />
     <ClCompile Include="script\Parser.cpp" />
     <ClCompile Include="window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\FBXSDKUtility.h" />
     <ClInclude Include="controller\Camera.h" />
     <ClInclude Include="controller\CommandHandler.h" />
     <ClInclude Include="controller\InputManager.h" />
-    <ClInclude Include="controller\RendererManager.h" />
+    <ClInclude Include="Graphics\RendererManager.h" />
     <ClInclude Include="enginefacade\EngineFacade.h" />
     <ClInclude Include="general\DefineTypes.h" />
     <ClInclude Include="general\EngineCompoents.h" />
@@ -135,12 +139,14 @@
     <ClInclude Include="graphics\Font.h" />
     <ClInclude Include="graphics\FontsManager.h" />
     <ClInclude Include="Graphics\Lighting.h" />
+    <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="graphics\Object3D.h" />
     <ClInclude Include="graphics\SceneManager.h" />
     <ClInclude Include="graphics\Shape.h" />
     <ClInclude Include="graphics\Texture2D.h" />
-    <ClInclude Include="graphics\TextureManager.h" />
-    <ClInclude Include="helper\FileHelper.h" />
+    <ClInclude Include="graphics\MaterialManager.h" />
+    <ClInclude Include="Common\FileHelper.h" />
+    <ClInclude Include="Graphics\TextureManager.h" />
     <ClInclude Include="libraries\image_loader\stb_image.h" />
     <ClInclude Include="libraries\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="Physics\Collider3D.h" />

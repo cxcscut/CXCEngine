@@ -2,14 +2,14 @@
 
 #include "..\General\DefineTypes.h"
 #include "..\Graphics\Object3D.h"
-#include "..\Controller\RendererManager.h"
+#include "..\Graphics\RendererManager.h"
 #include "..\Physics\RigidBody3D.h"
 
 #else
 
 #include "../General/DefineTypes.h"
 #include "../Graphics/Object3D.h"
-#include "../Controller/RendererManager.h"
+#include "../Graphics/RendererManager.h"
 #include "../Physics/RigidBody3D.h"
 
 #endif // WIN32
@@ -18,6 +18,9 @@
 #define CXC_MODELLOADER_H
 
 namespace cxc {
+
+	class Material;
+	class Texture2D;
 
 	class Shape : public RigidBody3D
 	{
@@ -36,7 +39,7 @@ namespace cxc {
 		Shape& operator=(const Shape&&) = delete;
 
 
-	// Date access interface
+	// Data access interface
 	public:
 
 		void SetTag(const std::string &_tag) noexcept { tag = _tag; };
@@ -44,7 +47,6 @@ namespace cxc {
 
 		const std::vector<glm::vec3> &GetVertexArray() const noexcept;
 		const std::vector<glm::vec3> &GetNormalArray() const noexcept;
-		const std::vector<glm::vec3> &GetGeometricNormal() const noexcept;
 		const std::vector<glm::vec2> &GetTexCoordArray() const noexcept;
 		const std::vector<uint32_t> &GetVertexIndices() const noexcept;
 		std::string GetModelName() const noexcept;
@@ -78,6 +80,13 @@ namespace cxc {
 		void Translate(const glm::vec3 &move_vector) noexcept;
 		void Rotate(const glm::vec3 &rotation_axis, GLfloat degree) noexcept;
 
+	public:
+
+		void ShadowCastTick(ShadowMapRender* pShadowRender) noexcept;
+		void RenderingTick() noexcept;
+		void InitBuffers() noexcept;
+		void ReleaseBuffers() noexcept;
+
 	private:
 
 		// Tag
@@ -95,20 +104,17 @@ namespace cxc {
 		// Transformation matrix recording transformation for each draw call
 		glm::mat4 m_TransformationMatrix;
 
-		// Vertex index buffer when using EBO
+		// Vertex index buffer
 		std::vector<uint32_t> m_VertexIndices;
 
 		// Vertex coordinate
 		std::vector<glm::vec3> m_VertexCoords;
 
-		// Vertex normals computed pre face
+		// Vertex normals 
 		std::vector<glm::vec3> m_VertexNormals;
 
 		// UVs
 		std::vector<glm::vec2> m_TexCoords;
-
-		// Geometric normal pre vertex
-		std::vector<glm::vec3> m_GeometricNormal;
 
 		// Center position
 		glm::vec3 m_CenterPos;
@@ -122,6 +128,8 @@ namespace cxc {
 		// Number of faces pre primitive
 		GLuint Num_of_faces;
 
+		std::shared_ptr<Material> pMaterial;
+
 		// pointer to ObjectTree structure
 		std::shared_ptr<ObjectTree> m_MyPtr;
 
@@ -129,7 +137,7 @@ namespace cxc {
 		std::vector<glm::vec3> m_KeyPoints;
 
 		// ID of VBO, EBO and VAO
-		GLuint  m_VBO[4], m_EBO, m_VAO;
+		GLuint  m_VBO[3], m_EBO, m_VAO;
 
 		// state
 		GLboolean stateChanged;

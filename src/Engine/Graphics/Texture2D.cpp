@@ -92,6 +92,8 @@ namespace cxc {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		stbi_image_free(image);
 
+		FileName = file_path;
+
 		return GL_TRUE;
 	}
 }

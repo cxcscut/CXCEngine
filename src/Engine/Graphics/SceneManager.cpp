@@ -81,7 +81,7 @@ namespace cxc {
 		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false),
 		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
 	{
-		m_pTextureMgr = TextureManager::GetInstance();
+		m_pManagerMgr = MaterialManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();
 		m_pRendererMgr = RendererManager::GetInstance();
 
@@ -103,7 +103,7 @@ namespace cxc {
 	void SceneManager::releaseBuffers() noexcept
 	{
 		for (auto pObject : m_ObjectMap)
-			pObject.second->releaseBuffers();
+			pObject.second->ReleaseBuffers();
 	}
 
 	void SceneManager::initResources() noexcept
@@ -265,7 +265,7 @@ namespace cxc {
 		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetFBO());
 		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
 
-		if (pShadowRender->GetLightType() == LightType::Omni_Directional) {
+		if (pShadowRender->GetLightType() == eLightType::OmniDirectional) {
 			// Clear the six face of the cube map for the next rendering
 			for (uint16_t i = 0; i < 6; i++) {
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[i].CubeMapFace, pShadowRender->GetShadowCubeMap(), 0);
@@ -275,7 +275,7 @@ namespace cxc {
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-		if (pShadowRender->GetLightType() == LightType::Omni_Directional)
+		if (pShadowRender->GetLightType() == eLightType::OmniDirectional)
 		{
 			// Draw 6 faces of cube map
 			for (uint16_t k = 0; k < 6; k++)

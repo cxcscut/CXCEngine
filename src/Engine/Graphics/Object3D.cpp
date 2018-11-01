@@ -1,9 +1,13 @@
 #include "Object3D.h"
+#include "TextureManager.h"
+#include "Shape.h"
+#include "MaterialManager.h"
 
 #ifdef WIN32
 
 #include "..\Common\FileHelper.h"
 #include "..\EngineFacade\EngineFacade.h"
+#include "..\Graphics\RendererManager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "..\Libraries\Image_loader\stb_image.h"
@@ -14,6 +18,7 @@
 #else
 
 #include "../Common/FileHelper.h"
+#include "../Graphics/RendererManager.h"
 #include "../EngineFacade/EngineFacade.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -27,8 +32,7 @@
 namespace cxc {
 
 	Object3D::Object3D() :
-		ObjectName(""), m_ModelMap(), m_Material(), indices_num(0U),
-		TexSamplerHandle(0U), VAO(0U), EBO(0U), VBO_A(0U), VBO_P(0U),
+		ObjectName(""), m_ModelMap(), Materials(), 
 		isLoaded(false), m_ObjectTree(), stateChanged(GL_FALSE), enable(GL_TRUE),
 		isKinematics(false)
 	{
@@ -47,12 +51,12 @@ namespace cxc {
 		ObjectName = sprite_name;
 	}
 
-	Object3D::Object3D(const std::string &Object_name, const std::string &filename,const std::string &_tag, GLboolean _enable)
+	Object3D::Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag, GLboolean _enable)
 		: Object3D()
 	{
 		ObjectName = Object_name;
+		FileName = filename;
 		tag = _tag;
-		LoadOBJFromFile(filename);
 		enable = _enable;
 	}
 
@@ -157,7 +161,6 @@ namespace cxc {
 			drawobject->m_VertexCoords.emplace_back(vertex.position);
 			drawobject->m_VertexIndices.emplace_back(subindex);
 			drawobject->m_TexCoords.emplace_back(vertex.texcoords);
-			drawobject->m_GeometricNormal.emplace_back(geo_normal);
 			drawobject->m_VertexNormals.emplace_back(vertex.normal);
 			subindex++;
 
@@ -177,7 +180,8 @@ namespace cxc {
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<glm::vec3> g_vertex_normal;
 
-		auto tex_manager = TextureManager::GetInstance();
+		auto MaterialMgr = MaterialManager::GetInstance();
+		auto TextureMgr = TextureManager::GetInstance();
 		auto FileHelper = FileHelper::GetInstance();
 
 		std::string base_dir = FileHelper->GetBaseDirectory(filename);
@@ -211,11 +215,19 @@ namespace cxc {
 		{
 			tinyobj::material_t *mp = &materials[m];
 
-			if(mp->diffuse_texname.length() >0)
-				// only load the texture if it is not loaded
-				if (tex_manager->m_TextureMap.find(mp->diffuse_texname) == tex_manager->m_TextureMap.end())
-				{
+			// Create material instance
+			auto pMaterialTmp = std::make_shared<Material>();
+			pMaterialTmp->OwnerObject = shared_from_this();
+			pMaterialTmp->MaterialName = mp->name;
+			pMaterialTmp->AmbientFactor = glm::vec3(mp->ambient[0], mp->ambient[1], mp->ambient[2]);
+			pMaterialTmp->DiffuseFactor = glm::vec3(mp->diffuse[0], mp->diffuse[1], mp->diffuse[2]);
+			pMaterialTmp->SpecularFactor = glm::vec3(mp->specular[0], mp->specular[1], mp->specular[2]);
 
+			if (mp->diffuse_texname.length() > 0)
+			{
+				// only load the texture if it is not loaded
+				if (!TextureMgr->IsTextureExist(mp->diffuse_texname))
+				{
 					std::string texture_filename = mp->diffuse_texname;
 					if (!FileHelper->FileIsExists(texture_filename))
 					{
@@ -226,11 +238,22 @@ namespace cxc {
 							std::cerr << "Unable to find file " << mp->diffuse_texname << std::endl;
 							return GL_FALSE;
 						}
+						else
+						{
+							auto pNewTexture = TextureMgr->LoadTexture(mp->diffuse_texname, texture_filename);
+							if (!pNewTexture)
+							{
+								std::cerr << "Failed to load the texture" << std::endl;
+								return GL_FALSE;
+							}
+
+							pMaterialTmp->pTexture = pNewTexture;
+						}
 					}
 
-					tex_manager->addTexture(mp->diffuse_texname, texture_filename);
-					m_TexNames.emplace_back(mp->diffuse_texname);
+					MaterialMgr->addMaterial(pMaterialTmp);
 				}
+			}
 		}
 
 		g_vertex_normal.reserve(attrib.vertices.size() / 3);
@@ -283,7 +306,6 @@ namespace cxc {
 
 			drawobject->m_VertexCoords.reserve(shapes[s].mesh.indices.size());
 			drawobject->m_VertexIndices.reserve(shapes[s].mesh.indices.size());
-			drawobject->m_GeometricNormal.reserve(shapes[s].mesh.indices.size());
 			drawobject->m_TexCoords.reserve(shapes[s].mesh.indices.size());
 
 			drawobject->m_ModelName = shapes[s].name;
@@ -373,47 +395,10 @@ namespace cxc {
 				VertexIndexPacket vertex1(vertex_tmp1, normal2, texcoord1);
 				VertexIndexPacket vertex2(vertex_tmp2, normal2, texcoord2);
 
-#ifdef USE_EBO
 				// Create vertex indices
 				IndexVertex(vertex_index,geometric_normal,vertex0,vertex_num,drawobject.get(),attrib);
 				IndexVertex(vertex_index,geometric_normal,vertex1,vertex_num,drawobject.get(),attrib);
 				IndexVertex(vertex_index,geometric_normal,vertex2,vertex_num,drawobject.get(),attrib);
-
-#else
-
-				// Add vertices
-				drawobject->m_VertexCoords.emplace_back(vertex_tmp0);
-				drawobject->m_VertexCoords.emplace_back(vertex_tmp1);
-				drawobject->m_VertexCoords.emplace_back(vertex_tmp2);
-
-				// Update max and min vertex
-				UpdateBoundaryCoords(vertex_tmp0);
-				UpdateBoundaryCoords(vertex_tmp1);
-				UpdateBoundaryCoords(vertex_tmp2);
-
-				// Add texcoords
-				drawobject->m_TexCoords.emplace_back(texcoord0);
-				drawobject->m_TexCoords.emplace_back(texcoord1);
-				drawobject->m_TexCoords.emplace_back(texcoord2);
-
-				// Add vertex normals
-				if (attrib.normals.size())
-				{
-					drawobject->m_VertexNormals.emplace_back(glm::vec3(normal0));
-					drawobject->m_VertexNormals.emplace_back(glm::vec3(normal1));
-					drawobject->m_VertexNormals.emplace_back(glm::vec3(normal2));
-				}
-				else
-				{
-					drawobject->m_VertexNormals.emplace_back(g_vertex_normal[idx0.vertex_index]);
-					drawobject->m_VertexNormals.emplace_back(g_vertex_normal[idx1.vertex_index]);
-					drawobject->m_VertexNormals.emplace_back(g_vertex_normal[idx2.vertex_index]);
-				}
-
-				// Add geometric normal
-				for (int k = 0; k < 3; ++k)
-					drawobject->m_GeometricNormal.emplace_back(geometric_normal);
-#endif
 
 			} // Loop on indices
 
@@ -434,39 +419,9 @@ namespace cxc {
 
 				glm::vec3 normal0,normal1,normal2;
 
-#ifdef USE_EBO
-
-#ifdef USE_GEOMETRIC_NORMAL
-
-				normal0 = drawobject->m_GeometricNormal[drawobject->m_VertexIndices[3 * f + 0]];
-				normal1 = drawobject->m_GeometricNormal[drawobject->m_VertexIndices[3 * f + 1]];
-				normal2 = drawobject->m_GeometricNormal[drawobject->m_VertexIndices[3 * f + 2]];
-
-#else
-
 				normal0 = drawobject->m_VertexNormals[drawobject->m_VertexIndices[3 * f + 0]];
 				normal1 = drawobject->m_VertexNormals[drawobject->m_VertexIndices[3 * f + 1]];
 				normal2 = drawobject->m_VertexNormals[drawobject->m_VertexIndices[3 * f + 2]];
-
-#endif
-
-#else
-
-#ifdef USE_GEOMETRIC_NORMAL
-
-				normal0 = drawobject->m_GeometricNormal[3 * f + 0];
-				normal1 = drawobject->m_GeometricNormal[3 * f + 1];
-				normal2 = drawobject->m_GeometricNormal[3 * f + 2];
-
-#else
-
-				normal0 = drawobject->m_VertexNormals[3 * f + 0];
-				normal1 = drawobject->m_VertexNormals[3 * f + 1];
-				normal2 = drawobject->m_VertexNormals[3 * f + 2];
-
-#endif
-
-#endif
 
 			}
 
@@ -476,18 +431,45 @@ namespace cxc {
 			drawobject->ComputeCenterPoint();
 
 			// do not support texturing pre-face
+			bool bNeedCreateDefaultMaterial = false;
 			if (shapes[s].mesh.material_ids.size() > 0 && shapes[s].mesh.material_ids.size() > s)
 			{
 				auto i = shapes[s].mesh.material_ids[s];
 				if (i >= 0)
-					m_Material.insert(std::make_pair(shapes[s].name, materials[i]));
+				{
+					Materials.insert(std::make_pair(shapes[s].name, materials[i].name));
+
+					auto MaterialIter = MaterialMgr->CachedMaterials.find(materials[i].name);
+					if (MaterialIter != MaterialMgr->CachedMaterials.end())
+					{
+						drawobject->pMaterial = MaterialIter->second;
+					}
+				}
 				else
-					m_Material.insert(std::make_pair(shapes[s].name,materials.back()));
+				{
+					Materials.insert(std::make_pair(shapes[s].name, materials.back().name));
+					bNeedCreateDefaultMaterial = true;
+				}
 			}
 			else
 			{
 				assert(materials.size() > 0);
-				m_Material.insert(std::make_pair(shapes[s].name, materials.back()));
+				Materials.insert(std::make_pair(shapes[s].name, materials.back().name));
+				bNeedCreateDefaultMaterial = true;
+			}
+
+			if (bNeedCreateDefaultMaterial)
+			{
+				// Create default material class
+				auto pMaterialDefault = std::make_shared<Material>();
+				pMaterialDefault->OwnerObject = shared_from_this();
+				pMaterialDefault->MaterialName = materials.back().name;
+				pMaterialDefault->AmbientFactor = glm::vec3(materials.back().ambient[0], materials.back().ambient[1], materials.back().ambient[2]);
+				pMaterialDefault->DiffuseFactor = glm::vec3(materials.back().diffuse[0], materials.back().diffuse[1], materials.back().diffuse[2]);
+				pMaterialDefault->SpecularFactor = glm::vec3(materials.back().specular[0], materials.back().specular[1], materials.back().specular[2]);
+
+				MaterialMgr->addMaterial(pMaterialDefault);
+				drawobject->pMaterial = pMaterialDefault;
 			}
 
 			m_ModelMap.insert(std::make_pair(shapes[s].name,std::move(drawobject)));
@@ -707,36 +689,6 @@ namespace cxc {
 		return m_VertexSubscript[shape_name];
 	}
 
-	void Object3D::GetObjectBuffers(std::vector<glm::vec3> &vbo_pos, std::vector<VertexAttri> &vbo_attrib, std::vector<uint32_t> &ebo) noexcept
-	{
-		for (auto shape : m_ModelMap)
-		{
-			auto vnum = shape.second->GetVertexNum();
-			auto inum = shape.second->GetVertexIndices().size();
-			auto vertex_coords = shape.second->GetVertexArray();
-			std::vector<glm::vec3> normals;
-			if (shape.second->GetNormalArray().empty())
-				normals = shape.second->GetGeometricNormal();
-			else
-				normals = shape.second->GetNormalArray();
-			auto texcoord = shape.second->GetTexCoordArray();
-			auto indices = shape.second->GetVertexIndices();
-
-			auto it = m_VertexSubscript.find(shape.second->GetModelName());
-			if (it == m_VertexSubscript.end())
-				m_VertexSubscript.insert(std::make_pair(shape.second->GetModelName(), ebo.size()));
-
-			for (size_t k = 0; k<inum; k++)
-				ebo.push_back(vbo_pos.size() + indices[k]);
-
-			for (size_t i = 0; i < vnum; ++i) {
-				vbo_attrib.emplace_back(VertexAttri(texcoord[i], normals[i]));
-				vbo_pos.emplace_back(vertex_coords[i]);
-			}
-
-		}
-	}
-
 	void Object3D ::SetObjectName(const std::string &name) noexcept
 	{
 		ObjectName = name;
@@ -775,29 +727,19 @@ namespace cxc {
 		return glm::vec3(new_vec.x / new_vec.w, new_vec.y / new_vec.w, new_vec.z / new_vec.w);
 	}
 
-	void Object3D::releaseBuffers() noexcept
+	void Object3D::InitBuffers() noexcept
 	{
-		if (VAO)
+		for (auto shape : m_ModelMap)
 		{
-			glDeleteVertexArrays(1, &VAO);
+			shape.second->InitBuffers();
 		}
+	}
 
-		if (EBO)
+	void Object3D::ReleaseBuffers() noexcept
+	{
+		for (auto shape : m_ModelMap)
 		{
-			glDeleteBuffers(1, &EBO);
-		}
-
-		if (VBO_P)
-		{
-			glDeleteBuffers(1, &VBO_P);
-			glDisableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
-		}
-
-		if (VBO_A)
-		{
-			glDeleteBuffers(1, &VBO_A);
-			glDisableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
-			glDisableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
+			shape.second->ReleaseBuffers();
 		}
 	}
 
@@ -807,45 +749,6 @@ namespace cxc {
 			shape.second->UpdateMeshTransform();
 	}
 
-	void Object3D::InitBuffers() noexcept
-	{
-		std::vector<VertexAttri> m_VertexAttribs;
-		std::vector<glm::vec3> m_VertexPos;
-		std::vector<uint32_t> m_ElementBuffer;
-
-		m_VertexPos.clear();
-		m_VertexAttribs.clear();
-		m_ElementBuffer.clear();
-
-		uint32_t vex_num = 0U;
-
-		for (auto shape : m_ModelMap){
-			indices_num += shape.second->GetVertexIndices().size();
-			vex_num += shape.second->GetVertexArray().size();
-		}
-
-		m_VertexPos.reserve(vex_num);
-		m_VertexAttribs.reserve(vex_num);
-		m_ElementBuffer.reserve(indices_num);
-
-		GetObjectBuffers(m_VertexPos, m_VertexAttribs, m_ElementBuffer);
-
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-
-		glGenBuffers(1, &VBO_P);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexPos.size(), &m_VertexPos.front(), GL_STATIC_DRAW);
-
-		glGenBuffers(1, &VBO_A);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_A);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexAttri) *m_VertexAttribs.size(), &m_VertexAttribs.front(), GL_STATIC_DRAW);
-
-		glGenBuffers(1, &EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_ElementBuffer.size(), &m_ElementBuffer.front(), GL_STATIC_DRAW);
-
-	}
 	
 	void Object3D::SetObjectGravityMode(int mode) noexcept
 	{
@@ -855,154 +758,17 @@ namespace cxc {
 
 	void Object3D::RenderingTick() noexcept
 	{
-		auto pEngine = EngineFacade::GetInstance();
-		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
-		if (!pRender) return;
-		auto ProgramID = pRender->GetProgramID();
-
-		auto pShadowRender = dynamic_cast<ShadowMapRender*>(pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
-		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
-			return;
-
-		glUseProgram(ProgramID);
-		glViewport(0,0,pEngine->m_pWindowMgr->GetWindowWidth(),pEngine->m_pWindowMgr->GetWindowHeight());
-
-		pEngine->m_pSceneMgr->BindCameraUniforms();
-		pEngine->m_pSceneMgr->BindLightingUniforms(ProgramID);
-
-		glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
-		glm::vec3 eye_pos = pEngine->m_pSceneMgr->m_pCamera->eye_pos;
-
-		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
-		GLuint texflag_loc = glGetUniformLocation(ProgramID, "isUseTex");
-		GLuint depthBiasMVP_loc = glGetUniformLocation(ProgramID,"depthBiasMVP");
-		GLuint ShadowMapSampler_loc = glGetUniformLocation(ProgramID,"shadowmap");
-		GLuint Eyepos_loc = glGetUniformLocation(ProgramID,"EyePosition_worldspace");
-
-		glUniform1i(texflag_loc,0);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		// Using texture
-		for (auto tex_name : m_TexNames)
+		for (auto pShape : m_ModelMap)
 		{
-			auto tex_ptr = pEngine->m_pSceneMgr->m_pTextureMgr->GetTexPtr(tex_name);
-			if (tex_ptr)
-			{
-				// Bind the object's texture to texture unit 0
-				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureManager::TextureUnit::UserTextureUnit);
-				glBindTexture(GL_TEXTURE_2D, tex_ptr->GetTextureID());
-
-				glUniform1i(TexSamplerHandle,0);
-				glUniform1i(texflag_loc, 1);
-			}
-		}
-
-		glBindVertexArray(VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_A);
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::TEXTURE_LOCATION), 2, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(0)); // Texcoords
-
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexAttri), BUFFER_OFFSET(sizeof(glm::vec2))); // Normal
-
-		uint32_t offset, idx_num;
-
-		// the bias for depthMVP to map the NDC coordinate from [-1,1] to [0,1] which is a necessity for texture sampling
-		glm::mat4 biasMatrix(
-			0.5, 0.0, 0.0, 0.0,
-			0.0, 0.5, 0.0, 0.0,
-			0.0, 0.0, 0.5, 0.0,
-			0.5, 0.5, 0.5, 1.0
-		);
-
-		glm::mat4 depthBiasMVP; 
-
-		// Bind depth texture to the texture unit 1
-		// We use texture unit 0 for the objectss texture sampling 
-		// while texture unit 1 for depth buffer sampling
-		glActiveTexture(GL_TEXTURE0 + (GLuint)TextureManager::TextureUnit::ShadowTextureUnit);
-		if (pShadowRender->GetLightType() == LightType::Omni_Directional)
-			glBindTexture(GL_TEXTURE_CUBE_MAP, pShadowRender->GetShadowCubeMap());
-		else
-			glBindTexture(GL_TEXTURE_2D, pShadowRender->GetDepthTexture());
-
-		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
-		GLuint Ka_loc = glGetUniformLocation(ProgramID, "Ka");
-		GLuint Ks_loc = glGetUniformLocation(ProgramID, "Ks");
-		GLuint Kd_loc = glGetUniformLocation(ProgramID, "Kd");
-		GLuint isPointLight_loc = glGetUniformLocation(ProgramID, "isPointLight");
-		GLuint shadowmapCube_loc = glGetUniformLocation(ProgramID,"shadowmapCube");
-
-		for (auto shape : m_ModelMap) {
-
-			depthBiasMVP = biasMatrix * pShadowRender->GetDepthVP() * shape.second->getTransMatrix();
-			glUniformMatrix4fv(depthBiasMVP_loc,1,GL_FALSE,&depthBiasMVP[0][0]);
-
-			glUniform3f(Ka_loc,m_Material[shape.first].ambient[0], m_Material[shape.first].ambient[1], m_Material[shape.first].ambient[2]);
-			glUniform3f(Kd_loc,m_Material[shape.first].diffuse[0], m_Material[shape.first].diffuse[1], m_Material[shape.first].diffuse[2]);
-			glUniform3f(Ks_loc,m_Material[shape.first].specular[0], m_Material[shape.first].specular[1], m_Material[shape.first].specular[2]);
-			glUniform3f(Eyepos_loc,eye_pos.x,eye_pos.y,eye_pos.z);
-
-			if (pShadowRender->GetLightType() == LightType::Omni_Directional)
-			{
-				glUniform1i(shadowmapCube_loc, (GLuint)TextureManager::TextureUnit::ShadowTextureUnit);
-				glUniform1i(isPointLight_loc, 1);
-			}
-			else
-				glUniform1i(ShadowMapSampler_loc, (GLuint)TextureManager::TextureUnit::ShadowTextureUnit);
-
-			auto model_matrix = shape.second->getTransMatrix();
-
-			// Offset in memory
-			offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
-			idx_num = shape.second->GetVertexIndices().size();
-
-			glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &model_matrix[0][0]);
-
-			// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
-			glDrawElements(GL_TRIANGLES, idx_num, GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
+			pShape.second->RenderingTick();
 		}
 	}
 
 	void Object3D::DrawShadow(ShadowMapRender* pShadowRender) noexcept
 	{
-		auto pEngine = EngineFacade::GetInstance();
-
-		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
-
-		glUseProgram(pShadowRender->GetProgramID());
-
-		GLuint depthMVP_Loc = glGetUniformLocation(pShadowRender->GetProgramID(), "depthMVP");
-
-		glm::mat4 depthMVP;
-		uint32_t offset;
-		uint32_t index_num;
-		
-		glBindVertexArray(VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_P);
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-		// Render to texture for all objects
-		for (auto shape : m_ModelMap)
+		for (auto pShape : m_ModelMap)
 		{
-			depthMVP = pShadowRender->GetDepthVP() * shape.second->getTransMatrix();
-			
-			glUniformMatrix4fv(depthMVP_Loc, 1, GL_FALSE, &depthMVP[0][0]);
-
-			offset = sizeof(uint32_t) * GetVertexSubscript(shape.second->GetModelName());
-			index_num = shape.second->GetVertexIndices().size();
-
-			glDrawElements(GL_TRIANGLES, index_num, GL_UNSIGNED_INT, BUFFER_OFFSET(offset));
+			pShape.second->ShadowCastTick(pShadowRender);
 		}
 	}
 

@@ -1,5 +1,14 @@
-#include "FBXCommon.h"
-#include <iostream>
+#include "FBXSDKUtility.h"
+
+#ifdef WIN32
+
+#include "..\General\DefineTypes.h"
+
+#else
+
+#include "../General/DefineTypes.h"
+
+#endif
 
 #ifdef IOS_REF
 	#undef IOS_REF
@@ -8,17 +17,18 @@
 
 namespace cxc {
 
-	FBXSDKHelper::FBXSDKHelper()
+	FBXSDKUtil::FBXSDKUtil()
 	{
 
 	}
 
-	FBXSDKHelper::~FBXSDKHelper()
+	FBXSDKUtil::~FBXSDKUtil()
 	{
+
 
 	}
 
-	bool FBXSDKHelper::LoadRootNodeFromFbxFile(const char* pFileName, /* Out */ FbxNode* RootNode)
+	bool FBXSDKUtil::LoadRootNodeFromFbxFile(const char* pFileName, /* Out */ FbxNode* RootNode)
 	{
 		FbxManager* lSdkManager = nullptr;
 		FbxScene* lScene = nullptr;
@@ -53,186 +63,194 @@ namespace cxc {
 		}
 	}
 
-	bool FBXSDKHelper::GetCameraInfoFromRootNode(FbxNode* pNode, /* Out */ CameraInfo& OutCameraInfo)
+	bool FBXSDKUtil::GetObjectFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects)
 	{
 		if (!pNode)
 			return false;
 
-		CameraInfo RetCameraInfo;
+		bool bHasFoundAnyObject = false;
+
+		FbxMesh* pMesh = pNode->GetMesh();
+		if (!pMesh)
+			return false;
+
+		std::shared_ptr<Object3D> RetObject = std::make_shared<Object3D>();
+
+		const int lPolygonCount = pMesh->GetPolygonCount();
+
+		// Count the polygon count of each material
+		FbxLayerElementArrayTemplate<int>* lMaterialIndice = NULL;
+		FbxGeometryElement::EMappingMode lMaterialMappingMode = FbxGeometryElement::eNone;
+		if (pMesh->GetElementMaterial())
+		{
+			lMaterialIndice = &pMesh->GetElementMaterial()->GetIndexArray();
+			lMaterialMappingMode = pMesh->GetElementMaterial()->GetMappingMode();
+			if (lMaterialIndice && lMaterialMappingMode == FbxGeometryElement::eByPolygon)
+			{
+				FBX_ASSERT(lMaterialIndice->GetCount() == lPolygonCount);
+				if (lMaterialIndice->GetCount() == lPolygonCount)
+				{
+					// Count the faces of each material
+					for (int lPolygonIndex = 0; lPolygonIndex < lPolygonCount; ++lPolygonIndex)
+					{
+						const int lMaterialIndex = lMaterialIndice->GetAt(lPolygonIndex);
+						
+					}
+				}
+			}
+		}
+
+		// Recursively traverse each node in the scene
+		int i, lCount = pNode->GetChildCount();
+		for (i = 0; i < lCount; i++)
+		{
+			bHasFoundAnyObject |= GetObjectFromRootNode(pNode->GetChild(i), OutObjects);
+		}
+
+		return bHasFoundAnyObject;
+	}
+
+	bool FBXSDKUtil::GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<BaseLighting>>& OutLights)
+	{
+		if (!pNode)
+			return false;
+
+		bool bHasFoundAnyLightNode = false;
+
+		std::shared_ptr<BaseLighting> RetLight = std::make_shared<BaseLighting>();
+
+		// Get light from root node
+		FbxLight* lLight = pNode->GetLight();
+		if (lLight)
+		{
+			// Marked as successful
+			bHasFoundAnyLightNode = true;
+
+			/* Save the light configuration */
+			// Light Name
+			RetLight->LightName = lLight->GetName();
+
+			// Light color
+			FbxDouble3 LightColor = lLight->Color.Get();
+			RetLight->LightColor = glm::vec3(LightColor[0], LightColor[1], LightColor[2]);
+
+			// Light intensity
+			RetLight->LightIntensity = lLight->Intensity.Get();
+
+			// Whether to cast light
+			RetLight->bCastLight = lLight->CastLight.Get();
+
+			// Whether to cast shadow
+			RetLight->bCastShadow = lLight->CastShadows.Get();
+
+			// Light type
+			switch (lLight->LightType.Get())
+			{
+			case 0 :
+				// Omnidirectional light
+				RetLight->LightType = eLightType::OmniDirectional;
+				break;
+			case 1:
+				// Directional light
+				RetLight->LightType = eLightType::Directional;
+				break;
+			case 2:
+				// Spot light
+				RetLight->LightType = eLightType::Spot;
+				break;
+			case 3:
+				// Area light
+				RetLight->LightType = eLightType::Area;
+				break;
+			case 4:
+				// Volumetric light
+				RetLight->LightType = eLightType::Volumetric;
+				break;
+			default:
+				// Invalid light type
+				RetLight->LightType = eLightType::InvalidType;
+				break;
+			}
+
+			// Get global position and orientation
+			FbxAMatrix lGlobalTransform = pNode->EvaluateGlobalTransform();
+			const FbxVector4 lTranslation = pNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+			const FbxVector4 lRotation = pNode->GetGeometricRotation(FbxNode::eSourcePivot);
+			const FbxVector4 lScale = pNode->GetGeometricScaling(FbxNode::eSourcePivot);
+			FbxAMatrix GlobalOffsetPosition = lGlobalTransform * FbxAMatrix(lTranslation, lRotation, lScale);
+			RetLight->LightPos = glm::vec3(GlobalOffsetPosition.GetT()[0], GlobalOffsetPosition.GetT()[1], GlobalOffsetPosition.GetT()[2]);
+			RetLight->LightDirection = glm::vec3(GlobalOffsetPosition.GetR()[0], GlobalOffsetPosition.GetR()[1], GlobalOffsetPosition.GetR()[2]);
+
+			OutLights.emplace_back(RetLight);
+		}
+
+		// Recursively traverse each node in the scene
+		int i, lCount = pNode->GetChildCount();
+		for (i = 0; i < lCount; i++)
+		{
+			bHasFoundAnyLightNode |= GetLightFromRootNode(pNode->GetChild(i), OutLights);
+		}
+
+		return bHasFoundAnyLightNode;
+	}
+
+	bool FBXSDKUtil::GetCameraFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Camera>>& OutCameras)
+	{
+		if (!pNode)
+			return false;
+
+		bool bHasFoundAnyCameraNode = false;
+
+		std::shared_ptr<Camera> RetCamera = std::make_shared<Camera>();
 
 		// Get camera from root node
 		FbxCamera* lCamera = pNode->GetCamera();
-
 		if (lCamera)
 		{
+			/* Save the camera configuration */
+			// Camera Name
+			RetCamera->CameraName = lCamera->GetName();
 
-			// Get camera format
-			FbxCamera::EFormat lCameraFormat = lCamera->GetFormat();
-			double lResolutionWidth; double lResolutionHeight;
+			// Interest position
+			FbxVector4 InterestPosition = lCamera->InterestPosition.Get();
+			RetCamera->origin = glm::vec3(InterestPosition[0], InterestPosition[1], InterestPosition[2]);
 
-			//camera using specific format has a given resolution(aspect) width and height.
-			/*
-			resolution width            resolution height
-			eD1_NTSC                        720                         486
-			eNTSC                           640                         480
-			ePAL                            570                         486
-			eD1_PAL                         720                         576
-			eHD                             1980                        1080
-			e640x480                        640                         480
-			e320x200                        320                         200
-			e320x240                        320                         240
-			e128x128                        128                         128
-			eFULL_SCREEN                    1280                        1024
-			*/
-			switch (lCameraFormat)
+			// Up vector
+			FbxVector4 UpVector = lCamera->UpVector.Get();
+			RetCamera->up_vector = glm::vec3(UpVector[0], UpVector[1], UpVector[2]);
+
+			// Origin position
+			FbxVector4 Origin = lCamera->Position.Get();
+			RetCamera->eye_pos = glm::vec3(Origin[0], Origin[1], Origin[2]);
+
+			if (lCamera->ProjectionType.Get() == FbxCamera::eOrthogonal)
 			{
-			case FbxCamera::eCustomFormat:
-				break;
-			case FbxCamera::eNTSC:
-				lResolutionWidth = 640;
-				lResolutionHeight = 480;
-				break;
-			case FbxCamera::eD1NTSC:
-				lResolutionWidth = 720;
-				lResolutionHeight = 486;
-				break;
-			case FbxCamera::ePAL:
-				lResolutionWidth = 570;
-				lResolutionHeight = 486;
-				break;
-			case FbxCamera::eD1PAL:
-				lResolutionWidth = 720;
-				lResolutionHeight = 576;
-				break;
-			case FbxCamera::eHD:
-				lResolutionWidth = 1980;
-				lResolutionHeight = 1080;
-				break;
-			case FbxCamera::e640x480:
-				lResolutionWidth = 640;
-				lResolutionHeight = 480;
-				break;
-			case FbxCamera::e320x200:
-				lResolutionWidth = 320;
-				lResolutionHeight = 200;
-				break;
-			case FbxCamera::e320x240:
-				lResolutionWidth = 320;
-				lResolutionHeight = 240;
-				break;
-			case FbxCamera::e128x128:
-				lResolutionWidth = 128;
-				lResolutionHeight = 128;
-				break;
-			case FbxCamera::eFullscreen:
-				lResolutionWidth = 1280;
-				lResolutionHeight = 1024;
-				break;
-			default:
-				break;
+				// todo
+			}
+			else if (lCamera->ProjectionType.Get() == FbxCamera::ePerspective)
+			{
+				// todo
 			}
 
-			// Get camera's inherent properties
-			// Aspect height
-			double lAspectHeight = lCamera->AspectHeight.Get();
-			
-			// Aspect width
-			double lAspectWidth = lCamera->AspectWidth.Get();
-
-			// Aspect ratio
-			double lPixelRatio = lCamera->GetPixelRatio();
-
-			// Verify the pixel ratio
-			double lScreenRatio = 4 / 3; // default screen ratio is 4 : 3
-			if (lCamera->GetFormat() == FbxCamera::eHD)
-			{
-				lScreenRatio = 16 / 9; // in HD mode, screen ratio is 16 : 9
-			}
-			
-			double lInspectedPixelRatio = ComputePixelRatio(lResolutionWidth, lResolutionHeight, lScreenRatio);
-			if (lPixelRatio != lInspectedPixelRatio)
-			{
-				std::cerr << "Camera pixel ratio is not correct" << std::endl;
-				lCamera->PixelAspectRatio.Set(lInspectedPixelRatio);
-				lPixelRatio = lInspectedPixelRatio;
-			}
-			
-			// Get aspect ratio mode
-			/*
-			If the ratio mode is eWINDOW_SIZE, both width and height values aren't relevant.
-			If the ratio mode is eFIXED_RATIO, the height value is set to 1.0 and the width value is relative to the height value.
-			If the ratio mode is eFIXED_RESOLUTION, both width and height values are in pixels.
-			If the ratio mode is eFIXED_WIDTH, the width value is in pixels and the height value is relative to the width value.
-			If the ratio mode is eFIXED_HEIGHT, the height value is in pixels and the width value is relative to the height value.
-			*/
-			FbxCamera::EAspectRatioMode lCameraAspectRatioMode = lCamera->GetAspectRatioMode();
-
-			// Inspect the aspect width and height
-			if (lCameraFormat != FbxCamera::eCustomFormat && lCameraAspectRatioMode != FbxCamera::eWindowSize)
-			{
-				double lInspectedAspectHeight = 0.0;
-				double lInspectedAspectWidth = 0.0;
-				switch (lCameraAspectRatioMode)
-				{
-				default:
-					break;
-				case FbxCamera::eFixedRatio:
-					if (lAspectHeight != 1.0)
-					{
-						FBXSDK_printf("Camera aspect height should be 1.0 in fixed ratio mode.\n\rRevise the height: %lf to 1.0.\n\n", lAspectHeight);
-						lCamera->AspectHeight.Set(1.0);
-						lAspectHeight = 1.0;
-					}
-					lInspectedAspectWidth = lResolutionWidth / lResolutionHeight * lPixelRatio;
-					if (lAspectWidth != lInspectedAspectWidth)
-					{
-						FBXSDK_printf("Camera aspect width is not right.\n\rRevise the width: %lf to %lf.\n\n", lAspectWidth, lInspectedAspectWidth);
-						lCamera->AspectWidth.Set(lInspectedAspectWidth);
-						lAspectWidth = lInspectedAspectWidth;
-					}
-					break;
-				case FbxCamera::eFixedResolution:
-					if (lAspectWidth != lResolutionWidth)
-					{
-						FBXSDK_printf("Camera aspect width is not right.\n\rRevise the width: %lf to %lf.\n\n", lAspectWidth, lResolutionWidth);
-						lCamera->AspectWidth.Set(lResolutionWidth);
-						lAspectWidth = lResolutionWidth;
-					}
-					if (lAspectHeight != lResolutionHeight)
-					{
-						FBXSDK_printf("Camera aspect height is not right.\n\rRevise the height: %lf to %lf.\n\n", lAspectHeight, lResolutionHeight);
-						lCamera->AspectHeight.Set(lResolutionHeight);
-						lAspectHeight = lResolutionHeight;
-					}
-					break;
-				case FbxCamera::eFixedWidth:
-					lInspectedAspectHeight = lResolutionHeight / lResolutionWidth;
-					if (lAspectHeight != lInspectedAspectHeight)
-					{
-						FBXSDK_printf("Camera aspect height is not right.\n\rRevise the height: %lf to %lf.\n\n", lAspectHeight, lInspectedAspectHeight);
-						lCamera->AspectHeight.Set(lInspectedAspectHeight);
-						lAspectHeight = lInspectedAspectHeight;
-					}
-					break;
-				case FbxCamera::eFixedHeight:
-					lInspectedAspectWidth = lResolutionWidth / lResolutionHeight;
-					if (lAspectWidth != lInspectedAspectWidth)
-					{
-						FBXSDK_printf("Camera aspect width is not right.\n\rRevise the width: %lf to %lf.\n\n", lAspectWidth, lInspectedAspectWidth);
-						lCamera->AspectHeight.Set(lInspectedAspectWidth);
-						lAspectHeight = lInspectedAspectWidth;
-					}
-					break;
-
-				}
-			}
-
-
+			OutCameras.emplace_back(RetCamera);
 		}
+		else
+		{
+			bHasFoundAnyCameraNode = false;
+		}
+
+		// Recursively traverse each node in the scene
+		int i, lCount = pNode->GetChildCount();
+		for (i = 0; i < lCount; i++)
+		{
+			bHasFoundAnyCameraNode |= GetCameraFromRootNode(pNode->GetChild(i), OutCameras);
+		}
+
+		return bHasFoundAnyCameraNode;
 	}
 
 	//This function computes the pixel ratio
-	double  FBXSDKHelper::ComputePixelRatio(double pWidth, double pHeight, double pScreenRatio)
+	double  FBXSDKUtil::ComputePixelRatio(double pWidth, double pHeight, double pScreenRatio)
 	{
 		if (pWidth < 0.0 || pHeight < 0.0)
 			return 0.0;
@@ -245,7 +263,7 @@ namespace cxc {
 		return pScreenRatio / lResolutionRatio;
 	}
 
-	void FBXSDKHelper::InitializeSDKObjects(FbxManager*& pManager, FbxScene*& pScene)
+	void FBXSDKUtil::InitializeSDKObjects(FbxManager*& pManager, FbxScene*& pScene)
 	{
 		// Check if the FbxManager has already been created
 		if (!pManager) return;
@@ -279,14 +297,14 @@ namespace cxc {
 		}
 	}
 
-	void FBXSDKHelper::DestroySDKObjects(FbxManager* pManager, bool pExitStatus)
+	void FBXSDKUtil::DestroySDKObjects(FbxManager* pManager, bool pExitStatus)
 	{
 		// Delete the FBX Manager. All the objects that have been allocated using the FBx Manager and that haven't been explicitly destroyed are also automatically destroyed.
 		if (pManager) pManager->Destroy();
 		if (pExitStatus) std::cout << "Autodesk FBX SDK has been run successfully" << std::endl;
 	}
 
-	bool FBXSDKHelper::SaveScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName, int pFileFormat = -1, bool pEmbedMedia = false)
+	bool FBXSDKUtil::SaveScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName, int pFileFormat, bool pEmbedMedia)
 	{
 		int lMajor, lMinor, lRevision;
 		bool lStatus = true;
@@ -350,13 +368,12 @@ namespace cxc {
 		return lStatus;
 	}
 
-	bool FBXSDKHelper::LoadScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName)
+	bool FBXSDKUtil::LoadScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName)
 	{
 		int lFileMajor, lFileMinor, lFileRevision;
 		int lSDKMajor, lSDKMinor, lSDKRevision;
 		int i, lAnimStackCount;
 		bool lStatus;
-		char lPassword[1024];
 
 		// Get the file version number generated by the FBX SDK.
 		FbxManager::GetFileFormatVersion(lSDKMajor, lSDKMinor, lSDKRevision);

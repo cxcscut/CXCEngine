@@ -4,10 +4,16 @@
 #ifdef WIN32
 
 #include "..\Libraries\FBX-SDK\include\fbxsdk.h"
+#include "..\Graphics\Lighting.h"
+#include "..\Controller\Camera.h"
+#include "..\Graphics\Object3D.h"
 
 #else
 
 #include "../Libraries/FBX-SDk/include/fbxsdk.h"
+#include "../Graphics/Lighting.h"
+#include "../Controller/Camera.h"
+#include "../Graphics/Object3D.h"
 
 #endif
 
@@ -16,35 +22,35 @@
 namespace cxc
 {
 
-	class FBXSDKHelper 
+	class FBXSDKUtil 
 	{
 
 	public:
 
-		explicit FBXSDKHelper();
-		~FBXSDKHelper();
+		explicit FBXSDKUtil();
+		~FBXSDKUtil();
+
+	public:
+
+		static void ProcessNode(FbxNode* pNode);
+		
+	// Light
+	public:
+		
+		static bool GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<BaseLighting>>& OutLights);
 
 	// Camera 
 	public:
 
-		using CameraInfo = struct CameraInfo {
-
-			// Resolution of the camera
-			double ResolutionHeight;
-			double ResolutionWidth;
-
-			// Aspect of the camera
-			double AspectHeight;
-			double AspectWidth;
-			double PixelRatio;
-			
-
-		};
-
-		static bool GetCameraInfoFromRootNode(FbxNode* pNode, /* Out */ CameraInfo& OutCameraInfo);
+		static bool GetCameraFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Camera>>& OutCameras);
 		
-	private:
+	// Mesh
+	public:
 
+		static bool GetObjectFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects);
+
+	private:
+		
 		static double ComputePixelRatio(double pWidth, double pHeight, double pScreenRatio);
 
 	public:

@@ -5,7 +5,7 @@
 
 namespace cxc {
 
-	// Singleton.inl is the implementation of the singleton designe pattern
+	// Singleton.inl is the implementation of the singleton design pattern
 
 	template<typename _Tx>
 	class Singleton

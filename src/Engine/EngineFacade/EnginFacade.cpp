@@ -201,9 +201,6 @@ namespace cxc {
 		// release buffers resources
 		m_pSceneMgr->releaseBuffers();
 
-		// Release texture resources
-		m_pSceneMgr->m_pTextureMgr->RemoveAllTexture();
-
 		// Shutdown GL context
 		pEngine->CleanGL();
 
@@ -232,7 +229,7 @@ namespace cxc {
 			dCloseODE();
 	}
 
-	void EngineFacade::addObject(const std::shared_ptr<Object3D > &pObject,bool isKinematics) noexcept
+	void EngineFacade::addObject(const std::shared_ptr<Object3D > &pObject, bool isKinematics) noexcept
 	{
 		if(pObject)
 			m_pSceneMgr->AddObject(pObject->GetObjectName(),pObject,isKinematics);
@@ -381,9 +378,6 @@ namespace cxc {
 			// release buffers resources
 			m_pSceneMgr->releaseBuffers();
 
-			// Release texture resources
-			m_pSceneMgr->m_pTextureMgr->RemoveAllTexture();
-
 			// Shutdown GL context
 			CleanGL();
 		}
@@ -461,9 +455,6 @@ namespace cxc {
 				// Processing physical status
 				ProcessingPhysics();
 			*/
-
-			// Load texture
-			m_pSceneMgr->m_pTextureMgr->LoadAllTexture();
 
 			// Rendering scenes
 			RenderingScenes();

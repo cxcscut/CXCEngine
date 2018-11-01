@@ -79,8 +79,10 @@ namespace cxc {
 		void ComputeAngles() noexcept;
 		void ComputePosition() noexcept;
 
-	// Private data
+	// Camera properties
 	public:
+
+		std::string CameraName;
 
 		// Matrices of camera
 		glm::mat4 Projection, View;

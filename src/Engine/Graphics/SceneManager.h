@@ -5,7 +5,7 @@
 #include "..\inl\Singleton.inl"
 #include "..\Graphics\Object3D.h"
 #include "..\Graphics\Shape.h"
-#include "..\Graphics\TextureManager.h"
+#include "..\Graphics\MaterialManager.h"
 #include "..\Controller\Camera.h"
 
 #else
@@ -14,7 +14,7 @@
 #include "../inl/Singleton.inl"
 #include "../Graphics/Object3D.h"
 #include "../Graphics/Shape.h"
-#include "../Graphics/TextureManager.h"
+#include "../Graphics/MaterialManager.h"
 #include "../Controller/Camera.h"
 
 #endif // WIN32
@@ -156,7 +156,7 @@ namespace cxc {
 	public:
 
 		// Pointer to resource manager
-		std::shared_ptr<TextureManager> m_pTextureMgr;
+		std::shared_ptr<MaterialManager> m_pManagerMgr;
 		std::shared_ptr<Camera> m_pCamera;
 		std::shared_ptr<RendererManager> m_pRendererMgr;
 

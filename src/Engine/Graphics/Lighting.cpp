@@ -2,8 +2,13 @@
 
 namespace cxc {
 
-	BaseLighting::BaseLighting(const glm::vec3 &pos, const glm::vec3 &dir,LightType type,InteractionType interactive)
-		:LightPos(pos),LightDirection(dir),Type(type),Interactive(interactive)
+	BaseLighting::BaseLighting()
+	{
+
+	}
+
+	BaseLighting::BaseLighting(const glm::vec3 &pos, const glm::vec3 &dir, eLightType type, eInteractionType interactive)
+		:LightPos(pos),LightDirection(dir), LightType(type),Interactive(interactive)
 	{
 
 	}
@@ -18,9 +23,9 @@ namespace cxc {
 		LightPos = pos;
 	}
 
-	void BaseLighting::SetLightType(LightType type) noexcept
+	void BaseLighting::SetLightType(eLightType type) noexcept
 	{
-		Type = type;
+		LightType = type;
 	}
 
 	void BaseLighting::SetDirection(const glm::vec3 &dir) noexcept
@@ -33,9 +38,9 @@ namespace cxc {
 		return LightDirection;
 	}
 
-	LightType BaseLighting::GetLightType() const noexcept
+	eLightType BaseLighting::GetLightType() const noexcept
 	{
-		return Type;
+		return LightType;
 	}
 
 	glm::vec3 BaseLighting::GetLightPos() const noexcept
