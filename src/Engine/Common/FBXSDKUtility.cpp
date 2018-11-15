@@ -15,6 +15,15 @@
 	#define IOS_REF (*(pManager->GetIOSettings()))
 #endif
 
+const int TRIANGLE_VERTEX_COUNT = 3;
+
+// Four floats for every position.
+const int VERTEX_STRIDE = 4;
+// Three floats for every normal.
+const int NORMAL_STRIDE = 3;
+// Two floats for every UV.
+const int UV_STRIDE = 2;
+
 namespace cxc {
 
 	FBXSDKUtil::FBXSDKUtil()
@@ -63,48 +72,220 @@ namespace cxc {
 		}
 	}
 
-	bool FBXSDKUtil::GetObjectFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects)
+	bool FBXSDKUtil::GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, std::shared_ptr<Object3D> pParentNode)
 	{
 		if (!pNode)
 			return false;
 
 		bool bHasFoundAnyObject = false;
+		std::shared_ptr<Object3D> pNewObject = nullptr;
 
 		FbxMesh* pMesh = pNode->GetMesh();
-		if (!pMesh)
-			return false;
-
-		std::shared_ptr<Object3D> RetObject = std::make_shared<Object3D>();
-
-		const int lPolygonCount = pMesh->GetPolygonCount();
-
-		// Count the polygon count of each material
-		FbxLayerElementArrayTemplate<int>* lMaterialIndice = NULL;
-		FbxGeometryElement::EMappingMode lMaterialMappingMode = FbxGeometryElement::eNone;
-		if (pMesh->GetElementMaterial())
+		if (pMesh)
 		{
-			lMaterialIndice = &pMesh->GetElementMaterial()->GetIndexArray();
-			lMaterialMappingMode = pMesh->GetElementMaterial()->GetMappingMode();
-			if (lMaterialIndice && lMaterialMappingMode == FbxGeometryElement::eByPolygon)
+			const int lPolygonCount = pMesh->GetPolygonCount();
+			bHasFoundAnyObject = true;
+
+			// Count the polygon count of each material
+			FbxLayerElementArrayTemplate<int>* lMaterialIndice = NULL;
+			FbxGeometryElement::EMappingMode lMaterialMappingMode = FbxGeometryElement::eNone;
+			if (pMesh->GetElementMaterial())
 			{
-				FBX_ASSERT(lMaterialIndice->GetCount() == lPolygonCount);
-				if (lMaterialIndice->GetCount() == lPolygonCount)
+				lMaterialIndice = &pMesh->GetElementMaterial()->GetIndexArray();
+				lMaterialMappingMode = pMesh->GetElementMaterial()->GetMappingMode();
+
+				// Do not support material per face
+				if (lMaterialIndice && lMaterialMappingMode == FbxGeometryElement::eMaterial)
 				{
-					// Count the faces of each material
-					for (int lPolygonIndex = 0; lPolygonIndex < lPolygonCount; ++lPolygonIndex)
+
+				}
+			}
+
+			// Congregate all the data of a mesh to be cached in VBOs
+			// If normal or UV is by polygon vertex, record all vertex attributes by polygon vertex
+			bool bHasNormal = pMesh->GetElementNormalCount() > 0;
+			bool bHasUV = pMesh->GetElementUVCount() > 0;
+			bool bAllByControlPoint = true;
+			FbxGeometryElement::EMappingMode NormalMappingMode = FbxGeometryElement::eNone;
+			FbxGeometryElement::EMappingMode UVMappingMode = FbxGeometryElement::eNone;
+			if (bHasNormal)
+			{
+				NormalMappingMode = pMesh->GetElementNormal(0)->GetMappingMode();
+				if (NormalMappingMode == FbxGeometryElement::eNone)
+				{
+					bHasNormal = false;
+				}
+				if (bHasNormal && NormalMappingMode != FbxGeometryElement::eByControlPoint)
+				{
+					bAllByControlPoint = false;
+				}
+			}
+
+			// Allocate the array memory, by control point or by polygon vertex
+			int PolygonVertexCount = pMesh->GetControlPointsCount();
+			if (!bAllByControlPoint)
+			{
+				PolygonVertexCount = lPolygonCount * TRIANGLE_VERTEX_COUNT;
+			}
+			
+			std::vector<glm::vec3> Vertices;
+			std::vector<glm::vec3> Normals;
+			std::vector<glm::vec2> UVs;
+			std::vector<uint32_t> Indices; 
+			std::map<VertexIndexPacket, uint32_t> VertexIndexingMap;
+
+			FbxStringList UVNames;
+			pMesh->GetUVSetNames(UVNames);
+			const char* UVName = nullptr;
+			if (bHasUV && UVNames.GetCount())
+			{
+				UVName = UVNames[0];
+			}
+
+			// Populate the array with vertex attribute, if by control point
+			const FbxVector4* ControlPoints = pMesh->GetControlPoints();
+			FbxVector4 CurrentVertex;
+			FbxVector4 CurrentNormal;
+			FbxVector2 CurrentUV;
+			if (bAllByControlPoint)
+			{
+				const FbxGeometryElementNormal* NormalElement = nullptr;
+				const FbxGeometryElementUV* UVElement = nullptr;
+				if (bHasNormal)
+				{
+					NormalElement = pMesh->GetElementNormal(0);
+				}
+				if (bHasUV)
+				{
+					UVElement = pMesh->GetElementUV(0);
+				}
+				for (int Index = 0; Index < PolygonVertexCount; ++Index)
+				{
+					// Save the vertex position
+					CurrentVertex = ControlPoints[Index];
+					Vertices.push_back(glm::vec3(
+						static_cast<float>(CurrentVertex[0]),
+						static_cast<float>(CurrentVertex[1]),
+						static_cast<float>(CurrentVertex[2])
+					));
+
+					// Save the normal
+					if (bHasNormal)
 					{
-						const int lMaterialIndex = lMaterialIndice->GetAt(lPolygonIndex);
-						
+						int NormalIndex = Index;
+						if (NormalElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
+						{
+							NormalIndex = NormalElement->GetIndexArray().GetAt(Index);
+						}
+
+						CurrentNormal = NormalElement->GetDirectArray().GetAt(NormalIndex);
+						Normals.push_back(glm::vec3(
+							static_cast<float>(CurrentNormal[0]),
+							static_cast<float>(CurrentNormal[1]),
+							static_cast<float>(CurrentNormal[2])
+						));
+					}
+
+					// Save the UV.
+					if (bHasUV)
+					{
+						int UVIndex = Index;
+						if (UVElement->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
+						{
+							UVIndex = UVElement->GetIndexArray().GetAt(Index);
+						}
+
+						CurrentUV = UVElement->GetDirectArray().GetAt(UVIndex);
+						UVs.push_back(glm::vec2(
+							static_cast<float>(CurrentUV[0]), 
+							static_cast<float>(CurrentUV[1])
+						));
 					}
 				}
 			}
+
+			for (int PolygonIndex = 0; PolygonIndex < lPolygonCount; ++PolygonIndex)
+			{
+				for (int lVerticesIndex = 0; lVerticesIndex < TRIANGLE_VERTEX_COUNT; ++lVerticesIndex)
+				{
+					const int lControlPointIndex = pMesh->GetPolygonVertex(PolygonIndex, lVerticesIndex);
+
+					if (bAllByControlPoint)
+					{
+						Indices.push_back(static_cast<uint32_t>(lControlPointIndex));
+					}
+					else
+					{
+						// Populate the array with vertex attribute, if by polygon vertex
+						glm::vec3 VertexPos, VertexNormal;
+						glm::vec2 VertexUV;
+
+						CurrentVertex = ControlPoints[lControlPointIndex];
+						VertexPos = glm::vec3(
+							static_cast<float>(CurrentVertex[0]),
+							static_cast<float>(CurrentVertex[1]),
+							static_cast<float>(CurrentVertex[2])
+						);
+
+						if (bHasNormal)
+						{
+							pMesh->GetPolygonVertexNormal(PolygonIndex, lVerticesIndex, CurrentNormal);
+							VertexNormal = glm::vec3(
+								static_cast<float>(CurrentNormal[0]),
+								static_cast<float>(CurrentNormal[1]),
+								static_cast<float>(CurrentNormal[2])
+							);
+						}
+
+						if (bHasUV)
+						{
+							bool bUnmappedUV;
+							pMesh->GetPolygonVertexUV(PolygonIndex, lVerticesIndex, UVName, CurrentUV, bUnmappedUV);
+							VertexUV = glm::vec2(
+								static_cast<float>(CurrentUV[0]),
+								static_cast<float>(CurrentUV[1])
+							);
+						}
+
+						VertexIndexPacket VertexPacket(VertexPos, VertexNormal, VertexUV);
+						auto iter = VertexIndexingMap.find(VertexPacket);
+						if (iter != VertexIndexingMap.end())
+						{
+							Indices.push_back(iter->second);
+						}
+						else
+						{
+							Vertices.emplace_back(VertexPos);
+							Normals.emplace_back(VertexNormal);
+							UVs.emplace_back(VertexUV);
+							Indices.push_back(Vertices.size() - 1);
+
+							VertexIndexingMap.insert(std::make_pair(VertexPacket, Vertices.size() - 1));
+						}
+					}
+				}
+			}
+
+			// Create the shape
+			pNewObject = std::make_shared<Object3D>(Vertices, Normals, UVs, Indices);
+			pNewObject->ObjectName = pNode->GetName();
+			pNewObject->isLoaded = true;
+
+			// Create the parent-child relationship
+			if (pParentNode)
+			{
+				pParentNode->pChildNodes.push_back(pNewObject);
+				pNewObject->pParentNode = pParentNode;
+			}
+
+			OutObjects.push_back(pNewObject);
 		}
 
 		// Recursively traverse each node in the scene
 		int i, lCount = pNode->GetChildCount();
 		for (i = 0; i < lCount; i++)
 		{
-			bHasFoundAnyObject |= GetObjectFromRootNode(pNode->GetChild(i), OutObjects);
+			bHasFoundAnyObject |= GetObjectFromNode(pNode->GetChild(i), OutObjects, pNewObject);
 		}
 
 		return bHasFoundAnyObject;
@@ -213,15 +394,15 @@ namespace cxc {
 
 			// Interest position
 			FbxVector4 InterestPosition = lCamera->InterestPosition.Get();
-			RetCamera->origin = glm::vec3(InterestPosition[0], InterestPosition[1], InterestPosition[2]);
+			RetCamera->CameraOrigin = glm::vec3(InterestPosition[0], InterestPosition[1], InterestPosition[2]);
 
 			// Up vector
 			FbxVector4 UpVector = lCamera->UpVector.Get();
-			RetCamera->up_vector = glm::vec3(UpVector[0], UpVector[1], UpVector[2]);
+			RetCamera->UpVector = glm::vec3(UpVector[0], UpVector[1], UpVector[2]);
 
 			// Origin position
 			FbxVector4 Origin = lCamera->Position.Get();
-			RetCamera->eye_pos = glm::vec3(Origin[0], Origin[1], Origin[2]);
+			RetCamera->EyePosition = glm::vec3(Origin[0], Origin[1], Origin[2]);
 
 			if (lCamera->ProjectionType.Get() == FbxCamera::eOrthogonal)
 			{
@@ -250,7 +431,7 @@ namespace cxc {
 	}
 
 	//This function computes the pixel ratio
-	double  FBXSDKUtil::ComputePixelRatio(double pWidth, double pHeight, double pScreenRatio)
+	double FBXSDKUtil::ComputePixelRatio(double pWidth, double pHeight, double pScreenRatio)
 	{
 		if (pWidth < 0.0 || pHeight < 0.0)
 			return 0.0;
@@ -266,7 +447,7 @@ namespace cxc {
 	void FBXSDKUtil::InitializeSDKObjects(FbxManager*& pManager, FbxScene*& pScene)
 	{
 		// Check if the FbxManager has already been created
-		if (!pManager) return;
+		if (pManager) return;
 
 		// The first thing to do is to create the FBX Manager which is the object allocator for almost all the classes in the SDK
 		pManager = FbxManager::Create();

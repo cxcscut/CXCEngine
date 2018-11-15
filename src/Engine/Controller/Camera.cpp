@@ -11,7 +11,7 @@ namespace cxc {
 		Speed(3.0f), MouseSpeed(0.005f),
 		DeltaTime(0.0f), CurrentTime(0.0f),
 		Position(glm::vec3(0, 3, 8)),
-		origin(glm::vec3(0, 0, 0)), up_vector(0, 1, 0),
+		CameraOrigin(glm::vec3(0, 0, 0)), UpVector(0, 0, 1),
 		m_CameraMode(static_cast<CameraModeType>(CameraMode::CXC_CAMERA_FIXED))
 	{
 		ComputeAngles();
@@ -24,22 +24,25 @@ namespace cxc {
 
 	void Camera::ComputeAngles() noexcept
 	{
-		radius = glm::length(eye_pos - origin);
-		if (radius > 1e-6)
-			theta_y = acosf(eye_pos.y / radius);
-		else
-			theta_y = 0.0f;
+		Radius = glm::length(EyePosition - CameraOrigin);
 
-		theta_xoz = atan2(eye_pos.x,eye_pos.z);
+		double RadiusXOY = sqrtf((EyePosition.x - CameraOrigin.x) * (EyePosition.x - CameraOrigin.x) + 
+			(EyePosition.y - CameraOrigin.y) * (EyePosition.y - CameraOrigin.y));
+		ThetaToXOY = atan2f(EyePosition.z, RadiusXOY);
 
+		// ThetaToXOY must be clamped to (-PI / 2, PI / 2)
+		ThetaToXOY = std::fmin(PI / 2 - 0.1f, ThetaToXOY);
+		ThetaToXOY = std::fmax(-PI / 2 + 0.1f, ThetaToXOY);
+
+		ThetaXOY = atan2f(EyePosition.y ,EyePosition.x);
 	}
 
 	void Camera::ComputePosition() noexcept
 	{
-		eye_pos.y = radius * cos(theta_y);
-		double r_xoz = radius * sin(theta_y);
-		eye_pos.x = r_xoz * sin(theta_xoz);
-		eye_pos.z = r_xoz * cos(theta_xoz);
+		EyePosition.z = Radius * sinf(ThetaToXOY);
+		double RadiusXOY = Radius * cosf(ThetaToXOY);
+		EyePosition.x = RadiusXOY * cosf(ThetaXOY);
+		EyePosition.y = RadiusXOY * sinf(ThetaXOY);
 	}
 
 	void Camera::InitLastTime() noexcept
@@ -76,7 +79,7 @@ namespace cxc {
 
 	void Camera::ComputeViewMatrix() noexcept
 	{
-		View = glm::lookAt(eye_pos,origin,up_vector);
+		View = glm::lookAt(EyePosition, CameraOrigin, UpVector);
 	}
 
 	GLfloat Camera::GetInitialFov() const noexcept

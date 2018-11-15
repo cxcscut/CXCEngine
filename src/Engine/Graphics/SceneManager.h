@@ -4,18 +4,20 @@
 #include "..\General\DefineTypes.h"
 #include "..\inl\Singleton.inl"
 #include "..\Graphics\Object3D.h"
-#include "..\Graphics\Shape.h"
 #include "..\Graphics\MaterialManager.h"
 #include "..\Controller\Camera.h"
+#include "..\Common\FBXSDKUtility.h"
+#include "..\Graphics\RendererManager.h"
 
 #else
 
 #include "../General/DefineTypes.h"
 #include "../inl/Singleton.inl"
 #include "../Graphics/Object3D.h"
-#include "../Graphics/Shape.h"
 #include "../Graphics/MaterialManager.h"
 #include "../Controller/Camera.h"
+#include "../Common/FBXSDKUtility.h"
+#include "../Graphics/RendererManager.h"
 
 #endif // WIN32
 
@@ -138,13 +140,11 @@ namespace cxc {
 	// Scene loading from fbx file via FBX SDKs
 	public :
 
-
+		GLboolean LoadSceneFromFBX(const std::string& filepath) noexcept;
+		void ProcessSceneNode(FbxNode* pNode) noexcept;
 
 	// Object loading from obj files
 	public:
-
-		// Create Object from file
-		GLboolean CreateObject(const std::string &sprite_name,const std::string &sprite_file) noexcept;
 
 		// Delete object
 		void DeleteObject(const std::string &sprite_name) noexcept;
@@ -224,9 +224,6 @@ namespace cxc {
 
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<Object3D>> m_ObjectMap;
-
-		// Vertex indices number
-		uint32_t TotalIndicesNum;
 
 		// Light position
 		glm::vec3 m_LightPos;

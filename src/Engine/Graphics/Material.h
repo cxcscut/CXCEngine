@@ -39,7 +39,6 @@ namespace cxc
 
 		/* Texture2D */
 		std::shared_ptr<Texture2D> pTexture;
-
 	};
 }
 

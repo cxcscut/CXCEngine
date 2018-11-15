@@ -95,11 +95,12 @@ namespace cxc {
 		glm::vec3 Position;
 
 		// Fixed camera parameters
-		glm::vec3 eye_pos;
-		glm::vec3 origin;
-		glm::vec3 up_vector;
+		glm::vec3 EyePosition;
+		glm::vec3 CameraOrigin;
+		glm::vec3 UpVector;
 
-		double theta_xoz, theta_y, radius;
+		double ThetaToXOY, ThetaXOY;
+		double Radius;
 
 		CameraModeType m_CameraMode;
 

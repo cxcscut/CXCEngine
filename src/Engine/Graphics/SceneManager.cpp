@@ -26,13 +26,13 @@ namespace cxc {
 		dBodyID b2 = dGeomGetBody(o2);
 		if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact)) return;
 
-		Shape *rgbd3d_ptr1 = nullptr, *rgbd3d_ptr2 = nullptr;
+		Object3D *rgbd3d_ptr1 = nullptr, *rgbd3d_ptr2 = nullptr;
 
 		// Only trimesh user data can be cast into Shape*
 		if(b1 && dGeomGetClass(o1) == dTriMeshClass)
-			rgbd3d_ptr1 = reinterpret_cast<Shape*>(dBodyGetData(b1));
+			rgbd3d_ptr1 = reinterpret_cast<Object3D*>(dBodyGetData(b1));
 		if(b2 && dGeomGetClass(o2) == dTriMeshClass)
-			rgbd3d_ptr2 = reinterpret_cast<Shape*>(dBodyGetData(b2));
+			rgbd3d_ptr2 = reinterpret_cast<Object3D*>(dBodyGetData(b2));
 
 		if ((rgbd3d_ptr1 && rgbd3d_ptr1->CompareTag() == "collision_free") || 
 			(rgbd3d_ptr2 && rgbd3d_ptr2->CompareTag() == "collision_free"))
@@ -77,7 +77,7 @@ namespace cxc {
 	}
 
 	SceneManager::SceneManager()
-		: m_ObjectMap(),TotalIndicesNum(0U),
+		: m_ObjectMap(),
 		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false),
 		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
 	{
@@ -198,7 +198,7 @@ namespace cxc {
 		}
 
 		// Set Camera pos
-		SetCameraParams(m_pCamera->eye_pos, m_pCamera->origin, m_pCamera->up_vector,
+		SetCameraParams(m_pCamera->EyePosition, m_pCamera->CameraOrigin, m_pCamera->UpVector,
 			glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f)
 		);
 
@@ -208,9 +208,9 @@ namespace cxc {
 		const glm::mat4 &ProjectionMatrix) noexcept
 	{
 
-		m_pCamera->eye_pos = eye;
-		m_pCamera->origin = origin;
-		m_pCamera->up_vector = up;
+		m_pCamera->EyePosition = eye;
+		m_pCamera->CameraOrigin = origin;
+		m_pCamera->UpVector = up;
 		m_pCamera->SetAllMatrix(glm::lookAt(eye, origin, up), ProjectionMatrix);
 		m_pCamera->ComputeAngles();
 	}
@@ -226,19 +226,7 @@ namespace cxc {
 		m_Boundary.min.z = std::fmin(m_Boundary.min.z, AABB.min.z);
 	}
 
-	GLboolean SceneManager::CreateObject(const std::string &Object_name,const std::string &Object_file) noexcept
-	{
-		auto tmp_object = std::make_shared<Object3D >(Object_name);
-
-		auto ret = tmp_object->LoadOBJFromFile(Object_file);
-		if (!ret) return GL_FALSE;
-
-		m_ObjectMap.insert(std::make_pair(Object_name, tmp_object));
-
-		return GL_TRUE;
-	}
-
-	void SceneManager::AddObject(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr,bool isKinematics) noexcept
+	void SceneManager::AddObject(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr, bool isKinematics) noexcept
 	{
 		if (!ObjectPtr->CheckLoaded())
 		{
@@ -249,7 +237,7 @@ namespace cxc {
 
 		ObjectPtr->isKinematics = isKinematics;
 
-		ObjectPtr->InitializeRigidBodies(m_WorldID, m_TopLevelSpace);
+		ObjectPtr->InitializeRigidBody(m_WorldID, m_TopLevelSpace);
 
 		UpdateBoundary(ObjectPtr->GetAABB());
 	}
@@ -290,14 +278,14 @@ namespace cxc {
 
 				for (auto pObject : m_ObjectMap)
 					if (pObject.second->isEnable())
-						pObject.second->DrawShadow(pShadowRender);
+						pObject.second->ShadowCastTick(pShadowRender);
 			}
 		}
 		else {
 			glClear(GL_DEPTH_BUFFER_BIT);
 			for (auto pObject : m_ObjectMap)
 				if (pObject.second->isEnable())
-					pObject.second->DrawShadow(pShadowRender);
+					pObject.second->ShadowCastTick(pShadowRender);
 		}
 	}
 
@@ -308,6 +296,72 @@ namespace cxc {
 
 		// Draw the scene
 		DrawScene();
+	}
+
+	void SceneManager::ProcessSceneNode(FbxNode* pNode) noexcept
+	{
+		if (!pNode)
+			return;
+
+		if (pNode->GetNodeAttribute() != nullptr)
+		{
+
+			FbxNodeAttribute::EType AttributeType;
+			AttributeType = pNode->GetNodeAttribute()->GetAttributeType();
+
+			switch (AttributeType)
+			{
+			default:
+				break;
+
+			case FbxNodeAttribute::eMesh:
+				std::vector<std::shared_ptr<Object3D>> LoadedObjects;
+				bool res = FBXSDKUtil::GetObjectFromNode(pNode, LoadedObjects);
+				if (!res)
+				{
+					std::cout << "SceneManager::ProcessSceneNode, Failed to load the mesh" << std::endl;
+				}
+				else
+				{
+					for (auto pObject : LoadedObjects)
+					{
+						AddObject(pObject->GetObjectName(), pObject);
+					}
+				}
+				break;
+			}
+		}
+
+		// Process the child node
+		int ChildNodeCount = pNode->GetChildCount();
+		for (int i = 0; i < ChildNodeCount; ++i)
+		{
+			ProcessSceneNode(pNode->GetChild(i));
+		}
+	}
+
+	GLboolean SceneManager::LoadSceneFromFBX(const std::string& filepath) noexcept
+	{
+		FbxManager* pSdkManager = nullptr;
+		FbxScene* pScene = nullptr;
+		bool bSuccessfullyLoadedScene = false;
+
+		// Prepare the FBX SDK
+		FBXSDKUtil::InitializeSDKObjects(pSdkManager, pScene);
+		bSuccessfullyLoadedScene = FBXSDKUtil::LoadScene(pSdkManager, pScene, filepath.c_str());
+		if (!bSuccessfullyLoadedScene)
+		{
+			FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
+			return GL_FALSE;
+		}
+		
+		// Process node from the root node of the scene
+		ProcessSceneNode(pScene->GetRootNode());
+
+		// Destroy all the objects created by the FBX SDK
+		FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
+
+		return GL_TRUE;
 	}
 
 	void SceneManager::DrawScene() noexcept
@@ -386,7 +440,7 @@ namespace cxc {
 
 	void SceneManager::UpdateCameraPos(GLFWwindow *window,float x,float y,GLuint height,GLuint width) noexcept
 	{
-		m_pCamera->ComputeMatrices_Moving(window, x,y,height,width);
+		m_pCamera->ComputeMatrices_Moving(window, x, y, height, width);
 	}
 
 	void SceneManager::BindCameraUniforms() const noexcept
@@ -394,7 +448,7 @@ namespace cxc {
 		auto pEngine = EngineFacade::GetInstance();
 		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
 		if (!pRender) return;
-		auto ActiveProgramID = pRender->GetProgramID();;
+		auto ActiveProgramID = pRender->GetProgramID();
 		m_pCamera->BindCameraUniforms(ActiveProgramID);
 	}
 
@@ -405,7 +459,7 @@ namespace cxc {
 			m_ObjectMap.erase(it);
 	}
 
-	std::shared_ptr<Object3D > SceneManager::GetObject3D(const std::string &sprite_name) const noexcept
+	std::shared_ptr<Object3D> SceneManager::GetObject3D(const std::string &sprite_name) const noexcept
 	{
 		auto it = m_ObjectMap.find(sprite_name);
 

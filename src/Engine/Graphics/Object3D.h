@@ -4,6 +4,7 @@
 
 #include"..\Libraries\TinyObjLoader\tiny_obj_loader.h"
 #include "..\Physics\ode\ode.h"
+#include "..\Physics\RigidBody3D.h"
 
 #else
 
@@ -11,6 +12,7 @@
 
 #include"../Libraries/TinyObjLoader/tiny_obj_loader.h"
 #include "../Physics/ode/ode.h"
+#include "../Physics/RigidBody3D.h"
 
 #endif // WIN32
 
@@ -26,6 +28,7 @@ namespace cxc {
 	class MaterialManager;
 	class TextureManager;
 	class Shape;
+	class Material;
 
 	class CXCRect3 {
 		
@@ -70,60 +73,50 @@ namespace cxc {
 		};
 	};
 
-	class Object3D : public std::enable_shared_from_this<Object3D>
+	class Object3D : public RigidBody3D, public std::enable_shared_from_this<Object3D>
 	{
 
 	public:
 
 		friend class SceneManager;
 		friend class OctreeNode;
+		friend class FBXSDKUtil;
 
 		explicit Object3D();
+		explicit Object3D(std::vector<glm::vec3>& Vertices,
+			std::vector<glm::vec3>& Normals, 
+			std::vector<glm::vec2>& UVs, 
+			std::vector<uint32_t>& Indices);
 		virtual ~Object3D();
 
 		Object3D(const std::string &object_name);
 		Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag = "" , GLboolean _enable = GL_TRUE);
 
-	// Obj file loading
-	public:
-
-		GLboolean LoadOBJFromFile(const std::string &filename);
-		GLboolean LoadingObjectModel() { return LoadOBJFromFile(FileName); };
-
 	// Vertex Processing
 	public:
 
 		void ComputeNormal(glm::vec3 &normal,const glm::vec3 &vertex1,const glm::vec3 &vertex2,const glm::vec3 &vertex3) const noexcept;
-		void IndexVertex(std::map<VertexIndexPacket, uint32_t> &VertexIndexMap,const glm::vec3 &geo_normal,const VertexIndexPacket &vertex,
-			uint32_t &subindex, Shape* drawobject,const tinyobj::attrib_t &attrib);
-
+		glm::vec3 GetPivot() const noexcept { return Pivot; }
+		void SetPivot(const glm::vec3& NewPivot) noexcept { Pivot = NewPivot; }
+		void ComputePivot() noexcept;
 	// Model adjusting
 	public:
 
 		//virtual void CalculateSizeVector() noexcept;
 		glm::vec3 CalculateRotatedCoordinate(const glm::vec3 &original_vec, const glm::vec3 &start,const glm::vec3 &direction,float degree) const noexcept;
-		void UpdateBoundaryCoords(const glm::vec3 &pos) noexcept;
-
-	// Assigning
-	public:
-
-		bool AddRoot(const std::string &ModelName) noexcept;
-		bool AddChild(const std::string &RootModelName,const std::string &ChildModelName) noexcept;
-		bool FindChild(const std::string &RootModelName,const std::string &TargetModelName,std::shared_ptr<ObjectTree> &RetModelPtr) noexcept;
+		void ComputeObjectBoundary() noexcept;
 
 	// Model transformation
 	public:
-		virtual void Translation(const std::string &ModelName, const glm::vec3 &TranslationVector) noexcept;
-		virtual void Translation(const glm::vec3 &TranslationVector) noexcept;
-
-		virtual void Rotation(const std::string &ModelName, const glm::vec3 &RotationAxis, float Degree) noexcept;
-		virtual void Rotation(const glm::vec3 &RotationAxis, float Degree) noexcept;
+		virtual void Translate(const glm::vec3 &TranslationVector) noexcept;
+		virtual void RotateWorldSpace(const glm::vec3 &RotationAxis, float Degree) noexcept;
+		virtual void RotateLocalSpace(const glm::vec3 &RotationAxis, float Degree) noexcept;
 
 		// Rotation with arbitrary axis
-		virtual void RotateWithArbitraryAxis(const std::string &ModelName, const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
+		virtual void RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
 
 		virtual void RenderingTick() noexcept;
-		virtual void DrawShadow(ShadowMapRender* pRender) noexcept;
+		virtual void ShadowCastTick(ShadowMapRender* pRender) noexcept;
 
 		void InitBuffers() noexcept;
 		void ReleaseBuffers() noexcept;
@@ -131,7 +124,7 @@ namespace cxc {
 	// Physics interface
 	public:
 
-		void InitializeRigidBodies(dWorldID world,dSpaceID) noexcept;
+		void InitializeRigidBody(dWorldID world,dSpaceID) noexcept;
 
 		// 0 - gravity off
 		// 1 - gravity on
@@ -144,31 +137,13 @@ namespace cxc {
 
 		bool CheckLoadingStatus() const noexcept;
 		void SetObjectName(const std::string &Name) noexcept;
-		bool CheckCompoent(const std::string &CompoentName) const noexcept;
 		const std::string &GetObjectName() const noexcept;
 
-		// Return Model ptr
-		std::shared_ptr<Shape> GetModelByName(const std::string &ModelName) const noexcept;
-
-		// Return Model names
-		std::vector<std::string> GetModelNames() const noexcept;
-
 		// Return scaling vector and centerizing vector
-		std::unordered_map<std::string, std::shared_ptr<Shape>> &GetModelMap() noexcept;
-		std::vector<std::shared_ptr<ObjectTree>> &GetObjectTreePtr() noexcept;
 		bool CheckLoaded() const noexcept { return isLoaded; }
 		void SetLoaded() noexcept;
 
-		uint32_t GetObjectVertexNum() const noexcept;
 		CXCRect3 GetAABB() const noexcept{return AABB; };
-
-		uint32_t GetVertexSubscript(const std::string &shape_name) noexcept;
-
-		void ComputeCenterPos() noexcept;
-		glm::vec3 GetCenterPos() const noexcept { return CenterCoords; };
-
-		GLboolean CheckStateChanged() const noexcept;
-		void SetStateChanged(GLboolean state) noexcept;
 
 		GLboolean isEnable() const noexcept { return enable; };
 		void Enable() noexcept { enable = GL_TRUE; };
@@ -192,27 +167,46 @@ namespace cxc {
 		std::string tag;
 		
 		// Max, min and center coordinates
-		glm::vec3 MaxCoords, MinCoords, CenterCoords;
+		glm::vec3 MaxCoords, MinCoords;
+
+		// Pivot of rotation
+		glm::vec3 Pivot;
 
 		// AABB bounding box
 		CXCRect3 AABB;
 
-		// <ShapeName , Pointer to Model>
-		std::unordered_map<std::string,std::shared_ptr<Shape>> m_ModelMap;
-
 		// <ShapeName , Material Name>
 		std::unordered_map<std::string, std::string> Materials;
 
-		// Subscript of shape's vertex in vbo
-		std::unordered_map<std::string, uint32_t> m_VertexSubscript;
-
-		// Object tree
-		std::vector<std::shared_ptr<ObjectTree>> m_ObjectTree;
-
 		// Codes of the OctreeNode that contain the object
 		std::unordered_set<std::string> m_OctreePtrs;
+		
+		// Child objects
+		std::vector<std::weak_ptr<Object3D>> pChildNodes;
 
-		GLboolean stateChanged;
+		// Parent object
+		std::weak_ptr<Object3D> pParentNode;
+
+		// Model matrix
+		glm::mat4 m_ModelMatrix;
+
+		// Vertex index buffer
+		std::vector<uint32_t> m_VertexIndices;
+
+		// Vertex coordinate
+		std::vector<glm::vec3> m_VertexCoords;
+
+		// Vertex normals 
+		std::vector<glm::vec3> m_VertexNormals;
+
+		// UVs
+		std::vector<glm::vec2> m_TexCoords;
+
+		// Material
+		std::shared_ptr<Material> pMaterial;
+
+		// ID of VBO, EBO and VAO
+		GLuint  m_VBO[3], m_EBO, m_VAO;
 
 		// if obj file has been loaded
 		bool isLoaded;

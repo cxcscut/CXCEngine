@@ -31,25 +31,27 @@ namespace cxc {
 		auto ProgramID = pRender->GetProgramID();
 		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
 
+		auto camera = pEngine->m_pSceneMgr->m_pCamera;
+
 		double dx = x-_x, dy = y-_y;
 		_x = x; _y = y;
 
-		double theta_xoz = -PI * (dx / pEngine->m_pWindowMgr->GetWindowWidth() / 2);
-		double theta_y = -PI * (dy / pEngine->m_pWindowMgr->GetWindowHeight() / 2);
+		double DeltaThetaXOY = -PI * (dx / pEngine->m_pWindowMgr->GetWindowWidth() / 2);
+		double DeltaThetaToXOY = PI * (dy / pEngine->m_pWindowMgr->GetWindowHeight() / 2);
 
 		// Update angles
-		pEngine->m_pSceneMgr->m_pCamera->ComputeAngles();
+		camera->ComputeAngles();
 
 		// Rotate Camera
-		pEngine->m_pSceneMgr->m_pCamera->theta_xoz += theta_xoz;
-		pEngine->m_pSceneMgr->m_pCamera->theta_y += theta_y;
+		camera->ThetaToXOY += DeltaThetaToXOY;
+		camera->ThetaXOY += DeltaThetaXOY;
 
-		if ((pEngine->m_pSceneMgr->m_pCamera->theta_y > PI - 0.1f) || (pEngine->m_pSceneMgr->m_pCamera->theta_y < 0.1f))
-			pEngine->m_pSceneMgr->m_pCamera->theta_y = pEngine->m_pSceneMgr->m_pCamera->theta_y < 0.1f ? 0.1f : PI - 0.1f;
+		camera->ComputePosition();
+		camera->ComputeViewMatrix();
+		camera->BindViewMatrix(ProgramID);
 
-		pEngine->m_pSceneMgr->m_pCamera->ComputePosition();
-		pEngine->m_pSceneMgr->m_pCamera->ComputeViewMatrix();
-		pEngine->m_pSceneMgr->m_pCamera->BindViewMatrix(ProgramID);
+		//std::cout << "Camera pos : " << camera->EyePosition.x << "," << camera->EyePosition.y << "," << camera->EyePosition.z << std::endl;
+		//std::cout << "Looking at : " << camera->CameraOrigin.x << "," << camera->CameraOrigin.y << "," << camera->CameraOrigin.z << std::endl;
 	}
 
 	void MouseCallBack(GLFWwindow *window, int button, int action, int mods)
@@ -83,15 +85,15 @@ namespace cxc {
 		auto camera = pEngine->m_pSceneMgr->m_pCamera;
 		if (!wHandle) return;
 
-		glm::vec3 eye_direction = glm::normalize(camera->origin - camera->eye_pos);
-		float distance = glm::length(camera->eye_pos - camera->origin);
+		glm::vec3 eye_direction = glm::normalize(camera->CameraOrigin - camera->EyePosition);
+		float distance = glm::length(camera->EyePosition - camera->CameraOrigin);
 
 		// y > 0 when srcoll up , y < 0 when scroll down
 		if (y>0)
 		{
 			// srcoll up
 			if (distance > MIN_DISTANCE) {
-				camera->eye_pos += ZOOMING_SPEED * eye_direction;
+				camera->EyePosition += ZOOMING_SPEED * eye_direction;
 			}
 		}
 		else
@@ -99,13 +101,16 @@ namespace cxc {
 
 			// scroll down
 			if (distance <= MAX_DISTANCE) {
-				camera->eye_pos -= ZOOMING_SPEED  * eye_direction;
+				camera->EyePosition -= ZOOMING_SPEED  * eye_direction;
 			}
 
 		}
 
 		camera->ComputeViewMatrix();
 		camera->BindViewMatrix(CurrentProgramID);
+
+		//std::cout << "Camera pos : " << camera->EyePosition.x << "," << camera->EyePosition.y << "," << camera->EyePosition.z << std::endl;
+		//std::cout << "Looking at : " << camera->origin.x << "," << camera->origin.y << "," << camera->origin.z << std::endl;
 	}
 
 	// Multi-threading rendering
@@ -193,7 +198,7 @@ namespace cxc {
 		m_pSceneMgr->initResources();
 
 		// Construct Octree
-		m_pSceneMgr->BuildOctree();
+		//m_pSceneMgr->BuildOctree();
 
 		// Begin event looping
 		pEngine->GameLooping();

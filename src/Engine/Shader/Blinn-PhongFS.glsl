@@ -89,14 +89,11 @@ void main()
 	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
 	vec3 MaterialDiffuseColor;
 
-	if(isUseTex > 0)
-		MaterialDiffuseColor = LightColor * LightPower * cos_theta / distance ;
-	else
-		MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / distance ;
+	MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / distance ;
+	vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha, shineness) / distance ;
 
-	vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha,shineness) / distance ;
-
-	color = MaterialAmbientColor * MaterialDiffuseColor +
-			visibility * MaterialSpecularColor  +
-			visibility * MaterialDiffuseColor;
+	//color = MaterialAmbientColor * MaterialDiffuseColor +
+			//MaterialSpecularColor  +
+			//MaterialDiffuseColor;
+	color = vec3(1,0,0);
 }

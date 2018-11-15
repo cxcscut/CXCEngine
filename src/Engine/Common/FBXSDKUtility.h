@@ -30,10 +30,6 @@ namespace cxc
 		explicit FBXSDKUtil();
 		~FBXSDKUtil();
 
-	public:
-
-		static void ProcessNode(FbxNode* pNode);
-		
 	// Light
 	public:
 		
@@ -47,7 +43,7 @@ namespace cxc
 	// Mesh
 	public:
 
-		static bool GetObjectFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects);
+		static bool GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, std::shared_ptr<Object3D> pParentNode = nullptr);
 
 	private:
 		
@@ -57,7 +53,7 @@ namespace cxc
 
 		static bool LoadRootNodeFromFbxFile(const char* pFileName, /* Out */ FbxNode* RootNode);
 
-	private:
+	public:
 		
 		static void InitializeSDKObjects(FbxManager*& pManager, FbxScene*& pScene);
 		static void DestroySDKObjects(FbxManager* pManager, bool pExitStatus);
