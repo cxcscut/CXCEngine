@@ -1,4 +1,4 @@
-#include "../../../Engine/EngineFacade/EngineFacade.h"
+#include "../../../Engine/World/World.h"
 
 #define dDOUBLE
 #define MOVING_STEP 20.0f
@@ -17,15 +17,13 @@ int main()
 	glm::vec3 LightPos = glm::vec3(80, 80, 0);
 
 	// Accquire engine pointer
-	auto pEngine = EngineFacade::GetInstance();
+	auto pEngine = World::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
 	auto pRender = std::make_shared<BaseRender>(VertexShaderPath, FragmentShaderPath);
 	auto pShadow = std::make_shared<ShadowMapRender>(1920, 1920, ShadowVS, ShadowFS);
 	pShadow->CreateLightInfo(LightPos, -LightPos, eLightType::OmniDirectional, eInteractionType::Static);
 	
 	//pEngine->SetGravity(0, -0.5f, 0);
-	pEngine->m_pWindowMgr->InitGL();
-
 	pEngine->m_pWindowMgr->SetWindowHeight(600);
 	pEngine->m_pWindowMgr->SetWindowWidth(800);
 
@@ -37,9 +35,7 @@ int main()
 	pEngine->m_pSceneMgr->m_pCamera->EyePosition = glm::vec3(0, 250, 30);
 	pEngine->m_pSceneMgr->SetLightPos(LightPos);
 
-	pEngine->InitWindowPosition(200, 200);
-
-	pEngine->MultiThreadingEnable();
+	pEngine->SetWindowPosition(200, 200);
 	
 	pEngine->Init();
 
@@ -50,9 +46,6 @@ int main()
 
 	// Start engine
 	pEngine->run();
-
-	// Waiting for stop when condition satisifies
-	pEngine->waitForStop();
 
 	return 0;
 }

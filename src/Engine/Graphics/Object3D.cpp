@@ -5,7 +5,7 @@
 #ifdef WIN32
 
 #include "..\Common\FileHelper.h"
-#include "..\EngineFacade\EngineFacade.h"
+#include "..\World\World.h"
 #include "..\Graphics\RendererManager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -18,7 +18,7 @@
 
 #include "../Common/FileHelper.h"
 #include "../Graphics/RendererManager.h"
-#include "../EngineFacade/EngineFacade.h"
+#include "../World/World.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../Libraries/Image_loader/stb_image.h"
@@ -154,7 +154,7 @@ namespace cxc {
 		auto new_pos = getPosition() + TranslationVector;
 
 		setPossition(new_pos.x, new_pos.y, new_pos.z);
-
+		
 		// Perform translation on children node
 		for (auto &pChildNode : pChildNodes)
 		{
@@ -278,14 +278,14 @@ namespace cxc {
 		setGravityMode(mode);
 	}
 
-	void Object3D::RenderingTick() noexcept
+	void Object3D::Tick(float DeltaSeconds) noexcept
 	{
 		GLint TexSamplerHandle, texflag_loc, depthBiasMVP_loc;
 		GLint ShadowMapSampler_loc, Eyepos_loc, M_MatrixID;
 		GLint Ka_loc, Ks_loc, Kd_loc, isPointLight_loc;
 		GLint shadowmapCube_loc;
 
-		auto pEngine = EngineFacade::GetInstance();
+		auto pEngine = World::GetInstance();
 		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
 		if (!pRender) return;
 		auto ProgramID = pRender->GetProgramID();
@@ -386,9 +386,9 @@ namespace cxc {
 		glDrawElements(GL_TRIANGLES, m_VertexIndices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 	}
 
-	void Object3D::ShadowCastTick(ShadowMapRender* pShadowRender) noexcept
+	void Object3D::CastingShadows(ShadowMapRender* pShadowRender) noexcept
 	{
-		auto pEngine = EngineFacade::GetInstance();
+		auto pEngine = World::GetInstance();
 
 		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
 

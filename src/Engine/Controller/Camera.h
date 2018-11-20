@@ -26,7 +26,7 @@ namespace cxc {
 
 	public:
 
-		friend class EngineFacade;
+		friend class World;
 		friend class SceneManager;
 
 		explicit Camera();

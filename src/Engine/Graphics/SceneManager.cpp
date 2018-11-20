@@ -2,11 +2,11 @@
 
 #ifdef WIN32
 
-#include "..\EngineFacade\EngineFacade.h"
+#include "..\World\World.h"
 
 #else
 
-#include "../EngineFacade/EngineFacade.h"
+#include "../World/World.h"
 
 #endif // WIN32
 
@@ -14,104 +14,18 @@
 
 namespace cxc {
 
-	// Collision detection callback function
-	void SceneManager::nearCallback(void *data, dGeomID o1, dGeomID o2) noexcept
-	{
-
-		int num;
-
-		dContact contacts[MAX_CONTACT_NUM];
-
-		dBodyID b1 = dGeomGetBody(o1);
-		dBodyID b2 = dGeomGetBody(o2);
-		if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact)) return;
-
-		Object3D *rgbd3d_ptr1 = nullptr, *rgbd3d_ptr2 = nullptr;
-
-		// Only trimesh user data can be cast into Shape*
-		if(b1 && dGeomGetClass(o1) == dTriMeshClass)
-			rgbd3d_ptr1 = reinterpret_cast<Object3D*>(dBodyGetData(b1));
-		if(b2 && dGeomGetClass(o2) == dTriMeshClass)
-			rgbd3d_ptr2 = reinterpret_cast<Object3D*>(dBodyGetData(b2));
-
-		if ((rgbd3d_ptr1 && rgbd3d_ptr1->CompareTag() == "collision_free") || 
-			(rgbd3d_ptr2 && rgbd3d_ptr2->CompareTag() == "collision_free"))
-			return;
-		
-		// Do not check collision if tags are the same
-		if (rgbd3d_ptr1->CompareTag() == rgbd3d_ptr2->CompareTag())
-			return;
-
-		for (num = 0; num < MAX_CONTACT_NUM; ++num)
-		{
-			contacts[num].surface.mode = dContactBounce | dContactSoftCFM;
-			contacts[num].surface.mu = dInfinity;
-			contacts[num].surface.mu2 = 0;
-			contacts[num].surface.bounce = 0.1;
-			contacts[num].surface.bounce_vel = 0.1;
-			contacts[num].surface.soft_cfm = 0.01;
-		}
-
-		int num_contact = dCollide(o1, o2, MAX_CONTACT_NUM, &contacts[0].geom, sizeof(dContact));
-
-		if (num_contact > 0)
-		{
-			for (int i = 0; i < num_contact; ++i)
-			{
-				auto pSceneMgr = reinterpret_cast<SceneManager*>(data);
-
-				// Suspend physical loop
-				//EngineFacade::GetInstance()->SuspendPhysics();
-
-				assert(rgbd3d_ptr1);
-				assert(rgbd3d_ptr2);
-
-                pSceneMgr->Collision = true;
-
-				//std::cout << rgbd3d_ptr1->GetModelName() << " AND " << rgbd3d_ptr2->GetModelName() << " COLLIDES" << std::endl;
-
-				dJointID joint = dJointCreateContact(pSceneMgr->m_WorldID, pSceneMgr->m_ContactJoints, contacts + i);
-				dJointAttach(joint, dGeomGetBody(o1), dGeomGetBody(o2));
-			}
-		}
-	}
-
 	SceneManager::SceneManager()
 		: m_ObjectMap(),
-		m_TopLevelSpace(0),m_WorldID(0), m_ContactJoints(0),Collision(false),
 		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
 	{
 		m_pManagerMgr = MaterialManager::GetInstance();
 		m_pCamera = std::make_shared<Camera>();
 		m_pRendererMgr = RendererManager::GetInstance();
-
 	}
 
 	SceneManager::~SceneManager()
 	{
 		m_ObjectMap.clear();
-
-		// Destroy joint group
-		if (m_ContactJoints)
-			dJointGroupDestroy(m_ContactJoints);
-
-		// Destroy space
-		if (m_TopLevelSpace)
-			dSpaceDestroy(m_TopLevelSpace);
-	}
-
-	void SceneManager::releaseBuffers() noexcept
-	{
-		for (auto pObject : m_ObjectMap)
-			pObject.second->ReleaseBuffers();
-	}
-
-	void SceneManager::initResources() noexcept
-	{
-		// Init buffer objects
-		for (auto pObject : m_ObjectMap) {
-			pObject.second->InitBuffers();
-		}
 	}
 
 	void SceneManager::BuildOctree() noexcept
@@ -159,32 +73,6 @@ namespace cxc {
 			object.second->UpdateMeshTransMatrix();
 	}
 
-	void SceneManager::CreatePhysicalWorld(const glm::vec3 &gravity) noexcept
-	{
-		// Create world
-		m_WorldID = dWorldCreate();
-
-		// Setting parameters of world
-		dWorldSetERP(m_WorldID, 0.2);
-		dWorldSetCFM(m_WorldID, 1e-5);
-
-		// Center and extent defines the size of root blocks
-		// Center of the root blocks
-		dReal center[3] = {0,0,0};
-
-		// Extents of the root blocks
-		dReal Extent[3] = {1000,1000,1000};
-
-		// Create top-level space using quadtree implementation
-		m_TopLevelSpace = dQuadTreeSpaceCreate(0, center, Extent, 4);
-
-		// Set gravity
-		dWorldSetGravity(m_WorldID,gravity.x,gravity.y,gravity.z);
-
-		// Create joint gruop for contact joint
-		m_ContactJoints = dJointGroupCreate(0);
-	}
-
 	void SceneManager::InitCameraStatus(GLFWwindow * window) noexcept
 	{
 		m_pCamera->InitLastTime();
@@ -226,23 +114,22 @@ namespace cxc {
 		m_Boundary.min.z = std::fmin(m_Boundary.min.z, AABB.min.z);
 	}
 
-	void SceneManager::AddObject(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr, bool isKinematics) noexcept
+	void SceneManager::AddObjectInternal(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr, bool isKinematics) noexcept
 	{
 		if (!ObjectPtr->CheckLoaded())
 		{
 			std::cerr << "Failed to add Object " << ObjectPtr->GetObjectName() << std::endl;
 			return;
 		}
+
 		m_ObjectMap.insert(std::make_pair(ObjectName, ObjectPtr));
 
 		ObjectPtr->isKinematics = isKinematics;
 
-		ObjectPtr->InitializeRigidBody(m_WorldID, m_TopLevelSpace);
-
 		UpdateBoundary(ObjectPtr->GetAABB());
 	}
 
-	void SceneManager::PrepareShadowMap() noexcept
+	void SceneManager::CookShadowMap() noexcept
 	{
 		auto pShadowRender = dynamic_cast<ShadowMapRender*>(m_pRendererMgr->GetRenderPtr("ShadowRender"));
 		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
@@ -278,24 +165,24 @@ namespace cxc {
 
 				for (auto pObject : m_ObjectMap)
 					if (pObject.second->isEnable())
-						pObject.second->ShadowCastTick(pShadowRender);
+						pObject.second->CastingShadows(pShadowRender);
 			}
 		}
 		else {
 			glClear(GL_DEPTH_BUFFER_BIT);
 			for (auto pObject : m_ObjectMap)
 				if (pObject.second->isEnable())
-					pObject.second->ShadowCastTick(pShadowRender);
+					pObject.second->CastingShadows(pShadowRender);
 		}
 	}
 
-	void SceneManager::TickScene() noexcept
+	void SceneManager::Tick(float DeltaSeconds) noexcept
 	{
 		// Generating the shadow map
-		PrepareShadowMap();
+		CookShadowMap();
 
 		// Draw the scene
-		DrawScene();
+		RenderingTick(DeltaSeconds);
 	}
 
 	void SceneManager::ProcessSceneNode(FbxNode* pNode) noexcept
@@ -325,7 +212,10 @@ namespace cxc {
 				{
 					for (auto pObject : LoadedObjects)
 					{
-						AddObject(pObject->GetObjectName(), pObject);
+						auto pWorld = World::GetInstance();
+						assert(pWorld != nullptr);
+
+						pWorld->AddObject(pObject);
 					}
 				}
 				break;
@@ -364,9 +254,9 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	void SceneManager::DrawScene() noexcept
+	void SceneManager::RenderingTick(float DeltaSeconds) noexcept
 	{
-		auto pEngine = EngineFacade::GetInstance();
+		auto pEngine = World::GetInstance();
 		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
 		if (!pRender) return;
 
@@ -387,7 +277,16 @@ namespace cxc {
 			// if Octree has not been built, draw all the objects
 			for (auto pObject : m_ObjectMap)
 				if (pObject.second->isEnable())
-					pObject.second->RenderingTick();
+				{
+					// Initialize the buffers
+					pObject.second->InitBuffers();
+
+					// Rendering
+					pObject.second->Tick(DeltaSeconds);
+
+					// Release buffers after rendering
+					pObject.second->ReleaseBuffers();
+				}
 		}
 		else
 		{
@@ -427,7 +326,7 @@ namespace cxc {
 			//std::cout << "Drawing " << hash.size() << " objects" << std::endl;
 			// Draw the remaining objects
 			for (auto piter = hash.begin(); piter != hash.end(); piter++)
-				(*piter)->RenderingTick();
+				(*piter)->Tick(DeltaSeconds);
 
 			hash.clear();
 		}
@@ -445,7 +344,7 @@ namespace cxc {
 
 	void SceneManager::BindCameraUniforms() const noexcept
 	{
-		auto pEngine = EngineFacade::GetInstance();
+		auto pEngine = World::GetInstance();
 		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
 		if (!pRender) return;
 		auto ActiveProgramID = pRender->GetProgramID();

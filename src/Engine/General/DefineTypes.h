@@ -77,9 +77,6 @@ namespace cxc {
 	typedef GLint KeyType;
 	typedef GLuint CameraModeType;
 
-	using RenderingThread =
-		std::function<void(void)>;
-
 	using ObjectTree = MultiTree<std::shared_ptr<Shape>>;
 	using TokenTree = MultiTree<std::string>;
 

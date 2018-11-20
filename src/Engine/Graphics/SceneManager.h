@@ -128,6 +128,7 @@ namespace cxc {
 	public:
 
 		friend Singleton<SceneManager>;
+		friend class World;
 
 		explicit SceneManager();
 		~SceneManager();
@@ -148,9 +149,6 @@ namespace cxc {
 
 		// Delete object
 		void DeleteObject(const std::string &sprite_name) noexcept;
-
-		// Add object to object map
-		void AddObject(const std::string &SpriteName,const std::shared_ptr<Object3D> &ObjectPtr,bool isKinematics = false) noexcept;
 
 	// Data access interface
 	public:
@@ -184,38 +182,22 @@ namespace cxc {
 	// Draw call and resource management
 	public:
 
-		void TickScene() noexcept;
-		void DrawScene() noexcept;
-		void PrepareShadowMap() noexcept;
-
-		void initResources() noexcept;
-
-		void releaseBuffers() noexcept;
+		void Tick(float DeltaSeconds) noexcept;
+		void RenderingTick(float Seconds) noexcept;
+		void CookShadowMap() noexcept;
 
 		void BuildOctree() noexcept;
 	// Physics settings
 	public:
 
-		void CreatePhysicalWorld(const glm::vec3 & gravity) noexcept;
-
-		static void nearCallback(void *data, dGeomID o1, dGeomID o2) noexcept;
-
 		void UpdateMeshTransMatrix() noexcept;
-
-		// physics world
-		dWorldID m_WorldID;
-
-		// Top level space
-		dSpaceID m_TopLevelSpace;
-
-		// Joint group
-		dJointGroupID m_ContactJoints;
-
-        bool Collision;
 
 	private:
 
 		void UpdateBoundary(const CXCRect3 &AABB) noexcept;
+
+		// Add object to object map
+		void AddObjectInternal(const std::string &SpriteName, const std::shared_ptr<Object3D> &ObjectPtr, bool isKinematics = false) noexcept;
 
 	private:
 

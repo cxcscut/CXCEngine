@@ -115,8 +115,8 @@ namespace cxc {
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
 
-		virtual void RenderingTick() noexcept;
-		virtual void ShadowCastTick(ShadowMapRender* pRender) noexcept;
+		virtual void Tick(float DeltaSeconds) noexcept;
+		virtual void CastingShadows(ShadowMapRender* pRender) noexcept;
 
 		void InitBuffers() noexcept;
 		void ReleaseBuffers() noexcept;

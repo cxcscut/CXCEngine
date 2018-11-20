@@ -2,15 +2,15 @@
 
 #ifdef WIN32
 
-#include "..\EngineFacade\EngineFacade.h"
+#include "..\World\World.h"
 
 #else
 
-#include "../EngineFacade/EngineFacade.h"
+#include "../World/World.h"
 
 #endif // WIN32
 
-auto EnginePtr = cxc::EngineFacade::GetInstance();
+auto EnginePtr = cxc::World::GetInstance();
 
 namespace cxc
 {
