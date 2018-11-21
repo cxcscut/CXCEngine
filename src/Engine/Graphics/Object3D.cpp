@@ -31,9 +31,8 @@
 namespace cxc {
 
 	Object3D::Object3D() :
-		ObjectName(""), Materials(),
+		ObjectName(""),
 		isLoaded(false), enable(GL_TRUE), m_ModelMatrix(1.0f),
-		pMaterial(nullptr),
 		isKinematics(false)
 	{
 
@@ -361,29 +360,17 @@ namespace cxc {
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
 		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Normal
 
-																														   // Set model matrix
+		// Set model matrix
 		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &getTransMatrix()[0][0]);
 
-		// If there are no material assgined, do not draw the shape
-		if (pMaterial)
+		for (auto pMesh : Meshes)
 		{
+			// Bind the material of the mesh
+			pMesh->BindMaterial(Ka_loc, Kd_loc, Ks_loc, TexSamplerHandle);
 
-			glUniform3f(Ka_loc, pMaterial->AmbientFactor.x, pMaterial->AmbientFactor.y, pMaterial->AmbientFactor.z);
-			glUniform3f(Kd_loc, pMaterial->DiffuseFactor.x, pMaterial->DiffuseFactor.y, pMaterial->DiffuseFactor.z);
-			glUniform3f(Ks_loc, pMaterial->SpecularFactor.x, pMaterial->SpecularFactor.y, pMaterial->SpecularFactor.z);
-
-			if (pMaterial->pTexture)
-			{
-				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::UserTextureUnit);
-				glBindTexture(GL_TEXTURE_2D, pMaterial->pTexture->GetTextureID());
-
-				glUniform1i(TexSamplerHandle, 0);
-				glUniform1i(texflag_loc, 1);
-			}
+			// Draw the mesh
+			pMesh->DrawMesh();
 		}
-
-		// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
-		glDrawElements(GL_TRIANGLES, m_VertexIndices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 	}
 
 	void Object3D::CastingShadows(ShadowMapRender* pShadowRender) noexcept

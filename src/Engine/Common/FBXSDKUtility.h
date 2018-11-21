@@ -43,6 +43,16 @@ namespace cxc
 	// Mesh
 	public:
 
+		static void GetMaterialProperties(const FbxSurfaceMaterial* pMaterial, 
+			glm::vec3& Emissive, glm::vec3& Ambient, glm::vec3& Diffuse, glm::vec3& Specular, 
+			GLuint& EmissiveTexName, GLuint& AmbientTexName, GLuint& DiffuseTexName, GLuint& SpecularTexName,
+			float& Shiniess);
+
+		static FbxDouble3 GetMaterialProperty(const FbxSurfaceMaterial * pMaterial,
+			const char * pPropertyName,
+			const char * pFactorPropertyName,
+			GLuint& pTextureName);
+
 		static bool GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, std::shared_ptr<Object3D> pParentNode = nullptr);
 
 	private:

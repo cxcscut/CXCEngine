@@ -4,6 +4,7 @@
 
 #include"..\Libraries\TinyObjLoader\tiny_obj_loader.h"
 #include "..\Physics\ode\ode.h"
+#include "..\Graphics\Mesh.h"
 #include "..\Physics\RigidBody3D.h"
 
 #else
@@ -13,6 +14,7 @@
 #include"../Libraries/TinyObjLoader/tiny_obj_loader.h"
 #include "../Physics/ode/ode.h"
 #include "../Physics/RigidBody3D.h"
+#include "../Graphics/Mesh.h"
 
 #endif // WIN32
 
@@ -81,6 +83,7 @@ namespace cxc {
 		friend class SceneManager;
 		friend class OctreeNode;
 		friend class FBXSDKUtil;
+		friend class Mesh;
 
 		explicit Object3D();
 		explicit Object3D(std::vector<glm::vec3>& Vertices,
@@ -175,9 +178,6 @@ namespace cxc {
 		// AABB bounding box
 		CXCRect3 AABB;
 
-		// <ShapeName , Material Name>
-		std::unordered_map<std::string, std::string> Materials;
-
 		// Codes of the OctreeNode that contain the object
 		std::unordered_set<std::string> m_OctreePtrs;
 		
@@ -202,8 +202,8 @@ namespace cxc {
 		// UVs
 		std::vector<glm::vec2> m_TexCoords;
 
-		// Material
-		std::shared_ptr<Material> pMaterial;
+		// Meshes 
+		std::vector<std::shared_ptr<Mesh>> Meshes;
 
 		// ID of VBO, EBO and VAO
 		GLuint  m_VBO[3], m_EBO, m_VAO;

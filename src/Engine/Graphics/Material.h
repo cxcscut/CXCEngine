@@ -22,15 +22,20 @@ namespace cxc
 
 	public:
 		Material();
+		Material(const std::string& MaterialName, const glm::vec3& Emissive, const glm::vec3& Ambient, const glm::vec3& Diffuse, const glm::vec3& Specular, float Shiniess);
 		~Material();
 
 	public:
+
+		glm::vec3 EmissiveFactor;
 
 		glm::vec3 AmbientFactor;
 		
 		glm::vec3 DiffuseFactor;
 
 		glm::vec3 SpecularFactor;
+
+		float Shiniess;
 
 		std::string MaterialName;
 

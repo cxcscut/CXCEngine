@@ -46,6 +46,8 @@ namespace cxc {
 	public:
 
 		void addMaterial(std::shared_ptr<Material> pMaterial);
+		std::shared_ptr<Material> GetMaterial(const std::string& MaterialName);
+		std::shared_ptr<Material> GetMaterial(std::shared_ptr<Material> pMaterial);
 
 	private:
 

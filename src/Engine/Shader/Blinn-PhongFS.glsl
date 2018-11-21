@@ -89,11 +89,12 @@ void main()
 	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
 	vec3 MaterialDiffuseColor;
 
-	MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / distance ;
-	vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha, shineness) / distance ;
+	//MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / distance ;
+	//vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha, shineness) / distance ;
 
-	//color = MaterialAmbientColor * MaterialDiffuseColor +
+	MaterialDiffuseColor = Kd * LightColor;
+
+	color = MaterialAmbientColor * MaterialDiffuseColor +
 			//MaterialSpecularColor  +
-			//MaterialDiffuseColor;
-	color = vec3(1,0,0);
+			MaterialDiffuseColor;
 }

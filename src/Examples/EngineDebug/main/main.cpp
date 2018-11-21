@@ -41,9 +41,6 @@ int main()
 
 	GLboolean lResult = pSceneManager->LoadSceneFromFBX(FBXFile);
 
-	auto pSphere = pSceneManager->GetObject3D("Cylinder001");
-	pSphere->RotateWithArbitraryAxis(pSphere->GetPivot(), glm::vec3(0,1,0), 45.0f);
-
 	// Start engine
 	pEngine->run();
 

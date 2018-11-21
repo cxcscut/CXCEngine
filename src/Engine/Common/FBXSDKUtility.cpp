@@ -3,10 +3,12 @@
 #ifdef WIN32
 
 #include "..\General\DefineTypes.h"
+#include "..\Graphics\MaterialManager.h"
 
 #else
 
 #include "../General/DefineTypes.h"
+#include "../Graphics/MaterialManager.h"
 
 #endif
 
@@ -72,6 +74,86 @@ namespace cxc {
 		}
 	}
 
+	FbxDouble3 FBXSDKUtil::GetMaterialProperty(const FbxSurfaceMaterial * pMaterial,
+		const char * pPropertyName,
+		const char * pFactorPropertyName,
+		GLuint & pTextureName)
+	{
+		FbxDouble3 lResult(0, 0, 0);
+		const FbxProperty lProperty = pMaterial->FindProperty(pPropertyName);
+		const FbxProperty lFactorProperty = pMaterial->FindProperty(pFactorPropertyName);
+		if (lProperty.IsValid() && lFactorProperty.IsValid())
+		{
+			lResult = lProperty.Get<FbxDouble3>();
+			double lFactor = lFactorProperty.Get<FbxDouble>();
+			if (lFactor != 1)
+			{
+				lResult[0] *= lFactor;
+				lResult[1] *= lFactor;
+				lResult[2] *= lFactor;
+			}
+		}
+
+		if (lProperty.IsValid())
+		{
+			const int lTextureCount = lProperty.GetSrcObjectCount<FbxFileTexture>();
+			if (lTextureCount)
+			{
+				const FbxFileTexture* lTexture = lProperty.GetSrcObject<FbxFileTexture>();
+				if (lTexture && lTexture->GetUserDataPtr())
+				{
+					pTextureName = *(static_cast<GLuint *>(lTexture->GetUserDataPtr()));
+				}
+			}
+		}
+
+		return lResult;
+	}
+
+	void FBXSDKUtil::GetMaterialProperties(const FbxSurfaceMaterial* pMaterial,
+		glm::vec3& Emissive, glm::vec3& Ambient, glm::vec3& Diffuse, glm::vec3& Specular,
+		GLuint& EmissiveTexName, GLuint& AmbientTexName, GLuint& DiffuseTexName, GLuint& SpecularTexName,
+		float& Shiniess)
+	{
+		if (pMaterial)
+		{
+			// Get the emissive factor of the material
+			const FbxDouble3 lEmissive = GetMaterialProperty(pMaterial,
+				FbxSurfaceMaterial::sEmissive, FbxSurfaceMaterial::sEmissiveFactor, EmissiveTexName);
+			Emissive.x = static_cast<GLfloat>(lEmissive[0]);
+			Emissive.y = static_cast<GLfloat>(lEmissive[1]);
+			Emissive.z = static_cast<GLfloat>(lEmissive[2]);
+
+			// Get the ambient factor of the material
+			const FbxDouble3 lAmbient = GetMaterialProperty(pMaterial,
+				FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor, AmbientTexName);
+			Ambient.x = static_cast<GLfloat>(lAmbient[0]);
+			Ambient.y = static_cast<GLfloat>(lAmbient[1]);
+			Ambient.z = static_cast<GLfloat>(lAmbient[2]);
+
+			// Get the diffuse factor of the material
+			const FbxDouble3 lDiffuse = GetMaterialProperty(pMaterial,
+				FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor, DiffuseTexName);
+			Diffuse.x = static_cast<GLfloat>(lDiffuse[0]);
+			Diffuse.y = static_cast<GLfloat>(lDiffuse[1]);
+			Diffuse.z = static_cast<GLfloat>(lDiffuse[2]);
+
+			// Get the specular factor of the material
+			const FbxDouble3 lSpecular = GetMaterialProperty(pMaterial,
+				FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor, SpecularTexName);
+			Specular.x = static_cast<GLfloat>(lSpecular[0]);
+			Specular.y = static_cast<GLfloat>(lSpecular[1]);
+			Specular.z = static_cast<GLfloat>(lSpecular[2]);
+
+			// Get the shiness of the material
+			FbxProperty lShiniessProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sShininess);
+			if (lShiniessProperty.IsValid())
+			{
+				Shiniess = static_cast<GLfloat>(lShiniessProperty.Get<FbxDouble>());
+			}
+		}
+	}
+
 	bool FBXSDKUtil::GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, std::shared_ptr<Object3D> pParentNode)
 	{
 		if (!pNode)
@@ -86,19 +168,90 @@ namespace cxc {
 			const int lPolygonCount = pMesh->GetPolygonCount();
 			bHasFoundAnyObject = true;
 
-			// Count the polygon count of each material
+			// Load the material for the object
+			auto pMaterialMgr = MaterialManager::GetInstance();
 			FbxLayerElementArrayTemplate<int>* lMaterialIndice = NULL;
 			FbxGeometryElement::EMappingMode lMaterialMappingMode = FbxGeometryElement::eNone;
+			std::vector<std::shared_ptr<Mesh>> NewMeshes;
 			if (pMesh->GetElementMaterial())
 			{
 				lMaterialIndice = &pMesh->GetElementMaterial()->GetIndexArray();
 				lMaterialMappingMode = pMesh->GetElementMaterial()->GetMappingMode();
+				auto lMaterialReferenceMode = pMesh->GetElementMaterial()->GetReferenceMode();
 
-				// Do not support material per face
-				if (lMaterialIndice && lMaterialMappingMode == FbxGeometryElement::eMaterial)
+				if (lMaterialIndice && lMaterialMappingMode == FbxGeometryElement::eAllSame)
 				{
+					int MaterialIndex;
+					if (lMaterialReferenceMode == FbxGeometryElement::eDirect)
+					{
+						MaterialIndex = 0;
+					}
+					else if (lMaterialReferenceMode == FbxGeometryElement::eIndex ||
+						lMaterialReferenceMode == FbxGeometryElement::eIndexToDirect)
+					{
+						MaterialIndex = lMaterialIndice->GetAt(0);
+					}
 
+					// Get the material
+					auto SurfaceMaterial = pNode->GetMaterial(MaterialIndex);
+					if (SurfaceMaterial)
+					{
+						GLuint EmissiveTextureName, AmbientTextureName, DiffuseTextureName, SpecularTextureName;
+						glm::vec3 EmissiveFactor, DiffuseFactor, SpecularFactor, AmbientFactor;
+						float lShiniess;
+
+						// Get material properties
+						GetMaterialProperties(SurfaceMaterial, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor,
+							EmissiveTextureName, AmbientTextureName, DiffuseTextureName, SpecularTextureName, lShiniess);
+
+						std::string MaterialName = SurfaceMaterial->GetName();
+						auto LoadedMaterial = std::make_shared<Material>(MaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
+						auto pNewMesh = std::make_shared<Mesh>();
+						pMaterialMgr->addMaterial(LoadedMaterial);
+						pNewMesh->SetMeshMaterial(LoadedMaterial);
+						NewMeshes.push_back(pNewMesh);
+					}
 				}
+				else if (lMaterialIndice && lMaterialMappingMode == FbxGeometryElement::eByPolygon)
+				{
+					FBX_ASSERT(lMaterialIndice->GetCount() == lPolygonCount);
+					if (lMaterialIndice->GetCount() == lPolygonCount)
+					{
+						// Count the faces of the material
+						for (int lPolygonIndex = 0; lPolygonIndex < lPolygonCount; ++lPolygonIndex)
+						{
+							const int lMaterialIndex = lMaterialIndice->GetAt(lPolygonIndex);
+							auto PolygonMaterial = pNode->GetMaterial(lMaterialIndex);
+							FBX_ASSERT(PolygonMaterial != nullptr);
+
+							// Get material properties
+							GLuint EmissiveTextureName, AmbientTextureName, DiffuseTextureName, SpecularTextureName;
+							glm::vec3 EmissiveFactor, DiffuseFactor, SpecularFactor, AmbientFactor;
+							float lShiniess;
+
+							// Get material properties
+							GetMaterialProperties(PolygonMaterial, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor,
+								EmissiveTextureName, AmbientTextureName, DiffuseTextureName, SpecularTextureName, lShiniess);
+
+							std::string PolygonMaterialName = PolygonMaterial->GetName();
+							auto LoadedPolygonMaterial = std::make_shared<Material>(PolygonMaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
+							auto pNewMesh = std::make_shared<Mesh>();
+							pMaterialMgr->addMaterial(LoadedPolygonMaterial);
+							pNewMesh->SetMeshMaterial(LoadedPolygonMaterial);
+							NewMeshes.push_back(pNewMesh);
+						}
+					}
+				}
+			} // if Meterial
+			else
+			{
+				// When no materials assigned, create the mesh with default material
+				auto pMeshWithDefaultMaterial = std::make_shared<Mesh>();
+				auto pDefaultMaterial = pMaterialMgr->GetMaterial("DefaultMaterial");
+				FBX_ASSERT(pDefaultMaterial != nullptr);
+
+				pMeshWithDefaultMaterial->SetMeshMaterial(pDefaultMaterial);
+				NewMeshes.push_back(pMeshWithDefaultMaterial);
 			}
 
 			// Congregate all the data of a mesh to be cached in VBOs
@@ -206,6 +359,8 @@ namespace cxc {
 
 			for (int PolygonIndex = 0; PolygonIndex < lPolygonCount; ++PolygonIndex)
 			{
+				uint32_t MeshVertexIndex[3];
+
 				for (int lVerticesIndex = 0; lVerticesIndex < TRIANGLE_VERTEX_COUNT; ++lVerticesIndex)
 				{
 					const int lControlPointIndex = pMesh->GetPolygonVertex(PolygonIndex, lVerticesIndex);
@@ -252,6 +407,7 @@ namespace cxc {
 						if (iter != VertexIndexingMap.end())
 						{
 							Indices.push_back(iter->second);
+							MeshVertexIndex[lVerticesIndex] = iter->second;
 						}
 						else
 						{
@@ -261,17 +417,54 @@ namespace cxc {
 							Indices.push_back(Vertices.size() - 1);
 
 							VertexIndexingMap.insert(std::make_pair(VertexPacket, Vertices.size() - 1));
+
+							MeshVertexIndex[lVerticesIndex] = Vertices.size() - 1;
 						}
+					}
+				}
+
+				auto CurrentMaterialIndex = lMaterialIndice->GetAt(PolygonIndex);
+				auto CurrentMaterial = pNode->GetMaterial(CurrentMaterialIndex);
+				FBX_ASSERT(CurrentMaterial != nullptr);
+				
+				for (auto mesh : NewMeshes)
+				{
+					if (mesh->pMaterial->MaterialName == CurrentMaterial->GetName())
+					{
+						mesh->Indices.push_back(MeshVertexIndex[0]);
+						mesh->Indices.push_back(MeshVertexIndex[1]);
+						mesh->Indices.push_back(MeshVertexIndex[2]);
 					}
 				}
 			}
 
-			// Create the shape
+			// Create the object
 			pNewObject = std::make_shared<Object3D>(Vertices, Normals, UVs, Indices);
 			pNewObject->ObjectName = pNode->GetName();
 			pNewObject->isLoaded = true;
 
-			// Create the parent-child relationship
+			// Create indice of the meshes
+			if (!pMesh->GetElementMaterial() || lMaterialMappingMode == FbxGeometryElement::eAllSame)
+			{
+				FBX_ASSERT(NewMeshes.size() == 1);
+				NewMeshes[0]->Indices = pNewObject->m_VertexIndices;
+				NewMeshes[0]->SetOwnerObject(pNewObject);
+
+				pNewObject->Meshes = NewMeshes;
+			}
+			else if (lMaterialMappingMode == FbxGeometryElement::eByPolygon)
+			{
+				FBX_ASSERT(NewMeshes.size() == lPolygonCount);
+
+				for (auto mesh : NewMeshes)
+				{
+					mesh->SetOwnerObject(pNewObject);
+				}
+
+				pNewObject->Meshes = NewMeshes;
+			}
+
+			// Create the parent-child linkage
 			if (pParentNode)
 			{
 				pParentNode->pChildNodes.push_back(pNewObject);
