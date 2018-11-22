@@ -77,7 +77,9 @@ namespace cxc {
 
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
-		void addShader(const std::string &name,BaseRender *Render);
+		void AddRender(const std::string &name, std::shared_ptr<BaseRender> Render);
+
+		void LoadRender();
 
 	// Configuration
 	public:
@@ -92,7 +94,7 @@ namespace cxc {
 	public:
 
 		void Init() noexcept;
-		void InitEngine() noexcept;
+		void InitInputMode() noexcept;
 		void CleanFrameBuffer() const noexcept;
 		void CleanGL() noexcept {glfwTerminate();};
 		void StoreAndSetMousePos() noexcept;
@@ -139,7 +141,7 @@ namespace cxc {
 		// flag representing the status
 		GLboolean GameOver;
 
-		std::vector<std::pair<std::string, BaseRender*>> Renders;
+		std::vector<std::pair<std::string, std::shared_ptr<BaseRender>>> RendersTobeLoaded;
 
 		static std::function<void(int key, int scancode, int action, int mods)> KeyInputCallBack;
 

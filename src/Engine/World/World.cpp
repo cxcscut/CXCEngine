@@ -169,9 +169,9 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	void World::addShader(const std::string &name, BaseRender *Render)
+	void World::AddRender(const std::string &name, std::shared_ptr<BaseRender> Render)
 	{
-		Renders.emplace_back(std::make_pair(name,Render));
+		RendersTobeLoaded.emplace_back(std::make_pair(name,Render));
 	}
 
 	void World::SetGravity(GLfloat x, GLfloat y, GLfloat z) noexcept
@@ -200,35 +200,18 @@ namespace cxc {
 		// Create window
 		if (!CreateAndDisplayWindow(m_pWindowMgr->GetWindowWidth(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowTitle()))
 		{
+			std::cerr << "Failed to create display window" << std::endl;
 
 			// shutdown and clean
 			glfwTerminate();
 			return;
 		}
 
-		if (Renders.empty())
-			return;
-		else
-		{
-			while (!Renders.empty())
-			{
-				auto pair = Renders.back();
-				Renders.pop_back();
-
-				if (pair.second->CreateShaderProgram())
-				{
-					m_pSceneMgr->m_pRendererMgr->addRender(pair.first, pair.second);
-				}
-				else
-				{
-					glfwTerminate();
-					return;
-				}
-			}
-		}
+		// Load and compile shaders
+		LoadRender();
 
 		// Init input mode
-		InitEngine();
+		InitInputMode();
 
 		auto pShadowRender = dynamic_cast<ShadowMapRender*>
 			(m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
@@ -271,12 +254,38 @@ namespace cxc {
 		CleanGL();
 	}
 
+	void World::LoadRender()
+	{
+		if (RendersTobeLoaded.empty())
+			return;
+		else
+		{
+			while (!RendersTobeLoaded.empty())
+			{
+				auto pair = RendersTobeLoaded.back();
+				RendersTobeLoaded.pop_back();
+
+				if (pair.second->CreateShaderProgram())
+				{
+					m_pSceneMgr->m_pRendererMgr->addRender(pair.first, pair.second);
+				}
+				else
+				{
+					std::cerr << "Failed to create the render : " << pair.first << std::endl;
+
+					glfwTerminate();
+					return;
+				}
+			}
+		}
+	}
+
 	void World::SetGraphicsLibVersion(GLint HighByte, GLint LowByte) noexcept
 	{
 		m_pWindowMgr->SetDriverVersion(HighByte,LowByte);
 	}
 
-	void World::InitEngine() noexcept
+	void World::InitInputMode() noexcept
 	{
 		glEnable(GL_CULL_FACE);
 		m_pInputMgr->SetInputModel(m_pWindowMgr->GetWindowHandle());

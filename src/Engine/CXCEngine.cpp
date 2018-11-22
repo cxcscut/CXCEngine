@@ -22,6 +22,8 @@ namespace cxc
 			pWindowMgr->SetWindowTitle(DisplayConf.ApplicationTitle);
 			pWindowMgr->SetWindowPos(DisplayConf.WindowPosX, DisplayConf.WindowPosY);
 			pWindowMgr->isDecoraded = DisplayConf.bIsDecorated;
+
+			pWindowMgr->x_pos = DisplayConf.WindowPosX; pWindowMgr->y_pos = DisplayConf.WindowPosY;
 		}
 	}
 

@@ -109,14 +109,14 @@ namespace cxc {
 	public:
 
 		GLint GetRenderProgramID(const std::string &name) const noexcept;
-		void addRender(const std::string &name,BaseRender * pRender) noexcept;
+		void addRender(const std::string &name, std::shared_ptr<BaseRender> pRender) noexcept;
 		void deleteRender(const std::string &name) noexcept;
 		BaseRender* GetRenderPtr(const std::string &name) noexcept;
 
 	// Private date
 	private:
 
-		std::unordered_map<std::string,BaseRender*> m_Renders;
+		std::unordered_map<std::string, std::shared_ptr<BaseRender>> m_Renders;
 	};
 }
 

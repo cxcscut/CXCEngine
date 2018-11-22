@@ -1,8 +1,4 @@
-#include "../../../Engine/World/World.h"
-
-#define dDOUBLE
-#define MOVING_STEP 20.0f
-#define MOVING_ORIENTATION_STEP (glm::radians(45.0f))
+#include "../../../Engine/CXCEngine.h"
 
 using namespace cxc;
 
@@ -16,33 +12,32 @@ int main()
 {
 	glm::vec3 LightPos = glm::vec3(80, 80, 0);
 
-	// Accquire engine pointer
-	auto pEngine = World::GetInstance();
+	DisplayConfig DisplayConf;
+	DisplayConf.ApplicationTitle = "Powered by CXCEngine";
+	DisplayConf.bIsDecorated = true;
+	DisplayConf.WindowHeight = 600;
+	DisplayConf.WindowWidth = 800;
+	DisplayConf.WindowPosX = 200; 
+	DisplayConf.WindowPosY = 200;
+	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
+
+	RenderConfig RenderConf;
+	RenderConf.RenderName = "StandardRender";
+	RenderConf.VertexShaderPath = VertexShaderPath;
+	RenderConf.FragmentShaderPath = FragmentShaderPath;
+	GEngine::UseRender(RenderConf);
+
 	auto pSceneManager = SceneManager::GetInstance();
-	auto pRender = std::make_shared<BaseRender>(VertexShaderPath, FragmentShaderPath);
-	auto pShadow = std::make_shared<ShadowMapRender>(1920, 1920, ShadowVS, ShadowFS);
-	pShadow->CreateLightInfo(LightPos, -LightPos, eLightType::OmniDirectional, eInteractionType::Static);
-	
-	//pEngine->SetGravity(0, -0.5f, 0);
-	pEngine->m_pWindowMgr->SetWindowHeight(600);
-	pEngine->m_pWindowMgr->SetWindowWidth(800);
 
-	pEngine->addShader("StandardRender", pRender.get());
-	//pEngine->addShader("ShadowRender", pShadow.get());
-	pEngine->m_pWindowMgr->SetWindowTitle("Powered by CXCEngine");
-	pEngine->m_pWindowMgr->isDecoraded = true;
+	pSceneManager->m_pCamera->EyePosition = glm::vec3(0, 250, 30);
+	pSceneManager->SetLightPos(LightPos);
 
-	pEngine->m_pSceneMgr->m_pCamera->EyePosition = glm::vec3(0, 250, 30);
-	pEngine->m_pSceneMgr->SetLightPos(LightPos);
-
-	pEngine->SetWindowPosition(200, 200);
-	
-	pEngine->Init();
+	GEngine::InitializeEngine();
 
 	GLboolean lResult = pSceneManager->LoadSceneFromFBX(FBXFile);
 
 	// Start engine
-	pEngine->run();
+	GEngine::StartEngine();
 
 	return 0;
 }

@@ -344,7 +344,7 @@ namespace cxc {
 	{
 		auto it = m_Renders.find(name);
 		if (it != m_Renders.end())
-			return it->second;
+			return it->second.get();
 		else
 			return nullptr;
 	}
@@ -358,9 +358,9 @@ namespace cxc {
 			return -1;
 	}
 
-	void RendererManager::addRender(const std::string &name, BaseRender * pRender) noexcept
+	void RendererManager::addRender(const std::string &name, std::shared_ptr<BaseRender> pRender) noexcept
 	{
-		m_Renders.insert(std::make_pair(name,pRender));
+		m_Renders.insert(std::make_pair(name, pRender));
 	}
 
 	void RendererManager::deleteRender(const std::string &name) noexcept
