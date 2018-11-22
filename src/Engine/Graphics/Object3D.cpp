@@ -4,9 +4,8 @@
 
 #ifdef WIN32
 
-#include "..\Common\FileHelper.h"
+#include "..\Utilities\FileHelper.h"
 #include "..\World\World.h"
-#include "..\Graphics\RendererManager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "..\Libraries\Image_loader\stb_image.h"
@@ -16,8 +15,7 @@
 
 #else
 
-#include "../Common/FileHelper.h"
-#include "../Graphics/RendererManager.h"
+#include "../Utilities/FileHelper.h"
 #include "../World/World.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -33,6 +31,7 @@ namespace cxc {
 	Object3D::Object3D() :
 		ObjectName(""),
 		isLoaded(false), enable(GL_TRUE), m_ModelMatrix(1.0f),
+		bReceiveShadows(true),
 		isKinematics(false)
 	{
 
@@ -277,23 +276,32 @@ namespace cxc {
 		setGravityMode(mode);
 	}
 
-	void Object3D::Tick(float DeltaSeconds) noexcept
+	void Object3D::Tick(float DeltaSeconds)
+	{
+
+	}
+
+	void Object3D::Draw(std::shared_ptr<Render> pRender) noexcept
 	{
 		GLint TexSamplerHandle, texflag_loc, depthBiasMVP_loc;
 		GLint ShadowMapSampler_loc, Eyepos_loc, M_MatrixID;
 		GLint Ka_loc, Ks_loc, Kd_loc, isPointLight_loc;
 		GLint shadowmapCube_loc;
 
-		auto pEngine = World::GetInstance();
-		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
-		if (!pRender) return;
-		auto ProgramID = pRender->GetProgramID();
+		auto pWorld = World::GetInstance();
+		auto pRenderMgr = SceneManager::GetInstance()->pRenderMgr;
 
-		glUseProgram(ProgramID);
-		glViewport(0, 0, pEngine->m_pWindowMgr->GetWindowWidth(), pEngine->m_pWindowMgr->GetWindowHeight());
+		auto SceneRenderingPipeline = pRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline);
+		assert(SceneRenderingPipeline != nullptr);
+		if (!SceneRenderingPipeline)
+			return;
 
-		pEngine->m_pSceneMgr->BindCameraUniforms();
-		pEngine->m_pSceneMgr->BindLightingUniforms(ProgramID);
+		auto ProgramID = SceneRenderingPipeline->GetPipelineProgramID();
+		SceneRenderingPipeline->UsePipeline();
+
+		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
+		pWorld->pSceneMgr->BindCameraUniforms();
+		pWorld->pSceneMgr->BindLightingUniforms(ProgramID);
 
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
 		texflag_loc = glGetUniformLocation(ProgramID, "isUseTex");
@@ -303,8 +311,8 @@ namespace cxc {
 		Ks_loc = glGetUniformLocation(ProgramID, "Ks");
 		Kd_loc = glGetUniformLocation(ProgramID, "Kd");
 
-		auto pShadowRender = dynamic_cast<ShadowMapRender*>(pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
-		if (pShadowRender && pShadowRender->GetProgramID() > 0)
+		auto ShadowMapRenderingPipeline = pRender->GetPipelinePtr(PipelineType::ShadowMapPipeline);
+		if (ShadowMapRenderingPipeline && ShadowMapRenderingPipeline->GetPipelineProgramID() > 0)
 		{
 			// Casting shadow
 			isPointLight_loc = glGetUniformLocation(ProgramID, "isPointLight");
@@ -316,15 +324,15 @@ namespace cxc {
 			// We use texture unit 0 for the objectss texture sampling 
 			// while texture unit 1 for depth buffer sampling
 			glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::ShadowTextureUnit);
-			if (pShadowRender->GetLightType() == eLightType::OmniDirectional)
+			if (pRenderMgr->GetLightType() == eLightType::OmniDirectional)
 			{
-				glBindTexture(GL_TEXTURE_CUBE_MAP, pShadowRender->GetShadowCubeMap());
+				glBindTexture(GL_TEXTURE_CUBE_MAP, pRenderMgr->GetShadowCubeMap());
 				glUniform1i(shadowmapCube_loc, (GLuint)TextureUnit::ShadowTextureUnit);
 				glUniform1i(isPointLight_loc, 1);
 			}
 			else
 			{
-				glBindTexture(GL_TEXTURE_2D, pShadowRender->GetDepthTexture());
+				glBindTexture(GL_TEXTURE_2D, pRenderMgr->GetShadowMapDepthTexture());
 				glUniform1i(ShadowMapSampler_loc, (GLuint)TextureUnit::ShadowTextureUnit);
 			}
 
@@ -336,11 +344,11 @@ namespace cxc {
 				0.5, 0.5, 0.5, 1.0
 			);
 
-			glm::mat4 depthBiasMVP = biasMatrix * pShadowRender->GetDepthVP() * getTransMatrix();
+			glm::mat4 depthBiasMVP = biasMatrix * pRenderMgr->GetShadowMapDepthVP() * getTransMatrix();
 			glUniformMatrix4fv(depthBiasMVP_loc, 1, GL_FALSE, &depthBiasMVP[0][0]);
 		}
 
-		glm::vec3 EyePosition = pEngine->m_pSceneMgr->m_pCamera->EyePosition;
+		glm::vec3 EyePosition = pWorld->pSceneMgr->pCamera->EyePosition;
 		glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
 
 		glUniform1i(texflag_loc, 0);
@@ -373,15 +381,18 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::CastingShadows(ShadowMapRender* pShadowRender) noexcept
+	void Object3D::CastingShadows(std::shared_ptr<RenderingPipeline> ShadowMapPipeline) noexcept
 	{
-		auto pEngine = World::GetInstance();
+		auto pRenderMgr = SceneManager::GetInstance()->pRenderMgr;
 
-		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
+		glViewport(0, 0, pRenderMgr->GetShadowMapWidth(), pRenderMgr->GetShadowMapHeight());
 
-		glUseProgram(pShadowRender->GetProgramID());
+		if (!ShadowMapPipeline)
+			return;
 
-		GLuint depthMVP_Loc = glGetUniformLocation(pShadowRender->GetProgramID(), "depthMVP");
+		ShadowMapPipeline->UsePipeline();
+
+		GLuint depthMVP_Loc = glGetUniformLocation(ShadowMapPipeline->GetPipelineProgramID(), "depthMVP");
 
 		glm::mat4 depthMVP;
 
@@ -394,7 +405,7 @@ namespace cxc {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 
 		// Render depth map of the shape
-		depthMVP = pShadowRender->GetDepthVP() * getTransMatrix();
+		depthMVP = pRenderMgr->GetShadowMapDepthVP() * getTransMatrix();
 
 		glUniformMatrix4fv(depthMVP_Loc, 1, GL_FALSE, &depthMVP[0][0]);
 

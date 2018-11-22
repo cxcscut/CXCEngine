@@ -6,6 +6,7 @@
 #include "..\Physics\ode\ode.h"
 #include "..\Graphics\Mesh.h"
 #include "..\Physics\RigidBody3D.h"
+#include "..\Graphics\RenderManager.h"
 
 #else
 
@@ -15,6 +16,7 @@
 #include "../Physics/ode/ode.h"
 #include "../Physics/RigidBody3D.h"
 #include "../Graphics/Mesh.h"
+#include "../Graphics/RenderManager.h"
 
 #endif // WIN32
 
@@ -31,6 +33,7 @@ namespace cxc {
 	class TextureManager;
 	class Shape;
 	class Material;
+	class RendringPipeline;
 
 	class CXCRect3 {
 		
@@ -118,8 +121,9 @@ namespace cxc {
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
 
-		virtual void Tick(float DeltaSeconds) noexcept;
-		virtual void CastingShadows(ShadowMapRender* pRender) noexcept;
+		virtual void Draw(std::shared_ptr<Render> pRender) noexcept;
+		virtual void CastingShadows(std::shared_ptr<RenderingPipeline> ShadowMapPipeline) noexcept;
+		virtual void Tick(float DeltaSeconds);
 
 		void InitBuffers() noexcept;
 		void ReleaseBuffers() noexcept;
@@ -213,6 +217,9 @@ namespace cxc {
 
 		// Kinematics object has infinite mass such as walls and earth.
 		bool isKinematics;
+
+		/* Whether the object receives shadows */
+		bool bReceiveShadows;
 	};
 
 }

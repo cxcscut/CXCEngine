@@ -27,8 +27,8 @@ namespace cxc {
 
 	public:
 
-		GLboolean FileIsExists(const std::string &file_path);
-		std::string GetBaseDirectory(const std::string &filepath);
+		static GLboolean FileIsExists(const std::string &file_path);
+		static std::string GetBaseDirectory(const std::string &filepath);
 	};
 }
 

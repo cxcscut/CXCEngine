@@ -31,7 +31,7 @@ namespace cxc
 
 	public:
 
-		void LogicTick(float Seconds);
+		void LogicTick(float DeltaSeconds);
 
 	private:
 

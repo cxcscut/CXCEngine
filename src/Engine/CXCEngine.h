@@ -43,18 +43,6 @@ namespace cxc
 		bool bIsDecorated;
 	};
 
-	using RenderConfig = struct RenderConfig
-	{
-		// Render name
-		std::string RenderName;
-
-		// Vertex shader path
-		std::string VertexShaderPath;
-
-		// Fragment shader path
-		std::string FragmentShaderPath;
-	};
-
 	class GEngine final
 	{
 
@@ -70,7 +58,8 @@ namespace cxc
 	public:
 
 		static void ConfigureEngineDisplaySettings(const DisplayConfig& DisplayConf);
-		static void UseRender(const RenderConfig& RenderConf);
+		static void AddRender(std::shared_ptr<Render> pRender);
+		static void SetActiveRender(std::shared_ptr<Render> pRender);
 		static void InitializeEngine();
 		static void StartEngine();
 	};

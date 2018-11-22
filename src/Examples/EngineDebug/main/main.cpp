@@ -21,15 +21,16 @@ int main()
 	DisplayConf.WindowPosY = 200;
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 
-	RenderConfig RenderConf;
-	RenderConf.RenderName = "StandardRender";
-	RenderConf.VertexShaderPath = VertexShaderPath;
-	RenderConf.FragmentShaderPath = FragmentShaderPath;
-	GEngine::UseRender(RenderConf);
+	auto PhongRender = NewObject<Render>("PhongRender");
+	auto SceneRenderingPipeline = NewObject<RenderingPipeline>();
+	SceneRenderingPipeline->SetVertexShaderPath(VertexShaderPath);
+	SceneRenderingPipeline->SetFragmentShaderPath(FragmentShaderPath);
+	PhongRender->AddRenderingPipeline(SceneRenderingPipeline);
+	GEngine::AddRender(PhongRender);
+	GEngine::SetActiveRender(PhongRender);
 
 	auto pSceneManager = SceneManager::GetInstance();
-
-	pSceneManager->m_pCamera->EyePosition = glm::vec3(0, 250, 30);
+	pSceneManager->pCamera->EyePosition = glm::vec3(0, 250, 30);
 	pSceneManager->SetLightPos(LightPos);
 
 	GEngine::InitializeEngine();

@@ -6,8 +6,8 @@
 #include "..\Graphics\Object3D.h"
 #include "..\Graphics\MaterialManager.h"
 #include "..\Controller\Camera.h"
-#include "..\Common\FBXSDKUtility.h"
-#include "..\Graphics\RendererManager.h"
+#include "..\Utilities\FBXSDKUtility.h"
+#include "..\Graphics\RenderManager.h"
 
 #else
 
@@ -16,8 +16,8 @@
 #include "../Graphics/Object3D.h"
 #include "../Graphics/MaterialManager.h"
 #include "../Controller/Camera.h"
-#include "../Common/FBXSDKUtility.h"
-#include "../Graphics/RendererManager.h"
+#include "../Utilities/FBXSDKUtility.h"
+#include "../Graphics/RenderManager.h"
 
 #endif // WIN32
 
@@ -150,13 +150,12 @@ namespace cxc {
 		// Delete object
 		void DeleteObject(const std::string &sprite_name) noexcept;
 
-	// Data access interface
 	public:
 
 		// Pointer to resource manager
-		std::shared_ptr<MaterialManager> m_pManagerMgr;
-		std::shared_ptr<Camera> m_pCamera;
-		std::shared_ptr<RendererManager> m_pRendererMgr;
+		std::shared_ptr<MaterialManager> pMaterialMgr;
+		std::shared_ptr<Camera> pCamera;
+		std::shared_ptr<RenderManager> pRenderMgr;
 
 		// Return the pointer to the specific sprite
 		std::shared_ptr<Object3D > GetObject3D (const std::string &sprite_name) const noexcept;

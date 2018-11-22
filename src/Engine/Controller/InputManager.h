@@ -35,7 +35,10 @@ namespace cxc {
 		InputManager& operator= (const InputManager &) = delete;
 		InputManager& operator= (const InputManager &&) = delete;
 
-	// Data access interface
+	public:
+
+		void Tick(float DeltaSeconds);
+
 	public:
 
 		GLint GetXPos() const noexcept;

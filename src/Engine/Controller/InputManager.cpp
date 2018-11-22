@@ -20,6 +20,11 @@ namespace cxc {
 
 	}
 
+	void InputManager::Tick(float DeltaSeconds)
+	{
+		
+	}
+
 	GLint InputManager::GetXPos() const noexcept
 	{
 		return xpos;

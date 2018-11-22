@@ -3,7 +3,7 @@
 
 #ifdef WIN32
 
-#include "..\Graphics\RendererManager.h"
+#include "..\Graphics\RenderManager.h"
 #include "..\Controller\Camera.h"
 #include "..\Controller\InputManager.h"
 #include "..\Graphics\MaterialManager.h"
@@ -14,7 +14,7 @@
 
 #else
 
-#include "../Graphics/RendererManager.h"
+#include "../Graphics/RenderManager.h"
 #include "../Controller/Camera.h"
 #include "../Controller/InputManager.h"
 #include "../Graphics/MaterialManager.h"

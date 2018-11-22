@@ -77,7 +77,7 @@ namespace cxc {
 
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
-		void AddRender(const std::string &name, std::shared_ptr<BaseRender> Render);
+		void AddRender(const std::string &name, std::shared_ptr<Render> Render);
 
 		void LoadRender();
 
@@ -89,7 +89,7 @@ namespace cxc {
 		void SetBackGroundColor(float red, float green, float blue, float alpha) noexcept;
 		void SetWindowParams(const WindowDescriptor &windes) noexcept;
 		void SetGraphicsLibVersion(GLint HighByte,GLint LowByte) noexcept;
-		void SetWindowPosition(GLint x, GLint y) noexcept { m_pWindowMgr->x_pos = x; m_pWindowMgr->y_pos = y; };
+		void SetWindowPosition(GLint x, GLint y) noexcept { pWindowMgr->x_pos = x; pWindowMgr->y_pos = y; };
 
 	public:
 
@@ -124,12 +124,12 @@ namespace cxc {
 	public:
 
 		// Pointer to the manager
-		std::shared_ptr<InputManager> m_pInputMgr;
-		std::shared_ptr<WindowManager> m_pWindowMgr;
-		std::shared_ptr<SceneManager> m_pSceneMgr;
+		std::shared_ptr<InputManager> pInputMgr;
+		std::shared_ptr<WindowManager> pWindowMgr;
+		std::shared_ptr<SceneManager> pSceneMgr;
 
 		// Shader path
-		void SetSceneSize(const glm::vec3 &center, float size) noexcept { m_pSceneMgr->SetCenter(center); m_pSceneMgr->SetSize(size); }
+		void SetSceneSize(const glm::vec3 &center, float size) noexcept { pSceneMgr->SetCenter(center); pSceneMgr->SetSize(size); }
 
 	// Physics
 	public:
@@ -141,7 +141,7 @@ namespace cxc {
 		// flag representing the status
 		GLboolean GameOver;
 
-		std::vector<std::pair<std::string, std::shared_ptr<BaseRender>>> RendersTobeLoaded;
+		std::vector<std::pair<std::string, std::shared_ptr<Render>>> RendersTobeLoaded;
 
 		static std::function<void(int key, int scancode, int action, int mods)> KeyInputCallBack;
 

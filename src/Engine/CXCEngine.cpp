@@ -27,13 +27,18 @@ namespace cxc
 		}
 	}
 
-	void GEngine::UseRender(const RenderConfig& RenderConf)
+	void GEngine::SetActiveRender(std::shared_ptr<Render> pRender)
+	{
+		auto pRenderMgr = SceneManager::GetInstance()->pRenderMgr;
+		pRenderMgr->SetCurrentUsedRender(pRender);
+	}
+
+	void GEngine::AddRender(std::shared_ptr<Render> pRender)
 	{
 		auto World = World::GetInstance();
-		auto pRender = std::make_shared<BaseRender>(RenderConf.VertexShaderPath, RenderConf.FragmentShaderPath);
 		if (World)
 		{
-			World->AddRender(RenderConf.RenderName, pRender);
+			World->AddRender(pRender->GetRenderName(), pRender);
 		}
 	}
 

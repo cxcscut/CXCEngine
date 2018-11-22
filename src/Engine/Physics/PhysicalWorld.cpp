@@ -136,7 +136,7 @@ namespace cxc
 			auto pWorld = World::GetInstance();
 			if (pWorld)
 			{
-				pWorld->m_pSceneMgr->UpdateMeshTransMatrix();
+				pWorld->pSceneMgr->UpdateMeshTransMatrix();
 			}
 
 			dSpaceCollide(TopLevelSpace, reinterpret_cast<void *>(this), &PhysicalWorld::nearCallback);

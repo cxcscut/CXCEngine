@@ -2,11 +2,11 @@
 
 #ifdef WIN32
 
-#include "..\Graphics\RendererManager.h"
+#include "..\Graphics\RenderManager.h"
 
 #else
 
-#include "../Graphics/RendererManager.h"
+#include "../Graphics/RenderManager.h"
 
 #endif // WIN32
 

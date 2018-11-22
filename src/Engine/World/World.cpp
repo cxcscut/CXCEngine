@@ -25,19 +25,19 @@ namespace cxc {
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)
 	{
 		auto pEngine = World::GetInstance();
-		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
+		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
 		if (!pRender) return;
 
-		auto ProgramID = pRender->GetProgramID();
-		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
+		auto ProgramID = pRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline)->GetPipelineProgramID();
+		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
 
-		auto camera = pEngine->m_pSceneMgr->m_pCamera;
+		auto camera = pEngine->pSceneMgr->pCamera;
 
 		double dx = x-_x, dy = y-_y;
 		_x = x; _y = y;
 
-		double DeltaThetaXOY = -PI * (dx / pEngine->m_pWindowMgr->GetWindowWidth() / 2);
-		double DeltaThetaToXOY = PI * (dy / pEngine->m_pWindowMgr->GetWindowHeight() / 2);
+		double DeltaThetaXOY = -PI * (dx / pEngine->pWindowMgr->GetWindowWidth() / 2);
+		double DeltaThetaToXOY = PI * (dy / pEngine->pWindowMgr->GetWindowHeight() / 2);
 
 		// Update angles
 		camera->ComputeAngles();
@@ -57,7 +57,7 @@ namespace cxc {
 	void MouseCallBack(GLFWwindow *window, int button, int action, int mods)
 	{
 		auto pEngine = World::GetInstance();
-		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
+		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
 		if (!wHandle)
 			return;
 
@@ -77,12 +77,12 @@ namespace cxc {
 	void ScrollBarCallBack(GLFWwindow *window, double x, double y)
 	{
 		auto pEngine = World::GetInstance();
-		auto wHandle = pEngine->m_pWindowMgr->GetWindowHandle();
-		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
+		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
+		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
 		if (!pRender) return;
 
-		auto CurrentProgramID = pRender->GetProgramID();
-		auto camera = pEngine->m_pSceneMgr->m_pCamera;
+		auto CurrentProgramID = pRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline)->GetPipelineProgramID();
+		auto camera = pEngine->pSceneMgr->pCamera;
 		if (!wHandle) return;
 
 		glm::vec3 eye_direction = glm::normalize(camera->CameraOrigin - camera->EyePosition);
@@ -122,9 +122,9 @@ namespace cxc {
 		m_LogicFramework = LogicFramework::GetInstance();
 		m_PhysicalWorld = PhysicalWorld::GetInstance();
 
-		m_pInputMgr = InputManager::GetInstance();
-		m_pWindowMgr = WindowManager::GetInstance();
-		m_pSceneMgr = SceneManager::GetInstance();
+		pInputMgr = InputManager::GetInstance();
+		pWindowMgr = WindowManager::GetInstance();
+		pSceneMgr = SceneManager::GetInstance();
 	}
 
 	World::~World()
@@ -136,7 +136,7 @@ namespace cxc {
 	{
 		if (pObject)
 		{
-			m_pSceneMgr->AddObjectInternal(pObject->GetObjectName(), pObject, isKinematics);
+			pSceneMgr->AddObjectInternal(pObject->GetObjectName(), pObject, isKinematics);
 
 			pObject->InitializeRigidBody(m_PhysicalWorld->GetWorldID(), m_PhysicalWorld->GetTopSpaceID());
 		}
@@ -146,19 +146,19 @@ namespace cxc {
 												GLint Height,
 												const std::string Title)
 	{
-		m_pWindowMgr->SetWindowHeight(Height);
-		m_pWindowMgr->SetWindowWidth(Width);
-		m_pWindowMgr->SetWindowTitle(Title);
+		pWindowMgr->SetWindowHeight(Height);
+		pWindowMgr->SetWindowWidth(Width);
+		pWindowMgr->SetWindowTitle(Title);
 
-		if (!m_pWindowMgr->PrepareResourcesForCreating())
+		if (!pWindowMgr->PrepareResourcesForCreating())
 			return GL_FALSE;
 
-		if (!m_pWindowMgr->_CreateWindow()){
+		if (!pWindowMgr->_CreateWindow()){
 			glfwTerminate();
 			return GL_FALSE;
 		}
 
-		m_pWindowMgr->InitContext();
+		pWindowMgr->InitContext();
 
 		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK)
@@ -169,7 +169,7 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	void World::AddRender(const std::string &name, std::shared_ptr<BaseRender> Render)
+	void World::AddRender(const std::string &name, std::shared_ptr<Render> Render)
 	{
 		RendersTobeLoaded.emplace_back(std::make_pair(name,Render));
 	}
@@ -184,10 +184,10 @@ namespace cxc {
 
 	void World::SetWindowParams(const WindowDescriptor &windes) noexcept
 	{
-		m_pWindowMgr->SetEnableDepthFlag(windes.isEnableDepth);
-		m_pWindowMgr->SetForwardCompatibleFlag(windes.isForwardComptible);
-		m_pWindowMgr->SetSamplingLevel(windes.SamplingLevel);
-		m_pWindowMgr->SetBackGroundColor(windes.BackGroundColor.Red,
+		pWindowMgr->SetEnableDepthFlag(windes.isEnableDepth);
+		pWindowMgr->SetForwardCompatibleFlag(windes.isForwardComptible);
+		pWindowMgr->SetSamplingLevel(windes.SamplingLevel);
+		pWindowMgr->SetBackGroundColor(windes.BackGroundColor.Red,
 											windes.BackGroundColor.Green,
 											windes.BackGroundColor.Blue,
 											windes.BackGroundColor.Alpha);
@@ -195,10 +195,10 @@ namespace cxc {
 
 	void World::Init() noexcept
 	{
-		m_pWindowMgr->InitGL();
+		pWindowMgr->InitGL();
 
 		// Create window
-		if (!CreateAndDisplayWindow(m_pWindowMgr->GetWindowWidth(), m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowTitle()))
+		if (!CreateAndDisplayWindow(pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), pWindowMgr->GetWindowTitle()))
 		{
 			std::cerr << "Failed to create display window" << std::endl;
 
@@ -213,16 +213,13 @@ namespace cxc {
 		// Init input mode
 		InitInputMode();
 
-		auto pShadowRender = dynamic_cast<ShadowMapRender*>
-			(m_pSceneMgr->m_pRendererMgr->GetRenderPtr("ShadowRender"));
-		if (pShadowRender)
-			pShadowRender->InitShadowMapRender();
+		pSceneMgr->pRenderMgr->InitShadowMapRender();
 
-		// Turn off the vsync
-		//glfwSwapInterval(0);
+		// Turn on the vsync
+		glfwSwapInterval(1);
 
 		// Init camera params and set input callback func
-		m_pSceneMgr->InitCameraStatus(m_pWindowMgr->GetWindowHandle());
+		pSceneMgr->InitCameraStatus(pWindowMgr->GetWindowHandle());
 
 		m_PhysicalWorld->InitializePhysicalWorld();
 	}
@@ -238,7 +235,7 @@ namespace cxc {
 	{
 
 		// Contruct octree
-		// m_pSceneMgr->BuildOctree();
+		// pSceneMgr->BuildOctree();
 
 		// Initialize the start time of the world
 		WorldStartSeconds = std::chrono::system_clock::now();
@@ -265,9 +262,9 @@ namespace cxc {
 				auto pair = RendersTobeLoaded.back();
 				RendersTobeLoaded.pop_back();
 
-				if (pair.second->CreateShaderProgram())
+				if (pair.second->InitializeRender())
 				{
-					m_pSceneMgr->m_pRendererMgr->addRender(pair.first, pair.second);
+					pSceneMgr->pRenderMgr->addRender(pair.first, pair.second);
 				}
 				else
 				{
@@ -282,18 +279,18 @@ namespace cxc {
 
 	void World::SetGraphicsLibVersion(GLint HighByte, GLint LowByte) noexcept
 	{
-		m_pWindowMgr->SetDriverVersion(HighByte,LowByte);
+		pWindowMgr->SetDriverVersion(HighByte,LowByte);
 	}
 
 	void World::InitInputMode() noexcept
 	{
 		glEnable(GL_CULL_FACE);
-		m_pInputMgr->SetInputModel(m_pWindowMgr->GetWindowHandle());
+		pInputMgr->SetInputModel(pWindowMgr->GetWindowHandle());
 	}
 
 	void World::CleanFrameBuffer() const noexcept
 	{
-		if (m_pWindowMgr->isEnableDepthTest())
+		if (pWindowMgr->isEnableDepthTest())
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		else
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -301,18 +298,18 @@ namespace cxc {
 
 	void World::StoreAndSetMousePos() noexcept
 	{
-		m_pInputMgr->UpdateMousePos(m_pWindowMgr->GetWindowHandle());
-		m_pInputMgr->SetMouseScreenPos(m_pWindowMgr->GetWindowHandle(), m_pWindowMgr->GetWindowWidth() / 2, m_pWindowMgr->GetWindowHeight() / 2);
+		pInputMgr->UpdateMousePos(pWindowMgr->GetWindowHandle());
+		pInputMgr->SetMouseScreenPos(pWindowMgr->GetWindowHandle(), pWindowMgr->GetWindowWidth() / 2, pWindowMgr->GetWindowHeight() / 2);
 	}
 
 	void World::SetBackGroundColor(float red, float green, float blue, float alpha) noexcept
 	{
-		m_pWindowMgr->SetBackGroundColor(red,green,blue,alpha);
+		pWindowMgr->SetBackGroundColor(red,green,blue,alpha);
 	}
 
 	void World::RenderingTick()
 	{
-		assert(m_pSceneMgr != nullptr);
+		assert(pSceneMgr != nullptr);
 
 		auto CurrentWorldSeconds = GetWorldSeconds();
 		auto SecondsBetweenFrames = CurrentWorldSeconds - LastRenderingTickSeconds;
@@ -322,8 +319,8 @@ namespace cxc {
 			//std::cout << "Rendering tick difference : " << SecondsBetweenFrames << std::endl;
 
 			LastRenderingTickSeconds = CurrentWorldSeconds - SecondsBetweenFrames + FixedRenderingDeltaSeconds;
-
-			m_pSceneMgr->Tick(SecondsBetweenFrames);
+			
+			pSceneMgr->Tick(SecondsBetweenFrames);
 		}
 	}
 
@@ -374,18 +371,11 @@ namespace cxc {
 
 	void World::WorldLooping() noexcept
 	{
-		auto WindowHandler = m_pWindowMgr->GetWindowHandle();
+		auto WindowHandler = pWindowMgr->GetWindowHandle();
 		do {
 
 			// clean frame buffer for rendering
 			CleanFrameBuffer();
-
-			if (m_pSceneMgr->m_pCamera->m_CameraMode == CAMERA_FREE)
-			{
-				StoreAndSetMousePos();
- 				m_pSceneMgr->UpdateCameraPos(m_pWindowMgr->GetWindowHandle(), m_pInputMgr->GetXPos(), m_pInputMgr->GetYPos(),
-					m_pWindowMgr->GetWindowHeight(), m_pWindowMgr->GetWindowWidth());
-			}
 
 			// World tick
 			Tick();

@@ -101,8 +101,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\engine\common\FBXSDKUtility.cpp" />
-    <ClCompile Include="..\..\engine\common\FileHelper.cpp" />
     <ClCompile Include="..\..\engine\controller\Camera.cpp" />
     <ClCompile Include="..\..\engine\controller\CommandHandler.cpp" />
     <ClCompile Include="..\..\engine\controller\InputManager.cpp" />
@@ -115,7 +113,9 @@
     <ClCompile Include="..\..\engine\graphics\MaterialManager.cpp" />
     <ClCompile Include="..\..\Engine\Graphics\Mesh.cpp" />
     <ClCompile Include="..\..\engine\graphics\Object3D.cpp" />
-    <ClCompile Include="..\..\engine\graphics\RendererManager.cpp" />
+    <ClCompile Include="..\..\Engine\Graphics\Pipeline.cpp" />
+    <ClCompile Include="..\..\Engine\Graphics\Render.cpp" />
+    <ClCompile Include="..\..\engine\graphics\RenderManager.cpp" />
     <ClCompile Include="..\..\engine\graphics\SceneManager.cpp" />
     <ClCompile Include="..\..\engine\graphics\Texture2D.cpp" />
     <ClCompile Include="..\..\engine\graphics\TextureManager.cpp" />
@@ -123,14 +123,14 @@
     <ClCompile Include="..\..\Engine\Physics\PhysicalWorld.cpp" />
     <ClCompile Include="..\..\engine\physics\RigidBody3D.cpp" />
     <ClCompile Include="..\..\engine\script\Parser.cpp" />
+    <ClCompile Include="..\..\Engine\Utilities\FBXSDKUtility.cpp" />
+    <ClCompile Include="..\..\Engine\Utilities\FileHelper.cpp" />
     <ClCompile Include="..\..\engine\window\Window.cpp" />
     <ClCompile Include="..\..\Engine\World\LogicFramework.cpp" />
     <ClCompile Include="..\..\Engine\World\World.cpp" />
     <ClCompile Include="main\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\engine\common\FBXSDKUtility.h" />
-    <ClInclude Include="..\..\engine\common\FileHelper.h" />
     <ClInclude Include="..\..\engine\controller\Camera.h" />
     <ClInclude Include="..\..\engine\controller\CommandHandler.h" />
     <ClInclude Include="..\..\engine\controller\InputManager.h" />
@@ -145,7 +145,9 @@
     <ClInclude Include="..\..\engine\graphics\MaterialManager.h" />
     <ClInclude Include="..\..\Engine\Graphics\Mesh.h" />
     <ClInclude Include="..\..\engine\graphics\Object3D.h" />
-    <ClInclude Include="..\..\engine\graphics\RendererManager.h" />
+    <ClInclude Include="..\..\Engine\Graphics\Pipeline.h" />
+    <ClInclude Include="..\..\Engine\Graphics\Render.h" />
+    <ClInclude Include="..\..\engine\graphics\RenderManager.h" />
     <ClInclude Include="..\..\engine\graphics\SceneManager.h" />
     <ClInclude Include="..\..\engine\graphics\Texture2D.h" />
     <ClInclude Include="..\..\engine\graphics\TextureManager.h" />
@@ -413,6 +415,9 @@
     <ClInclude Include="..\..\Engine\Physics\PhysicalWorld.h" />
     <ClInclude Include="..\..\engine\physics\RigidBody3D.h" />
     <ClInclude Include="..\..\engine\script\Parser.h" />
+    <ClInclude Include="..\..\Engine\Utilities\EngineObjectFactory.h" />
+    <ClInclude Include="..\..\Engine\Utilities\FBXSDKUtility.h" />
+    <ClInclude Include="..\..\Engine\Utilities\FileHelper.h" />
     <ClInclude Include="..\..\engine\window\Window.h" />
     <ClInclude Include="..\..\Engine\World\LogicFramework.h" />
     <ClInclude Include="..\..\Engine\World\World.h" />

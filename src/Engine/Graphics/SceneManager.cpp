@@ -18,9 +18,9 @@ namespace cxc {
 		: m_ObjectMap(),
 		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
 	{
-		m_pManagerMgr = MaterialManager::GetInstance();
-		m_pCamera = std::make_shared<Camera>();
-		m_pRendererMgr = RendererManager::GetInstance();
+		pMaterialMgr = MaterialManager::GetInstance();
+		pCamera = std::make_shared<Camera>();
+		pRenderMgr = RenderManager::GetInstance();
 	}
 
 	SceneManager::~SceneManager()
@@ -75,9 +75,9 @@ namespace cxc {
 
 	void SceneManager::InitCameraStatus(GLFWwindow * window) noexcept
 	{
-		m_pCamera->InitLastTime();
+		pCamera->InitLastTime();
 
-		if (m_pCamera->m_CameraMode == CAMERA_FIXED)
+		if (pCamera->m_CameraMode == CAMERA_FIXED)
 		{
 			//Set Keyboard and mouse callback function
 			glfwSetKeyCallback(window, KeyBoradCallBack);
@@ -86,7 +86,7 @@ namespace cxc {
 		}
 
 		// Set Camera pos
-		SetCameraParams(m_pCamera->EyePosition, m_pCamera->CameraOrigin, m_pCamera->UpVector,
+		SetCameraParams(pCamera->EyePosition, pCamera->CameraOrigin, pCamera->UpVector,
 			glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f)
 		);
 
@@ -96,11 +96,11 @@ namespace cxc {
 		const glm::mat4 &ProjectionMatrix) noexcept
 	{
 
-		m_pCamera->EyePosition = eye;
-		m_pCamera->CameraOrigin = origin;
-		m_pCamera->UpVector = up;
-		m_pCamera->SetAllMatrix(glm::lookAt(eye, origin, up), ProjectionMatrix);
-		m_pCamera->ComputeAngles();
+		pCamera->EyePosition = eye;
+		pCamera->CameraOrigin = origin;
+		pCamera->UpVector = up;
+		pCamera->SetAllMatrix(glm::lookAt(eye, origin, up), ProjectionMatrix);
+		pCamera->ComputeAngles();
 	}
 
 	void SceneManager::UpdateBoundary(const CXCRect3 &AABB) noexcept
@@ -131,54 +131,58 @@ namespace cxc {
 
 	void SceneManager::CookShadowMap() noexcept
 	{
-		auto pShadowRender = dynamic_cast<ShadowMapRender*>(m_pRendererMgr->GetRenderPtr("ShadowRender"));
-		if (!pShadowRender || pShadowRender->GetProgramID() <= 0)
+		auto CurrentUsedRender = pRenderMgr->GetCurrentUsedRender();
+		if (!CurrentUsedRender)
 			return;
 
-		auto pCameraPose = pShadowRender->GetCameraPose();
+		auto ShadowMapPipeline = CurrentUsedRender->GetPipelinePtr(PipelineType::ShadowMapPipeline);
+		if (!ShadowMapPipeline)
+			return;
 
-		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetFBO());
-		glViewport(0, 0, pShadowRender->GetWidth(), pShadowRender->GetHeight());
+		auto pCameraPose = pRenderMgr->GetShadowMapCameraPose();
 
-		if (pShadowRender->GetLightType() == eLightType::OmniDirectional) {
+		glBindFramebuffer(GL_FRAMEBUFFER, pRenderMgr->GetShadowMapFBO());
+		glViewport(0, 0, pRenderMgr->GetShadowMapWidth(), pRenderMgr->GetShadowMapHeight());
+
+		if (pRenderMgr->GetLightType() == eLightType::OmniDirectional) {
 			// Clear the six face of the cube map for the next rendering
 			for (uint16_t i = 0; i < 6; i++) {
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[i].CubeMapFace, pShadowRender->GetShadowCubeMap(), 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[i].CubeMapFace, pRenderMgr->GetShadowCubeMap(), 0);
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}
 		}
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-		if (pShadowRender->GetLightType() == eLightType::OmniDirectional)
+		if (pRenderMgr->GetLightType() == eLightType::OmniDirectional)
 		{
 			// Draw 6 faces of cube map
 			for (uint16_t k = 0; k < 6; k++)
 			{
 				
 				// Draw shadow of one face into the cube map 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pShadowRender->GetShadowCubeMap(), 0);
-				glBindTexture(GL_TEXTURE_CUBE_MAP,pShadowRender->GetShadowCubeMap());
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pRenderMgr->GetShadowCubeMap(), 0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, pRenderMgr->GetShadowCubeMap());
 				// Set the depth matrix correspondingly
-				pShadowRender->SetTransformationMatrix(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f),
-					glm::lookAt(pShadowRender->GetLightPos(), pShadowRender->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector));
+				pRenderMgr->SetTransformationMatrix(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f),
+					glm::lookAt(pRenderMgr->GetLightPos(), pRenderMgr->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector));
 
 				for (auto pObject : m_ObjectMap)
 					if (pObject.second->isEnable())
-						pObject.second->CastingShadows(pShadowRender);
+						pObject.second->CastingShadows(ShadowMapPipeline);
 			}
 		}
 		else {
 			glClear(GL_DEPTH_BUFFER_BIT);
 			for (auto pObject : m_ObjectMap)
 				if (pObject.second->isEnable())
-					pObject.second->CastingShadows(pShadowRender);
+					pObject.second->CastingShadows(ShadowMapPipeline);
 		}
 	}
 
 	void SceneManager::Tick(float DeltaSeconds) noexcept
 	{
-		// Generating the shadow map
+		// Cooking the shadow map
 		CookShadowMap();
 
 		// Draw the scene
@@ -256,15 +260,16 @@ namespace cxc {
 
 	void SceneManager::RenderingTick(float DeltaSeconds) noexcept
 	{
-		auto pEngine = World::GetInstance();
-		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
-		if (!pRender) return;
-
-		GLint ProgramID = pRender->GetProgramID();
-		if (ProgramID < 0)
+		auto CurrentUsedRender = pRenderMgr->GetCurrentUsedRender();
+		if (!CurrentUsedRender)
 			return;
 
-		glUseProgram(ProgramID);
+		auto SceneRenderPipeline = CurrentUsedRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline);
+		if (!SceneRenderPipeline)
+			return;
+
+		auto ProgramID = SceneRenderPipeline->GetPipelineProgramID();
+		SceneRenderPipeline->UsePipeline();
 
 		// Draw the scene on screen
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -282,10 +287,13 @@ namespace cxc {
 					pObject.second->InitBuffers();
 
 					// Rendering
-					pObject.second->Tick(DeltaSeconds);
+					pObject.second->Draw(CurrentUsedRender);
 
 					// Release buffers after rendering
 					pObject.second->ReleaseBuffers();
+
+					// Tick
+					pObject.second->Tick(DeltaSeconds);
 				}
 		}
 		else
@@ -308,7 +316,7 @@ namespace cxc {
 							continue;
 
 						auto AABB = pObject.second->GetAABB();
-						if(m_pCamera->isRectInFrustum(AABB.max, AABB.min))
+						if(pCamera->isRectInFrustum(AABB.max, AABB.min))
 								hash.insert(pObject.second);
 					}
 				}
@@ -317,7 +325,7 @@ namespace cxc {
 					for (std::size_t k = 0; k < 8; k++)
 					{
 						auto pChildNode = pRoot->FindNode(pNode->code + std::to_string(k));
-						if (m_pCamera->isRectInFrustum(pChildNode->AABB.max, pChildNode->AABB.min))
+						if (pCamera->isRectInFrustum(pChildNode->AABB.max, pChildNode->AABB.min))
 							q.push(pChildNode);
 					}
 				}
@@ -326,7 +334,13 @@ namespace cxc {
 			//std::cout << "Drawing " << hash.size() << " objects" << std::endl;
 			// Draw the remaining objects
 			for (auto piter = hash.begin(); piter != hash.end(); piter++)
+			{
+				// Rendring
+				(*piter)->Draw(CurrentUsedRender);
+
+				// Tick
 				(*piter)->Tick(DeltaSeconds);
+			}
 
 			hash.clear();
 		}
@@ -334,21 +348,26 @@ namespace cxc {
 
 	void SceneManager::SetCameraMode(CameraModeType mode) noexcept
 	{
-		m_pCamera->m_CameraMode = mode;
+		pCamera->m_CameraMode = mode;
 	}
 
 	void SceneManager::UpdateCameraPos(GLFWwindow *window,float x,float y,GLuint height,GLuint width) noexcept
 	{
-		m_pCamera->ComputeMatrices_Moving(window, x, y, height, width);
+		pCamera->ComputeMatrices_Moving(window, x, y, height, width);
 	}
 
 	void SceneManager::BindCameraUniforms() const noexcept
 	{
-		auto pEngine = World::GetInstance();
-		auto pRender = pEngine->m_pSceneMgr->m_pRendererMgr->GetRenderPtr("StandardRender");
-		if (!pRender) return;
-		auto ActiveProgramID = pRender->GetProgramID();
-		m_pCamera->BindCameraUniforms(ActiveProgramID);
+		auto CurrentUsedRender = pRenderMgr->GetCurrentUsedRender();
+		if (CurrentUsedRender)
+		{
+			auto SceneRenderingPipeline = CurrentUsedRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline);
+			if (SceneRenderingPipeline)
+			{
+				auto ActiveProgramID = SceneRenderingPipeline->GetPipelineProgramID();
+				pCamera->BindCameraUniforms(ActiveProgramID);
+			}
+		}
 	}
 
 	void SceneManager::DeleteObject(const std::string &sprite_name) noexcept
