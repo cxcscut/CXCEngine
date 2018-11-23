@@ -12,7 +12,7 @@ int main()
 {
 	glm::vec3 LightPos = glm::vec3(80, 80, 0);
 
-	DisplayConfig DisplayConf;
+	DisplayParameters DisplayConf;
 	DisplayConf.ApplicationTitle = "Powered by CXCEngine";
 	DisplayConf.bIsDecorated = true;
 	DisplayConf.WindowHeight = 600;
@@ -21,21 +21,37 @@ int main()
 	DisplayConf.WindowPosY = 200;
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 
-	auto PhongRender = NewObject<Render>("PhongRender");
-	auto SceneRenderingPipeline = NewObject<RenderingPipeline>();
+	auto PhongRender = NewObject<MeshRender>("PhongRender");
+	auto SceneRenderingPipeline = NewObject<RenderPipeline>();
 	SceneRenderingPipeline->SetVertexShaderPath(VertexShaderPath);
 	SceneRenderingPipeline->SetFragmentShaderPath(FragmentShaderPath);
 	PhongRender->AddRenderingPipeline(SceneRenderingPipeline);
+	PhongRender->AddLight(LightPos, -LightPos, eLightType::OmniDirectional, eInteractionType::Static);
 	GEngine::AddRender(PhongRender);
 	GEngine::SetActiveRender(PhongRender);
 
 	auto pSceneManager = SceneManager::GetInstance();
 	pSceneManager->pCamera->EyePosition = glm::vec3(0, 250, 30);
-	pSceneManager->SetLightPos(LightPos);
 
 	GEngine::InitializeEngine();
 
-	GLboolean lResult = pSceneManager->LoadSceneFromFBX(FBXFile);
+	bool bResult = pSceneManager->LoadSceneFromFBX(FBXFile);
+	if (bResult)
+	{
+		// Bind mesh render
+		auto ObjectMap = pSceneManager->GetObjectMap();
+		for (auto pObject : ObjectMap)
+		{
+			if (pObject.second)
+			{
+				auto MeshCount = pObject.second->GetMeshCount();
+				for (size_t i = 0; i < MeshCount; ++i)
+				{
+					GEngine::BindMeshRender(PhongRender, pObject.second, i);
+				}
+			}
+		}
+	}
 
 	// Start engine
 	GEngine::StartEngine();

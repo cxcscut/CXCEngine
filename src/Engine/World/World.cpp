@@ -26,9 +26,10 @@ namespace cxc {
 	{
 		auto pEngine = World::GetInstance();
 		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
-		if (!pRender) return;
+		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
+		if (!pRender || !CurrentUsedPipeline) return;
 
-		auto ProgramID = pRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline)->GetPipelineProgramID();
+		auto ProgramID = CurrentUsedPipeline->GetPipelineProgramID();
 		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
 
 		auto camera = pEngine->pSceneMgr->pCamera;
@@ -79,9 +80,10 @@ namespace cxc {
 		auto pEngine = World::GetInstance();
 		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
 		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
-		if (!pRender) return;
+		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
+		if (!pRender || !CurrentUsedPipeline) return;
 
-		auto CurrentProgramID = pRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline)->GetPipelineProgramID();
+		auto CurrentProgramID = CurrentUsedPipeline->GetPipelineProgramID();
 		auto camera = pEngine->pSceneMgr->pCamera;
 		if (!wHandle) return;
 
@@ -169,9 +171,9 @@ namespace cxc {
 		return GL_TRUE;
 	}
 
-	void World::AddRender(const std::string &name, std::shared_ptr<Render> Render)
+	void World::AddRender(const std::string &name, std::shared_ptr<MeshRender> MeshRender)
 	{
-		RendersTobeLoaded.emplace_back(std::make_pair(name,Render));
+		RendersTobeLoaded.emplace_back(std::make_pair(name,MeshRender));
 	}
 
 	void World::SetGravity(GLfloat x, GLfloat y, GLfloat z) noexcept
@@ -212,8 +214,6 @@ namespace cxc {
 
 		// Init input mode
 		InitInputMode();
-
-		pSceneMgr->pRenderMgr->InitShadowMapRender();
 
 		// Turn on the vsync
 		glfwSwapInterval(1);

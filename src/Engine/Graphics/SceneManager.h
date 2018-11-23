@@ -114,14 +114,6 @@ namespace cxc {
 
 	};
 
-	enum class Location : GLuint {
-		VERTEX_LOCATION = 0,
-		TEXTURE_LOCATION = 1,
-		NORMAL_LOCATION = 2,
-		COLOR_LOCATION = 3,
-		NUM_OF_LOCATION = 4
-	};
-
 	class SceneManager final : public Singleton<SceneManager>
 	{
 
@@ -141,7 +133,7 @@ namespace cxc {
 	// Scene loading from fbx file via FBX SDKs
 	public :
 
-		GLboolean LoadSceneFromFBX(const std::string& filepath) noexcept;
+		bool LoadSceneFromFBX(const std::string& filepath) noexcept;
 		void ProcessSceneNode(FbxNode* pNode) noexcept;
 
 	// Object loading from obj files
@@ -165,30 +157,30 @@ namespace cxc {
 		void SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
 							const glm::mat4 &ProjectionMatrix) noexcept;
 		void UpdateCameraPos(GLFWwindow *window, float x, float y, GLuint height, GLuint width) noexcept;
-		void BindCameraUniforms() const noexcept;
 		void SetCameraMode(CameraModeType mode) noexcept;
 
 		// Return the SpriteMap
 		const std::unordered_map<std::string, std::shared_ptr<Object3D >> &GetObjectMap() const noexcept;
 
-		// Lighting interface
-		const glm::vec3 &GetLightPos() const noexcept;
-		void BindLightingUniforms(GLuint ProgramID) const;
-		void SetLightPos(const glm::vec3 &pos) noexcept;
 		void SetCenter(const glm::vec3 &center) noexcept { m_SceneCenter = center; };
 		void SetSize(float size) noexcept { m_SceneSize = size; };
 
-	// Draw call and resource management
 	public:
 
 		void Tick(float DeltaSeconds) noexcept;
-		void RenderingTick(float Seconds) noexcept;
-		void CookShadowMap() noexcept;
 
-		void BuildOctree() noexcept;
+		void RenderScene() noexcept;
+
+	private:
+
+		void PreRender() noexcept;
+		void Render() noexcept;
+		void PostRender() noexcept;
+
 	// Physics settings
 	public:
 
+		void BuildOctree() noexcept;
 		void UpdateMeshTransMatrix() noexcept;
 
 	private:
@@ -205,9 +197,6 @@ namespace cxc {
 
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<Object3D>> m_ObjectMap;
-
-		// Light position
-		glm::vec3 m_LightPos;
 
 		glm::vec3 m_SceneCenter;
 

@@ -113,8 +113,8 @@
     <ClCompile Include="..\..\engine\graphics\MaterialManager.cpp" />
     <ClCompile Include="..\..\Engine\Graphics\Mesh.cpp" />
     <ClCompile Include="..\..\engine\graphics\Object3D.cpp" />
-    <ClCompile Include="..\..\Engine\Graphics\Pipeline.cpp" />
-    <ClCompile Include="..\..\Engine\Graphics\Render.cpp" />
+    <ClCompile Include="..\..\Engine\Graphics\RenderPipeline.cpp" />
+    <ClCompile Include="..\..\Engine\Graphics\MeshRender.cpp" />
     <ClCompile Include="..\..\engine\graphics\RenderManager.cpp" />
     <ClCompile Include="..\..\engine\graphics\SceneManager.cpp" />
     <ClCompile Include="..\..\engine\graphics\Texture2D.cpp" />
@@ -145,8 +145,8 @@
     <ClInclude Include="..\..\engine\graphics\MaterialManager.h" />
     <ClInclude Include="..\..\Engine\Graphics\Mesh.h" />
     <ClInclude Include="..\..\engine\graphics\Object3D.h" />
-    <ClInclude Include="..\..\Engine\Graphics\Pipeline.h" />
-    <ClInclude Include="..\..\Engine\Graphics\Render.h" />
+    <ClInclude Include="..\..\Engine\Graphics\RenderPipeline.h" />
+    <ClInclude Include="..\..\Engine\Graphics\MeshRender.h" />
     <ClInclude Include="..\..\engine\graphics\RenderManager.h" />
     <ClInclude Include="..\..\engine\graphics\SceneManager.h" />
     <ClInclude Include="..\..\engine\graphics\Texture2D.h" />

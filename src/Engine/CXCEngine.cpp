@@ -12,7 +12,7 @@ namespace cxc
 
 	}
 
-	void GEngine::ConfigureEngineDisplaySettings(const DisplayConfig& DisplayConf)
+	void GEngine::ConfigureEngineDisplaySettings(const DisplayParameters& DisplayConf)
 	{
 		auto pWindowMgr = WindowManager::GetInstance();
 		if (pWindowMgr)
@@ -27,13 +27,22 @@ namespace cxc
 		}
 	}
 
-	void GEngine::SetActiveRender(std::shared_ptr<Render> pRender)
+	void GEngine::BindMeshRender(std::shared_ptr<MeshRender> pRender, std::shared_ptr<Object3D> pObject, uint16_t MeshIndex)
+	{
+		auto pMesh = pObject->GetMesh(MeshIndex);
+		if (pMesh)
+		{
+			pMesh->BindMeshRender(pRender);
+		}
+	}
+
+	void GEngine::SetActiveRender(std::shared_ptr<MeshRender> pRender)
 	{
 		auto pRenderMgr = SceneManager::GetInstance()->pRenderMgr;
 		pRenderMgr->SetCurrentUsedRender(pRender);
 	}
 
-	void GEngine::AddRender(std::shared_ptr<Render> pRender)
+	void GEngine::AddRender(std::shared_ptr<MeshRender> pRender)
 	{
 		auto World = World::GetInstance();
 		if (World)

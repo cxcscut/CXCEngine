@@ -77,7 +77,7 @@ namespace cxc {
 
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
-		void AddRender(const std::string &name, std::shared_ptr<Render> Render);
+		void AddRender(const std::string &name, std::shared_ptr<MeshRender> MeshRender);
 
 		void LoadRender();
 
@@ -141,7 +141,7 @@ namespace cxc {
 		// flag representing the status
 		GLboolean GameOver;
 
-		std::vector<std::pair<std::string, std::shared_ptr<Render>>> RendersTobeLoaded;
+		std::vector<std::pair<std::string, std::shared_ptr<MeshRender>>> RendersTobeLoaded;
 
 		static std::function<void(int key, int scancode, int action, int mods)> KeyInputCallBack;
 

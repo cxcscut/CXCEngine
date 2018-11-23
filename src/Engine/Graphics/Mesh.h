@@ -16,6 +16,8 @@
 
 namespace cxc
 {
+	class MeshRender;
+
 	/* Mesh is a collection of polygons that have the same material, an object can have many meshes */
 	class Mesh final
 	{
@@ -34,16 +36,26 @@ namespace cxc
 
 		void SetMeshMaterial(std::shared_ptr<Material> pNewMaterial) { pMaterial = pNewMaterial; }
 		void SetOwnerObject(std::shared_ptr<Object3D> OwnerObject);
+		void BindMeshRender(std::shared_ptr<MeshRender> pNewRender) { pMeshRender = pNewRender; }
+
+		std::shared_ptr<MeshRender> GetMeshRender() { return pMeshRender; }
 		std::shared_ptr<Object3D> GetOwnerObject();
 		std::shared_ptr<Material> GetMeshMaterial() { return pMaterial; }
+		const std::vector<uint32_t>& GetMeshVertexIndices() const { return Indices; }
 
 	private:
 
+		// Weak pointer back to the Object3D that owns the mesh
 		std::weak_ptr<Object3D> pOwnerObject;
 
+		// Vertex indices of the mesh
 		std::vector<uint32_t> Indices;
 
+		// Material of the mesh
 		std::shared_ptr<Material> pMaterial;
+
+		// MeshRender that renders the mesh
+		std::shared_ptr<MeshRender> pMeshRender;
 	};
 }
 

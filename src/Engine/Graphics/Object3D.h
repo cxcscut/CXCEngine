@@ -35,6 +35,14 @@ namespace cxc {
 	class Material;
 	class RendringPipeline;
 
+	enum class Location : GLuint {
+		VERTEX_LOCATION = 0,
+		TEXTURE_LOCATION = 1,
+		NORMAL_LOCATION = 2,
+		COLOR_LOCATION = 3,
+		NUM_OF_LOCATION = 4
+	};
+
 	class CXCRect3 {
 		
 	public:
@@ -90,29 +98,30 @@ namespace cxc {
 
 		explicit Object3D();
 		explicit Object3D(std::vector<glm::vec3>& Vertices,
-			std::vector<glm::vec3>& Normals, 
-			std::vector<glm::vec2>& UVs, 
+			std::vector<glm::vec3>& Normals,
+			std::vector<glm::vec2>& UVs,
 			std::vector<uint32_t>& Indices);
 		virtual ~Object3D();
 
 		Object3D(const std::string &object_name);
-		Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag = "" , GLboolean _enable = GL_TRUE);
+		Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag = "", GLboolean _enable = GL_TRUE);
 
-	// Vertex Processing
+		// Vertex Processing
 	public:
 
-		void ComputeNormal(glm::vec3 &normal,const glm::vec3 &vertex1,const glm::vec3 &vertex2,const glm::vec3 &vertex3) const noexcept;
+		void ComputeNormal(glm::vec3 &normal, const glm::vec3 &vertex1, const glm::vec3 &vertex2, const glm::vec3 &vertex3) const noexcept;
 		glm::vec3 GetPivot() const noexcept { return Pivot; }
+		uint32_t GetMeshCount() const noexcept { return Meshes.size(); }
 		void SetPivot(const glm::vec3& NewPivot) noexcept { Pivot = NewPivot; }
 		void ComputePivot() noexcept;
-	// Model adjusting
+		// Model adjusting
 	public:
 
 		//virtual void CalculateSizeVector() noexcept;
-		glm::vec3 CalculateRotatedCoordinate(const glm::vec3 &original_vec, const glm::vec3 &start,const glm::vec3 &direction,float degree) const noexcept;
+		glm::vec3 CalculateRotatedCoordinate(const glm::vec3 &original_vec, const glm::vec3 &start, const glm::vec3 &direction, float degree) const noexcept;
 		void ComputeObjectBoundary() noexcept;
 
-	// Model transformation
+		// Model transformation
 	public:
 		virtual void Translate(const glm::vec3 &TranslationVector) noexcept;
 		virtual void RotateWorldSpace(const glm::vec3 &RotationAxis, float Degree) noexcept;
@@ -121,17 +130,19 @@ namespace cxc {
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
 
-		virtual void Draw(std::shared_ptr<Render> pRender) noexcept;
-		virtual void CastingShadows(std::shared_ptr<RenderingPipeline> ShadowMapPipeline) noexcept;
+		virtual void PreRender() noexcept;
+		virtual void Render() noexcept;
+		virtual void PostRender() noexcept;
+
 		virtual void Tick(float DeltaSeconds);
 
 		void InitBuffers() noexcept;
 		void ReleaseBuffers() noexcept;
 
-	// Physics interface
+		// Physics interface
 	public:
 
-		void InitializeRigidBody(dWorldID world,dSpaceID) noexcept;
+		void InitializeRigidBody(dWorldID world, dSpaceID) noexcept;
 
 		// 0 - gravity off
 		// 1 - gravity on
@@ -139,7 +150,7 @@ namespace cxc {
 
 		void UpdateMeshTransMatrix() noexcept;
 
-	// Private data access interface
+		// Private data access interface
 	public:
 
 		bool CheckLoadingStatus() const noexcept;
@@ -150,14 +161,22 @@ namespace cxc {
 		bool CheckLoaded() const noexcept { return isLoaded; }
 		void SetLoaded() noexcept;
 
-		CXCRect3 GetAABB() const noexcept{return AABB; };
+		CXCRect3 GetAABB() const noexcept { return AABB; };
+		GLuint GetVAO() const { return m_VAO; }
+		GLuint GetVertexCoordsVBO() const { return  m_VBO[0]; }
+		GLuint GetTexCoordsVBO() const { return m_VBO[1]; }
+		GLuint GetNormalsVBO() const { return m_VBO[2]; }
+		GLuint GetEBO() const { return m_EBO; }
 
 		GLboolean isEnable() const noexcept { return enable; };
+		bool isReceiveShadows() const{ return bReceiveShadows; }
 		void Enable() noexcept { enable = GL_TRUE; };
 		void Disable() noexcept { enable = GL_FALSE; };
 
 		void SetTag(const std::string &_tag) noexcept { tag = _tag; };
 		std::string CompareTag() noexcept { return tag; };
+		
+		std::shared_ptr<Mesh> GetMesh(uint16_t Index);
 
 	private:
 

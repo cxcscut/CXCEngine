@@ -49,24 +49,6 @@ namespace cxc {
 		
 	}
 
-	const glm::vec3 &SceneManager::GetLightPos() const noexcept
-	{
-		return m_LightPos;
-	}
-
-	void SceneManager::SetLightPos(const glm::vec3 &pos) noexcept
-	{
-		m_LightPos = pos;
-	}
-
-	void SceneManager::BindLightingUniforms(GLuint ProgramID) const
-	{
-
-		GLuint LightID = glGetUniformLocation(ProgramID, "LightPosition_worldspace");
-		glUniform3f(LightID, m_LightPos.x, m_LightPos.y, m_LightPos.z);
-
-	}
-
 	void SceneManager::UpdateMeshTransMatrix() noexcept
 	{
 		for (auto object : m_ObjectMap)
@@ -129,64 +111,16 @@ namespace cxc {
 		UpdateBoundary(ObjectPtr->GetAABB());
 	}
 
-	void SceneManager::CookShadowMap() noexcept
-	{
-		auto CurrentUsedRender = pRenderMgr->GetCurrentUsedRender();
-		if (!CurrentUsedRender)
-			return;
-
-		auto ShadowMapPipeline = CurrentUsedRender->GetPipelinePtr(PipelineType::ShadowMapPipeline);
-		if (!ShadowMapPipeline)
-			return;
-
-		auto pCameraPose = pRenderMgr->GetShadowMapCameraPose();
-
-		glBindFramebuffer(GL_FRAMEBUFFER, pRenderMgr->GetShadowMapFBO());
-		glViewport(0, 0, pRenderMgr->GetShadowMapWidth(), pRenderMgr->GetShadowMapHeight());
-
-		if (pRenderMgr->GetLightType() == eLightType::OmniDirectional) {
-			// Clear the six face of the cube map for the next rendering
-			for (uint16_t i = 0; i < 6; i++) {
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[i].CubeMapFace, pRenderMgr->GetShadowCubeMap(), 0);
-				glClear(GL_DEPTH_BUFFER_BIT);
-			}
-		}
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		if (pRenderMgr->GetLightType() == eLightType::OmniDirectional)
-		{
-			// Draw 6 faces of cube map
-			for (uint16_t k = 0; k < 6; k++)
-			{
-				
-				// Draw shadow of one face into the cube map 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, pCameraPose[k].CubeMapFace, pRenderMgr->GetShadowCubeMap(), 0);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, pRenderMgr->GetShadowCubeMap());
-				// Set the depth matrix correspondingly
-				pRenderMgr->SetTransformationMatrix(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f),
-					glm::lookAt(pRenderMgr->GetLightPos(), pRenderMgr->GetLightPos() + pCameraPose[k].Direction, pCameraPose[k].UpVector));
-
-				for (auto pObject : m_ObjectMap)
-					if (pObject.second->isEnable())
-						pObject.second->CastingShadows(ShadowMapPipeline);
-			}
-		}
-		else {
-			glClear(GL_DEPTH_BUFFER_BIT);
-			for (auto pObject : m_ObjectMap)
-				if (pObject.second->isEnable())
-					pObject.second->CastingShadows(ShadowMapPipeline);
-		}
-	}
-
 	void SceneManager::Tick(float DeltaSeconds) noexcept
 	{
-		// Cooking the shadow map
-		CookShadowMap();
-
 		// Draw the scene
-		RenderingTick(DeltaSeconds);
+		RenderScene();
+
+		for (auto pObject : m_ObjectMap)
+		{
+			// Tick
+			pObject.second->Tick(DeltaSeconds);
+		}
 	}
 
 	void SceneManager::ProcessSceneNode(FbxNode* pNode) noexcept
@@ -234,7 +168,7 @@ namespace cxc {
 		}
 	}
 
-	GLboolean SceneManager::LoadSceneFromFBX(const std::string& filepath) noexcept
+	bool SceneManager::LoadSceneFromFBX(const std::string& filepath) noexcept
 	{
 		FbxManager* pSdkManager = nullptr;
 		FbxScene* pScene = nullptr;
@@ -246,7 +180,7 @@ namespace cxc {
 		if (!bSuccessfullyLoadedScene)
 		{
 			FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
-			return GL_FALSE;
+			return false;
 		}
 		
 		// Process node from the root node of the scene
@@ -255,22 +189,44 @@ namespace cxc {
 		// Destroy all the objects created by the FBX SDK
 		FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
 
-		return GL_TRUE;
+		return true;
 	}
 
-	void SceneManager::RenderingTick(float DeltaSeconds) noexcept
+	void SceneManager::PreRender() noexcept
 	{
-		auto CurrentUsedRender = pRenderMgr->GetCurrentUsedRender();
-		if (!CurrentUsedRender)
-			return;
+		// if Octree has not been built, draw all the objects
+		for (auto pObject : m_ObjectMap)
+			if (pObject.second->isEnable())
+			{
+				// Rendering
+				pObject.second->PreRender();
+			}
+	}
 
-		auto SceneRenderPipeline = CurrentUsedRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline);
-		if (!SceneRenderPipeline)
-			return;
+	void SceneManager::Render() noexcept
+	{
+		// if Octree has not been built, draw all the objects
+		for (auto pObject : m_ObjectMap)
+			if (pObject.second->isEnable())
+			{
+				// Rendering
+				pObject.second->Render();
+			}
+	}
 
-		auto ProgramID = SceneRenderPipeline->GetPipelineProgramID();
-		SceneRenderPipeline->UsePipeline();
+	void SceneManager::PostRender() noexcept
+	{
+		// if Octree has not been built, draw all the objects
+		for (auto pObject : m_ObjectMap)
+			if (pObject.second->isEnable())
+			{
+				// Rendering
+				pObject.second->PostRender();
+			}
+	}
 
+	void SceneManager::RenderScene() noexcept
+	{
 		// Draw the scene on screen
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -279,21 +235,23 @@ namespace cxc {
 		glCullFace(GL_BACK);
 
 		if (!pRoot) {
-			// if Octree has not been built, draw all the objects
+			
 			for (auto pObject : m_ObjectMap)
 				if (pObject.second->isEnable())
 				{
 					// Initialize the buffers
 					pObject.second->InitBuffers();
+				}
 
-					// Rendering
-					pObject.second->Draw(CurrentUsedRender);
+			PreRender();
+			Render();
+			PostRender();
 
+			for (auto pObject : m_ObjectMap)
+				if (pObject.second->isEnable())
+				{
 					// Release buffers after rendering
 					pObject.second->ReleaseBuffers();
-
-					// Tick
-					pObject.second->Tick(DeltaSeconds);
 				}
 		}
 		else
@@ -331,15 +289,25 @@ namespace cxc {
 				}
 			}
 
-			//std::cout << "Drawing " << hash.size() << " objects" << std::endl;
 			// Draw the remaining objects
 			for (auto piter = hash.begin(); piter != hash.end(); piter++)
 			{
 				// Rendring
-				(*piter)->Draw(CurrentUsedRender);
+				(*piter)->InitBuffers();
+			}
 
-				// Tick
-				(*piter)->Tick(DeltaSeconds);
+			for (auto piter = hash.begin(); piter != hash.end(); piter++)
+			{
+				// Rendring
+				(*piter)->PreRender();
+				(*piter)->Render();
+				(*piter)->PostRender();
+			}
+
+			for (auto piter = hash.begin(); piter != hash.end(); piter++)
+			{
+				// Rendring
+				(*piter)->ReleaseBuffers();
 			}
 
 			hash.clear();
@@ -354,20 +322,6 @@ namespace cxc {
 	void SceneManager::UpdateCameraPos(GLFWwindow *window,float x,float y,GLuint height,GLuint width) noexcept
 	{
 		pCamera->ComputeMatrices_Moving(window, x, y, height, width);
-	}
-
-	void SceneManager::BindCameraUniforms() const noexcept
-	{
-		auto CurrentUsedRender = pRenderMgr->GetCurrentUsedRender();
-		if (CurrentUsedRender)
-		{
-			auto SceneRenderingPipeline = CurrentUsedRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline);
-			if (SceneRenderingPipeline)
-			{
-				auto ActiveProgramID = SceneRenderingPipeline->GetPipelineProgramID();
-				pCamera->BindCameraUniforms(ActiveProgramID);
-			}
-		}
 	}
 
 	void SceneManager::DeleteObject(const std::string &sprite_name) noexcept

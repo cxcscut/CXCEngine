@@ -16,9 +16,9 @@
 
 namespace cxc
 {
-	using DisplayConfig = struct DisplayConfig
+	using DisplayParameters = struct DisplayParameters
 	{
-		DisplayConfig() :
+		DisplayParameters() :
 			WindowHeight(600), WindowWidth(800),
 			ApplicationTitle("Powered by CXCEngine"),
 			bIsDecorated(false), 
@@ -55,11 +55,16 @@ namespace cxc
 
 		static std::shared_ptr<World> GetWorldInstance() { return World::GetInstance(); }
 		static std::shared_ptr<SceneManager> GetSceneManagerInstance() { return SceneManager::GetInstance(); }
+
 	public:
 
-		static void ConfigureEngineDisplaySettings(const DisplayConfig& DisplayConf);
-		static void AddRender(std::shared_ptr<Render> pRender);
-		static void SetActiveRender(std::shared_ptr<Render> pRender);
+		static void ConfigureEngineDisplaySettings(const DisplayParameters& DisplayConf);
+		static void AddRender(std::shared_ptr<MeshRender> pRender);
+		static void BindMeshRender(std::shared_ptr<MeshRender> pRender, std::shared_ptr<Object3D> pObject, uint16_t MeshIndex);
+		static void SetActiveRender(std::shared_ptr<MeshRender> pRender);
+
+	public:
+
 		static void InitializeEngine();
 		static void StartEngine();
 	};

@@ -136,6 +136,14 @@ namespace cxc {
 			dBodySetKinematic(GetBodyID());
 	}
 
+	std::shared_ptr<Mesh> Object3D::GetMesh(uint16_t Index)
+	{
+		if (Index >= Meshes.size())
+			return nullptr;
+		else
+			return Meshes[Index];
+	}
+
 	const std::string &Object3D ::GetObjectName() const noexcept
 	{
 		return ObjectName;
@@ -281,135 +289,40 @@ namespace cxc {
 
 	}
 
-	void Object3D::Draw(std::shared_ptr<Render> pRender) noexcept
+	void Object3D::PreRender() noexcept
 	{
-		GLint TexSamplerHandle, texflag_loc, depthBiasMVP_loc;
-		GLint ShadowMapSampler_loc, Eyepos_loc, M_MatrixID;
-		GLint Ka_loc, Ks_loc, Kd_loc, isPointLight_loc;
-		GLint shadowmapCube_loc;
-
-		auto pWorld = World::GetInstance();
-		auto pRenderMgr = SceneManager::GetInstance()->pRenderMgr;
-
-		auto SceneRenderingPipeline = pRender->GetPipelinePtr(PipelineType::SceneRenderingPipeline);
-		assert(SceneRenderingPipeline != nullptr);
-		if (!SceneRenderingPipeline)
-			return;
-
-		auto ProgramID = SceneRenderingPipeline->GetPipelineProgramID();
-		SceneRenderingPipeline->UsePipeline();
-
-		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
-		pWorld->pSceneMgr->BindCameraUniforms();
-		pWorld->pSceneMgr->BindLightingUniforms(ProgramID);
-
-		TexSamplerHandle = glGetUniformLocation(ProgramID, "Sampler");
-		texflag_loc = glGetUniformLocation(ProgramID, "isUseTex");
-		Eyepos_loc = glGetUniformLocation(ProgramID, "EyePosition_worldspace");
-		M_MatrixID = glGetUniformLocation(ProgramID, "M");
-		Ka_loc = glGetUniformLocation(ProgramID, "Ka");
-		Ks_loc = glGetUniformLocation(ProgramID, "Ks");
-		Kd_loc = glGetUniformLocation(ProgramID, "Kd");
-
-		auto ShadowMapRenderingPipeline = pRender->GetPipelinePtr(PipelineType::ShadowMapPipeline);
-		if (ShadowMapRenderingPipeline && ShadowMapRenderingPipeline->GetPipelineProgramID() > 0)
-		{
-			// Casting shadow
-			isPointLight_loc = glGetUniformLocation(ProgramID, "isPointLight");
-			shadowmapCube_loc = glGetUniformLocation(ProgramID, "shadowmapCube");
-			depthBiasMVP_loc = glGetUniformLocation(ProgramID, "depthBiasMVP");
-			ShadowMapSampler_loc = glGetUniformLocation(ProgramID, "shadowmap");
-
-			// Bind depth texture to the texture unit 1
-			// We use texture unit 0 for the objectss texture sampling 
-			// while texture unit 1 for depth buffer sampling
-			glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::ShadowTextureUnit);
-			if (pRenderMgr->GetLightType() == eLightType::OmniDirectional)
-			{
-				glBindTexture(GL_TEXTURE_CUBE_MAP, pRenderMgr->GetShadowCubeMap());
-				glUniform1i(shadowmapCube_loc, (GLuint)TextureUnit::ShadowTextureUnit);
-				glUniform1i(isPointLight_loc, 1);
-			}
-			else
-			{
-				glBindTexture(GL_TEXTURE_2D, pRenderMgr->GetShadowMapDepthTexture());
-				glUniform1i(ShadowMapSampler_loc, (GLuint)TextureUnit::ShadowTextureUnit);
-			}
-
-			// the bias for depthMVP to map the NDC coordinate from [-1,1] to [0,1] which is a necessity for texture sampling
-			glm::mat4 biasMatrix(
-				0.5, 0.0, 0.0, 0.0,
-				0.0, 0.5, 0.0, 0.0,
-				0.0, 0.0, 0.5, 0.0,
-				0.5, 0.5, 0.5, 1.0
-			);
-
-			glm::mat4 depthBiasMVP = biasMatrix * pRenderMgr->GetShadowMapDepthVP() * getTransMatrix();
-			glUniformMatrix4fv(depthBiasMVP_loc, 1, GL_FALSE, &depthBiasMVP[0][0]);
-		}
-
-		glm::vec3 EyePosition = pWorld->pSceneMgr->pCamera->EyePosition;
-		glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
-
-		glUniform1i(texflag_loc, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glBindVertexArray(m_VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO[0]);
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO[1]);
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::TEXTURE_LOCATION), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Texcoords
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO[2]);
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Normal
-
-		// Set model matrix
-		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &getTransMatrix()[0][0]);
-
 		for (auto pMesh : Meshes)
 		{
-			// Bind the material of the mesh
-			pMesh->BindMaterial(Ka_loc, Kd_loc, Ks_loc, TexSamplerHandle);
-
-			// Draw the mesh
-			pMesh->DrawMesh();
+			auto pMeshRender = pMesh->GetMeshRender();
+			if (pMeshRender)
+			{
+				pMeshRender->PreRender(pMesh);
+			}
 		}
 	}
 
-	void Object3D::CastingShadows(std::shared_ptr<RenderingPipeline> ShadowMapPipeline) noexcept
+	void Object3D::Render() noexcept
 	{
-		auto pRenderMgr = SceneManager::GetInstance()->pRenderMgr;
+		for (auto pMesh : Meshes)
+		{
+			auto pMeshRender = pMesh->GetMeshRender();
+			if (pMeshRender)
+			{
+				pMeshRender->Render(pMesh);
+			}
+		}
+	}
 
-		glViewport(0, 0, pRenderMgr->GetShadowMapWidth(), pRenderMgr->GetShadowMapHeight());
-
-		if (!ShadowMapPipeline)
-			return;
-
-		ShadowMapPipeline->UsePipeline();
-
-		GLuint depthMVP_Loc = glGetUniformLocation(ShadowMapPipeline->GetPipelineProgramID(), "depthMVP");
-
-		glm::mat4 depthMVP;
-
-		glBindVertexArray(m_VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO[0]);
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-
-		// Render depth map of the shape
-		depthMVP = pRenderMgr->GetShadowMapDepthVP() * getTransMatrix();
-
-		glUniformMatrix4fv(depthMVP_Loc, 1, GL_FALSE, &depthMVP[0][0]);
-
-		glDrawElements(GL_TRIANGLES, m_VertexIndices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+	void Object3D::PostRender() noexcept
+	{
+		for (auto pMesh : Meshes)
+		{
+			auto pMeshRender = pMesh->GetMeshRender();
+			if (pMeshRender)
+			{
+				pMeshRender->PostRender(pMesh);
+			}
+		}
 	}
 
 	void Object3D::RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept
