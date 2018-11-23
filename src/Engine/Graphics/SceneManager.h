@@ -173,6 +173,9 @@ namespace cxc {
 
 	private:
 
+		void AllocateBuffers();
+		void ReleaseBuffers();
+
 		void PreRender() noexcept;
 		void Render() noexcept;
 		void PostRender() noexcept;

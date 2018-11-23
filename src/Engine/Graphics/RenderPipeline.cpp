@@ -187,6 +187,9 @@ namespace cxc
 		auto pRender = pOwnerRender.lock();
 		auto pOwnerObject = pMesh->GetOwnerObject();
 
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
 		BindLightUniforms(pRender->GetLightInfo());
 
@@ -284,6 +287,9 @@ namespace cxc
 
 		auto pOwnerObject = pMesh->GetOwnerObject();
 
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
 		BindLightUniforms(pRender->GetLightInfo());
 

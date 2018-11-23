@@ -154,6 +154,61 @@ namespace cxc {
 		}
 	}
 
+	void FBXSDKUtil::GetTexturesFromMaterial(FbxSurfaceMaterial* pSurfaceMaterial, std::vector<std::shared_ptr<Texture2D>> & OutTextures)
+	{
+		if (pSurfaceMaterial)
+		{
+			// Go through all the possible textures
+			int lTextureIndex;
+			FBXSDK_FOR_EACH_TEXTURE(lTextureIndex)
+			{
+				FbxProperty lProperty;
+				lProperty = pSurfaceMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[lTextureIndex]);
+
+				int lTextureCount = lProperty.GetSrcObjectCount<FbxTexture>();
+				if (lProperty.IsValid())
+				{
+					for (int j = 0; j < lTextureCount; ++j)
+					{
+						// Here we check if it's layered textures, or just textures:
+						FbxLayeredTexture* lLayeredTexture = lProperty.GetSrcObject<FbxLayeredTexture>(j);
+						if (lLayeredTexture)
+						{
+							int lNbTextures = lLayeredTexture->GetSrcObjectCount<FbxTexture>();
+							for (int k = 0; k < lNbTextures; ++k)
+							{
+								FbxTexture* lTexture = lLayeredTexture->GetSrcObject<FbxTexture>(k);
+								if (lTexture)
+								{
+									FbxLayeredTexture::EBlendMode lBlendMode;
+									lLayeredTexture->GetTextureBlendMode(k, lBlendMode);
+
+									// To do:
+								}
+							}
+						}
+						else
+						{
+							// No layered texutre simply get on the property
+							FbxTexture* lTexture = lProperty.GetSrcObject<FbxTexture>(j);
+							if (lTexture)
+							{
+								// Loading the texture 
+								FbxFileTexture *lFileTexture = FbxCast<FbxFileTexture>(lTexture);
+								if (lFileTexture)
+								{
+									auto pTextureMgr = TextureManager::GetInstance();
+									auto pTexture2D = pTextureMgr->LoadTexture(lTexture->GetName(), lFileTexture->GetFileName());
+									OutTextures.push_back(pTexture2D);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	bool FBXSDKUtil::GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, std::shared_ptr<Object3D> pParentNode)
 	{
 		if (!pNode)
@@ -204,9 +259,16 @@ namespace cxc {
 						GetMaterialProperties(SurfaceMaterial, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor,
 							EmissiveTextureName, AmbientTextureName, DiffuseTextureName, SpecularTextureName, lShiniess);
 
+						// Get textures from material
+						std::vector<std::shared_ptr<Texture2D>> OutTextures;
+						GetTexturesFromMaterial(SurfaceMaterial, OutTextures);
+
 						std::string MaterialName = SurfaceMaterial->GetName();
-						auto LoadedMaterial = std::make_shared<Material>(MaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
-						auto pNewMesh = std::make_shared<Mesh>();
+						auto LoadedMaterial = NewObject<Material>(MaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
+						auto pNewMesh = NewObject<Mesh>();
+
+						LoadedMaterial->pTextures = std::move(OutTextures);
+
 						pMaterialMgr->addMaterial(LoadedMaterial);
 						pNewMesh->SetMeshMaterial(LoadedMaterial);
 						NewMeshes.push_back(pNewMesh);
@@ -233,9 +295,16 @@ namespace cxc {
 							GetMaterialProperties(PolygonMaterial, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor,
 								EmissiveTextureName, AmbientTextureName, DiffuseTextureName, SpecularTextureName, lShiniess);
 
+							// Get the textures of the material
+							std::vector<std::shared_ptr<Texture2D>> OutTextures;
+							GetTexturesFromMaterial(PolygonMaterial, OutTextures);
+
 							std::string PolygonMaterialName = PolygonMaterial->GetName();
-							auto LoadedPolygonMaterial = std::make_shared<Material>(PolygonMaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
-							auto pNewMesh = std::make_shared<Mesh>();
+							auto LoadedPolygonMaterial = NewObject<Material>(PolygonMaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
+							auto pNewMesh = NewObject<Mesh>();
+
+							LoadedPolygonMaterial->pTextures = std::move(OutTextures);
+
 							pMaterialMgr->addMaterial(LoadedPolygonMaterial);
 							pNewMesh->SetMeshMaterial(LoadedPolygonMaterial);
 							NewMeshes.push_back(pNewMesh);
@@ -402,6 +471,7 @@ namespace cxc {
 							);
 						}
 
+						// Vertex indexing
 						VertexIndexPacket VertexPacket(VertexPos, VertexNormal, VertexUV);
 						auto iter = VertexIndexingMap.find(VertexPacket);
 						if (iter != VertexIndexingMap.end())
@@ -423,17 +493,20 @@ namespace cxc {
 					}
 				}
 
-				auto CurrentMaterialIndex = lMaterialIndice->GetAt(PolygonIndex);
-				auto CurrentMaterial = pNode->GetMaterial(CurrentMaterialIndex);
-				FBX_ASSERT(CurrentMaterial != nullptr);
-				
-				for (auto mesh : NewMeshes)
+				if (lMaterialIndice && lMaterialIndice->GetCount() > PolygonIndex)
 				{
-					if (mesh->pMaterial->MaterialName == CurrentMaterial->GetName())
+					auto CurrentMaterialIndex = lMaterialIndice->GetAt(PolygonIndex);
+					auto CurrentMaterial = pNode->GetMaterial(CurrentMaterialIndex);
+					FBX_ASSERT(CurrentMaterial != nullptr);
+
+					for (auto mesh : NewMeshes)
 					{
-						mesh->Indices.push_back(MeshVertexIndex[0]);
-						mesh->Indices.push_back(MeshVertexIndex[1]);
-						mesh->Indices.push_back(MeshVertexIndex[2]);
+						if (mesh->pMaterial->MaterialName == CurrentMaterial->GetName())
+						{
+							mesh->Indices.push_back(MeshVertexIndex[0]);
+							mesh->Indices.push_back(MeshVertexIndex[1]);
+							mesh->Indices.push_back(MeshVertexIndex[2]);
+						}
 					}
 				}
 			}

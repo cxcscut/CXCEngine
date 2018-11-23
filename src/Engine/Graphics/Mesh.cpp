@@ -33,10 +33,10 @@ namespace cxc {
 			glUniform3f(KdLocation, pMaterial->DiffuseFactor.x, pMaterial->DiffuseFactor.y, pMaterial->DiffuseFactor.z);
 			glUniform3f(KsLocation, pMaterial->SpecularFactor.x, pMaterial->SpecularFactor.y, pMaterial->SpecularFactor.z);
 
-			if (pMaterial->pTexture)
+			if (pMaterial->pTextures.size() > 0)
 			{
 				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::UserTextureUnit);
-				glBindTexture(GL_TEXTURE_2D, pMaterial->pTexture->GetTextureID());
+				glBindTexture(GL_TEXTURE_2D, pMaterial->pTextures[0]->GetTextureID());
 
 				glUniform1i(TexSampler, 0);
 			}

@@ -43,7 +43,7 @@ namespace cxc
 		std::weak_ptr<Object3D> OwnerObject;
 
 		/* Texture2D */
-		std::shared_ptr<Texture2D> pTexture;
+		std::vector<std::shared_ptr<Texture2D>> pTextures;
 	};
 }
 

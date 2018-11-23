@@ -92,7 +92,7 @@ void main()
 	//MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / distance ;
 	//vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha, shineness) / distance ;
 
-	MaterialDiffuseColor = Kd * LightColor;
+	MaterialDiffuseColor = LightColor * texture(Sampler, UV).rgb;
 
 	color = MaterialAmbientColor * MaterialDiffuseColor +
 			//MaterialSpecularColor  +

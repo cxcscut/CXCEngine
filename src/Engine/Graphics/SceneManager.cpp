@@ -225,34 +225,39 @@ namespace cxc {
 			}
 	}
 
+	void SceneManager::AllocateBuffers()
+	{
+		for (auto pObject : m_ObjectMap)
+		{
+			if (pObject.second->isEnable())
+			{
+				// Initialize the buffers
+				pObject.second->InitBuffers();
+			}
+		}
+	}
+
+	void SceneManager::ReleaseBuffers()
+	{
+		for (auto pObject : m_ObjectMap)
+		{
+			if (pObject.second->isEnable())
+			{
+				// Release buffers after rendering
+				pObject.second->ReleaseBuffers();
+			}
+		}
+	}
+
 	void SceneManager::RenderScene() noexcept
 	{
-		// Draw the scene on screen
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-
 		if (!pRoot) {
-			
-			for (auto pObject : m_ObjectMap)
-				if (pObject.second->isEnable())
-				{
-					// Initialize the buffers
-					pObject.second->InitBuffers();
-				}
 
+			AllocateBuffers();
 			PreRender();
 			Render();
 			PostRender();
-
-			for (auto pObject : m_ObjectMap)
-				if (pObject.second->isEnable())
-				{
-					// Release buffers after rendering
-					pObject.second->ReleaseBuffers();
-				}
+			ReleaseBuffers();
 		}
 		else
 		{
@@ -290,12 +295,8 @@ namespace cxc {
 			}
 
 			// Draw the remaining objects
-			for (auto piter = hash.begin(); piter != hash.end(); piter++)
-			{
-				// Rendring
-				(*piter)->InitBuffers();
-			}
-
+			
+			AllocateBuffers();
 			for (auto piter = hash.begin(); piter != hash.end(); piter++)
 			{
 				// Rendring
@@ -303,12 +304,7 @@ namespace cxc {
 				(*piter)->Render();
 				(*piter)->PostRender();
 			}
-
-			for (auto piter = hash.begin(); piter != hash.end(); piter++)
-			{
-				// Rendring
-				(*piter)->ReleaseBuffers();
-			}
+			ReleaseBuffers();
 
 			hash.clear();
 		}
