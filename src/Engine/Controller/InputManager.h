@@ -1,16 +1,16 @@
 #ifdef WIN32
 
 #include "..\General\DefineTypes.h"
-#include "..\Graphics\Object3D.h"
+#include "..\Scene\Object3D.h"
 
-#include "..\inl\Singleton.inl"
+#include "..\Utilities\Singleton.inl"
 
 #else
 
 #include "../General/DefineTypes.h"
-#include "../Graphics/Object3D.h"
+#include "../Scene/Object3D.h"
 
-#include "../inl/Singleton.inl"
+#include "../Utilities/Singleton.inl"
 
 #endif // WIN32
 

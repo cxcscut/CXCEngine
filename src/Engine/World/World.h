@@ -2,7 +2,7 @@
 
 #include "..\General\EngineCompoents.h"
 #include "..\General\DefineTypes.h"
-#include "..\inl\Singleton.inl"
+#include "..\Utilities\Singleton.inl"
 #include "..\World\LogicFramework.h"
 #include "..\Physics\PhysicalWorld.h"
 
@@ -10,7 +10,7 @@
 
 #include "../General/EngineCompoents.h"
 #include "../General/DefineTypes.h"
-#include "../inl/Singleton.inl"
+#include "../Utilities/Singleton.inl"
 #include "../World/LogicFramework.h"
 #include "../Physics/PhysicalWorld.h"
 
@@ -77,10 +77,6 @@ namespace cxc {
 
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
-		void AddRender(const std::string &name, std::shared_ptr<MeshRender> MeshRender);
-
-		void LoadRender();
-
 	// Configuration
 	public:
 
@@ -93,8 +89,11 @@ namespace cxc {
 
 	public:
 
-		void Init() noexcept;
+		void Initialize() noexcept;
 		void InitInputMode() noexcept;
+
+	public:
+
 		void CleanFrameBuffer() const noexcept;
 		void CleanGL() noexcept {glfwTerminate();};
 		void StoreAndSetMousePos() noexcept;
@@ -140,8 +139,6 @@ namespace cxc {
 
 		// flag representing the status
 		GLboolean GameOver;
-
-		std::vector<std::pair<std::string, std::shared_ptr<MeshRender>>> RendersTobeLoaded;
 
 		static std::function<void(int key, int scancode, int action, int mods)> KeyInputCallBack;
 

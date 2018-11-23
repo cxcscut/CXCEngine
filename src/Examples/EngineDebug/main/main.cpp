@@ -2,10 +2,10 @@
 
 using namespace cxc;
 
-static const std::string VertexShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\StandardVertexShader.glsl";
-static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\Shader\\Blinn-PhongFS.glsl";
-static const std::string ShadowVS = "G:\\cxcengine\\src\\Engine\\Shader\\depthTextureVS.glsl";
-static const std::string ShadowFS = "G:\\cxcengine\\src\\Engine\\Shader\\depthTextureFS.glsl";
+static const std::string VertexShaderPath = "G:\\cxcengine\\src\\Engine\\GLSL\\StandardVertexShader.glsl";
+static const std::string FragmentShaderPath = "G:\\cxcengine\\src\\Engine\\GLSL\\Blinn-PhongFS.glsl";
+static const std::string ShadowVS = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureVS.glsl";
+static const std::string ShadowFS = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureFS.glsl";
 static const std::string FBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\test.FBX";
 
 int main()
@@ -20,20 +20,26 @@ int main()
 	DisplayConf.WindowPosX = 200; 
 	DisplayConf.WindowPosY = 200;
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
+	GEngine::InitializeEngine();
 
+	auto pShaderMgr = ShaderManager::GetInstance();
+	auto pRenderMgr = RenderManager::GetInstance();
+	auto VertexShader = pShaderMgr->FactoryShader("PhongVertexShader", eShaderType::VERTEX_SHADER, VertexShaderPath);
+	auto FragmentShader = pShaderMgr->FactoryShader("PhongFragmentShader", eShaderType::FRAGMENT_SHADER, FragmentShaderPath);
+
+	auto SceneRenderingPipeline = NewObject<RenderPipeline>("PhongRenderPipeline");
+	SceneRenderingPipeline->AttachShader(VertexShader);
+	SceneRenderingPipeline->AttachShader(FragmentShader);
 	auto PhongRender = NewObject<MeshRender>("PhongRender");
-	auto SceneRenderingPipeline = NewObject<RenderPipeline>();
-	SceneRenderingPipeline->SetVertexShaderPath(VertexShaderPath);
-	SceneRenderingPipeline->SetFragmentShaderPath(FragmentShaderPath);
+
 	PhongRender->AddRenderingPipeline(SceneRenderingPipeline);
 	PhongRender->AddLight(LightPos, -LightPos, eLightType::OmniDirectional, eInteractionType::Static);
-	GEngine::AddRender(PhongRender);
+	bool bRenderInitialize = PhongRender->InitializeRender();
+	pRenderMgr->AddRender(PhongRender);
 	GEngine::SetActiveRender(PhongRender);
 
 	auto pSceneManager = SceneManager::GetInstance();
 	pSceneManager->pCamera->EyePosition = glm::vec3(0, 250, 30);
-
-	GEngine::InitializeEngine();
 
 	bool bResult = pSceneManager->LoadSceneFromFBX(FBXFile);
 	if (bResult)

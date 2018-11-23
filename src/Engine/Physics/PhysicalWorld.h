@@ -1,12 +1,12 @@
 #ifdef WIN32
 
-#include "..\inl\Singleton.inl"
+#include "..\Utilities\Singleton.inl"
 #include "..\General\DefineTypes.h"
 #include "ode\ode.h"
 
 #else
 
-#include "../inl/Singleton.inl"
+#include "../Utilities/Singleton.inl"
 #include "../General/DefineTypes.h"
 #include "ode/ode.h"
 

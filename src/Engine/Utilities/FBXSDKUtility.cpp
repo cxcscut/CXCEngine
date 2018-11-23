@@ -3,12 +3,12 @@
 #ifdef WIN32
 
 #include "..\General\DefineTypes.h"
-#include "..\Graphics\MaterialManager.h"
+#include "..\Material\MaterialManager.h"
 
 #else
 
 #include "../General/DefineTypes.h"
-#include "../Graphics/MaterialManager.h"
+#include "../Material/MaterialManager.h"
 
 #endif
 

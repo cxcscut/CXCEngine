@@ -42,22 +42,13 @@ namespace cxc
 		pRenderMgr->SetCurrentUsedRender(pRender);
 	}
 
-	void GEngine::AddRender(std::shared_ptr<MeshRender> pRender)
-	{
-		auto World = World::GetInstance();
-		if (World)
-		{
-			World->AddRender(pRender->GetRenderName(), pRender);
-		}
-	}
-
 	void GEngine::InitializeEngine()
 	{
 		auto World = World::GetInstance();
 		if (World)
 		{
 			// Initialize the engine
-			World->Init();
+			World->Initialize();
 		}
 	}
 

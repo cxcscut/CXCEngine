@@ -3,22 +3,22 @@
 
 #ifdef WIN32
 
-#include "..\Graphics\RenderManager.h"
-#include "..\Controller\Camera.h"
+#include "..\Rendering\RenderManager.h"
+#include "..\Scene\Camera.h"
 #include "..\Controller\InputManager.h"
-#include "..\Graphics\MaterialManager.h"
-#include "..\Graphics\SceneManager.h"
+#include "..\Material\MaterialManager.h"
+#include "..\Scene\SceneManager.h"
 #include "..\Window\Window.h"
 #include "..\Script\Parser.h"
 #include "..\Controller\CommandHandler.h"
 
 #else
 
-#include "../Graphics/RenderManager.h"
-#include "../Controller/Camera.h"
+#include "../Rendering/RenderManager.h"
+#include "../Scene/Camera.h"
 #include "../Controller/InputManager.h"
-#include "../Graphics/MaterialManager.h"
-#include "../Graphics/SceneManager.h"
+#include "../Material/MaterialManager.h"
+#include "../Scene/SceneManager.h"
 #include "../Window/Window.h"
 #include "../Script/Parser.h"
 #include "../Controller/CommandHandler.h"

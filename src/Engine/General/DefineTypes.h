@@ -49,8 +49,8 @@
 #include "..\Libraries\Image_loader\stb_image.h"
 
 // template
-#include "..\inl\MultiTree.inl"
-#include "..\Utilities\EngineObjectFactory.h"
+#include "..\Utilities\MultiTree.inl"
+#include "..\Utilities\EngineObjectFactory.inl"
 
 #else
 
@@ -65,7 +65,7 @@
 
 
 #include "../Libraries/Image_loader/stb_image.h"
-#include "../inl//MultiTree.inl"
+#include "../Utilities//MultiTree.inl"
 #include "../Utilities/EngineObjectFactory.h"
 
 #endif
@@ -75,7 +75,6 @@ namespace cxc {
 	// pre-declaration of Shape
 	class Shape;
 
-	typedef GLint ShaderType;
 	typedef GLint KeyType;
 	typedef GLuint CameraModeType;
 

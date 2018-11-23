@@ -1,11 +1,11 @@
 
 #ifdef WIN32
 
-#include "..\inl\Singleton.inl"
+#include "..\Utilities\Singleton.inl"
 
 #else
 
-#include "../inl/Singleton.inl"
+#include "../Utilities/Singleton.inl"
 
 #endif
 

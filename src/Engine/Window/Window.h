@@ -1,12 +1,12 @@
 #ifdef WIN32
 
 #include "..\General\DefineTypes.h"
-#include "..\inl\Singleton.inl"
+#include "..\Utilities\Singleton.inl"
 
 #else
 
 #include "../General/DefineTypes.h"
-#include "../inl/Singleton.inl"
+#include "../Utilities/Singleton.inl"
 
 #endif // WIN32
 
@@ -45,6 +45,7 @@ namespace cxc {
 		void SetEnableDepthFlag(GLboolean depthtest) noexcept;
 		void SetBackGroundColor(float r,float g,float b,float alpha) noexcept;
 		void SetWindowPos(GLint x,GLint y) noexcept;
+		void UpdateWindowPos(GLint x, GLint y) noexcept;
 		bool WindowIsReady() const noexcept;
 
 		const Color &GetBackGroundColor() const noexcept;

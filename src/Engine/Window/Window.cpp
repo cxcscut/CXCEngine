@@ -9,10 +9,10 @@ namespace cxc {
 		LowByteVersion(3), HighByteVersion(4),
 		isForwardCompatible(GL_TRUE),
 		isEnableDepth(GL_TRUE), m_BackGroundColor(),
-		isReady(false),isDecoraded(false),
-		x_pos(m_WindowWidth/2),y_pos(m_WindowHeight/2)
+		isReady(false), isDecoraded(false),
+		x_pos(m_WindowWidth / 2), y_pos(m_WindowHeight / 2)
 
- 	{
+	{
 
 	}
 
@@ -102,9 +102,9 @@ namespace cxc {
 		isEnableDepth = depthtest;
 	}
 
-	void WindowManager::SetBackGroundColor(float r,float g,float b,float alpha) noexcept
+	void WindowManager::SetBackGroundColor(float r, float g, float b, float alpha) noexcept
 	{
-		m_BackGroundColor = Color(r,g,b,alpha);
+		m_BackGroundColor = Color(r, g, b, alpha);
 	}
 
 	GLboolean WindowManager::isEnableDepthTest() const noexcept
@@ -112,7 +112,7 @@ namespace cxc {
 		return isEnableDepth;
 	}
 
-	bool WindowManager::WindowIsReady() const noexcept{
+	bool WindowManager::WindowIsReady() const noexcept {
 		return isReady;
 	}
 
@@ -126,13 +126,18 @@ namespace cxc {
 		else
 		{
 			// Set window pos
-			SetWindowPos(x_pos,y_pos);
+			UpdateWindowPos(x_pos, y_pos);
 			isReady = true;
 			return GL_TRUE;
 		}
 	}
 
 	void WindowManager::SetWindowPos(GLint x, GLint y) noexcept
+	{
+		x_pos = x; y_pos = y;
+	}
+
+	void WindowManager::UpdateWindowPos(GLint x, GLint y) noexcept
 	{
 		if(m_WindowHandle)
 			glfwSetWindowPos(m_WindowHandle, x, y);

@@ -59,13 +59,13 @@ namespace cxc
 	public:
 
 		static void ConfigureEngineDisplaySettings(const DisplayParameters& DisplayConf);
-		static void AddRender(std::shared_ptr<MeshRender> pRender);
 		static void BindMeshRender(std::shared_ptr<MeshRender> pRender, std::shared_ptr<Object3D> pObject, uint32_t MeshIndex);
 		static void SetActiveRender(std::shared_ptr<MeshRender> pRender);
 
 	public:
 
 		static void InitializeEngine();
+
 		static void StartEngine();
 	};
 }

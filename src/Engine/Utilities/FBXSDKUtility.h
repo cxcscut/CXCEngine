@@ -4,18 +4,18 @@
 #ifdef WIN32
 
 #include "..\Libraries\FBX-SDK\include\fbxsdk.h"
-#include "..\Graphics\Lighting.h"
-#include "..\Controller\Camera.h"
-#include "..\Graphics\Object3D.h"
-#include "..\Graphics\TextureManager.h"
+#include "..\Rendering\Lighting.h"
+#include "..\Scene\Camera.h"
+#include "..\Scene\Object3D.h"
+#include "..\Material\TextureManager.h"
 
 #else
 
 #include "../Libraries/FBX-SDk/include/fbxsdk.h"
-#include "../Graphics/Lighting.h"
-#include "../Controller/Camera.h"
-#include "../Graphics/Object3D.h"
-#include "../Graphics/TextureManager.h"
+#include "../Rendering/Lighting.h"
+#include "../Scene/Camera.h"
+#include "../Scene/Object3D.h"
+#include "../Rendering/TextureManager.h"
 
 #endif
 

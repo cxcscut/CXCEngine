@@ -1,12 +1,12 @@
 #ifdef WIN32
 
 #include "..\General\DefineTypes.h"
-#include "..\Graphics\SceneManager.h"
+#include "..\Scene\SceneManager.h"
 
 #else
 
 #include "../General/DefineTypes.h"
-#include "../Graphics/SceneManager.h"
+#include "../Scene/SceneManager.h"
 
 #endif // WIN32
 

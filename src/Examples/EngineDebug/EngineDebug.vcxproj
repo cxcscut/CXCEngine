@@ -22,6 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4F491E53-3221-4089-BB27-E07BD4FBA6E4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -64,8 +65,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>G:\cxcengine\src\Engine\Libraries\FBX-SDK\include;G:\cxcengine\src\Engine\Physics;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
-    <LibraryPath>G:\cxcengine\src\Engine\Libraries\FBX-SDK\lib\vs2015\x86\debug;G:\cxcengine\src\Engine\Physics\ode;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>G:\cxcengine\src\Engine\Libraries\FBX-SDK\include;G:\cxcengine\src\Engine\Physics;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.15063.0\um;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.14393.0\um;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.15063.0;G:\cxcengine\src\Engine\Libraries\FBX-SDK\lib\vs2015\x86\debug;G:\cxcengine\src\Engine\Physics\ode;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.14393.0\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -101,27 +102,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\engine\controller\Camera.cpp" />
+    <ClCompile Include="..\..\Engine\Animation\Animation.cpp" />
     <ClCompile Include="..\..\engine\controller\CommandHandler.cpp" />
     <ClCompile Include="..\..\engine\controller\InputManager.cpp" />
     <ClCompile Include="..\..\Engine\CXCEngine.cpp" />
-    <ClCompile Include="..\..\engine\graphics\Animation.cpp" />
-    <ClCompile Include="..\..\engine\graphics\Font.cpp" />
-    <ClCompile Include="..\..\engine\graphics\FontsManager.cpp" />
-    <ClCompile Include="..\..\engine\graphics\Lighting.cpp" />
-    <ClCompile Include="..\..\engine\graphics\Material.cpp" />
-    <ClCompile Include="..\..\engine\graphics\MaterialManager.cpp" />
-    <ClCompile Include="..\..\Engine\Graphics\Mesh.cpp" />
-    <ClCompile Include="..\..\engine\graphics\Object3D.cpp" />
-    <ClCompile Include="..\..\Engine\Graphics\RenderPipeline.cpp" />
-    <ClCompile Include="..\..\Engine\Graphics\MeshRender.cpp" />
-    <ClCompile Include="..\..\engine\graphics\RenderManager.cpp" />
-    <ClCompile Include="..\..\engine\graphics\SceneManager.cpp" />
-    <ClCompile Include="..\..\engine\graphics\Texture2D.cpp" />
-    <ClCompile Include="..\..\engine\graphics\TextureManager.cpp" />
+    <ClCompile Include="..\..\Engine\Material\Material.cpp" />
+    <ClCompile Include="..\..\Engine\Material\MaterialManager.cpp" />
+    <ClCompile Include="..\..\Engine\Material\Texture2D.cpp" />
+    <ClCompile Include="..\..\Engine\Material\TextureManager.cpp" />
     <ClCompile Include="..\..\engine\physics\Collider3D.cpp" />
     <ClCompile Include="..\..\Engine\Physics\PhysicalWorld.cpp" />
     <ClCompile Include="..\..\engine\physics\RigidBody3D.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\Font.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\FontsManager.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\Lighting.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\MeshRender.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\RenderManager.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\RenderPipeline.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\Shader.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\ShaderManager.cpp" />
+    <ClCompile Include="..\..\Engine\Scene\Camera.cpp" />
+    <ClCompile Include="..\..\Engine\Scene\Mesh.cpp" />
+    <ClCompile Include="..\..\Engine\Scene\Object3D.cpp" />
+    <ClCompile Include="..\..\Engine\Scene\SceneManager.cpp" />
     <ClCompile Include="..\..\engine\script\Parser.cpp" />
     <ClCompile Include="..\..\Engine\Utilities\FBXSDKUtility.cpp" />
     <ClCompile Include="..\..\Engine\Utilities\FileHelper.cpp" />
@@ -131,26 +134,12 @@
     <ClCompile Include="main\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\engine\controller\Camera.h" />
+    <ClInclude Include="..\..\Engine\Animation\Animation.h" />
     <ClInclude Include="..\..\engine\controller\CommandHandler.h" />
     <ClInclude Include="..\..\engine\controller\InputManager.h" />
     <ClInclude Include="..\..\Engine\CXCEngine.h" />
     <ClInclude Include="..\..\engine\general\DefineTypes.h" />
     <ClInclude Include="..\..\engine\general\EngineCompoents.h" />
-    <ClInclude Include="..\..\engine\graphics\Animation.h" />
-    <ClInclude Include="..\..\engine\graphics\Font.h" />
-    <ClInclude Include="..\..\engine\graphics\FontsManager.h" />
-    <ClInclude Include="..\..\engine\graphics\Lighting.h" />
-    <ClInclude Include="..\..\engine\graphics\Material.h" />
-    <ClInclude Include="..\..\engine\graphics\MaterialManager.h" />
-    <ClInclude Include="..\..\Engine\Graphics\Mesh.h" />
-    <ClInclude Include="..\..\engine\graphics\Object3D.h" />
-    <ClInclude Include="..\..\Engine\Graphics\RenderPipeline.h" />
-    <ClInclude Include="..\..\Engine\Graphics\MeshRender.h" />
-    <ClInclude Include="..\..\engine\graphics\RenderManager.h" />
-    <ClInclude Include="..\..\engine\graphics\SceneManager.h" />
-    <ClInclude Include="..\..\engine\graphics\Texture2D.h" />
-    <ClInclude Include="..\..\engine\graphics\TextureManager.h" />
     <ClInclude Include="..\..\engine\libraries\fbx-sdk\include\fbxsdk.h" />
     <ClInclude Include="..\..\engine\libraries\fbx-sdk\include\fbxsdk\core\arch\fbxalloc.h" />
     <ClInclude Include="..\..\engine\libraries\fbx-sdk\include\fbxsdk\core\arch\fbxarch.h" />
@@ -386,6 +375,10 @@
     <ClInclude Include="..\..\engine\libraries\fbx-sdk\include\fbxsdk\utils\fbxusernotification.h" />
     <ClInclude Include="..\..\engine\libraries\image_loader\stb_image.h" />
     <ClInclude Include="..\..\engine\libraries\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="..\..\Engine\Material\Material.h" />
+    <ClInclude Include="..\..\Engine\Material\MaterialManager.h" />
+    <ClInclude Include="..\..\Engine\Material\Texture2D.h" />
+    <ClInclude Include="..\..\Engine\Material\TextureManager.h" />
     <ClInclude Include="..\..\engine\physics\Collider3D.h" />
     <ClInclude Include="..\..\engine\physics\ode\collision.h" />
     <ClInclude Include="..\..\engine\physics\ode\collision_space.h" />
@@ -408,14 +401,24 @@
     <ClInclude Include="..\..\engine\physics\ode\odemath.h" />
     <ClInclude Include="..\..\engine\physics\ode\odemath_legacy.h" />
     <ClInclude Include="..\..\engine\physics\ode\precision.h" />
-    <ClInclude Include="..\..\engine\physics\ode\rotation.h" />
     <ClInclude Include="..\..\engine\physics\ode\threading.h" />
     <ClInclude Include="..\..\engine\physics\ode\threading_impl.h" />
     <ClInclude Include="..\..\engine\physics\ode\timer.h" />
     <ClInclude Include="..\..\Engine\Physics\PhysicalWorld.h" />
     <ClInclude Include="..\..\engine\physics\RigidBody3D.h" />
+    <ClInclude Include="..\..\Engine\Rendering\Font.h" />
+    <ClInclude Include="..\..\Engine\Rendering\FontsManager.h" />
+    <ClInclude Include="..\..\Engine\Rendering\Lighting.h" />
+    <ClInclude Include="..\..\Engine\Rendering\MeshRender.h" />
+    <ClInclude Include="..\..\Engine\Rendering\RenderManager.h" />
+    <ClInclude Include="..\..\Engine\Rendering\RenderPipeline.h" />
+    <ClInclude Include="..\..\Engine\Rendering\Shader.h" />
+    <ClInclude Include="..\..\Engine\Rendering\ShaderManager.h" />
+    <ClInclude Include="..\..\Engine\Scene\Camera.h" />
+    <ClInclude Include="..\..\Engine\Scene\Mesh.h" />
+    <ClInclude Include="..\..\Engine\Scene\Object3D.h" />
+    <ClInclude Include="..\..\Engine\Scene\SceneManager.h" />
     <ClInclude Include="..\..\engine\script\Parser.h" />
-    <ClInclude Include="..\..\Engine\Utilities\EngineObjectFactory.h" />
     <ClInclude Include="..\..\Engine\Utilities\FBXSDKUtility.h" />
     <ClInclude Include="..\..\Engine\Utilities\FileHelper.h" />
     <ClInclude Include="..\..\engine\window\Window.h" />
@@ -423,12 +426,13 @@
     <ClInclude Include="..\..\Engine\World\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\engine\inl\MultiTree.inl" />
-    <None Include="..\..\engine\inl\Singleton.inl" />
-    <None Include="..\..\Engine\Shader\Blinn-PhongFS.glsl" />
-    <None Include="..\..\Engine\Shader\depthTextureFS.glsl" />
-    <None Include="..\..\Engine\Shader\depthTextureVS.glsl" />
-    <None Include="..\..\Engine\Shader\StandardVertexShader.glsl" />
+    <None Include="..\..\Engine\GLSL\Blinn-PhongFS.glsl" />
+    <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
+    <None Include="..\..\Engine\GLSL\depthTextureVS.glsl" />
+    <None Include="..\..\Engine\GLSL\StandardVertexShader.glsl" />
+    <None Include="..\..\Engine\Utilities\EngineObjectFactory.inl" />
+    <None Include="..\..\Engine\Utilities\MultiTree.inl" />
+    <None Include="..\..\Engine\Utilities\Singleton.inl" />
     <None Include="main\test.FBX" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

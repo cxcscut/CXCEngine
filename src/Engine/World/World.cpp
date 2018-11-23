@@ -2,11 +2,11 @@
 
 #ifdef WIN32
 
-#include "..\Graphics\SceneManager.h"
+#include "..\Scene\SceneManager.h"
 
 #else
 
-#include "../Graphics/SceneManager.h"
+#include "../Scene/SceneManager.h"
 
 #endif // WIN32
 
@@ -165,15 +165,11 @@ namespace cxc {
 		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK)
 		{
+			std::cerr << "GLEW initialization failed" << std::endl;
 			return GL_FALSE;
 		}
 
 		return GL_TRUE;
-	}
-
-	void World::AddRender(const std::string &name, std::shared_ptr<MeshRender> MeshRender)
-	{
-		RendersTobeLoaded.emplace_back(std::make_pair(name,MeshRender));
 	}
 
 	void World::SetGravity(GLfloat x, GLfloat y, GLfloat z) noexcept
@@ -195,7 +191,7 @@ namespace cxc {
 											windes.BackGroundColor.Alpha);
 	}
 
-	void World::Init() noexcept
+	void World::Initialize() noexcept
 	{
 		pWindowMgr->InitGL();
 
@@ -209,9 +205,6 @@ namespace cxc {
 			return;
 		}
 
-		// Load and compile shaders
-		LoadRender();
-
 		// Init input mode
 		InitInputMode();
 
@@ -223,7 +216,7 @@ namespace cxc {
 
 		m_PhysicalWorld->InitializePhysicalWorld();
 	}
-
+ 
 	float World::GetWorldSeconds() const
 	{
 		auto CurrentSeconds = std::chrono::system_clock::now();
@@ -249,32 +242,6 @@ namespace cxc {
 
 		// Shutdown GL context
 		CleanGL();
-	}
-
-	void World::LoadRender()
-	{
-		if (RendersTobeLoaded.empty())
-			return;
-		else
-		{
-			while (!RendersTobeLoaded.empty())
-			{
-				auto pair = RendersTobeLoaded.back();
-				RendersTobeLoaded.pop_back();
-
-				if (pair.second->InitializeRender())
-				{
-					pSceneMgr->pRenderMgr->addRender(pair.first, pair.second);
-				}
-				else
-				{
-					std::cerr << "Failed to create the render : " << pair.first << std::endl;
-
-					glfwTerminate();
-					return;
-				}
-			}
-		}
 	}
 
 	void World::SetGraphicsLibVersion(GLint HighByte, GLint LowByte) noexcept
