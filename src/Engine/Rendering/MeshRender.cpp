@@ -48,7 +48,7 @@ namespace cxc
 
 	void MeshRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
-		// Determing which fragment shader should be used to render the material
+		// Determing which pipeline should be used to render the material
 		bool bHasTexture = false;
 		if (pMesh->GetMeshMaterial())
 		{
@@ -59,20 +59,19 @@ namespace cxc
 		if (bHasTexture)
 		{
 			auto TexturingPipeline = GetPipelinePtr("TexturingPipeline");
-			auto PipelineShouldUsed = CurrentUsedPipeline != TexturingPipeline ? TexturingPipeline : CurrentUsedPipeline;
+			auto PipelineUsed = CurrentUsedPipeline != TexturingPipeline ? TexturingPipeline : CurrentUsedPipeline;
 			
-			BindCameraUniforms(PipelineShouldUsed->GetPipelineProgramID());
+			BindCameraUniforms(PipelineUsed->GetPipelineProgramID());
 			UsePipeline("TexturingPipeline");
-			PipelineShouldUsed->Render(pMesh, Lights);
+			PipelineUsed->Render(pMesh, Lights);
 		}
 		else
 		{
 			auto NontexturingPipeline = GetPipelinePtr("NontexturingPipeline");
-			auto PipelineShouldUsed = CurrentUsedPipeline != NontexturingPipeline ? NontexturingPipeline : CurrentUsedPipeline;
-
-			BindCameraUniforms(PipelineShouldUsed->GetPipelineProgramID());
+			auto PipelineUsed = CurrentUsedPipeline != NontexturingPipeline ? NontexturingPipeline : CurrentUsedPipeline;
+			BindCameraUniforms(PipelineUsed->GetPipelineProgramID());
 			UsePipeline("NontexturingPipeline");
-			PipelineShouldUsed->Render(pMesh, Lights);
+			PipelineUsed->Render(pMesh, Lights);
 		}	
 	}
 
@@ -297,7 +296,7 @@ namespace cxc
 	{
 		InitShadowMapRender(Lights);
 		
-		// Shadow depth map cooked in the pre render process
+		// Shadow depth map cooked in the pre-render process
 		auto ShadowMapPipeline = GetPipelinePtr("ShadowDepthTexturePipeline");
 
 		// Cook the shadow depth map

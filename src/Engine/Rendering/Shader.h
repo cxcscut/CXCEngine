@@ -28,6 +28,8 @@ namespace cxc
 	class Shader : public std::enable_shared_from_this<Shader>
 	{
 
+		friend class RenderManager;
+
 	public:
 		Shader();
 		Shader(const std::string& ShaderName, const std::string& ShaderFileName, eShaderType Type);

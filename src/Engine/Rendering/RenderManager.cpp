@@ -22,6 +22,7 @@ namespace cxc {
 		auto pNewShader = NewObject<Shader>(ShaderName, ShaderFileName, ShaderType);
 		if (pNewShader && pNewShader->CompileShader())
 		{
+			pNewShader->ShaderFileName = ShaderFileName;
 			AddShader(pNewShader);
 
 			return pNewShader;

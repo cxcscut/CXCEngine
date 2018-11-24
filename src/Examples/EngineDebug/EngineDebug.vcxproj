@@ -424,11 +424,11 @@
     <ClInclude Include="..\..\Engine\World\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Engine\GLSL\PhongWithNoTexture.glsl.fs" />
-    <None Include="..\..\Engine\GLSL\depthTexture.glsl.fs" />
-    <None Include="..\..\Engine\GLSL\depthTexture.glsl.vs" />
-    <None Include="..\..\Engine\GLSL\PhongShader.glsl.vs" />
-    <None Include="..\..\Engine\GLSL\PhongWithTexture.glsl.fs" />
+    <None Include="..\..\Engine\GLSL\NontexturingPhongFS.glsl" />
+    <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
+    <None Include="..\..\Engine\GLSL\depthTextureVS.glsl" />
+    <None Include="..\..\Engine\GLSL\PhongShaderVS.glsl" />
+    <None Include="..\..\Engine\GLSL\TexturingPhongFS.glsl" />
     <None Include="..\..\Engine\Utilities\EngineObjectFactory.inl" />
     <None Include="..\..\Engine\Utilities\MultiTree.inl" />
     <None Include="..\..\Engine\Utilities\Singleton.inl" />

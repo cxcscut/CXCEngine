@@ -20,7 +20,6 @@ namespace cxc
 {
 	RenderPipeline::RenderPipeline()
 	{
-		pShaders = std::vector<std::shared_ptr<Shader>>(static_cast<size_t>(eShaderType::SHADER_TYPESIZE), nullptr);
 		ProgramID = glCreateProgram();
 		pOwnerRender.reset();
 	}
@@ -79,25 +78,36 @@ namespace cxc
 	{
 		if (pShader && pShader->IsCompiled())
 		{
-			// Detach first
-			DetachShader(pShader->GetShaderType());
-
 			// Attach shader and link the program
 			glAttachShader(ProgramID, pShader->GetShaderID());
 
-			pShaders[static_cast<size_t>(pShader->GetShaderType())] = pShader;
+			pShaders.insert(std::make_pair(pShader->GetShaderName(), pShader));
 		}
 	}
 
-	void RenderPipeline::DetachShader(eShaderType AttachmentLoc)
+	std::shared_ptr<Shader> RenderPipeline::GetAttachedShader(const std::string& ShaderName)
 	{
-		auto ShaderDetaching = pShaders[static_cast<size_t>(AttachmentLoc)];
-		if (ShaderDetaching)
+		auto iter = pShaders.find(ShaderName);
+		if (iter != pShaders.end())
 		{
-			glDetachShader(ProgramID, ShaderDetaching->GetShaderID());
+			return iter->second;
+		}
+		else
+			return nullptr;
+	}
+
+	void RenderPipeline::DetachShader(std::shared_ptr<Shader> pShader)
+	{
+		if (pShader && pShader->IsCompiled())
+		{
+			glDetachShader(ProgramID, pShader->GetShaderID());
 		}
 
-		pShaders[static_cast<size_t>(AttachmentLoc)] = nullptr;
+		auto iter = pShaders.find(pShader->GetShaderName());
+		if (iter != pShaders.end())
+		{
+			pShaders.erase(iter);
+		}
 	}
 
 	bool RenderPipeline::LinkShaders()
@@ -114,11 +124,6 @@ namespace cxc
 		}
 
 		return bResult;
-	}
-
-	std::shared_ptr<Shader> RenderPipeline::GetCurrentAttachedShader(eShaderType ShaderType)
-	{
-		return pShaders[static_cast<size_t>(ShaderType)];
 	}
 
 	void RenderPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)

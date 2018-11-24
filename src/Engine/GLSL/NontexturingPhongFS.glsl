@@ -5,10 +5,6 @@ in vec3 Position_worldspace;
 in vec3 EyeDirection_worldspace;
 in vec3 LightDirection_worldspace;
 in vec3 Normal_worldspace;
-in vec4 ShadowCoord;
-
-uniform sampler2DShadow shadowmap;
-uniform samplerCube shadowmapCube;
 
 out vec3 color;
 uniform vec3 LightPosition_worldspace;

@@ -38,7 +38,7 @@ namespace cxc
 
 		GLuint GetPipelineProgramID() const { return ProgramID; }
 		std::string GetPipelineName() const { return PipelineName; }
-		std::shared_ptr<Shader> GetCurrentAttachedShader(eShaderType ShaderType);
+		std::shared_ptr<Shader> GetAttachedShader(const std::string& ShaderName);
 
 	public:
 
@@ -52,7 +52,7 @@ namespace cxc
 
 		bool CheckLinkingStatus(std::string& OutResultLog) const;
 		void AttachShader(std::shared_ptr<Shader> pShader);
-		void DetachShader(eShaderType AttachmentLoc);
+		void DetachShader(std::shared_ptr<Shader> pShader);
 		bool LinkShaders();
 
 	public:
@@ -72,7 +72,7 @@ namespace cxc
 		std::string PipelineName;
 
 		// Shaders attached to the pipeline
-		std::vector<std::shared_ptr<Shader>> pShaders;
+		std::unordered_map<std::string, std::shared_ptr<Shader>> pShaders;
 
 		// ID of the program
 		GLint ProgramID;

@@ -2,11 +2,11 @@
 
 using namespace cxc;
 
-static const std::string PhongVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\PhongShader.glsl.vs";
-static const std::string PhongFSWithNoTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\PhongWithNoTexture.glsl.fs";
-static const std::string PhongFSWithTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\PhongWithTexture.glsl.fs";
-static const std::string ShadowVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTexture.glsl.vs";
-static const std::string ShadowFSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTexture.glsl.fs";
+static const std::string PhongVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\PhongShaderVS.glsl";
+static const std::string PhongFSWithNoTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\NontexturingPhongFS.glsl";
+static const std::string PhongFSWithTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\TexturingPhongFS.glsl";
+static const std::string ShadowVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureVS.glsl.";
+static const std::string ShadowFSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureFS.glsl";
 static const std::string FBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\test.FBX";
 
 int main()
