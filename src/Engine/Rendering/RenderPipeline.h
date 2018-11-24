@@ -47,7 +47,6 @@ namespace cxc
 	public:
 
 		bool InitializePipeline();
-		void UsePipeline();
 
 	public:
 

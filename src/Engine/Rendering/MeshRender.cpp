@@ -43,44 +43,42 @@ namespace cxc
 
 	void MeshRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
-		for (auto pRenderPipeline : pRenderPipelines)
-		{
-			if (pRenderPipeline.second)
-			{
-				BindCameraUniforms(pRenderPipeline.second->GetPipelineProgramID());
-				pRenderPipeline.second->UsePipeline();
-				pRenderPipeline.second->PreRender(pMesh, Lights);
-				CurrentUsedPipeline = pRenderPipeline.second;
-			}
-		}
+
 	}
 
 	void MeshRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
-		for (auto pRenderPipeline : pRenderPipelines)
+		// Determing which fragment shader should be used to render the material
+		bool bHasTexture = false;
+		if (pMesh->GetMeshMaterial())
 		{
-			if (pRenderPipeline.second)
-			{
-				BindCameraUniforms(pRenderPipeline.second->GetPipelineProgramID());
-				pRenderPipeline.second->UsePipeline();
-				pRenderPipeline.second->Render(pMesh, Lights);
-				CurrentUsedPipeline = pRenderPipeline.second;
-			}
+			bHasTexture = pMesh->GetMeshMaterial()->pTextures.size() > 0;
 		}
+		// Switch pipeline to render the material that has textures
+		auto pRenderMgr = RenderManager::GetInstance();
+		if (bHasTexture)
+		{
+			auto TexturingPipeline = GetPipelinePtr("TexturingPipeline");
+			auto PipelineShouldUsed = CurrentUsedPipeline != TexturingPipeline ? TexturingPipeline : CurrentUsedPipeline;
+			
+			BindCameraUniforms(PipelineShouldUsed->GetPipelineProgramID());
+			UsePipeline("TexturingPipeline");
+			PipelineShouldUsed->Render(pMesh, Lights);
+		}
+		else
+		{
+			auto NontexturingPipeline = GetPipelinePtr("NontexturingPipeline");
+			auto PipelineShouldUsed = CurrentUsedPipeline != NontexturingPipeline ? NontexturingPipeline : CurrentUsedPipeline;
+
+			BindCameraUniforms(PipelineShouldUsed->GetPipelineProgramID());
+			UsePipeline("NontexturingPipeline");
+			PipelineShouldUsed->Render(pMesh, Lights);
+		}	
 	}
 
 	void MeshRender::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
-		for (auto pRenderPipeline : pRenderPipelines)
-		{
-			if (pRenderPipeline.second)
-			{
-				BindCameraUniforms(pRenderPipeline.second->GetPipelineProgramID());
-				pRenderPipeline.second->UsePipeline();
-				pRenderPipeline.second->PostRender(pMesh, Lights);
-				CurrentUsedPipeline = pRenderPipeline.second;
-			}
-		}
+		
 	}
 
 	void MeshRender::UsePipeline(const std::string& PipelineName)
@@ -88,7 +86,7 @@ namespace cxc
 		auto TargetPipeline = GetPipelinePtr(PipelineName);
 		if (TargetPipeline)
 		{
-			TargetPipeline->UsePipeline();
+			glUseProgram(TargetPipeline->GetPipelineProgramID());
 			CurrentUsedPipeline = TargetPipeline;
 		}
 	}
@@ -301,8 +299,9 @@ namespace cxc
 		
 		// Shadow depth map cooked in the pre render process
 		auto ShadowMapPipeline = GetPipelinePtr("ShadowDepthTexturePipeline");
+
 		// Cook the shadow depth map
-		ShadowMapPipeline->UsePipeline();
+		UsePipeline("ShadowDepthTexturePipeline");
 		ShadowMapPipeline->PreRender(pMesh, Lights);
 		ShadowMapPipeline->Render(pMesh, Lights);
 		ShadowMapPipeline->PostRender(pMesh, Lights);
@@ -313,7 +312,7 @@ namespace cxc
 		// Mesh is rendered in the render process
 		auto SceneRenderingPipeline = GetPipelinePtr("ShadowedMeshRenderPipeline");
 
-		SceneRenderingPipeline->UsePipeline();
+		UsePipeline("ShadowedMeshRenderPipeline");
 		BindCameraUniforms(SceneRenderingPipeline->GetPipelineProgramID());
 		SceneRenderingPipeline->PreRender(pMesh, Lights);
 		SceneRenderingPipeline->Render(pMesh, Lights);

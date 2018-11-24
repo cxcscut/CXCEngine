@@ -39,11 +39,6 @@ namespace cxc
 		pOwnerRender.reset();
 	}
 
-	void RenderPipeline::UsePipeline()
-	{
-		glUseProgram(ProgramID);
-	}
-
 	void RenderPipeline::BindLightUniforms(std::shared_ptr<BaseLighting> pLight)
 	{
 		GLuint LightID = glGetUniformLocation(ProgramID, "LightPosition_worldspace");
@@ -148,67 +143,6 @@ namespace cxc
 		if (!pLight)
 			return;
 
-		// Determing which fragment shader should be used to render the material
-		bool bHasTexture = false;
-		if (pMesh->GetMeshMaterial())
-		{
-			bHasTexture = pMesh->GetMeshMaterial()->pTextures.size() > 0;
-		}
-
-		// Switch framgment shader to render the material that has textures
-		auto CurrentAttachedFS = GetCurrentAttachedShader(eShaderType::FRAGMENT_SHADER);
-		auto pRenderMgr = RenderManager::GetInstance();
-		if (bHasTexture)
-		{
-			if (!CurrentAttachedFS || CurrentAttachedFS->GetShaderName() != "PhongFSWithTexture")
-			{
-				auto TexturingFS = pRenderMgr->GetShader("PhongFSWithTexture");
-				if (TexturingFS)
-				{
-					// Replace the texture fragment shader
-					AttachShader(TexturingFS);
-
-					// Link the program
-					if (!LinkShaders())
-					{
-						std::cerr << "Failed to link the shaders when switching to PhongFSWithTexture" << std::endl;
-						return;
-					}
-				}
-				else
-				{
-					std::cerr << "Can not find PhongFSWithTexture shader" << std::endl;
-					return;
-				}
-			}
-		}
-		else
-		{
-			if (!CurrentAttachedFS || CurrentAttachedFS->GetShaderName() != "PhongFSWithNoTexture")
-			{
-				// Detach the shader
-				DetachShader(eShaderType::FRAGMENT_SHADER);
-				auto NoTexturingFS = pRenderMgr->GetShader("PhongFSWithNoTexture");
-				if (NoTexturingFS)
-				{
-					// Attach the non-texture fragment shader
-					AttachShader(NoTexturingFS);
-
-					// Link the program
-					if (!LinkShaders())
-					{
-						std::cerr << "Failed to link the shaders when switching to PhongFSWithNoTexture" << std::endl;
-						return;
-					}
-				}
-				else
-				{
-					std::cerr << "Can not find PhongFSWithNoTexture shader" << std::endl;
-					return;
-				}
-			}
-		}
-
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -217,12 +151,13 @@ namespace cxc
 
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "TexSampler");
 		M_MatrixID = glGetUniformLocation(ProgramID, "M");
+		Eyepos_loc = glGetUniformLocation(ProgramID, "EyePosition_worldspace");
 		Ka_loc = glGetUniformLocation(ProgramID, "Ka");
 		Ks_loc = glGetUniformLocation(ProgramID, "Ks");
 		Kd_loc = glGetUniformLocation(ProgramID, "Kd");
 
-
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glm::vec3 EyePosition = pWorld->pSceneMgr->pCamera->EyePosition;
+		glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
 
 		glBindVertexArray(pOwnerObject->GetVAO());
 
@@ -290,68 +225,6 @@ namespace cxc
 			return;
 
 		auto pOwnerObject = pMesh->GetOwnerObject();
-
-		// Determing which fragment shader should be used to render the material
-		bool bHasTexture = false;
-		if (pMesh->GetMeshMaterial())
-		{
-			bHasTexture = pMesh->GetMeshMaterial()->pTextures.size() > 0;
-		}
-
-		// Switch framgment shader to render the material that has textures
-		auto CurrentAttachedFS = GetCurrentAttachedShader(eShaderType::FRAGMENT_SHADER);
-		auto pRenderMgr = RenderManager::GetInstance();
-		if (bHasTexture)
-		{
-			if (!CurrentAttachedFS || CurrentAttachedFS->GetShaderName() != "PhongFSWithTexture")
-			{
-				// Replace the shader
-				auto TexturingFS = pRenderMgr->GetShader("PhongFSWithTexture");
-				if (TexturingFS)
-				{
-					// Attach the texture fragment shader
-					AttachShader(TexturingFS);
-
-					// Link the program
-					if (!LinkShaders())
-					{
-						std::cerr << "Failed to link the shaders when switching to PhongFSWithTexture" << std::endl;
-						return;
-					}
-				}
-				else
-				{
-					std::cerr << "Can not find PhongFSWithTexture shader" << std::endl;
-					return;
-				}
-			}
-		}
-		else
-		{
-			if (!CurrentAttachedFS || CurrentAttachedFS->GetShaderName() != "PhongFSWithNoTexture")
-			{
-				// Detach the shader
-				DetachShader(eShaderType::FRAGMENT_SHADER);
-				auto NoTexturingFS = pRenderMgr->GetShader("PhongFSWithNoTexture");
-				if (NoTexturingFS)
-				{
-					// Attach the non-texture fragment shader
-					AttachShader(NoTexturingFS);
-
-					// Link the program
-					if (!LinkShaders())
-					{
-						std::cerr << "Failed to link the shaders when switching to PhongFSWithNoTexture" << std::endl;
-						return;
-					}
-				}
-				else
-				{
-					std::cerr << "Can not find PhongFSWithNoTexture shader" << std::endl;
-					return;
-				}
-			}
-		}
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);

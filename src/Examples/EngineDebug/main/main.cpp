@@ -35,12 +35,20 @@ int main()
 	auto PhongFSWithNoTexture = pRenderMgr->FactoryShader("PhongFSWithNoTexture", eShaderType::FRAGMENT_SHADER, PhongFSWithNoTextureFilePath);
 	auto PhongFSWithTexture = pRenderMgr->FactoryShader("PhongFSWithTexture", eShaderType::FRAGMENT_SHADER, PhongFSWithTextureFilePath);
 
-	auto SceneRenderingPipeline = NewObject<RenderPipeline>("PhongRenderPipeline");
-	SceneRenderingPipeline->AttachShader(PhongVS);
-	SceneRenderingPipeline->AttachShader(PhongFSWithNoTexture);
+	auto TexturingPipeline = NewObject<RenderPipeline>("TexturingPipeline");
+	auto NontexturingPipeline = NewObject<RenderPipeline>("NontexturingPipeline");
+
+	TexturingPipeline->AttachShader(PhongVS);
+	TexturingPipeline->AttachShader(PhongFSWithTexture);
+
+	NontexturingPipeline->AttachShader(PhongVS);
+	NontexturingPipeline->AttachShader(PhongFSWithNoTexture);
+
 	auto PhongRender = NewObject<MeshRender>("PhongRender");
-	PhongRender->AddRenderingPipeline(SceneRenderingPipeline);
+	PhongRender->AddRenderingPipeline(TexturingPipeline);
+	PhongRender->AddRenderingPipeline(NontexturingPipeline);
 	bool bRenderInitialize = PhongRender->InitializeRender();
+
 	pRenderMgr->AddRender(PhongRender);
 	GEngine::SetActiveRender(PhongRender);
 
