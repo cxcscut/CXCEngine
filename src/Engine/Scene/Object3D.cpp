@@ -291,38 +291,38 @@ namespace cxc {
 
 	}
 
-	void Object3D::PreRender() noexcept
+	void Object3D::PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
 	{
 		for (auto pMesh : Meshes)
 		{
 			auto pMeshRender = pMesh->GetMeshRender();
 			if (pMeshRender)
 			{
-				pMeshRender->PreRender(pMesh);
+				pMeshRender->PreRender(pMesh, Lights);
 			}
 		}
 	}
 
-	void Object3D::Render() noexcept
+	void Object3D::Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
 	{
 		for (auto pMesh : Meshes)
 		{
 			auto pMeshRender = pMesh->GetMeshRender();
 			if (pMeshRender)
 			{
-				pMeshRender->Render(pMesh);
+				pMeshRender->Render(pMesh, Lights);
 			}
 		}
 	}
 
-	void Object3D::PostRender() noexcept
+	void Object3D::PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
 	{
 		for (auto pMesh : Meshes)
 		{
 			auto pMeshRender = pMesh->GetMeshRender();
 			if (pMeshRender)
 			{
-				pMeshRender->PostRender(pMesh);
+				pMeshRender->PostRender(pMesh, Lights);
 			}
 		}
 	}

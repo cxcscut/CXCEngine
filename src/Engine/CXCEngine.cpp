@@ -52,6 +52,18 @@ namespace cxc
 		}
 	}
 
+	void GEngine::SetCamera(const glm::vec3& CameraPosition, const glm::vec3& CameraOrigin, const glm::vec3& UpVector, const glm::mat4 ProjectionMatrix)
+	{
+		auto World = World::GetInstance();
+		if (World)
+		{
+			// Set camera
+			World->pSceneMgr->SetCameraParams(CameraPosition, CameraOrigin, UpVector, ProjectionMatrix);
+
+			World->pSceneMgr->InitCameraStatus(World->pWindowMgr->GetWindowHandle());
+		}
+	}
+
 	void GEngine::StartEngine()
 	{
 		auto World = World::GetInstance();

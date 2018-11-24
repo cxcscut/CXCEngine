@@ -12,8 +12,7 @@
 
 namespace cxc
 {
-	MeshRender::MeshRender():
-		bIsRenderActive(false)
+	MeshRender::MeshRender()
 	{
 
 	}
@@ -42,7 +41,7 @@ namespace cxc
 		return bSuccessful;
 	}
 
-	void MeshRender::PreRender(std::shared_ptr<Mesh> pMesh)
+	void MeshRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
 		for (auto pRenderPipeline : pRenderPipelines)
 		{
@@ -50,13 +49,13 @@ namespace cxc
 			{
 				BindCameraUniforms(pRenderPipeline.second->GetPipelineProgramID());
 				pRenderPipeline.second->UsePipeline();
-				pRenderPipeline.second->PreRender(pMesh);
+				pRenderPipeline.second->PreRender(pMesh, Lights);
 				CurrentUsedPipeline = pRenderPipeline.second;
 			}
 		}
 	}
 
-	void MeshRender::Render(std::shared_ptr<Mesh> pMesh)
+	void MeshRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
 		for (auto pRenderPipeline : pRenderPipelines)
 		{
@@ -64,13 +63,13 @@ namespace cxc
 			{
 				BindCameraUniforms(pRenderPipeline.second->GetPipelineProgramID());
 				pRenderPipeline.second->UsePipeline();
-				pRenderPipeline.second->Render(pMesh);
+				pRenderPipeline.second->Render(pMesh, Lights);
 				CurrentUsedPipeline = pRenderPipeline.second;
 			}
 		}
 	}
 
-	void MeshRender::PostRender(std::shared_ptr<Mesh> pMesh)
+	void MeshRender::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
 		for (auto pRenderPipeline : pRenderPipelines)
 		{
@@ -78,15 +77,10 @@ namespace cxc
 			{
 				BindCameraUniforms(pRenderPipeline.second->GetPipelineProgramID());
 				pRenderPipeline.second->UsePipeline();
-				pRenderPipeline.second->PostRender(pMesh);
+				pRenderPipeline.second->PostRender(pMesh, Lights);
 				CurrentUsedPipeline = pRenderPipeline.second;
 			}
 		}
-	}
-
-	void MeshRender::AddLight(const glm::vec3 &pos, const glm::vec3 &dir, eLightType type, eInteractionType interactive)
-	{
-		pLightInfo = std::make_shared<BaseLighting>(pos, dir, type, interactive);
 	}
 
 	void MeshRender::UsePipeline(const std::string& PipelineName)
@@ -126,7 +120,8 @@ namespace cxc
 	ShadowMapRender::ShadowMapRender():
 		FrameBufferObjectID(0), DepthMapTexture(0),
 		DepthMapWidth(1024), DepthMapHeight(1024), ShadowCubeMap(0),
-		DepthProjectionMatrix(1.0f), DepthViewMatrix(1.0f), DepthVP(1.0f)
+		DepthProjectionMatrix(1.0f), DepthViewMatrix(1.0f), DepthVP(1.0f),
+		bIsShadowTextureCreate(false)
 	{
 		CubeMapIterator[0] = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f) };
 		CubeMapIterator[1] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, glm::vec3(-1.0f,0.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f) };
@@ -206,32 +201,37 @@ namespace cxc
 		return ShadowCubeMap;
 	}
 
-	bool ShadowMapRender::InitShadowMapRender() noexcept
+	bool ShadowMapRender::InitShadowMapRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
 	{
+		if (!bIsShadowTextureCreate)
+			return true;
+
+		if (!Lights.empty())
+			return false;
+
+		auto pLight = Lights[0];
+		if (!pLight)
+			return false;
+
 		// Create framebuffer object for rendering
 		glGenFramebuffers(1, &FrameBufferObjectID);
 		glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferObjectID);
 
-		if (!pLightInfo)
-			return false;
-
-		auto Type = pLightInfo->GetLightType();
-
-		if (Type == eLightType::Directional ||
-			Type == eLightType::Spot)
+		if (pLight->GetLightType() == eLightType::Directional ||
+			pLight->GetLightType() == eLightType::Spot)
 		{
 			// Two pass shadow map
-			if (Type == eLightType::Directional) {
+			if (pLight->GetLightType() == eLightType::Directional) {
 				// Parallel light
 				DepthProjectionMatrix = glm::ortho<float>(-100, 100, -100, 100, -100, 200);
-				DepthViewMatrix = glm::lookAt(pLightInfo->GetLightPos(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+				DepthViewMatrix = glm::lookAt(pLight->GetLightPos(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 				DepthVP = DepthProjectionMatrix * DepthViewMatrix;
 			}
 			else
 			{
 				// Spot Light
 				DepthProjectionMatrix = glm::perspective(glm::radians(90.0f), 4.0f / 3.0f, 0.1f, 1000.0f);
-				DepthViewMatrix = glm::lookAt(pLightInfo->GetLightPos(), pLightInfo->GetLightPos() + pLightInfo->GetDirection(), glm::vec3(0, -1, 0));
+				DepthViewMatrix = glm::lookAt(pLight->GetLightPos(), pLight->GetLightPos() + pLight->GetDirection(), glm::vec3(0, -1, 0));
 				DepthVP = DepthProjectionMatrix * DepthViewMatrix;
 			}
 
@@ -254,7 +254,7 @@ namespace cxc
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 		}
-		else if (Type == eLightType::OmniDirectional)
+		else if (pLight->GetLightType() == eLightType::OmniDirectional)
 		{
 			// Multipass shadow map with Point light
 			glEnable(GL_TEXTURE_CUBE_MAP);
@@ -290,41 +290,38 @@ namespace cxc
 			return false;
 		}
 
+		bIsShadowTextureCreate = true;
+
 		return true;
 	}
 
-	void ShadowMapRender::PreRender(std::shared_ptr<Mesh> pMesh)
+	void ShadowMapRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
+		InitShadowMapRender(Lights);
+		
 		// Shadow depth map cooked in the pre render process
 		auto ShadowMapPipeline = GetPipelinePtr("ShadowDepthTexturePipeline");
 		// Cook the shadow depth map
 		ShadowMapPipeline->UsePipeline();
-		ShadowMapPipeline->PreRender(pMesh);
-		ShadowMapPipeline->Render(pMesh);
-		ShadowMapPipeline->PostRender(pMesh);
+		ShadowMapPipeline->PreRender(pMesh, Lights);
+		ShadowMapPipeline->Render(pMesh, Lights);
+		ShadowMapPipeline->PostRender(pMesh, Lights);
 	}
 
-	void ShadowMapRender::Render(std::shared_ptr<Mesh> pMesh)
+	void ShadowMapRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
 		// Mesh is rendered in the render process
 		auto SceneRenderingPipeline = GetPipelinePtr("ShadowedMeshRenderPipeline");
 
 		SceneRenderingPipeline->UsePipeline();
 		BindCameraUniforms(SceneRenderingPipeline->GetPipelineProgramID());
-		SceneRenderingPipeline->PreRender(pMesh);
-		SceneRenderingPipeline->Render(pMesh);
-		SceneRenderingPipeline->PostRender(pMesh);
+		SceneRenderingPipeline->PreRender(pMesh, Lights);
+		SceneRenderingPipeline->Render(pMesh, Lights);
+		SceneRenderingPipeline->PostRender(pMesh, Lights);
 	}
 
-	void ShadowMapRender::PostRender(std::shared_ptr<Mesh> pMesh)
+	void ShadowMapRender::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
 
-	}
-
-	bool ShadowMapRender::InitializeRender()
-	{
-		bool bSuccessful = MeshRender::InitializeRender();
-		bSuccessful &= InitShadowMapRender();
-		return bSuccessful;
 	}
 }

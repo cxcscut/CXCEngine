@@ -211,9 +211,6 @@ namespace cxc {
 		// Turn on the vsync
 		glfwSwapInterval(1);
 
-		// Init camera params and set input callback func
-		pSceneMgr->InitCameraStatus(pWindowMgr->GetWindowHandle());
-
 		m_PhysicalWorld->InitializePhysicalWorld();
 	}
  

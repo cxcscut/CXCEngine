@@ -66,12 +66,6 @@ namespace cxc {
 			glfwSetMouseButtonCallback(window, MouseCallBack);
 			glfwSetScrollCallback(window, ScrollBarCallBack);
 		}
-
-		// Set Camera pos
-		SetCameraParams(pCamera->EyePosition, pCamera->CameraOrigin, pCamera->UpVector,
-			glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f)
-		);
-
 	}
 
 	void SceneManager::SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
@@ -174,7 +168,7 @@ namespace cxc {
 		FbxScene* pScene = nullptr;
 		bool bSuccessfullyLoadedScene = false;
 
-		// Prepare the FBX SDK
+		// Initialize the FBX SDK
 		FBXSDKUtil::InitializeSDKObjects(pSdkManager, pScene);
 		bSuccessfullyLoadedScene = FBXSDKUtil::LoadScene(pSdkManager, pScene, filepath.c_str());
 		if (!bSuccessfullyLoadedScene)
@@ -192,36 +186,33 @@ namespace cxc {
 		return true;
 	}
 
-	void SceneManager::PreRender() noexcept
+	void SceneManager::PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
 	{
-		// if Octree has not been built, draw all the objects
 		for (auto pObject : m_ObjectMap)
 			if (pObject.second->isEnable())
 			{
 				// Rendering
-				pObject.second->PreRender();
+				pObject.second->PreRender(Lights);
 			}
 	}
 
-	void SceneManager::Render() noexcept
+	void SceneManager::Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
 	{
-		// if Octree has not been built, draw all the objects
 		for (auto pObject : m_ObjectMap)
 			if (pObject.second->isEnable())
 			{
 				// Rendering
-				pObject.second->Render();
+				pObject.second->Render(Lights);
 			}
 	}
 
-	void SceneManager::PostRender() noexcept
+	void SceneManager::PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
 	{
-		// if Octree has not been built, draw all the objects
 		for (auto pObject : m_ObjectMap)
 			if (pObject.second->isEnable())
 			{
 				// Rendering
-				pObject.second->PostRender();
+				pObject.second->PostRender(Lights);
 			}
 	}
 
@@ -249,14 +240,49 @@ namespace cxc {
 		}
 	}
 
+	void SceneManager::RemoveLight(const std::string& LightName)
+	{
+		for (auto iter = Lights.begin(); iter != Lights.end(); ++iter)
+		{
+			if ((*iter)->GetLightName() == LightName)
+			{
+				Lights.erase(iter);
+				Lights.shrink_to_fit();
+			}
+		}
+	}
+
+	std::shared_ptr<BaseLighting> SceneManager::GetLight(uint32_t LightIndex)
+	{
+		if (GetLightCount() <= LightIndex)
+		{
+			return nullptr;
+		}
+		else
+			return Lights[LightIndex];
+	}
+
+	std::shared_ptr<BaseLighting> SceneManager::GetLight(const std::string& LightName)
+	{
+		for (auto pLight : Lights)
+		{
+			if (pLight && pLight->GetLightName() == LightName)
+			{
+				return pLight;
+			}
+		}
+		
+		return nullptr;
+	}
+
 	void SceneManager::RenderScene() noexcept
 	{
 		if (!pRoot) {
 
 			AllocateBuffers();
-			PreRender();
-			Render();
-			PostRender();
+			PreRender(Lights);
+			Render(Lights);
+			PostRender(Lights);
 			ReleaseBuffers();
 		}
 		else
@@ -300,13 +326,22 @@ namespace cxc {
 			for (auto piter = hash.begin(); piter != hash.end(); piter++)
 			{
 				// Rendring
-				(*piter)->PreRender();
-				(*piter)->Render();
-				(*piter)->PostRender();
+				(*piter)->PreRender(Lights);
+				(*piter)->Render(Lights);
+				(*piter)->PostRender(Lights);
 			}
 			ReleaseBuffers();
 
 			hash.clear();
+		}
+	}
+
+	void SceneManager::AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, eLightType Type)
+	{
+		auto pNewLight = NewObject<BaseLighting>(Name, LightPosition, LightDirection, Type);
+		if (pNewLight)
+		{
+			Lights.push_back(pNewLight);
 		}
 	}
 

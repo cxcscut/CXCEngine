@@ -2,13 +2,13 @@
 
 #include "..\General\DefineTypes.h"
 #include "..\Utilities\FileHelper.h"
-#include "..\Rendering\ShaderManager.h"
+#include "..\Rendering\Shader.h"
 
 #else
 
 #include "../General/DefineTypes.h"
 #include "../Utilities/FileHelper.h"
-#include "../Rendering/ShaderManager.h"
+#include "../Rendering/Shader.h"
 
 #endif
 
@@ -38,6 +38,7 @@ namespace cxc
 
 		GLuint GetPipelineProgramID() const { return ProgramID; }
 		std::string GetPipelineName() const { return PipelineName; }
+		std::shared_ptr<Shader> GetCurrentAttachedShader(eShaderType ShaderType);
 
 	public:
 
@@ -50,16 +51,16 @@ namespace cxc
 
 	public:
 
-		bool CheckLinkingStatus() const;
+		bool CheckLinkingStatus(std::string& OutResultLog) const;
 		void AttachShader(std::shared_ptr<Shader> pShader);
 		void DetachShader(eShaderType AttachmentLoc);
 		bool LinkShaders();
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh);
-		virtual void Render(std::shared_ptr<Mesh> pMesh);
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh);
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
 
 	protected:
 
@@ -88,9 +89,9 @@ namespace cxc
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh) override;
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
 	};
 
 	class ShadowMapCookingPipeline : public RenderPipeline
@@ -102,14 +103,14 @@ namespace cxc
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh) override;
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
 
 	public:
 
-		void CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh);
-		void RenderShadowsToTexture(std::shared_ptr<Mesh> pMesh);
+		void CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
+		void RenderShadowsToTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
 
 	};
 }

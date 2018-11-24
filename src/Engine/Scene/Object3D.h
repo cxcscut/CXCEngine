@@ -130,9 +130,9 @@ namespace cxc {
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
 
-		virtual void PreRender() noexcept;
-		virtual void Render() noexcept;
-		virtual void PostRender() noexcept;
+		virtual void PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
+		virtual void Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
+		virtual void PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
 
 		virtual void Tick(float DeltaSeconds);
 

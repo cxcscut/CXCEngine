@@ -75,9 +75,6 @@
     <ClCompile Include="..\..\Engine\Rendering\FontsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\Rendering\Lighting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Engine\Rendering\MeshRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,7 +99,7 @@
     <ClCompile Include="..\..\Engine\Rendering\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\Rendering\ShaderManager.cpp">
+    <ClCompile Include="..\..\Engine\Scene\Lighting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -947,9 +944,6 @@
     <ClInclude Include="..\..\Engine\Rendering\FontsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\Rendering\Lighting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Engine\Rendering\MeshRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -974,16 +968,12 @@
     <ClInclude Include="..\..\Engine\Rendering\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\Rendering\ShaderManager.h">
+    <ClInclude Include="..\..\Engine\Scene\Lighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main\test.FBX" />
-    <None Include="..\..\Engine\GLSL\Blinn-PhongFS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureVS.glsl" />
-    <None Include="..\..\Engine\GLSL\StandardVertexShader.glsl" />
     <None Include="..\..\Engine\Utilities\EngineObjectFactory.inl">
       <Filter>Header Files</Filter>
     </None>
@@ -993,5 +983,10 @@
     <None Include="..\..\Engine\Utilities\MultiTree.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="..\..\Engine\GLSL\PhongWithNoTexture.glsl.fs" />
+    <None Include="..\..\Engine\GLSL\PhongShader.glsl.vs" />
+    <None Include="..\..\Engine\GLSL\PhongWithTexture.glsl.fs" />
+    <None Include="..\..\Engine\GLSL\depthTexture.glsl.fs" />
+    <None Include="..\..\Engine\GLSL\depthTexture.glsl.vs" />
   </ItemGroup>
 </Project>

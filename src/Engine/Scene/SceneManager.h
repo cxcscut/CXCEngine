@@ -165,6 +165,12 @@ namespace cxc {
 		void SetCenter(const glm::vec3 &center) noexcept { m_SceneCenter = center; };
 		void SetSize(float size) noexcept { m_SceneSize = size; };
 
+		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, eLightType Type);
+		void RemoveLight(const std::string& LightName);
+		std::shared_ptr<BaseLighting> GetLight(uint32_t LightIndex);
+		std::shared_ptr<BaseLighting> GetLight(const std::string& LightName);
+		uint32_t GetLightCount() const { return Lights.size(); }
+
 	public:
 
 		void Tick(float DeltaSeconds) noexcept;
@@ -176,9 +182,9 @@ namespace cxc {
 		void AllocateBuffers();
 		void ReleaseBuffers();
 
-		void PreRender() noexcept;
-		void Render() noexcept;
-		void PostRender() noexcept;
+		void PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
+		void Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
+		void PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
 
 	// Physics settings
 	public:
@@ -194,6 +200,9 @@ namespace cxc {
 		void AddObjectInternal(const std::string &SpriteName, const std::shared_ptr<Object3D> &ObjectPtr, bool isKinematics = false) noexcept;
 
 	private:
+
+		// Lights
+		std::vector<std::shared_ptr<BaseLighting>> Lights;
 
 		// Hashmap for culling
 		std::unordered_set<std::shared_ptr<Object3D>> hash;

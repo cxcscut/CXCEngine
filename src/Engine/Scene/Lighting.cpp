@@ -7,8 +7,8 @@ namespace cxc {
 
 	}
 
-	BaseLighting::BaseLighting(const glm::vec3 &pos, const glm::vec3 &dir, eLightType type, eInteractionType interactive)
-		:LightPos(pos),LightDirection(dir), LightType(type),Interactive(interactive)
+	BaseLighting::BaseLighting(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, eLightType type)
+		:LightPos(pos),LightDirection(dir), LightType(type), LightName(Name)
 	{
 
 	}

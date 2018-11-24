@@ -17,12 +17,42 @@ namespace cxc {
 		CurrentUsedRender = pRender;
 	}
 
-	
+	std::shared_ptr<Shader> RenderManager::FactoryShader(const std::string& ShaderName, eShaderType ShaderType, const std::string& ShaderFileName)
+	{
+		auto pNewShader = NewObject<Shader>(ShaderName, ShaderFileName, ShaderType);
+		if (pNewShader && pNewShader->CompileShader())
+		{
+			AddShader(pNewShader);
+
+			return pNewShader;
+		}
+		else
+			return nullptr;
+	}
+
+	std::shared_ptr<Shader>RenderManager::GetShader(const std::string& ShaderName)
+	{
+		auto iter = pShadersMap.find(ShaderName);
+		if (iter != pShadersMap.end())
+		{
+			return iter->second;
+		}
+		else
+			return nullptr;
+	}
+
+	void RenderManager::AddShader(std::shared_ptr<Shader> pShader)
+	{
+		if (pShader)
+		{
+			pShadersMap.insert(std::make_pair(pShader->GetShaderName(), pShader));
+		}
+	}
 
 	std::shared_ptr<MeshRender> RenderManager::GetRenderPtr(const std::string &name) noexcept
 	{
-		auto it = m_Renders.find(name);
-		if (it != m_Renders.end())
+		auto it = RendersMap.find(name);
+		if (it != RendersMap.end())
 			return it->second;
 		else
 			return nullptr;
@@ -42,15 +72,14 @@ namespace cxc {
 	{
 		if (pRender)
 		{
-			m_Renders.insert(std::make_pair(pRender->GetRenderName(), pRender));
+			RendersMap.insert(std::make_pair(pRender->GetRenderName(), pRender));
 		}
 	}
 
 	void RenderManager::DeleteRender(const std::string &name) noexcept
 	{
-		auto it = m_Renders.find(name);
-		if (it != m_Renders.end())
-			m_Renders.erase(it);
+		auto it = RendersMap.find(name);
+		if (it != RendersMap.end())
+			RendersMap.erase(it);
 	}
-
 }

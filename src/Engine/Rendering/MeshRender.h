@@ -1,12 +1,12 @@
 #ifdef WIN32
 
 #include "..\General\DefineTypes.h"
-#include "..\Rendering\Lighting.h"
+#include "..\Scene\Lighting.h"
 
 #else
 
 #include "../General/DefineTypes.h"
-#include "../Rendering/Lighting.h"
+#include "../Scene/Lighting.h"
 
 #endif
 
@@ -37,11 +37,6 @@ namespace cxc
 
 	public:
 
-		std::shared_ptr<BaseLighting> GetLightInfo() { return pLightInfo; }
-		void AddLight(const glm::vec3 &pos, const glm::vec3 &dir, eLightType type, eInteractionType interactive);
-
-	public:
-
 		std::shared_ptr<RenderPipeline> GetCurrentUsedPipeline() { return CurrentUsedPipeline; }
 		std::string GetRenderName() const { return RenderName; }
 		void SetRenderName(const std::string& NewName) { RenderName = NewName; }
@@ -51,21 +46,16 @@ namespace cxc
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh);
-		virtual void Render(std::shared_ptr<Mesh> pMesh);
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh);
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
 
 	protected:
-
-		bool bIsRenderActive;
 
 		std::shared_ptr<RenderPipeline> CurrentUsedPipeline;
 
 		// Name of the render
 		std::string RenderName;
-
-		// Light
-		std::shared_ptr<BaseLighting> pLightInfo;
 
 		// Rendering pipeline
 		std::unordered_map<std::string, std::shared_ptr<RenderPipeline>> pRenderPipelines;
@@ -98,22 +88,20 @@ namespace cxc
 
 	public:
 
-		virtual bool InitializeRender() override;
-
-	public:
-
 		void SetLightSpaceMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept;
 		void SetShadowMapTextureSize(uint32_t Height, uint32_t Width);
 
-		bool InitShadowMapRender() noexcept;
+		bool InitShadowMapRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
 
 	public:
 		
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh) override;
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
 
 	private:
+
+		bool bIsShadowTextureCreate;
 
 		// FBO
 		GLuint FrameBufferObjectID;

@@ -4,7 +4,7 @@
 #ifdef WIN32
 
 #include "..\Libraries\FBX-SDK\include\fbxsdk.h"
-#include "..\Rendering\Lighting.h"
+#include "..\Scene\Lighting.h"
 #include "..\Scene\Camera.h"
 #include "..\Scene\Object3D.h"
 #include "..\Material\TextureManager.h"
@@ -12,7 +12,7 @@
 #else
 
 #include "../Libraries/FBX-SDk/include/fbxsdk.h"
-#include "../Rendering/Lighting.h"
+#include "../Scene/Lighting.h"
 #include "../Scene/Camera.h"
 #include "../Scene/Object3D.h"
 #include "../Rendering/TextureManager.h"

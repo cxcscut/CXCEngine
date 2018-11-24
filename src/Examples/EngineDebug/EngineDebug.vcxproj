@@ -115,13 +115,12 @@
     <ClCompile Include="..\..\engine\physics\RigidBody3D.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\Font.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\FontsManager.cpp" />
-    <ClCompile Include="..\..\Engine\Rendering\Lighting.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\MeshRender.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\RenderPipeline.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\Shader.cpp" />
-    <ClCompile Include="..\..\Engine\Rendering\ShaderManager.cpp" />
     <ClCompile Include="..\..\Engine\Scene\Camera.cpp" />
+    <ClCompile Include="..\..\Engine\Scene\Lighting.cpp" />
     <ClCompile Include="..\..\Engine\Scene\Mesh.cpp" />
     <ClCompile Include="..\..\Engine\Scene\Object3D.cpp" />
     <ClCompile Include="..\..\Engine\Scene\SceneManager.cpp" />
@@ -408,13 +407,12 @@
     <ClInclude Include="..\..\engine\physics\RigidBody3D.h" />
     <ClInclude Include="..\..\Engine\Rendering\Font.h" />
     <ClInclude Include="..\..\Engine\Rendering\FontsManager.h" />
-    <ClInclude Include="..\..\Engine\Rendering\Lighting.h" />
     <ClInclude Include="..\..\Engine\Rendering\MeshRender.h" />
     <ClInclude Include="..\..\Engine\Rendering\RenderManager.h" />
     <ClInclude Include="..\..\Engine\Rendering\RenderPipeline.h" />
     <ClInclude Include="..\..\Engine\Rendering\Shader.h" />
-    <ClInclude Include="..\..\Engine\Rendering\ShaderManager.h" />
     <ClInclude Include="..\..\Engine\Scene\Camera.h" />
+    <ClInclude Include="..\..\Engine\Scene\Lighting.h" />
     <ClInclude Include="..\..\Engine\Scene\Mesh.h" />
     <ClInclude Include="..\..\Engine\Scene\Object3D.h" />
     <ClInclude Include="..\..\Engine\Scene\SceneManager.h" />
@@ -426,10 +424,11 @@
     <ClInclude Include="..\..\Engine\World\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Engine\GLSL\Blinn-PhongFS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureVS.glsl" />
-    <None Include="..\..\Engine\GLSL\StandardVertexShader.glsl" />
+    <None Include="..\..\Engine\GLSL\PhongWithNoTexture.glsl.fs" />
+    <None Include="..\..\Engine\GLSL\depthTexture.glsl.fs" />
+    <None Include="..\..\Engine\GLSL\depthTexture.glsl.vs" />
+    <None Include="..\..\Engine\GLSL\PhongShader.glsl.vs" />
+    <None Include="..\..\Engine\GLSL\PhongWithTexture.glsl.fs" />
     <None Include="..\..\Engine\Utilities\EngineObjectFactory.inl" />
     <None Include="..\..\Engine\Utilities\MultiTree.inl" />
     <None Include="..\..\Engine\Utilities\Singleton.inl" />

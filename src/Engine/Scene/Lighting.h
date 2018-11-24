@@ -21,11 +21,6 @@ namespace cxc {
 		InvalidType
 	};
 
-	enum class eInteractionType : uint16_t {
-		Dynamic,
-		Static
-	};
-
 	class BaseLighting
 	{
 
@@ -34,7 +29,7 @@ namespace cxc {
 	public:
 
 		BaseLighting();
-		BaseLighting(const glm::vec3 &pos, const glm::vec3 &dir, eLightType type, eInteractionType interactive);
+		BaseLighting(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, eLightType type);
 		virtual ~BaseLighting();
 
 	public:
@@ -46,6 +41,7 @@ namespace cxc {
 		glm::vec3 GetDirection() const noexcept;
 		eLightType GetLightType() const noexcept;
 		glm::vec3 GetLightPos() const noexcept;;
+		const std::string& GetLightName() const { return LightName; }
 
 	private:
 
@@ -61,31 +57,11 @@ namespace cxc {
 
 		eLightType LightType;
 
-		eInteractionType Interactive;
-
 		bool bCastLight;
 
 		bool bCastShadow;
 
 	};
-	
-	class DynamicLighting : public BaseLighting
-	{
-	public :
 
-		DynamicLighting(const glm::vec3 &pos, const glm::vec3 &dir, eLightType type);
-		~DynamicLighting();
-
-	public:
-
-		void PreBakeLightMap() noexcept;
-		GLuint GetLightMap() const noexcept;
-		GLuint GetLightMapFBO() const noexcept;
-
-	private:
-	
-		GLuint LightMapTexture;
-		GLuint LightMapFBO;
-	};
 }
 #endif // CXC_LIGHTING_H

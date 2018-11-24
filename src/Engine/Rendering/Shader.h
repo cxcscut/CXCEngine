@@ -17,11 +17,12 @@ namespace cxc
 {
 	class RenderPipeline;
 
-	enum class eShaderType : uint16_t
+	enum class eShaderType : uint32_t
 	{
 		VERTEX_SHADER = 0,
 		FRAGMENT_SHADER = 1,
-		GEOMETRY_SHADER = 2
+		GEOMETRY_SHADER = 2,
+		SHADER_TYPESIZE = 3
 	};
 
 	class Shader : public std::enable_shared_from_this<Shader>
