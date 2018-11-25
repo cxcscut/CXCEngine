@@ -54,13 +54,15 @@ namespace cxc
 		{
 			bHasTexture = pMesh->GetMeshMaterial()->pTextures.size() > 0;
 		}
-		// Switch pipeline to render the material that has textures
+
+		// Switch pipeline to render the material that has textures or do not has textures
 		auto pRenderMgr = RenderManager::GetInstance();
 		if (bHasTexture)
 		{
 			auto TexturingPipeline = GetPipelinePtr("TexturingPipeline");
 			auto PipelineUsed = CurrentUsedPipeline != TexturingPipeline ? TexturingPipeline : CurrentUsedPipeline;
 			
+			// Use pipeline before commit the uniforms to program
 			UsePipeline(PipelineUsed);
 			BindCameraUniforms(PipelineUsed->GetPipelineProgramID());
 			PipelineUsed->Render(pMesh, Lights);
@@ -70,6 +72,7 @@ namespace cxc
 			auto NontexturingPipeline = GetPipelinePtr("NontexturingPipeline");
 			auto PipelineUsed = CurrentUsedPipeline != NontexturingPipeline ? NontexturingPipeline : CurrentUsedPipeline;
 
+			// Use pipeline before commit the uniforms to program
 			UsePipeline(PipelineUsed);
 			BindCameraUniforms(PipelineUsed->GetPipelineProgramID());
 			PipelineUsed->Render(pMesh, Lights);

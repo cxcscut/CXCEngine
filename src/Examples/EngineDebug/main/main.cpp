@@ -7,7 +7,7 @@ static const std::string PhongFSWithNoTextureFilePath = "G:\\cxcengine\\src\\Eng
 static const std::string PhongFSWithTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\TexturingPhongFS.glsl";
 static const std::string ShadowVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureVS.glsl.";
 static const std::string ShadowFSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureFS.glsl";
-static const std::string FBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\test.FBX";
+static const std::string FBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\material.FBX";
 
 int main()
 {

@@ -154,7 +154,7 @@ namespace cxc {
 		}
 	}
 
-	void FBXSDKUtil::GetTexturesFromMaterial(FbxSurfaceMaterial* pSurfaceMaterial, std::vector<std::shared_ptr<Texture2D>> & OutTextures)
+	void FBXSDKUtil::GetTexturesFromMaterial(FbxSurfaceMaterial* pSurfaceMaterial, std::vector<std::shared_ptr<Texture2D>>& OutTextures)
 	{
 		if (pSurfaceMaterial)
 		{
@@ -279,10 +279,19 @@ namespace cxc {
 					FBX_ASSERT(lMaterialIndice->GetCount() == lPolygonCount);
 					if (lMaterialIndice->GetCount() == lPolygonCount)
 					{
+						std::unordered_set<uint32_t> MaterialSet;
+
 						// Count the faces of the material
 						for (int lPolygonIndex = 0; lPolygonIndex < lPolygonCount; ++lPolygonIndex)
 						{
 							const int lMaterialIndex = lMaterialIndice->GetAt(lPolygonIndex);
+
+							auto MaterialIter = MaterialSet.find(lMaterialIndex);
+							if (MaterialIter != MaterialSet.end())
+								continue;
+
+							MaterialSet.insert(lMaterialIndex);
+
 							auto PolygonMaterial = pNode->GetMaterial(lMaterialIndex);
 							FBX_ASSERT(PolygonMaterial != nullptr);
 
@@ -303,7 +312,7 @@ namespace cxc {
 							auto LoadedPolygonMaterial = NewObject<Material>(PolygonMaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
 							auto pNewMesh = NewObject<Mesh>();
 
-							LoadedPolygonMaterial->pTextures = std::move(OutTextures);
+							LoadedPolygonMaterial->pTextures = OutTextures;
 
 							pMaterialMgr->addMaterial(LoadedPolygonMaterial);
 							pNewMesh->SetMeshMaterial(LoadedPolygonMaterial);
