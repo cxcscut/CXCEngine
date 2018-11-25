@@ -38,7 +38,7 @@ namespace cxc {
 				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::UserTextureUnit);
 				glBindTexture(GL_TEXTURE_2D, pMaterial->pTextures[0]->GetTextureID());
 
-				glUniform1i(TexSampler, 0);
+				glUniform1i(TexSampler, (GLuint)TextureUnit::UserTextureUnit);
 			}
 		}
 	}

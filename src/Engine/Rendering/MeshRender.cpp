@@ -61,16 +61,17 @@ namespace cxc
 			auto TexturingPipeline = GetPipelinePtr("TexturingPipeline");
 			auto PipelineUsed = CurrentUsedPipeline != TexturingPipeline ? TexturingPipeline : CurrentUsedPipeline;
 			
+			UsePipeline(PipelineUsed);
 			BindCameraUniforms(PipelineUsed->GetPipelineProgramID());
-			UsePipeline("TexturingPipeline");
 			PipelineUsed->Render(pMesh, Lights);
 		}
 		else
 		{
 			auto NontexturingPipeline = GetPipelinePtr("NontexturingPipeline");
 			auto PipelineUsed = CurrentUsedPipeline != NontexturingPipeline ? NontexturingPipeline : CurrentUsedPipeline;
+
+			UsePipeline(PipelineUsed);
 			BindCameraUniforms(PipelineUsed->GetPipelineProgramID());
-			UsePipeline("NontexturingPipeline");
 			PipelineUsed->Render(pMesh, Lights);
 		}	
 	}
@@ -80,13 +81,12 @@ namespace cxc
 		
 	}
 
-	void MeshRender::UsePipeline(const std::string& PipelineName)
+	void MeshRender::UsePipeline(std::shared_ptr<RenderPipeline> Pipeline)
 	{
-		auto TargetPipeline = GetPipelinePtr(PipelineName);
-		if (TargetPipeline)
+		if (Pipeline)
 		{
-			glUseProgram(TargetPipeline->GetPipelineProgramID());
-			CurrentUsedPipeline = TargetPipeline;
+			glUseProgram(Pipeline->GetPipelineProgramID());
+			CurrentUsedPipeline = Pipeline;
 		}
 	}
 
@@ -300,7 +300,7 @@ namespace cxc
 		auto ShadowMapPipeline = GetPipelinePtr("ShadowDepthTexturePipeline");
 
 		// Cook the shadow depth map
-		UsePipeline("ShadowDepthTexturePipeline");
+		UsePipeline(ShadowMapPipeline);
 		ShadowMapPipeline->PreRender(pMesh, Lights);
 		ShadowMapPipeline->Render(pMesh, Lights);
 		ShadowMapPipeline->PostRender(pMesh, Lights);
@@ -311,7 +311,7 @@ namespace cxc
 		// Mesh is rendered in the render process
 		auto SceneRenderingPipeline = GetPipelinePtr("ShadowedMeshRenderPipeline");
 
-		UsePipeline("ShadowedMeshRenderPipeline");
+		UsePipeline(SceneRenderingPipeline);
 		BindCameraUniforms(SceneRenderingPipeline->GetPipelineProgramID());
 		SceneRenderingPipeline->PreRender(pMesh, Lights);
 		SceneRenderingPipeline->Render(pMesh, Lights);

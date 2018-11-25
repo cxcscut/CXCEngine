@@ -43,4 +43,6 @@ void main()
 	color = MaterialAmbientColor * MaterialDiffuseColor +
 			//MaterialSpecularColor  +
 			MaterialDiffuseColor;
+
+			color = vec3(0,0,1);
 }

@@ -41,7 +41,7 @@ namespace cxc
 		std::string GetRenderName() const { return RenderName; }
 		void SetRenderName(const std::string& NewName) { RenderName = NewName; }
 		std::shared_ptr<RenderPipeline> GetPipelinePtr(const std::string& PipelineName);
-		void UsePipeline(const std::string& PipelineName);
+		void UsePipeline(std::shared_ptr<RenderPipeline> Pipeline);
 		void BindCameraUniforms(GLuint ProgramID);
 
 	public:
