@@ -165,7 +165,7 @@ namespace cxc {
 		void SetCenter(const glm::vec3 &center) noexcept { m_SceneCenter = center; };
 		void SetSize(float size) noexcept { m_SceneSize = size; };
 
-		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, eLightType Type);
+		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, float LightIntensity, eLightType Type);
 		void RemoveLight(const std::string& LightName);
 		std::shared_ptr<BaseLighting> GetLight(uint32_t LightIndex);
 		std::shared_ptr<BaseLighting> GetLight(const std::string& LightName);

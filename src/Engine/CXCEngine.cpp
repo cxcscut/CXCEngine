@@ -36,12 +36,6 @@ namespace cxc
 		}
 	}
 
-	void GEngine::SetActiveRender(std::shared_ptr<MeshRender> pRender)
-	{
-		auto pRenderMgr = SceneManager::GetInstance()->pRenderMgr;
-		pRenderMgr->SetCurrentUsedRender(pRender);
-	}
-
 	void GEngine::InitializeEngine()
 	{
 		auto World = World::GetInstance();

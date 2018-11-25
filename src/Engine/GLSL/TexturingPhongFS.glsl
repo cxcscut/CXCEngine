@@ -13,6 +13,7 @@ uniform vec3 LightPosition_worldspace;
 uniform vec3 EyePosition_worldspace;
 uniform vec3 Ks;
 uniform vec3 Ka;
+uniform float LightPower;
 
 void main()
 {
@@ -21,7 +22,6 @@ void main()
 	float distance = length(LightPosition_worldspace - Position_worldspace);
 
 	vec3 LightColor = vec3(1,1,1);
-	float LightPower = 100.0f;
 
 	vec3 n = normalize( Normal_worldspace );
 	vec3 l = normalize( LightDirection_worldspace );
@@ -33,14 +33,11 @@ void main()
 	float cos_alpha = clamp(dot(H,n),0,1);
 
 	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
-	vec3 MaterialDiffuseColor;
 
-	//MaterialDiffuseColor = Kd * LightColor * LightPower *cos_theta / distance ;
-	//vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha, shineness) / distance ;
-
-	MaterialDiffuseColor = LightColor * texture(TexSampler, UV).rgb;
+	vec3 MaterialDiffuseColor = texture(TexSampler, UV).rgb * LightColor * LightPower *cos_theta / distance ;
+	vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha, shineness) / distance ;
 
 	color = MaterialAmbientColor * MaterialDiffuseColor +
-			//MaterialSpecularColor  +
+			MaterialSpecularColor  +
 			MaterialDiffuseColor;
 }

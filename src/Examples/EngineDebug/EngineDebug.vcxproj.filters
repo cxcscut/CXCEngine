@@ -986,7 +986,14 @@
     <None Include="..\..\Engine\GLSL\PhongShaderVS.glsl" />
     <None Include="..\..\Engine\GLSL\TexturingPhongFS.glsl" />
     <None Include="..\..\Engine\GLSL\depthTextureVS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
     <None Include="..\..\Engine\GLSL\NontexturingPhongFS.glsl" />
+    <None Include="..\..\Engine\GLSL\TexturingShadowNonOmniLightFS.glsl" />
+    <None Include="..\..\Engine\GLSL\ShadowVS.glsl" />
+    <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\Engine\GLSL\NonTexturingShadowNonOmniLightFS.txt" />
+    <Text Include="..\..\Engine\GLSL\NonTexturingShadowOmniLightFS.txt" />
+    <Text Include="..\..\Engine\GLSL\TexturingShadowOmniLightFS.glsl" />
   </ItemGroup>
 </Project>

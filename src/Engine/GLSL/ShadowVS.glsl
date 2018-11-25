@@ -9,6 +9,7 @@ out vec3 Position_worldspace;
 out vec3 EyeDirection_worldspace;
 out vec3 LightDirection_worldspace;
 out vec3 Normal_worldspace;
+out vec4 ShadowCoord;
 
 uniform mat4 P;
 uniform mat4 V;
@@ -20,11 +21,15 @@ uniform vec3 Kd;
 uniform vec3 Ks;
 uniform vec3 Ka;
 
+uniform mat4 DepthBiasMVP;
 uniform sampler2D TexSampler;
 
 mat4 MVP = P * V * M ;
 
-void main(){
+void main()
+{
+
+	ShadowCoord = DepthBiasMVP * vec4(vertexPosition_modelspace,1);
 
 	gl_Position = MVP * vec4(vertexPosition_modelspace, 1);
 
@@ -39,4 +44,5 @@ void main(){
 	Normal_worldspace = mat3(transpose(inverse(M))) * vertexNormal_modelspace;
 
 	UV = vertexUV;
+
 }

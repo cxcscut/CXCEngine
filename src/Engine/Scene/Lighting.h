@@ -29,7 +29,7 @@ namespace cxc {
 	public:
 
 		BaseLighting();
-		BaseLighting(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, eLightType type);
+		BaseLighting(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, float Intensity, eLightType type);
 		virtual ~BaseLighting();
 
 	public:
@@ -37,11 +37,13 @@ namespace cxc {
 		void SetLightPos(const glm::vec3 &pos) noexcept;
 		void SetLightType(eLightType type) noexcept;
 		void SetDirection(const glm::vec3 &dir) noexcept;
+		void SetIntensity(float NewIntensity) { LightIntensity = NewIntensity; }
 
 		glm::vec3 GetDirection() const noexcept;
 		eLightType GetLightType() const noexcept;
 		glm::vec3 GetLightPos() const noexcept;;
 		const std::string& GetLightName() const { return LightName; }
+		float GetIntensity() const { return LightIntensity; }
 
 	private:
 
@@ -53,7 +55,7 @@ namespace cxc {
 
 		glm::vec3 LightDirection;
 
-		double LightIntensity;
+		float LightIntensity;
 
 		eLightType LightType;
 

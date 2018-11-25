@@ -60,7 +60,6 @@ namespace cxc
 
 		static void ConfigureEngineDisplaySettings(const DisplayParameters& DisplayConf);
 		static void BindMeshRender(std::shared_ptr<MeshRender> pRender, std::shared_ptr<Object3D> pObject, uint32_t MeshIndex);
-		static void SetActiveRender(std::shared_ptr<MeshRender> pRender);
 		static void SetCamera(const glm::vec3& CameraPosition, const glm::vec3& CameraOrigin, const glm::vec3& UpVector, const glm::mat4 ProjectionMatrix);
 
 	public:

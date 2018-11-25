@@ -295,6 +295,8 @@ namespace cxc {
 	{
 		for (auto pMesh : Meshes)
 		{
+			auto pRenderMgr = RenderManager::GetInstance();
+			pRenderMgr->SetCurrentUsedRender(pMesh->GetMeshRender());
 			auto pMeshRender = pMesh->GetMeshRender();
 			if (pMeshRender)
 			{
@@ -307,6 +309,8 @@ namespace cxc {
 	{
 		for (auto pMesh : Meshes)
 		{
+			auto pRenderMgr = RenderManager::GetInstance();
+			pRenderMgr->SetCurrentUsedRender(pMesh->GetMeshRender());
 			auto pMeshRender = pMesh->GetMeshRender();
 			if (pMeshRender)
 			{
@@ -319,6 +323,8 @@ namespace cxc {
 	{
 		for (auto pMesh : Meshes)
 		{
+			auto pRenderMgr = RenderManager::GetInstance();
+			pRenderMgr->SetCurrentUsedRender(pMesh->GetMeshRender());
 			auto pMeshRender = pMesh->GetMeshRender();
 			if (pMeshRender)
 			{

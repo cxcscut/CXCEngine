@@ -43,7 +43,9 @@ namespace cxc
 
 	void MeshRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
-
+		auto pLight = Lights[0];
+		auto CameraPos = SceneManager::GetInstance()->pCamera->EyePosition;
+		pLight->SetLightPos(CameraPos);
 	}
 
 	void MeshRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
@@ -203,10 +205,10 @@ namespace cxc
 
 	bool ShadowMapRender::InitShadowMapRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
 	{
-		if (!bIsShadowTextureCreate)
+		if (bIsShadowTextureCreate)
 			return true;
 
-		if (!Lights.empty())
+		if (Lights.empty())
 			return false;
 
 		auto pLight = Lights[0];
@@ -284,6 +286,7 @@ namespace cxc
 
 			if (FrameBufferObjectID)
 				glDeleteFramebuffers(1, &FrameBufferObjectID);
+
 			if (DepthMapTexture)
 				glDeleteTextures(1, &DepthMapTexture);
 
@@ -297,8 +300,17 @@ namespace cxc
 
 	void ShadowMapRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
-		InitShadowMapRender(Lights);
-		
+		auto pLight = Lights[0];
+		auto CameraPos = SceneManager::GetInstance()->pCamera->EyePosition;
+		//pLight->SetLightPos(CameraPos);
+
+		bool bResult = InitShadowMapRender(Lights);
+		if (!bResult)
+		{
+			std::cerr << "Failed to initialize the shadow map render" << std::endl;
+			return;
+		}
+
 		// Shadow depth map cooked in the pre-render process
 		auto ShadowMapPipeline = GetPipelinePtr("ShadowDepthTexturePipeline");
 

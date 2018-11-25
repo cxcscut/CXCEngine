@@ -336,9 +336,9 @@ namespace cxc {
 		}
 	}
 
-	void SceneManager::AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, eLightType Type)
+	void SceneManager::AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, float LightIntensity, eLightType Type)
 	{
-		auto pNewLight = NewObject<BaseLighting>(Name, LightPosition, LightDirection, Type);
+		auto pNewLight = NewObject<BaseLighting>(Name, LightPosition, LightDirection, LightIntensity, Type);
 		if (pNewLight)
 		{
 			Lights.push_back(pNewLight);

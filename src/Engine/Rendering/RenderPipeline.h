@@ -98,6 +98,7 @@ namespace cxc
 	public:
 
 		ShadowMapCookingPipeline();
+
 		virtual ~ShadowMapCookingPipeline();
 
 	public:

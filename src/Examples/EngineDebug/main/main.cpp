@@ -5,13 +5,19 @@ using namespace cxc;
 static const std::string PhongVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\PhongShaderVS.glsl";
 static const std::string PhongFSWithNoTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\NontexturingPhongFS.glsl";
 static const std::string PhongFSWithTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\TexturingPhongFS.glsl";
-static const std::string ShadowVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureVS.glsl.";
-static const std::string ShadowFSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureFS.glsl";
-static const std::string FBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\material.FBX";
+static const std::string ShadowMapCookingVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureVS.glsl.";
+static const std::string ShadowMapCookingFSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureFS.glsl";
+
+static const std::string ShadowVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowVS.glsl";
+static const std::string TexturingShadowOmniLightFSPathFile = "G:\\cxcengine\\src\\Engine\\GLSL\\TexturingShadowOmniLightFS.glsl";
+
+static const std::string SceneFBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\test.FBX";
 
 int main()
 {
-	glm::vec3 LightPos = glm::vec3(80, 80, 0);
+	glm::vec3 LightPos = glm::vec3(50, 150, 100);
+	float LightIntensity = 100.0f;
+
 	glm::vec3 CameraPos = glm::vec3(0, 250, 30);
 	glm::vec3 CameraOrigin = glm::vec3(0, 0, 0);
 	glm::vec3 CameraUpVector = glm::vec3(0, 0, 1);
@@ -28,9 +34,12 @@ int main()
 	GEngine::InitializeEngine();
 
 	auto pSceneManager = SceneManager::GetInstance();
-	pSceneManager->AddLight("MainLight", LightPos, -LightPos, eLightType::OmniDirectional);
+	pSceneManager->AddLight("MainLight", LightPos, -LightPos, LightIntensity, eLightType::OmniDirectional);
 
 	auto pRenderMgr = RenderManager::GetInstance();
+	bool bRenderInitialize;
+
+	/*
 	auto PhongVS = pRenderMgr->FactoryShader("PhongVS", eShaderType::VERTEX_SHADER, PhongVSFilePath);
 	auto PhongFSWithNoTexture = pRenderMgr->FactoryShader("PhongFSWithNoTexture", eShaderType::FRAGMENT_SHADER, PhongFSWithNoTextureFilePath);
 	auto PhongFSWithTexture = pRenderMgr->FactoryShader("PhongFSWithTexture", eShaderType::FRAGMENT_SHADER, PhongFSWithTextureFilePath);
@@ -47,28 +56,43 @@ int main()
 	auto PhongRender = NewObject<MeshRender>("PhongRender");
 	PhongRender->AddRenderingPipeline(TexturingPipeline);
 	PhongRender->AddRenderingPipeline(NontexturingPipeline);
-	bool bRenderInitialize = PhongRender->InitializeRender();
-
+	bRenderInitialize = PhongRender->InitializeRender();
 	pRenderMgr->AddRender(PhongRender);
-	GEngine::SetActiveRender(PhongRender);
+	*/
+
+	auto ShadowRender = NewObject<ShadowMapRender>("ShadowRender");
+	auto ShadowMapPipeline = NewObject<ShadowMapCookingPipeline>();
+	auto ShadowedMeshPipeline = NewObject<ShadowedMeshRenderPipeline>();
+	auto ShadowMapCookingVS = pRenderMgr->FactoryShader("ShadowMapCookingVS", eShaderType::VERTEX_SHADER, ShadowMapCookingVSFilePath);
+	auto ShadowMapCookingFS = pRenderMgr->FactoryShader("ShadowMapCookingFS", eShaderType::FRAGMENT_SHADER, ShadowMapCookingFSFilePath);
+	auto ShadowVS = pRenderMgr->FactoryShader("ShadowVS", eShaderType::VERTEX_SHADER, ShadowVSFilePath);
+	auto TextuingShadowOmniLightFS = pRenderMgr->FactoryShader("TexturingShadowOmniLightFS", eShaderType::FRAGMENT_SHADER, TexturingShadowOmniLightFSPathFile);
+	
+	ShadowMapPipeline->AttachShader(ShadowMapCookingVS);
+	ShadowMapPipeline->AttachShader(ShadowMapCookingFS);
+	ShadowedMeshPipeline->AttachShader(ShadowVS);
+	ShadowedMeshPipeline->AttachShader(TextuingShadowOmniLightFS);
+
+	ShadowRender->AddRenderingPipeline(ShadowMapPipeline);
+	ShadowRender->AddRenderingPipeline(ShadowedMeshPipeline);
+	bRenderInitialize &= ShadowRender->InitializeRender();
+
+	pRenderMgr->AddRender(ShadowRender);
 
 	GEngine::SetCamera(CameraPos , CameraOrigin, CameraUpVector, ProjectionMatrix);
 
-	bool bResult = pSceneManager->LoadSceneFromFBX(FBXFile);
+	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);
 	if (bResult)
 	{
 		// Bind mesh render
 		auto ObjectMap = pSceneManager->GetObjectMap();
 		for (auto pObject : ObjectMap)
 		{
-			if (pObject.second)
+			auto MeshCount = pObject.second->GetMeshCount();
+			for (size_t i = 0; i < MeshCount; ++i)
 			{
-				auto MeshCount = pObject.second->GetMeshCount();
-				for (size_t i = 0; i < MeshCount; ++i)
-				{
-					GEngine::BindMeshRender(PhongRender, pObject.second, i);
-				}
-			}
+				GEngine::BindMeshRender(ShadowRender, pObject.second, i);
+			}			
 		}
 	}
 
