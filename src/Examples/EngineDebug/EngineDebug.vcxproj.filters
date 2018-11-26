@@ -102,6 +102,12 @@
     <ClCompile Include="..\..\Engine\Scene\Lighting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Engine\Rendering\ShadowRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\Rendering\ShadowRenderPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\engine\controller\CommandHandler.h">
@@ -971,6 +977,12 @@
     <ClInclude Include="..\..\Engine\Scene\Lighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Engine\Rendering\ShadowRender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\Rendering\ShadowRenderPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main\test.FBX" />
@@ -992,8 +1004,8 @@
     <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\Engine\GLSL\NonTexturingShadowNonOmniLightFS.txt" />
-    <Text Include="..\..\Engine\GLSL\NonTexturingShadowOmniLightFS.txt" />
     <Text Include="..\..\Engine\GLSL\TexturingShadowOmniLightFS.glsl" />
+    <Text Include="..\..\Engine\GLSL\NonTexturingShadowOmniLightFS.glsl" />
+    <Text Include="..\..\Engine\GLSL\NonTexturingShadowNonOmniLightFS.glsl" />
   </ItemGroup>
 </Project>

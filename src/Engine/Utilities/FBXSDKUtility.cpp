@@ -429,7 +429,7 @@ namespace cxc {
 						CurrentUV = UVElement->GetDirectArray().GetAt(UVIndex);
 						UVs.push_back(glm::vec2(
 							static_cast<float>(CurrentUV[0]), 
-							static_cast<float>(CurrentUV[1])
+							1.0f - static_cast<float>(CurrentUV[1])
 						));
 					}
 				}
@@ -476,7 +476,7 @@ namespace cxc {
 							pMesh->GetPolygonVertexUV(PolygonIndex, lVerticesIndex, UVName, CurrentUV, bUnmappedUV);
 							VertexUV = glm::vec2(
 								static_cast<float>(CurrentUV[0]),
-								static_cast<float>(CurrentUV[1])
+								1.0f - static_cast<float>(CurrentUV[1])
 							);
 						}
 

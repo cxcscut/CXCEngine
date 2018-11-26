@@ -119,6 +119,8 @@
     <ClCompile Include="..\..\Engine\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\RenderPipeline.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\Shader.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\ShadowRender.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\ShadowRenderPipeline.cpp" />
     <ClCompile Include="..\..\Engine\Scene\Camera.cpp" />
     <ClCompile Include="..\..\Engine\Scene\Lighting.cpp" />
     <ClCompile Include="..\..\Engine\Scene\Mesh.cpp" />
@@ -411,6 +413,8 @@
     <ClInclude Include="..\..\Engine\Rendering\RenderManager.h" />
     <ClInclude Include="..\..\Engine\Rendering\RenderPipeline.h" />
     <ClInclude Include="..\..\Engine\Rendering\Shader.h" />
+    <ClInclude Include="..\..\Engine\Rendering\ShadowRender.h" />
+    <ClInclude Include="..\..\Engine\Rendering\ShadowRenderPipeline.h" />
     <ClInclude Include="..\..\Engine\Scene\Camera.h" />
     <ClInclude Include="..\..\Engine\Scene\Lighting.h" />
     <ClInclude Include="..\..\Engine\Scene\Mesh.h" />
@@ -437,8 +441,8 @@
     <None Include="main\test.FBX" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\Engine\GLSL\NonTexturingShadowNonOmniLightFS.txt" />
-    <Text Include="..\..\Engine\GLSL\NonTexturingShadowOmniLightFS.txt" />
+    <Text Include="..\..\Engine\GLSL\NonTexturingShadowNonOmniLightFS.glsl" />
+    <Text Include="..\..\Engine\GLSL\NonTexturingShadowOmniLightFS.glsl" />
     <Text Include="..\..\Engine\GLSL\TexturingShadowOmniLightFS.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

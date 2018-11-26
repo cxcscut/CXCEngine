@@ -2,7 +2,8 @@
 
 namespace cxc {
 
-	Mesh::Mesh()
+	Mesh::Mesh():
+		MeshEBO(0)
 	{
 		pOwnerObject.reset();
 	}
@@ -40,6 +41,21 @@ namespace cxc {
 
 				glUniform1i(TexSampler, (GLuint)TextureUnit::UserTextureUnit);
 			}
+		}
+	}
+
+	void Mesh::AllocateMeshEBO()
+	{
+		glGenBuffers(1, &MeshEBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * Indices.size(), &Indices.front(), GL_STATIC_DRAW);
+	}
+
+	void Mesh::ReleaseMeshEBO()
+	{
+		if (MeshEBO)
+		{
+			glDeleteBuffers(1, &MeshEBO);
 		}
 	}
 

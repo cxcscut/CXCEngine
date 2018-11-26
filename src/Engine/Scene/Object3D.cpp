@@ -240,9 +240,13 @@ namespace cxc {
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO[2]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexNormals.size(), &m_VertexNormals.front(), GL_STATIC_DRAW);
 
-		glGenBuffers(1, &m_EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * m_VertexIndices.size(), &m_VertexIndices.front(), GL_STATIC_DRAW);
+		for (auto pMesh : Meshes)
+		{
+			if (pMesh)
+			{
+				pMesh->AllocateMeshEBO();
+			}
+		}
 	}
 
 	void Object3D::ReleaseBuffers() noexcept
@@ -252,9 +256,12 @@ namespace cxc {
 			glDeleteVertexArrays(1, &m_VAO);
 		}
 
-		if (m_EBO)
+		for (auto pMesh : Meshes)
 		{
-			glDeleteBuffers(1, &m_EBO);
+			if (pMesh)
+			{
+				pMesh->ReleaseMeshEBO();
+			}
 		}
 
 		if (m_VBO[0])

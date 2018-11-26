@@ -166,7 +166,6 @@ namespace cxc {
 		GLuint GetVertexCoordsVBO() const { return  m_VBO[0]; }
 		GLuint GetTexCoordsVBO() const { return m_VBO[1]; }
 		GLuint GetNormalsVBO() const { return m_VBO[2]; }
-		GLuint GetEBO() const { return m_EBO; }
 
 		GLboolean isEnable() const noexcept { return enable; };
 		bool isReceiveShadows() const{ return bReceiveShadows; }
@@ -229,7 +228,7 @@ namespace cxc {
 		std::vector<std::shared_ptr<Mesh>> Meshes;
 
 		// ID of VBO, EBO and VAO
-		GLuint  m_VBO[3], m_EBO, m_VAO;
+		GLuint  m_VBO[3], m_VAO;
 
 		// if obj file has been loaded
 		bool isLoaded;

@@ -30,7 +30,12 @@ namespace cxc
 	public:
 
 		void BindMaterial(GLuint KaLocation, GLuint KdLocation, GLuint KsLocation, GLuint TexSampler);
+	
+	public:
+
 		void DrawMesh();
+		void AllocateMeshEBO();
+		void ReleaseMeshEBO();
 
 	public:
 
@@ -38,12 +43,16 @@ namespace cxc
 		void SetOwnerObject(std::shared_ptr<Object3D> OwnerObject);
 		void BindMeshRender(std::shared_ptr<MeshRender> pNewRender) { pMeshRender = pNewRender; }
 
+		GLuint GetMeshEBO() const { return MeshEBO; }
 		std::shared_ptr<MeshRender> GetMeshRender() { return pMeshRender; }
 		std::shared_ptr<Object3D> GetOwnerObject();
 		std::shared_ptr<Material> GetMeshMaterial() { return pMaterial; }
 		const std::vector<uint32_t>& GetMeshVertexIndices() const { return Indices; }
 
 	private:
+
+		// EBO of the mesh
+		GLuint MeshEBO;
 
 		// Weak pointer back to the Object3D that owns the mesh
 		std::weak_ptr<Object3D> pOwnerObject;

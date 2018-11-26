@@ -1,4 +1,5 @@
 #version 430 core
+#extension GL_NV_shadow_samplers_cube : enable
 
 in vec2 UV;
 in vec3 Position_worldspace;
@@ -18,6 +19,7 @@ uniform vec3 Kd;
 uniform vec3 Ks;
 uniform vec3 Ka;
 uniform mat4 DepthBiasMVP;
+uniform float test;
 
 // Poisson sampling
 vec2 poissonDisk[16] = vec2[]( 
@@ -75,7 +77,7 @@ void main()
 	float cos_theta = clamp(dot(n,l),0,1);
 	float cos_alpha = clamp(dot(H,n),0,1);
 
-	float Bias = 0;
+	float Bias = 0.0000005;
 	float visibility = 1.0;
 
 	vec3 LightDir = Position_worldspace - LightPosition_worldspace;
@@ -85,16 +87,15 @@ void main()
 	// 4x sampling
 	for (int i=0;i<4;i++)
 	{ 
-
 		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
 
-		if ( textureCube( shadowmapCube, LightDir + poissonDisk[index]/700.0 ).z < testDepth - Bias)
+		if ( textureCube( shadowmapCube, LightDir).z < testDepth - Bias)
 		{
 			visibility -= 0.2;
 		}			
 	}
 
-	vec3 MaterialDiffuseColor = visibility * texture(TexSampler, UV).rgb * LightColor * LightPower  / distance;
+	vec3 MaterialDiffuseColor = visibility * texture(TexSampler, UV).rgb * LightColor * LightPower * cos_theta / distance;
 	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
 	vec3 MaterialSpecularColor = visibility * Ks * LightColor * LightPower * pow(cos_alpha, shineness)  / distance;
 
