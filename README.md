@@ -23,38 +23,9 @@
 - **Open Dynamics Engine**  
   Physics Engine
   
-## Projects
+**To do:**
 
-### RobotSim
-
-It is a robot hand simulation program in which you can load and draw the robot hand model(it is built in 3DS MAX) and perform a series of actions according to the inputs, for an example, joint angles.
-
-![6-DOF Robot arm and 21-DOF dexterous hand simulation](Img/robot.bmp)
-
-
-## Works have been done:
-
-- **Rendering**
-- [x] Optimization of draw calls 
-- [x] Blinn-Phong shading
-- [x] Shadowmap & Normalmap
-- **Physics**
-- [x] Open Dynamics Engine Intergration
-- **Kinematics**
-- [x] Forward Kinematics
-- [x] Inverse Kinematics
-- **Scripting Interface**
-- [x] Script Parser
-- **Network Interface**
-- [x] Winsock for remote connection
-- **Other Functionalities**
-- [x] Data glove interface
-- [x] Kinect sensor interface
-- [x] Object recognition and analysis
-
-## To do list
-- [ ] Multi-threading for physics engine
-- [ ] Deferred Rendering
-- [ ] Skeleton Animation
-- [ ] LightMap & LightMap Cache
+1. Multiple lights rendering
+2. Skeleton animation
+3. Deferred rendering
 
