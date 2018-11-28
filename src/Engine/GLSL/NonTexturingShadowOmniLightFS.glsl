@@ -52,7 +52,7 @@ float VectorToDepthValue(vec3 Vec)
     vec3 AbsVec = abs(Vec);
     float LocalZcomp = max(AbsVec.x, max(AbsVec.y, AbsVec.z));
 
-    const float f = 1000.0;
+    const float f = 10000.0;
     const float n = 0.1;
     float NormZComp = (f+n) / (f-n) - (2*f*n)/(f-n)/LocalZcomp;
     return (NormZComp + 1.0) * 0.5;
@@ -76,7 +76,7 @@ void main()
 	float cos_theta = clamp(dot(n,l),0,1);
 	float cos_alpha = clamp(dot(H,n),0,1);
 
-	float Bias = 0.0000005;
+	float Bias = 0;
 	float visibility = 1.0;
 
 	vec3 LightDir = Position_worldspace - LightPosition_worldspace;
@@ -92,7 +92,7 @@ void main()
 		if ( textureCube( shadowmapCube, LightDir).z < testDepth - Bias)
 		{
 			visibility -= 0.2;
-		}			
+		}
 	}
 
 	vec3 MaterialDiffuseColor = visibility * Kd * LightColor * LightPower * cos_theta / distance;

@@ -35,7 +35,7 @@ namespace cxc
 	// Light
 	public:
 		
-		static bool GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<BaseLighting>>& OutLights);
+		static bool GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<BaseLighting>>& OutLights, FbxAMatrix& pParentGlobalPosition);
 
 	// Camera 
 	public:
@@ -55,8 +55,7 @@ namespace cxc
 			const char * pFactorPropertyName,
 			GLuint& pTextureName);
 
-		static bool GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, std::shared_ptr<Object3D> pParentNode = nullptr);
-
+		static bool GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Object3D> pParentNode = nullptr);
 		static void GetTexturesFromMaterial(FbxSurfaceMaterial* pSurfaceMaterial, std::vector<std::shared_ptr<Texture2D>>& OutTextures);
 
 	private:
@@ -65,7 +64,9 @@ namespace cxc
 
 	public:
 
-		static bool LoadRootNodeFromFbxFile(const char* pFileName, /* Out */ FbxNode* RootNode);
+		static FbxAMatrix GetGlobalPosition(FbxNode* pNode, const FbxTime& pTime, FbxPose* pPose = nullptr, FbxAMatrix* pParentGlobalPosition = nullptr);
+		static FbxAMatrix GetPoseMatrix(FbxPose* pPose, int pNodeIndex);
+		static FbxAMatrix GetGeometry(FbxNode* pNode);
 
 	public:
 		

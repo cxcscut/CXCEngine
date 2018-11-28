@@ -157,7 +157,6 @@ namespace cxc {
 		void SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
 							const glm::mat4 &ProjectionMatrix) noexcept;
 		void UpdateCameraPos(GLFWwindow *window, float x, float y, GLuint height, GLuint width) noexcept;
-		void SetCameraMode(CameraModeType mode) noexcept;
 
 		// Return the SpriteMap
 		const std::unordered_map<std::string, std::shared_ptr<Object3D >> &GetObjectMap() const noexcept;
@@ -166,6 +165,7 @@ namespace cxc {
 		void SetSize(float size) noexcept { m_SceneSize = size; };
 
 		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, float LightIntensity, eLightType Type);
+		void AddLight(std::shared_ptr<BaseLighting> pNewLight);
 		void RemoveLight(const std::string& LightName);
 		std::shared_ptr<BaseLighting> GetLight(uint32_t LightIndex);
 		std::shared_ptr<BaseLighting> GetLight(const std::string& LightName);

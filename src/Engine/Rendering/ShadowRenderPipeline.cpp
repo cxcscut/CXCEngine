@@ -209,7 +209,7 @@ namespace cxc
 				glBindTexture(GL_TEXTURE_CUBE_MAP, pShadowRender->GetShadowCubeMap());
 
 				// Set the depth matrix correspondingly, FOV of the projection matrix must be 90 degrees to capture the whole scene
-				pShadowRender->SetLightSpaceMatrix(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 1000.0f),
+				pShadowRender->SetLightSpaceMatrix(glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10000.0f),
 					glm::lookAt(pLight->GetLightPos(), pLight->GetLightPos() + CubeMapIterator[k].Direction, CubeMapIterator[k].UpVector));
 
 				// Render the shadows to the CubeMap

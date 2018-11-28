@@ -16,11 +16,6 @@
 
 namespace cxc {
 
-	enum class CameraMode : GLuint {
-		CXC_CAMERA_FIXED = 0,
-		CXC_CAMERA_FREE = 1
-	};
-
 	class Camera final
 	{
 
@@ -101,9 +96,6 @@ namespace cxc {
 
 		double ThetaToXOY, ThetaXOY;
 		double Radius;
-
-		CameraModeType m_CameraMode;
-
 	};
 
 }

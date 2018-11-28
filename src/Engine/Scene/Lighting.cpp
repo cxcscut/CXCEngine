@@ -18,9 +18,9 @@ namespace cxc {
 
 	}
 
-	void BaseLighting::SetLightPos(const glm::vec3 &pos) noexcept
+	void BaseLighting::SetLightPos(float x, float y, float z) noexcept
 	{
-		LightPos = pos;
+		LightPos = glm::vec3(x, y, z);
 	}
 
 	void BaseLighting::SetLightType(eLightType type) noexcept
@@ -28,9 +28,9 @@ namespace cxc {
 		LightType = type;
 	}
 
-	void BaseLighting::SetDirection(const glm::vec3 &dir) noexcept
+	void BaseLighting::SetDirection(float x, float y, float z) noexcept
 	{
-		LightDirection = dir;
+		LightDirection = glm::vec3(x, y, z);
 	}
 
 	glm::vec3 BaseLighting::GetDirection() const noexcept

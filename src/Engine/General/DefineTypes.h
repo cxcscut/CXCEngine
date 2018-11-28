@@ -5,8 +5,6 @@
 #define CXC_SPRITE_SHADER_PROGRAM 1
 #define CXC_FONT_SHADER_PROGRAM 2
 #define BUFFER_OFFSET(offset) ((GLvoid*) (NULL + offset))
-#define CAMERA_FIXED (static_cast<cxc::CameraModeType>(cxc::CameraMode::CXC_CAMERA_FIXED))
-#define CAMERA_FREE	 (static_cast<cxc::CameraModeType>(cxc::CameraMode::CXC_CAMERA_FREE))
 #define PI 3.141592
 #define USE_EBO
 
@@ -76,7 +74,6 @@ namespace cxc {
 	class Shape;
 
 	typedef GLint KeyType;
-	typedef GLuint CameraModeType;
 
 	using ObjectTree = MultiTree<std::shared_ptr<Shape>>;
 	using TokenTree = MultiTree<std::string>;

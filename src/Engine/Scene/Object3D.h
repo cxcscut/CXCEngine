@@ -130,6 +130,8 @@ namespace cxc {
 		// Rotation with arbitrary axis
 		virtual void RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
 
+		virtual void Scale(const glm::vec3& ScalingVector) noexcept;
+
 		virtual void PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
 		virtual void Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
 		virtual void PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
@@ -157,7 +159,6 @@ namespace cxc {
 		void SetObjectName(const std::string &Name) noexcept;
 		const std::string &GetObjectName() const noexcept;
 
-		// Return scaling vector and centerizing vector
 		bool CheckLoaded() const noexcept { return isLoaded; }
 		void SetLoaded() noexcept;
 

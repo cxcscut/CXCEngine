@@ -151,6 +151,11 @@ namespace cxc {
 		return ObjectName;
 	}
 
+	void Object3D::Scale(const glm::vec3& ScalingVector) noexcept
+	{
+		SetScalingFactor(GetScalingFactor() * ScalingVector);
+	}
+
 	void Object3D::Translate(const glm::vec3 &TranslationVector) noexcept
 	{
 
@@ -208,15 +213,15 @@ namespace cxc {
 	glm::vec3 Object3D ::CalculateRotatedCoordinate(const glm::vec3 &original_vec, const glm::vec3 &start, const glm::vec3 &direction,float degree) const noexcept
 	{
 
-		auto Forward = glm::translate(glm::mat4(1.0f),-start);
+		auto Forward = glm::translate(glm::mat4(1.0f), -start);
 
-		auto RotMatrix = glm::rotate(glm::mat4(1.0f),degree,direction);
+		auto RotMatrix = glm::rotate(glm::mat4(1.0f), degree, direction);
 
-		auto Backward= glm::translate(glm::mat4(1.0f),start);
+		auto Backward= glm::translate(glm::mat4(1.0f), start);
 
 		auto TransMatrix = Backward * RotMatrix * Forward;
 
-		auto homo_original_vec = glm::vec4(original_vec.x,original_vec.y,original_vec.z,1);
+		auto homo_original_vec = glm::vec4(original_vec.x, original_vec.y, original_vec.z, 1);
 
 		auto new_vec = TransMatrix * homo_original_vec;
 

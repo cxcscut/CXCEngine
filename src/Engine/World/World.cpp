@@ -26,6 +26,9 @@ namespace cxc {
 	{
 		auto pEngine = World::GetInstance();
 		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
+		if (!pRender)
+			return;
+
 		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
 		if (!pRender || !CurrentUsedPipeline) return;
 
@@ -50,9 +53,6 @@ namespace cxc {
 		camera->ComputePosition();
 		camera->ComputeViewMatrix();
 		camera->BindViewMatrix(ProgramID);
-
-		//std::cout << "Camera pos : " << camera->EyePosition.x << "," << camera->EyePosition.y << "," << camera->EyePosition.z << std::endl;
-		//std::cout << "Looking at : " << camera->CameraOrigin.x << "," << camera->CameraOrigin.y << "," << camera->CameraOrigin.z << std::endl;
 	}
 
 	void MouseCallBack(GLFWwindow *window, int button, int action, int mods)
@@ -80,6 +80,9 @@ namespace cxc {
 		auto pEngine = World::GetInstance();
 		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
 		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
+
+		if (!pRender)
+			return;
 		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
 		if (!pRender || !CurrentUsedPipeline) return;
 
@@ -100,19 +103,14 @@ namespace cxc {
 		}
 		else
 		{
-
-			// scroll down
+			// Scroll down
 			if (distance <= MAX_DISTANCE) {
 				camera->EyePosition -= ZOOMING_SPEED  * eye_direction;
 			}
-
 		}
 
 		camera->ComputeViewMatrix();
 		camera->BindViewMatrix(CurrentProgramID);
-
-		//std::cout << "Camera pos : " << camera->EyePosition.x << "," << camera->EyePosition.y << "," << camera->EyePosition.z << std::endl;
-		//std::cout << "Looking at : " << camera->origin.x << "," << camera->origin.y << "," << camera->origin.z << std::endl;
 	}
 
 	World::World()
@@ -140,13 +138,12 @@ namespace cxc {
 		{
 			pSceneMgr->AddObjectInternal(pObject->GetObjectName(), pObject, isKinematics);
 
-			pObject->InitializeRigidBody(m_PhysicalWorld->GetWorldID(), m_PhysicalWorld->GetTopSpaceID());
+			if(!pObject->IsInitialize())
+				pObject->InitializeRigidBody(m_PhysicalWorld->GetWorldID(), m_PhysicalWorld->GetTopSpaceID());
 		}
 	}
 
-	GLboolean World::CreateAndDisplayWindow(GLint Width,
-												GLint Height,
-												const std::string Title)
+	GLboolean World::CreateAndDisplayWindow(GLint Width, GLint Height, const std::string Title)
 	{
 		pWindowMgr->SetWindowHeight(Height);
 		pWindowMgr->SetWindowWidth(Width);

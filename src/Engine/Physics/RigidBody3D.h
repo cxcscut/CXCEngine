@@ -28,7 +28,6 @@ namespace cxc {
 		RigidBody3D();
 		virtual ~RigidBody3D();
 
-	// Functionality
 	public:
 
 		void addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
@@ -39,7 +38,6 @@ namespace cxc {
 
 		void UpdateMeshTransform() noexcept;
 
-		// Memory allocation and deallocation
 	public:
 
 		void createRigidBody(dWorldID world,void * user_data) noexcept;
@@ -48,11 +46,14 @@ namespace cxc {
 		// Properties
 	public:
 
+		void SetScalingFactor(const glm::vec3& ScalingVector) noexcept;
 		void setPossition(dReal x, dReal y, dReal z) noexcept;
 		void setRotation(const glm::mat3 rot) noexcept;
 		void setLinearVelocity(dReal x, dReal y, dReal z) noexcept;
 		void setAngularVelocity(dReal x, dReal y, dReal z) noexcept;
 
+		bool IsInitialize() const { return Initialized; }
+		glm::vec3 GetScalingFactor() const;
 		glm::vec3 getPosition() const;
 		glm::mat3 getRotation() const;
 		glm::vec3 getLinearVelocity() const;
@@ -106,6 +107,9 @@ namespace cxc {
 		void destroyJoint(dJointID joint) noexcept;
 
 	private:
+
+		// Scaling factor of the object
+		glm::vec3 ScalingFactor;
 
 		bool Initialized;
 

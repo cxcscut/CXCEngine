@@ -34,9 +34,9 @@ namespace cxc {
 
 	public:
 
-		void SetLightPos(const glm::vec3 &pos) noexcept;
+		void SetLightPos(float x, float y, float z) noexcept;
 		void SetLightType(eLightType type) noexcept;
-		void SetDirection(const glm::vec3 &dir) noexcept;
+		void SetDirection(float x, float y, float z) noexcept;
 		void SetIntensity(float NewIntensity) { LightIntensity = NewIntensity; }
 
 		glm::vec3 GetDirection() const noexcept;

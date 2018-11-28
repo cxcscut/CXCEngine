@@ -23,27 +23,27 @@ void KeyTest(int key, int scancode, int action, int mods)
 
 	const float MovingStep = 5.0f;
 
-	if (key == GLFW_KEY_UP)
+	if (pSphere && key == GLFW_KEY_UP)
 	{
 		pSphere->Translate(glm::vec3(0, MovingStep, 0));
 	}
-	else if (key == GLFW_KEY_DOWN)
+	else if (pSphere && key == GLFW_KEY_DOWN)
 	{
 		pSphere->Translate(glm::vec3(0,-MovingStep, 0));
 	}
-	else if (key == GLFW_KEY_LEFT)
+	else if (pSphere && key == GLFW_KEY_LEFT)
 	{
 		pSphere->Translate(glm::vec3(-MovingStep, 0, 0));
 	}
-	else if (key == GLFW_KEY_RIGHT)
+	else if (pSphere && key == GLFW_KEY_RIGHT)
 	{
 		pSphere->Translate(glm::vec3(MovingStep, 0, 0));
 	}
-	else if (key == GLFW_KEY_PAGE_UP)
+	else if (pSphere && key == GLFW_KEY_PAGE_UP)
 	{
 		pSphere->Translate(glm::vec3(0, 0, MovingStep));
 	}
-	else if (key == GLFW_KEY_PAGE_DOWN)
+	else if (pSphere && key == GLFW_KEY_PAGE_DOWN)
 	{
 		pSphere->Translate(glm::vec3(0, 0, -MovingStep));
 	}
@@ -51,10 +51,10 @@ void KeyTest(int key, int scancode, int action, int mods)
 
 int main()
 {
-	glm::vec3 LightPos = glm::vec3(2000, 2000, 2000);
-	float LightIntensity = 20000;
+	glm::vec3 LightPos = glm::vec3(100, 100, 100);
+	float LightIntensity = 300;
 
-	glm::vec3 CameraPos = glm::vec3(1600, 1600, 1600);
+	glm::vec3 CameraPos = glm::vec3(50, 50, 50);
 	glm::vec3 CameraOrigin = glm::vec3(0, 0, 0);
 	glm::vec3 CameraUpVector = glm::vec3(0, 0, 1);
 	glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f);
@@ -71,13 +71,12 @@ int main()
 
 	auto pWorld = World::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
-	pSceneManager->AddLight("MainLight", LightPos, -LightPos, LightIntensity, eLightType::OmniDirectional);
 	pWorld->KeyInputCallBack = KeyTest;
 
 	auto pRenderMgr = RenderManager::GetInstance();
 	bool bRenderInitialize;
 
-	/*
+	
 	// Phong render with no shadows
 	auto PhongVS = pRenderMgr->FactoryShader("PhongVS", eShaderType::VERTEX_SHADER, PhongVSFilePath);
 	auto PhongFSWithNoTexture = pRenderMgr->FactoryShader("PhongFSWithNoTexture", eShaderType::FRAGMENT_SHADER, PhongFSWithNoTextureFilePath);
@@ -97,7 +96,7 @@ int main()
 	PhongRender->AddRenderingPipeline(NontexturingPipeline);
 	bRenderInitialize = PhongRender->InitializeRender();
 	pRenderMgr->AddRender(PhongRender);
-	*/
+	
 
 	/* Example code showing how to use ShadowRender to render scene with shadows */
 	auto ShadowRender = NewObject<ShadowMapRender>("ShadowRender");
@@ -122,7 +121,7 @@ int main()
 	ShadowRender->AddRenderingPipeline(NonTexturingShadowedMeshPipeline);
 
 	bRenderInitialize &= ShadowRender->InitializeRender();
-	ShadowRender->SetShadowMapResolution(2048, 2048);
+	ShadowRender->SetShadowMapResolution(4096, 4096);
 	pRenderMgr->AddRender(ShadowRender);
 
 	GEngine::SetCamera(CameraPos , CameraOrigin, CameraUpVector, ProjectionMatrix);

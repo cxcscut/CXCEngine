@@ -24,10 +24,15 @@ namespace cxc {
 	std::shared_ptr<Texture2D> TextureManager::LoadTexture(const std::string& TexName, const std::string& TexFileName)
 	{
 		// Create texture instance
-		auto Tex2DInstance = std::make_shared<Texture2D>(TexFileName);
-		if (Tex2DInstance)
+		auto Tex2DInstance = std::make_shared<Texture2D>();
+		if (Tex2DInstance && Tex2DInstance->LoadTextureFromFile(TexFileName))
 		{
-			CachedTextures.insert(std::make_pair(TexName, Tex2DInstance));
+			auto TexIter = CachedTextures.find(TexName);
+			if (TexIter == CachedTextures.end())
+			{
+				CachedTextures.insert(std::make_pair(TexName, Tex2DInstance));
+			}
+
 			return Tex2DInstance;
 		}
 		else

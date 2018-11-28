@@ -59,13 +59,11 @@ namespace cxc {
 	{
 		pCamera->InitLastTime();
 
-		if (pCamera->m_CameraMode == CAMERA_FIXED)
-		{
-			//Set Keyboard and mouse callback function
-			glfwSetKeyCallback(window, KeyBoradCallBack);
-			glfwSetMouseButtonCallback(window, MouseCallBack);
-			glfwSetScrollCallback(window, ScrollBarCallBack);
-		}
+		//Set Keyboard and mouse callback function
+		glfwSetKeyCallback(window, KeyBoradCallBack);
+		glfwSetMouseButtonCallback(window, MouseCallBack);
+		glfwSetScrollCallback(window, ScrollBarCallBack);
+		
 	}
 
 	void SceneManager::SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
@@ -117,16 +115,16 @@ namespace cxc {
 		}
 	}
 
-	void SceneManager::ProcessSceneNode(FbxNode* pNode) noexcept
+	void SceneManager::ProcessSceneNode(FbxNode* pRootNode) noexcept
 	{
-		if (!pNode)
+		if (!pRootNode)
 			return;
 
-		if (pNode->GetNodeAttribute() != nullptr)
+		if (pRootNode->GetNodeAttribute() != nullptr)
 		{
-
+			auto pPhysicalWorld = PhysicalWorld::GetInstance();
 			FbxNodeAttribute::EType AttributeType;
-			AttributeType = pNode->GetNodeAttribute()->GetAttributeType();
+			AttributeType = pRootNode->GetNodeAttribute()->GetAttributeType();
 
 			switch (AttributeType)
 			{
@@ -134,9 +132,11 @@ namespace cxc {
 				break;
 
 			case FbxNodeAttribute::eMesh:
+			{
 				std::vector<std::shared_ptr<Object3D>> LoadedObjects;
-				bool res = FBXSDKUtil::GetObjectFromNode(pNode, LoadedObjects);
-				if (!res)
+				FbxAMatrix lGlobalPosition;
+				bool bMeshLoadingRes = FBXSDKUtil::GetObjectFromNode(pRootNode, LoadedObjects, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalPosition);
+				if (!bMeshLoadingRes)
 				{
 					std::cout << "SceneManager::ProcessSceneNode, Failed to load the mesh" << std::endl;
 				}
@@ -152,13 +152,35 @@ namespace cxc {
 				}
 				break;
 			}
+
+			case FbxNodeAttribute::eLight:
+			{
+				std::vector<std::shared_ptr<BaseLighting>> LoadedLights;
+				FbxAMatrix lGlobalPosition;
+				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
+				if (!bLightLoadingRes)
+				{
+					std::cout << "SceneManager::ProcessSceneNode, Failed to load the lights" << std::endl;
+				}
+				else
+				{
+					for (auto pNewLight : LoadedLights)
+					{
+						AddLight(pNewLight);
+					}
+				}
+
+				break;
+			}
+
+			}
 		}
 
 		// Process the child node
-		int ChildNodeCount = pNode->GetChildCount();
+		int ChildNodeCount = pRootNode->GetChildCount();
 		for (int i = 0; i < ChildNodeCount; ++i)
 		{
-			ProcessSceneNode(pNode->GetChild(i));
+			ProcessSceneNode(pRootNode->GetChild(i));
 		}
 	}
 
@@ -336,6 +358,24 @@ namespace cxc {
 		}
 	}
 
+	void SceneManager::AddLight(std::shared_ptr<BaseLighting> pNewLight)
+	{
+		bool bIsLightExist = false;
+		for (auto pLight : Lights)
+		{
+			if (pLight->GetLightName() == pNewLight->GetLightName())
+			{
+				bIsLightExist = true;
+				break;
+			}
+		}
+
+		if (!bIsLightExist)
+		{
+			Lights.push_back(pNewLight);
+		}
+	}
+
 	void SceneManager::AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, float LightIntensity, eLightType Type)
 	{
 		auto pNewLight = NewObject<BaseLighting>(Name, LightPosition, LightDirection, LightIntensity, Type);
@@ -343,11 +383,6 @@ namespace cxc {
 		{
 			Lights.push_back(pNewLight);
 		}
-	}
-
-	void SceneManager::SetCameraMode(CameraModeType mode) noexcept
-	{
-		pCamera->m_CameraMode = mode;
 	}
 
 	void SceneManager::UpdateCameraPos(GLFWwindow *window,float x,float y,GLuint height,GLuint width) noexcept
