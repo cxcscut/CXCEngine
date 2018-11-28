@@ -17,9 +17,62 @@ namespace cxc {
 	std::function<void(int key, int scancode, int action, int mods)>
 		World::KeyInputCallBack = [=](int,int,int,int) {};
 
+	const float MovingStep = 0.8f;
+
 	void KeyBoradCallBack(GLFWwindow *window, int key, int scancode, int action, int mods)
 	{
 		World::KeyInputCallBack(key,scancode,action,mods);
+
+		auto pEngine = World::GetInstance();
+		auto pCamera = pEngine->pSceneMgr->pCamera;
+		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
+		if (!pRender)
+			return;
+
+		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
+		if (!pRender || !CurrentUsedPipeline) return;
+
+		auto ProgramID = CurrentUsedPipeline->GetPipelineProgramID();
+
+		if (key == GLFW_KEY_W)
+		{
+			// Camera moving forward
+			auto ForwardVector = pCamera->GetCameraForwardVector();
+			auto MovingVector = ForwardVector * MovingStep;
+			pCamera->EyePosition += MovingVector;
+			pCamera->CameraOrigin += MovingVector;
+			pCamera->ComputeAngles();
+		}
+		else if (key == GLFW_KEY_S)
+		{
+			// Camera moving backward
+			auto ForwardVector = pCamera->GetCameraForwardVector();
+			auto MovingVector = ForwardVector * MovingStep;
+			pCamera->EyePosition -= MovingVector;
+			pCamera->CameraOrigin -= MovingVector;
+			pCamera->ComputeAngles();
+		}
+		else if (key == GLFW_KEY_A)
+		{
+			// Camera moving left
+			auto RightVector = pCamera->GetCameraRightVector();
+			auto MovingVector = RightVector * MovingStep;
+			pCamera->EyePosition += MovingVector;
+			pCamera->CameraOrigin += MovingVector;
+			pCamera->ComputeAngles();
+		}
+		else if (key == GLFW_KEY_D)
+		{
+			// Camera moving right
+			auto RightVector = pCamera->GetCameraRightVector();
+			auto MovingVector = RightVector * MovingStep;
+			pCamera->EyePosition -= MovingVector;
+			pCamera->CameraOrigin -= MovingVector;
+			pCamera->ComputeAngles();
+		}
+
+		pCamera->ComputeViewMatrix();
+		pCamera->BindViewMatrix(ProgramID);
 	}
 
 	void CursorPosCallBack(GLFWwindow *window, double x, double y)
@@ -35,24 +88,23 @@ namespace cxc {
 		auto ProgramID = CurrentUsedPipeline->GetPipelineProgramID();
 		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
 
-		auto camera = pEngine->pSceneMgr->pCamera;
+		auto pCamera = pEngine->pSceneMgr->pCamera;
 
-		double dx = x-_x, dy = y-_y;
+		double dx = x - _x, dy = y - _y;
 		_x = x; _y = y;
 
 		double DeltaThetaXOY = -PI * (dx / pEngine->pWindowMgr->GetWindowWidth() / 2);
 		double DeltaThetaToXOY = PI * (dy / pEngine->pWindowMgr->GetWindowHeight() / 2);
 
 		// Update angles
-		camera->ComputeAngles();
+		pCamera->ComputeAngles();
 
 		// Rotate Camera
-		camera->ThetaToXOY += DeltaThetaToXOY;
-		camera->ThetaXOY += DeltaThetaXOY;
+		pCamera->ThetaToXOY += DeltaThetaToXOY;
+		pCamera->ThetaXOY += DeltaThetaXOY;
 
-		camera->ComputePosition();
-		camera->ComputeViewMatrix();
-		camera->BindViewMatrix(ProgramID);
+		pCamera->ComputePosition();
+		pCamera->ComputeViewMatrix();
 	}
 
 	void MouseCallBack(GLFWwindow *window, int button, int action, int mods)
@@ -63,7 +115,7 @@ namespace cxc {
 			return;
 
 		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
-			glfwGetCursorPos(wHandle,&_x,&_y);
+			glfwGetCursorPos(wHandle, &_x, &_y);
 
 			// Activate the mouse callback
 			glfwSetCursorPosCallback(wHandle,CursorPosCallBack);
@@ -77,40 +129,7 @@ namespace cxc {
 
 	void ScrollBarCallBack(GLFWwindow *window, double x, double y)
 	{
-		auto pEngine = World::GetInstance();
-		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
-		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
 
-		if (!pRender)
-			return;
-		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
-		if (!pRender || !CurrentUsedPipeline) return;
-
-		auto CurrentProgramID = CurrentUsedPipeline->GetPipelineProgramID();
-		auto camera = pEngine->pSceneMgr->pCamera;
-		if (!wHandle) return;
-
-		glm::vec3 eye_direction = glm::normalize(camera->CameraOrigin - camera->EyePosition);
-		float distance = glm::length(camera->EyePosition - camera->CameraOrigin);
-
-		// y > 0 when srcoll up , y < 0 when scroll down
-		if (y>0)
-		{
-			// srcoll up
-			if (distance > MIN_DISTANCE) {
-				camera->EyePosition += ZOOMING_SPEED * eye_direction;
-			}
-		}
-		else
-		{
-			// Scroll down
-			if (distance <= MAX_DISTANCE) {
-				camera->EyePosition -= ZOOMING_SPEED  * eye_direction;
-			}
-		}
-
-		camera->ComputeViewMatrix();
-		camera->BindViewMatrix(CurrentProgramID);
 	}
 
 	World::World()

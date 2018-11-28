@@ -54,6 +54,17 @@ namespace cxc {
 		return Projection;
 	}
 
+	glm::vec3 Camera::GetCameraRightVector() const noexcept
+	{
+		// The right vector of the camera equals to the cross product of up vector and forward vector
+		return glm::normalize(glm::cross(UpVector, GetCameraForwardVector()));
+	}
+
+	glm::vec3 Camera::GetCameraForwardVector() const noexcept
+	{
+		return glm::normalize(CameraOrigin - EyePosition);
+	}
+
 	glm::mat4 Camera::GetViewMatrix() const noexcept
 	{
 		return View;

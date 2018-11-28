@@ -46,6 +46,8 @@ namespace cxc {
 		GLfloat GetInitialFov() const noexcept;
 		GLfloat GetSpeed() const noexcept;
 		GLfloat GetMouseSpeed() const noexcept;
+		glm::vec3 GetCameraForwardVector() const noexcept;
+		glm::vec3 GetCameraRightVector() const noexcept;
 
 		void SetAllMatrix(const glm::mat4 &ViewMatrix, const glm::mat4 &ProjectionMatrix) noexcept;
 		void SetHorizontalAngle(GLfloat horizontalangle) noexcept;

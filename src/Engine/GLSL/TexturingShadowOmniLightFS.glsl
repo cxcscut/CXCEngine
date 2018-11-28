@@ -95,6 +95,8 @@ void main()
 		}			
 	}
 
+	visibility = clamp(visibility, 0.0f, 1.0f);
+
 	vec3 MaterialDiffuseColor = visibility * texture(TexSampler, UV).rgb * LightColor * LightPower * cos_theta / distance;
 	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
 	vec3 MaterialSpecularColor = visibility * Ks * LightColor * LightPower * pow(cos_alpha, shineness)  / distance;
