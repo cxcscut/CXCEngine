@@ -26,13 +26,14 @@ namespace cxc {
 			return pOwnerObject.lock();
 	}
 
-	void Mesh::BindMaterial(GLuint KaLocation, GLuint KdLocation, GLuint KsLocation, GLuint TexSampler)
+	void Mesh::BindMaterial(GLuint KaLocation, GLuint KdLocation, GLuint KsLocation, GLuint ShiniessLoc, GLuint TexSampler)
 	{
 		if (pMaterial)
 		{
 			glUniform3f(KaLocation, pMaterial->AmbientFactor.x, pMaterial->AmbientFactor.y, pMaterial->AmbientFactor.z);
 			glUniform3f(KdLocation, pMaterial->DiffuseFactor.x, pMaterial->DiffuseFactor.y, pMaterial->DiffuseFactor.z);
 			glUniform3f(KsLocation, pMaterial->SpecularFactor.x, pMaterial->SpecularFactor.y, pMaterial->SpecularFactor.z);
+			glUniform1f(ShiniessLoc, pMaterial->Shiniess);
 
 			if (pMaterial->pTextures.size() > 0)
 			{

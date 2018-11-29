@@ -29,7 +29,7 @@ namespace cxc
 
 	public:
 
-		void BindMaterial(GLuint KaLocation, GLuint KdLocation, GLuint KsLocation, GLuint TexSampler);
+		void BindMaterial(GLuint KaLocation, GLuint KdLocation, GLuint KsLocation, GLuint ShiniessLoc, GLuint TexSampler);
 	
 	public:
 

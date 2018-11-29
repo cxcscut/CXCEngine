@@ -18,9 +18,6 @@ static const std::string SceneFBXFile = "G:\\cxcengine\\src\\Examples\\EngineDeb
 
 int main()
 {
-	glm::vec3 LightPos = glm::vec3(100, 100, 100);
-	float LightIntensity = 300;
-
 	glm::vec3 CameraPos = glm::vec3(50, 50, 50);
 	glm::vec3 CameraOrigin = glm::vec3(0, 0, 0);
 	glm::vec3 CameraUpVector = glm::vec3(0, 0, 1);
@@ -64,6 +61,7 @@ int main()
 	
 
 	/* Example code showing how to use ShadowRender to render scene with shadows */
+	/*
 	auto ShadowRender = NewObject<ShadowMapRender>("ShadowRender");
 	auto ShadowMapPipeline = NewObject<ShadowMapCookingPipeline>();
 	auto TexturingShadowedMeshPipeline = NewObject<ShadowedMeshRenderPipeline>("TexturingShadowedMeshPipeline");
@@ -88,6 +86,7 @@ int main()
 	bRenderInitialize &= ShadowRender->InitializeRender();
 	ShadowRender->SetShadowMapResolution(512);
 	pRenderMgr->AddRender(ShadowRender);
+	*/
 
 	GEngine::SetCamera(CameraPos , CameraOrigin, CameraUpVector, ProjectionMatrix);
 
@@ -101,7 +100,7 @@ int main()
 			auto MeshCount = pObject.second->GetMeshCount();
 			for (size_t i = 0; i < MeshCount; ++i)
 			{
-				GEngine::BindMeshRender(ShadowRender, pObject.second, i);
+				GEngine::BindMeshRender(PhongRender, pObject.second, i);
 			}			
 		}
 	}

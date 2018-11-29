@@ -38,12 +38,14 @@ namespace cxc {
 		void SetLightType(eLightType type) noexcept;
 		void SetDirection(float x, float y, float z) noexcept;
 		void SetIntensity(float NewIntensity) { LightIntensity = NewIntensity; }
+		void SetLightColor(float r, float g, float b) { LightColor = glm::vec3(r, g, b); }
 
 		glm::vec3 GetDirection() const noexcept;
 		eLightType GetLightType() const noexcept;
-		glm::vec3 GetLightPos() const noexcept;;
+		glm::vec3 GetLightPos() const noexcept;
 		const std::string& GetLightName() const { return LightName; }
 		float GetIntensity() const { return LightIntensity; }
+		glm::vec3 GetLightColor() const noexcept { return LightColor; }
 
 	private:
 

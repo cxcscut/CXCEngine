@@ -48,7 +48,7 @@
 
 // template
 #include "..\Utilities\MultiTree.inl"
-#include "..\Utilities\EngineObjectFactory.inl"
+#include "..\Utilities\EngineTemplate.inl"
 
 #else
 
@@ -64,7 +64,7 @@
 
 #include "../Libraries/Image_loader/stb_image.h"
 #include "../Utilities//MultiTree.inl"
-#include "../Utilities/EngineObjectFactory.h"
+#include "../Utilities/EngineTemplate.h"
 
 #endif
 

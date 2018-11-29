@@ -42,7 +42,7 @@ namespace cxc
 
 	public:
 
-		void BindLightUniforms(std::shared_ptr<BaseLighting> pLight);
+		void BindLightUniforms(std::vector<std::shared_ptr<BaseLighting>> Lights);
 
 	public:
 

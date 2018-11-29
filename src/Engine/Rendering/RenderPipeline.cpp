@@ -38,11 +38,27 @@ namespace cxc
 		pOwnerRender.reset();
 	}
 
-	void RenderPipeline::BindLightUniforms(std::shared_ptr<BaseLighting> pLight)
+	void RenderPipeline::BindLightUniforms(std::vector<std::shared_ptr<BaseLighting>> Lights)
 	{
-		GLint LightID = glGetUniformLocation(ProgramID, "LightPosition_worldspace");
-		auto LightPos = pLight->GetLightPos();
-		glUniform3f(LightID, LightPos.x, LightPos.y, LightPos.z);
+		GLint LightNumLoc = glGetUniformLocation(ProgramID, "LightNum");
+		glUniform1i(LightNumLoc, Lights.size());
+
+		for (size_t LightIndex = 0; LightIndex < Lights.size(); ++LightIndex)
+		{
+			auto pLight = Lights[LightIndex];
+			if (pLight)
+			{
+				std::string LightUniformNamePrefix = "Lights[" + std::to_string(LightIndex) + "]";
+				GLint LightPosLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Position").c_str());
+				GLint LightColorLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Color").c_str());
+				GLint LightIntensityLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Intensity").c_str());
+
+				// Light properties
+				glUniform3f(LightPosLoc, pLight->GetLightPos()[0], pLight->GetLightPos()[1], pLight->GetLightPos()[2]);
+				glUniform3f(LightColorLoc, pLight->GetLightColor()[0], pLight->GetLightColor()[1], pLight->GetLightColor()[2]);
+				glUniform1f(LightIntensityLoc, pLight->GetIntensity());
+			}
+		}
 	}
 
 	bool RenderPipeline::CheckLinkingStatus(std::string& OutResultLog) const
@@ -135,7 +151,7 @@ namespace cxc
 	{
 		GLint TexSamplerHandle;
 		GLint Eyepos_loc, M_MatrixID;
-		GLint Ka_loc, Ks_loc, Kd_loc; 
+		GLint Ka_loc, Ks_loc, Kd_loc, ShiniessLoc;
 		GLint LightPowerLoc;
 
 		auto pWorld = World::GetInstance();
@@ -145,15 +161,11 @@ namespace cxc
 		if (Lights.empty())
 			return;
 
-		auto pLight = Lights[0];
-		if (!pLight)
-			return;
-
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
-		BindLightUniforms(pLight);
+		BindLightUniforms(Lights);
 
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "TexSampler");
 		M_MatrixID = glGetUniformLocation(ProgramID, "M");
@@ -161,12 +173,10 @@ namespace cxc
 		Ka_loc = glGetUniformLocation(ProgramID, "Ka");
 		Ks_loc = glGetUniformLocation(ProgramID, "Ks");
 		Kd_loc = glGetUniformLocation(ProgramID, "Kd");
-		LightPowerLoc = glGetUniformLocation(ProgramID, "LightPower");
+		ShiniessLoc = glGetUniformLocation(ProgramID, "Shiniess");
 
 		glm::vec3 EyePosition = pWorld->pSceneMgr->pCamera->EyePosition;
 		glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
-
-		glUniform1f(LightPowerLoc, pLight->GetIntensity());
 
 		glBindVertexArray(pOwnerObject->GetVAO());
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pMesh->GetMeshEBO());
@@ -187,7 +197,7 @@ namespace cxc
 		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->getTransMatrix()[0][0]);
 
 		// Bind the material of the mesh
-		pMesh->BindMaterial(Ka_loc, Kd_loc, Ks_loc, TexSamplerHandle);
+		pMesh->BindMaterial(Ka_loc, Kd_loc, Ks_loc, ShiniessLoc, TexSamplerHandle);
 
 		// Draw the mesh
 		pMesh->DrawMesh();

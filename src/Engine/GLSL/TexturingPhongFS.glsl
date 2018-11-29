@@ -1,4 +1,5 @@
 #version 430 core
+#define MAX_LIGHTS_NUM 4
 
 in vec2 UV;
 in vec3 Position_worldspace;
@@ -9,22 +10,26 @@ in vec3 Normal_worldspace;
 uniform sampler2D TexSampler;
 
 out vec3 color;
-uniform vec3 LightPosition_worldspace;
 uniform vec3 EyePosition_worldspace;
 uniform vec3 Ks;
 uniform vec3 Ka;
-uniform float LightPower;
+uniform float Shiniess;
 
-void main()
+struct LightSource
 {
-   int shineness = 32;
+	vec3 Position;
+	vec3 Color;
+	float Intensity;
+};
 
-	float distance = length(LightPosition_worldspace - Position_worldspace);
+uniform LightSource Lights[MAX_LIGHTS_NUM];
+uniform int LightNum;
 
-	vec3 LightColor = vec3(1,1,1);
+vec3 Shading(struct LightSource Light, vec3 n)
+{
+	float distance = length(Light.Position - Position_worldspace);
 
-	vec3 n = normalize( Normal_worldspace );
-	vec3 l = normalize( LightDirection_worldspace );
+	vec3 l = normalize(Light.Position - Position_worldspace);
 
 	vec3 E = normalize(EyePosition_worldspace + EyeDirection_worldspace);
 	vec3 H = normalize(l + E);
@@ -34,10 +39,25 @@ void main()
 
 	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
 
-	vec3 MaterialDiffuseColor = texture(TexSampler, UV).rgb * LightColor * LightPower *cos_theta / distance ;
-	vec3 MaterialSpecularColor = Ks * LightColor * LightPower * pow(cos_alpha, shineness) / distance ;
+	vec3 MaterialDiffuseColor = texture(TexSampler, UV).rgb * Light.Color * Light.Intensity * cos_theta / distance ;
+	vec3 MaterialSpecularColor = Ks * Light.Color * Light.Intensity * pow(cos_alpha, Shiniess) / distance ;
 
 	color = MaterialAmbientColor * MaterialDiffuseColor +
-			MaterialSpecularColor  +
+			MaterialSpecularColor +
 			MaterialDiffuseColor;
+
+	return color;
+}
+
+void main()
+{
+	vec3 n = normalize( Normal_worldspace );
+	vec3 OutColor;
+
+	for(int LightIndex = 0; LightIndex < LightNum; ++LightIndex)
+	{
+		OutColor += Shading(Lights[LightIndex], n);
+	}
+
+	color = OutColor;
 }

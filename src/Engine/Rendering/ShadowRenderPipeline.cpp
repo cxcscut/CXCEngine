@@ -38,15 +38,11 @@ namespace cxc
 	{
 		GLint TexSamplerHandle, depthBiasMVP_loc;
 		GLint ShadowMapSampler_loc, Eyepos_loc, M_MatrixID;
-		GLint Ka_loc, Ks_loc, Kd_loc;
+		GLint Ka_loc, Ks_loc, Kd_loc, ShiniessLoc;
 		GLint shadowmapCube_loc;
 		GLint LightPowerLoc;
 
 		if (Lights.empty())
-			return;
-
-		auto pLight = Lights[0];
-		if (!pLight)
 			return;
 
 		auto pWorld = World::GetInstance();
@@ -62,7 +58,7 @@ namespace cxc
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
-		BindLightUniforms(pLight);
+		BindLightUniforms(Lights);
 
 		TexSamplerHandle = glGetUniformLocation(ProgramID, "TexSampler");
 		Eyepos_loc = glGetUniformLocation(ProgramID, "EyePosition_worldspace");
@@ -70,15 +66,14 @@ namespace cxc
 		Ka_loc = glGetUniformLocation(ProgramID, "Ka");
 		Ks_loc = glGetUniformLocation(ProgramID, "Ks");
 		Kd_loc = glGetUniformLocation(ProgramID, "Kd");
+		ShiniessLoc = glGetUniformLocation(ProgramID, "uniform float Shiniess");
 
 		shadowmapCube_loc = glGetUniformLocation(ProgramID, "shadowmapCube");
 		depthBiasMVP_loc = glGetUniformLocation(ProgramID, "DepthBiasMVP");
 		ShadowMapSampler_loc = glGetUniformLocation(ProgramID, "shadowmap");
-		LightPowerLoc = glGetUniformLocation(ProgramID, "LightPower");
-		GLint test_loc = glGetUniformLocation(ProgramID, "test");
 
 		// Bind depth texture to the texture unit 1
-		// We use texture unit 0 for the objectss texture sampling 
+		// We use texture unit 0 for the objects texture sampling 
 		// while texture unit 1 for depth buffer sampling
 		glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::ShadowTextureUnit);
 		if (pLight->GetLightType() == eLightType::OmniDirectional)
@@ -127,7 +122,7 @@ namespace cxc
 		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->getTransMatrix()[0][0]);
 
 		// Bind the material of the mesh
-		pMesh->BindMaterial(Ka_loc, Kd_loc, Ks_loc, TexSamplerHandle);
+		pMesh->BindMaterial(Ka_loc, Kd_loc, Ks_loc, ShiniessLoc, TexSamplerHandle);
 
 		// Draw the mesh
 		pMesh->DrawMesh();

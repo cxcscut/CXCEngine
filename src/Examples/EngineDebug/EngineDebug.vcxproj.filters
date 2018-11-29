@@ -980,9 +980,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="main\test.FBX" />
-    <None Include="..\..\Engine\Utilities\EngineObjectFactory.inl">
-      <Filter>Header Files</Filter>
-    </None>
     <None Include="..\..\Engine\Utilities\Singleton.inl">
       <Filter>Header Files</Filter>
     </None>
@@ -993,13 +990,14 @@
     <None Include="..\..\Engine\GLSL\TexturingPhongFS.glsl" />
     <None Include="..\..\Engine\GLSL\depthTextureVS.glsl" />
     <None Include="..\..\Engine\GLSL\NontexturingPhongFS.glsl" />
-    <None Include="..\..\Engine\GLSL\TexturingShadowNonOmniLightFS.glsl" />
     <None Include="..\..\Engine\GLSL\ShadowVS.glsl" />
     <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
+    <None Include="..\..\Engine\Utilities\EngineTemplate.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\Engine\GLSL\TexturingShadowOmniLightFS.glsl" />
     <Text Include="..\..\Engine\GLSL\NonTexturingShadowOmniLightFS.glsl" />
-    <Text Include="..\..\Engine\GLSL\NonTexturingShadowNonOmniLightFS.glsl" />
   </ItemGroup>
 </Project>

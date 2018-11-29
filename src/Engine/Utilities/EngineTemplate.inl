@@ -9,8 +9,8 @@
 
 #endif
 
-#ifndef CXC_ENGINEOBJECTFACTORY_H
-#define CXC_ENGINEOBJECTFACTORY_H
+#ifndef CXC_ENGINETEMPLATE_H
+#define CXC_ENGINETEMPLATE_H
 
 namespace cxc
 {
@@ -21,4 +21,4 @@ namespace cxc
 	}
 }
 
-#endif // CXC_ENGINEOBJECTFACTORY_H
+#endif // CXC_ENGINETEMPLATE_H

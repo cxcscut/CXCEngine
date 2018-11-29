@@ -43,9 +43,7 @@ namespace cxc
 
 	void MeshRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
 	{
-		auto pLight = Lights[0];
-		auto CameraPos = SceneManager::GetInstance()->pCamera->EyePosition;
-		pLight->SetLightPos(CameraPos.x, CameraPos.y, CameraPos.z);
+
 	}
 
 	void MeshRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)

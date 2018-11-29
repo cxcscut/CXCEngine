@@ -1,4 +1,5 @@
 #version 430 core
+#define MAX_LIGHT_NUM 4
 #extension GL_NV_shadow_samplers_cube : enable
 
 in vec2 UV;
@@ -9,7 +10,7 @@ in vec3 Normal_worldspace;
 in vec4 ShadowCoord;
 
 uniform sampler2D TexSampler;
-uniform samplerCube shadowmapCube;
+uniform samplerCube shadowmapCube[MAX_LIGHT_NUM];
 
 out vec3 color;
 uniform float LightPower;
@@ -18,8 +19,8 @@ uniform vec3 EyePosition_worldspace;
 uniform vec3 Kd;
 uniform vec3 Ks;
 uniform vec3 Ka;
+uniform float Shiniess;
 uniform mat4 DepthBiasMVP;
-uniform float test;
 
 // Poisson sampling
 vec2 poissonDisk[16] = vec2[]( 
@@ -59,18 +60,22 @@ float VectorToDepthValue(vec3 Vec)
     return (NormZComp + 1.0) * 0.5;
 }
 
-void main()
+struct LightSource
 {
-	int shineness = 32;
+	vec3 Position;
+	vec3 Color;
+	float Intensity;
+}
 
-	float distance = length(LightPosition_worldspace - Position_worldspace);
+uniform LightSource[MAX_LIGHT_NUM];
+uniform int LightNum;
 
-	vec3 LightColor = vec3(1,1,1);
+vec3 Shading(struct LightSource Light, vec3 n)
+{
+	float distance = length(Light.Position - Position_worldspace);
 
-	vec3 n = normalize( Normal_worldspace );
-	vec3 l = normalize( LightDirection_worldspace );
+	vec3 l = normalize( Light.Position - Position_worldspace );
 
-	//vec3 R = reflect(-l,n);
 	vec3 E = normalize(EyePosition_worldspace + EyeDirection_worldspace);
 	vec3 H = normalize(l + E);
 
@@ -80,16 +85,14 @@ void main()
 	float Bias = 0.0000001;
 	float visibility = 1.0;
 
-	vec3 LightDir = Position_worldspace - LightPosition_worldspace;
-
-	float testDepth = VectorToDepthValue(LightPosition_worldspace - Position_worldspace);
+	float testDepth = VectorToDepthValue(Light.Position - Position_worldspace);
 
 	// 4x sampling
 	for (int i=0;i<4;i++)
 	{ 
 		int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
 
-		if ( textureCube( shadowmapCube, LightDir).z < testDepth - Bias)
+		if ( textureCube( shadowmapCube, -l).z < testDepth - Bias)
 		{
 			visibility -= 0.2;
 		}			
@@ -97,11 +100,26 @@ void main()
 
 	visibility = clamp(visibility, 0.0f, 1.0f);
 
-	vec3 MaterialDiffuseColor = visibility * texture(TexSampler, UV).rgb * LightColor * LightPower * cos_theta / distance;
+	vec3 MaterialDiffuseColor = visibility * texture(TexSampler, UV).rgb * Light.Color * Light.Intensity * cos_theta / distance;
 	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
-	vec3 MaterialSpecularColor = visibility * Ks * LightColor * LightPower * pow(cos_alpha, shineness)  / distance;
+	vec3 MaterialSpecularColor = visibility * Ks * Light.Color * Light.Intensity  * pow(cos_alpha, Shiniess)  / distance;
 
-	color = MaterialAmbientColor * MaterialDiffuseColor + 
+	RetColor = MaterialAmbientColor * MaterialDiffuseColor + 
 			MaterialDiffuseColor +
 			MaterialSpecularColor;
+
+	return RetColor;
+}
+
+void main()
+{
+	vec3 n = normalize( Normal_worldspace );
+
+	vec3 OutColor;
+	for(int LightIndex; LightIndex < LightNum; ++LightIndex)
+	{
+		OutColor += Shading(Lights[LightIndex], n);
+	}
+
+	color = OutColor;
 }
