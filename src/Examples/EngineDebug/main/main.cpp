@@ -16,39 +16,6 @@ static const std::string NonTexturingShadowOmniLightFSPathFile = "G:\\cxcengine\
 
 static const std::string SceneFBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\EN_Building_H_03.FBX";
 
-void KeyTest(int key, int scancode, int action, int mods)
-{
-	auto pSceneMgr = SceneManager::GetInstance();
-	auto pSphere = pSceneMgr->GetObject3D("Sphere001");
-
-	const float MovingStep = 5.0f;
-
-	if (pSphere && key == GLFW_KEY_UP)
-	{
-		pSphere->Translate(glm::vec3(0, MovingStep, 0));
-	}
-	else if (pSphere && key == GLFW_KEY_DOWN)
-	{
-		pSphere->Translate(glm::vec3(0,-MovingStep, 0));
-	}
-	else if (pSphere && key == GLFW_KEY_LEFT)
-	{
-		pSphere->Translate(glm::vec3(-MovingStep, 0, 0));
-	}
-	else if (pSphere && key == GLFW_KEY_RIGHT)
-	{
-		pSphere->Translate(glm::vec3(MovingStep, 0, 0));
-	}
-	else if (pSphere && key == GLFW_KEY_PAGE_UP)
-	{
-		pSphere->Translate(glm::vec3(0, 0, MovingStep));
-	}
-	else if (pSphere && key == GLFW_KEY_PAGE_DOWN)
-	{
-		pSphere->Translate(glm::vec3(0, 0, -MovingStep));
-	}
-}
-
 int main()
 {
 	glm::vec3 LightPos = glm::vec3(100, 100, 100);
@@ -71,11 +38,9 @@ int main()
 
 	auto pWorld = World::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
-	pWorld->KeyInputCallBack = KeyTest;
 
 	auto pRenderMgr = RenderManager::GetInstance();
 	bool bRenderInitialize;
-
 	
 	// Phong render with no shadows
 	auto PhongVS = pRenderMgr->FactoryShader("PhongVS", eShaderType::VERTEX_SHADER, PhongVSFilePath);
@@ -121,7 +86,7 @@ int main()
 	ShadowRender->AddRenderingPipeline(NonTexturingShadowedMeshPipeline);
 
 	bRenderInitialize &= ShadowRender->InitializeRender();
-	ShadowRender->SetShadowMapResolution(4096, 4096);
+	ShadowRender->SetShadowMapResolution(512);
 	pRenderMgr->AddRender(ShadowRender);
 
 	GEngine::SetCamera(CameraPos , CameraOrigin, CameraUpVector, ProjectionMatrix);

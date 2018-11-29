@@ -153,10 +153,8 @@ namespace cxc {
 		std::shared_ptr<Object3D > GetObject3D (const std::string &sprite_name) const noexcept;
 
 		// Camera interface
-		void InitCameraStatus(GLFWwindow * window) noexcept;
 		void SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
 							const glm::mat4 &ProjectionMatrix) noexcept;
-		void UpdateCameraPos(GLFWwindow *window, float x, float y, GLuint height, GLuint width) noexcept;
 
 		// Return the SpriteMap
 		const std::unordered_map<std::string, std::shared_ptr<Object3D >> &GetObjectMap() const noexcept;

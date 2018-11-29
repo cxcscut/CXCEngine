@@ -37,7 +37,6 @@ namespace cxc {
 	void KeyBoradCallBack(GLFWwindow *window, int key, int scancode, int action, int mods);
 	void MouseCallBack(GLFWwindow *window, int button, int action, int mods);
 	void CursorPosCallBack(GLFWwindow *window,double x,double y);
-	void ScrollBarCallBack(GLFWwindow *window,double x,double y);
 
 	// Window description
 	typedef struct WindowDescriptor {
@@ -96,7 +95,6 @@ namespace cxc {
 
 		void CleanFrameBuffer() const noexcept;
 		void CleanGL() noexcept {glfwTerminate();};
-		void StoreAndSetMousePos() noexcept;
 
 		void WorldLooping() noexcept;
 
@@ -110,10 +108,9 @@ namespace cxc {
 	private:
 
 		void RenderingTick();
-
 		void LogicFrameworkTick();
-
-		void PhysicsTick() noexcept;
+		void PhysicsTick();
+		void ProcessInput();
 
 		// Time
 	public:
@@ -140,15 +137,13 @@ namespace cxc {
 		// flag representing the status
 		GLboolean GameOver;
 
-		static std::function<void(int key, int scancode, int action, int mods)> KeyInputCallBack;
-
 	private:
 
 		uint32_t RenderingFrameRates;
 
 		SystemClock WorldStartSeconds;
 
-		float LastRenderingTickSeconds, LastLogicWorldTickSeconds, LastPhysicalWorldTickSeconds;
+		float LastLogicWorldTickSeconds, LastPhysicalWorldTickSeconds;
 
 		std::shared_ptr<LogicFramework> m_LogicFramework;
 

@@ -58,10 +58,8 @@ namespace cxc {
 	// Free camera computation
 	public:
 
-		void InitLastTime() noexcept;
 		void UpdateCurrentTime() noexcept;
 		void ComputeViewMatrix() noexcept;
-		void ComputeMatrices_Moving(GLFWwindow *window, GLint xpos, GLint ypos,GLint Height,GLint Width) noexcept;
 
 	// Data Transportation
 	public:

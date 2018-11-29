@@ -55,17 +55,6 @@ namespace cxc {
 			object.second->UpdateMeshTransMatrix();
 	}
 
-	void SceneManager::InitCameraStatus(GLFWwindow * window) noexcept
-	{
-		pCamera->InitLastTime();
-
-		//Set Keyboard and mouse callback function
-		glfwSetKeyCallback(window, KeyBoradCallBack);
-		glfwSetMouseButtonCallback(window, MouseCallBack);
-		glfwSetScrollCallback(window, ScrollBarCallBack);
-		
-	}
-
 	void SceneManager::SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
 		const glm::mat4 &ProjectionMatrix) noexcept
 	{
@@ -383,11 +372,6 @@ namespace cxc {
 		{
 			Lights.push_back(pNewLight);
 		}
-	}
-
-	void SceneManager::UpdateCameraPos(GLFWwindow *window,float x,float y,GLuint height,GLuint width) noexcept
-	{
-		pCamera->ComputeMatrices_Moving(window, x, y, height, width);
 	}
 
 	void SceneManager::DeleteObject(const std::string &sprite_name) noexcept

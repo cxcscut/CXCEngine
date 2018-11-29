@@ -12,126 +12,6 @@
 
 namespace cxc {
 
-	static double _x=0.0f, _y=0.0f;
-
-	std::function<void(int key, int scancode, int action, int mods)>
-		World::KeyInputCallBack = [=](int,int,int,int) {};
-
-	const float MovingStep = 0.8f;
-
-	void KeyBoradCallBack(GLFWwindow *window, int key, int scancode, int action, int mods)
-	{
-		World::KeyInputCallBack(key,scancode,action,mods);
-
-		auto pEngine = World::GetInstance();
-		auto pCamera = pEngine->pSceneMgr->pCamera;
-		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
-		if (!pRender)
-			return;
-
-		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
-		if (!pRender || !CurrentUsedPipeline) return;
-
-		auto ProgramID = CurrentUsedPipeline->GetPipelineProgramID();
-
-		if (key == GLFW_KEY_W)
-		{
-			// Camera moving forward
-			auto ForwardVector = pCamera->GetCameraForwardVector();
-			auto MovingVector = ForwardVector * MovingStep;
-			pCamera->EyePosition += MovingVector;
-			pCamera->CameraOrigin += MovingVector;
-			pCamera->ComputeAngles();
-		}
-		else if (key == GLFW_KEY_S)
-		{
-			// Camera moving backward
-			auto ForwardVector = pCamera->GetCameraForwardVector();
-			auto MovingVector = ForwardVector * MovingStep;
-			pCamera->EyePosition -= MovingVector;
-			pCamera->CameraOrigin -= MovingVector;
-			pCamera->ComputeAngles();
-		}
-		else if (key == GLFW_KEY_A)
-		{
-			// Camera moving left
-			auto RightVector = pCamera->GetCameraRightVector();
-			auto MovingVector = RightVector * MovingStep;
-			pCamera->EyePosition += MovingVector;
-			pCamera->CameraOrigin += MovingVector;
-			pCamera->ComputeAngles();
-		}
-		else if (key == GLFW_KEY_D)
-		{
-			// Camera moving right
-			auto RightVector = pCamera->GetCameraRightVector();
-			auto MovingVector = RightVector * MovingStep;
-			pCamera->EyePosition -= MovingVector;
-			pCamera->CameraOrigin -= MovingVector;
-			pCamera->ComputeAngles();
-		}
-
-		pCamera->ComputeViewMatrix();
-		pCamera->BindViewMatrix(ProgramID);
-	}
-
-	void CursorPosCallBack(GLFWwindow *window, double x, double y)
-	{
-		auto pEngine = World::GetInstance();
-		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
-		if (!pRender)
-			return;
-
-		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
-		if (!pRender || !CurrentUsedPipeline) return;
-
-		auto ProgramID = CurrentUsedPipeline->GetPipelineProgramID();
-		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
-
-		auto pCamera = pEngine->pSceneMgr->pCamera;
-
-		double dx = x - _x, dy = y - _y;
-		_x = x; _y = y;
-
-		double DeltaThetaXOY = -PI * (dx / pEngine->pWindowMgr->GetWindowWidth() / 2);
-		double DeltaThetaToXOY = PI * (dy / pEngine->pWindowMgr->GetWindowHeight() / 2);
-
-		// Update angles
-		pCamera->ComputeAngles();
-
-		// Rotate Camera
-		pCamera->ThetaToXOY += DeltaThetaToXOY;
-		pCamera->ThetaXOY += DeltaThetaXOY;
-
-		pCamera->ComputePosition();
-		pCamera->ComputeViewMatrix();
-	}
-
-	void MouseCallBack(GLFWwindow *window, int button, int action, int mods)
-	{
-		auto pEngine = World::GetInstance();
-		auto wHandle = pEngine->pWindowMgr->GetWindowHandle();
-		if (!wHandle)
-			return;
-
-		if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
-			glfwGetCursorPos(wHandle, &_x, &_y);
-
-			// Activate the mouse callback
-			glfwSetCursorPosCallback(wHandle,CursorPosCallBack);
-		}
-		else if(action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
-		{
-			// Remove the mouse callback
-			glfwSetCursorPosCallback(wHandle, nullptr);
-		}
-	}
-
-	void ScrollBarCallBack(GLFWwindow *window, double x, double y)
-	{
-
-	}
-
 	World::World()
 		:
 		GameOver(GL_FALSE),
@@ -246,7 +126,6 @@ namespace cxc {
 		// Initialize the start time of the world
 		WorldStartSeconds = std::chrono::system_clock::now();
 		auto CurrentWorldSeconds = GetWorldSeconds();
-		LastRenderingTickSeconds = CurrentWorldSeconds;
 		LastLogicWorldTickSeconds = CurrentWorldSeconds;
 		LastPhysicalWorldTickSeconds = CurrentWorldSeconds;
 
@@ -265,7 +144,7 @@ namespace cxc {
 	void World::InitInputMode() noexcept
 	{
 		glEnable(GL_CULL_FACE);
-		pInputMgr->SetInputModel(pWindowMgr->GetWindowHandle());
+		pInputMgr->InitializeInput(pWindowMgr->GetWindowHandle());
 	}
 
 	void World::CleanFrameBuffer() const noexcept
@@ -276,12 +155,6 @@ namespace cxc {
 			glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	void World::StoreAndSetMousePos() noexcept
-	{
-		pInputMgr->UpdateMousePos(pWindowMgr->GetWindowHandle());
-		pInputMgr->SetMouseScreenPos(pWindowMgr->GetWindowHandle(), pWindowMgr->GetWindowWidth() / 2, pWindowMgr->GetWindowHeight() / 2);
-	}
-
 	void World::SetBackGroundColor(float red, float green, float blue, float alpha) noexcept
 	{
 		pWindowMgr->SetBackGroundColor(red,green,blue,alpha);
@@ -290,18 +163,18 @@ namespace cxc {
 	void World::RenderingTick()
 	{
 		assert(pSceneMgr != nullptr);
-
-		auto CurrentWorldSeconds = GetWorldSeconds();
-		auto SecondsBetweenFrames = CurrentWorldSeconds - LastRenderingTickSeconds;
 		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
-		if (SecondsBetweenFrames >= FixedRenderingDeltaSeconds)
-		{
-			//std::cout << "Rendering tick difference : " << SecondsBetweenFrames << std::endl;
+		pSceneMgr->Tick(FixedRenderingDeltaSeconds);
+	}
 
-			LastRenderingTickSeconds = CurrentWorldSeconds - SecondsBetweenFrames + FixedRenderingDeltaSeconds;
-			
-			pSceneMgr->Tick(SecondsBetweenFrames);
-		}
+	void World::ProcessInput()
+	{
+		// Input ticking for every rendering frame
+		assert(pSceneMgr != nullptr);
+		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
+
+		// Tick the InputManager
+		InputManager::GetInstance()->Tick(FixedRenderingDeltaSeconds);
 	}
 
 	void World::LogicFrameworkTick()
@@ -313,27 +186,13 @@ namespace cxc {
 		auto FixedLogicDeltaSeconds = 1 / static_cast<float>(m_LogicFramework->GetLogicFrameRates());
 		if (SecondsBetweenFrames >= FixedLogicDeltaSeconds)
 		{
-			//std::cout << " Logic tick difference : " << SecondsBetweenFrames << std::endl;
-
 			LastLogicWorldTickSeconds = CurrentWorldSeconds - SecondsBetweenFrames + FixedLogicDeltaSeconds;
 
 			m_LogicFramework->LogicTick(FixedLogicDeltaSeconds);
 		}
 	}
 
-	void World::Tick()
-	{
-		// Rendering tick, default frame rates is 60 FPS
-		RenderingTick();
-
-		// Physics tick
-		PhysicsTick();
-
-		// Logic tick, default frame rates is 30 FPS
-		LogicFrameworkTick();
-	}
-
-	void World::PhysicsTick() noexcept
+	void World::PhysicsTick()
 	{
 		assert(m_PhysicalWorld != nullptr);
 
@@ -347,6 +206,21 @@ namespace cxc {
 
 			m_PhysicalWorld->PhysicsTick(FixedLogicDeltaSeconds);
 		}
+	}
+
+	void World::Tick()
+	{
+		// Rendering tick
+		RenderingTick();
+
+		// Physics tick
+		PhysicsTick();
+
+		// Logic tick
+		LogicFrameworkTick();
+
+		// Processing the input
+		ProcessInput();
 	}
 
 	void World::WorldLooping() noexcept

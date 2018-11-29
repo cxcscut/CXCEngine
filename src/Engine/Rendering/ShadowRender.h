@@ -27,17 +27,15 @@ namespace cxc
 
 		const CubeMapCameraPose* GetCubeMapPose() const { return CubeMapIterator; }
 		GLuint GetShadowMapFBO() const noexcept;
-		GLuint GetShadowMapWidth() const noexcept;
-		GLuint GetShadowMapHeight() const noexcept;
+		GLuint GetShadowMapSize() const noexcept;
 		glm::mat4 GetShadowMapDepthVP() const noexcept;
 		GLuint GetShadowMapDepthTexture() const noexcept;
 		GLuint GetShadowCubeMap() const noexcept;
 
 	public:
 
-		void SetShadowMapResolution(GLuint Width, GLuint Height);
+		void SetShadowMapResolution(GLuint Size);
 		void SetLightSpaceMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept;
-		void SetShadowMapTextureSize(uint32_t Height, uint32_t Width);
 
 		bool InitShadowMapRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
 
@@ -58,7 +56,7 @@ namespace cxc
 		GLuint DepthMapTexture;
 
 		// Height and Width of the depth texture
-		GLuint DepthMapHeight, DepthMapWidth;
+		GLuint DepthMapSize;
 
 		// Matrix of the shadow map rendring
 		glm::mat4 DepthProjectionMatrix, DepthViewMatrix, DepthVP;

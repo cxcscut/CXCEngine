@@ -652,7 +652,7 @@ namespace cxc {
 
 			/* Save the light configuration */
 			// Light Name
-			pNewLight->LightName = lLight->GetName();
+			pNewLight->LightName = pNode->GetName();
 
 			// Light color
 			FbxDouble3 LightColor = lLight->Color.Get();

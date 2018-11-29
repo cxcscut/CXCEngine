@@ -160,7 +160,7 @@ namespace cxc
 		if (!pOwnerObject->isEnable() || !pOwnerObject->isReceiveShadows())
 			return;
 
-		glViewport(0, 0, pShadowRender->GetShadowMapWidth(), pShadowRender->GetShadowMapWidth());
+		glViewport(0, 0, pShadowRender->GetShadowMapSize(), pShadowRender->GetShadowMapSize());
 
 		GLint depthMVP_Loc = glGetUniformLocation(ProgramID, "depthMVP");
 
@@ -175,7 +175,7 @@ namespace cxc
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
 		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
 
-																														   // Rendering depth map of the mesh to depth texture
+		// Rendering depth map of the mesh to depth texture
 		depthMVP = pShadowRender->GetShadowMapDepthVP() * pOwnerObject->getTransMatrix();
 
 		glUniformMatrix4fv(depthMVP_Loc, 1, GL_FALSE, &depthMVP[0][0]);
@@ -198,7 +198,7 @@ namespace cxc
 		auto CubeMapIterator = pShadowRender->GetCubeMapPose();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, pShadowRender->GetShadowMapFBO());
-		glViewport(0, 0, pShadowRender->GetShadowMapWidth(), pShadowRender->GetShadowMapHeight());
+		glViewport(0, 0, pShadowRender->GetShadowMapSize(), pShadowRender->GetShadowMapSize());
 		if (pLight->GetLightType() == eLightType::OmniDirectional)
 		{
 			// Draw 6 faces of cube map

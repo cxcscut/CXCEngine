@@ -8,6 +8,9 @@ namespace cxc {
 	// Singleton.inl is the implementation of the singleton design pattern for managing the 
 	// allocation and releasing of singleton instance
 
+	// WARNING : The instance of the singleton class can not be obtained in the contruction function
+	// which will cause stack overflowing.
+	
 	template<class SingletonClass>
 	class Singleton
 	{

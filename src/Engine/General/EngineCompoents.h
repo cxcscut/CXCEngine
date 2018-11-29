@@ -10,7 +10,6 @@
 #include "..\Scene\SceneManager.h"
 #include "..\Window\Window.h"
 #include "..\Script\Parser.h"
-#include "..\Controller\CommandHandler.h"
 
 #else
 
@@ -21,7 +20,6 @@
 #include "../Scene/SceneManager.h"
 #include "../Window/Window.h"
 #include "../Script/Parser.h"
-#include "../Controller/CommandHandler.h"
 
 #endif
 

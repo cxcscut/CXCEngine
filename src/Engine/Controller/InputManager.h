@@ -19,6 +19,14 @@
 
 namespace cxc {
 
+	enum class eKeyStatus : uint16_t
+	{
+		PRESSED = 0,
+		RELEASED = 1
+	};
+
+	using eMouseButtonStatus = eKeyStatus;
+
 	class InputManager final : public Singleton<InputManager>
 	{
 
@@ -26,8 +34,6 @@ namespace cxc {
 		friend Singleton<InputManager>;
 
 		explicit InputManager();
-
-		InputManager(GLint x,GLint y);
 		~InputManager();
 
 		InputManager(const InputManager &) = delete;
@@ -38,25 +44,32 @@ namespace cxc {
 	public:
 
 		void Tick(float DeltaSeconds);
+		void ProcessingMouseInput();
+		void ProcessingKeyboardInput();
 
 	public:
 
-		GLint GetXPos() const noexcept;
-		GLint GetYPos() const noexcept;
+		void InitializeInput(GLFWwindow *window) const noexcept;
 
-		void SetMouseScreenPos(GLFWwindow *window, GLdouble x, GLdouble y) const noexcept;
-		void SetMouseCordinates(GLdouble newxpos, GLdouble newypos) noexcept;
-		void SetInputModel(GLFWwindow *window) const noexcept;
-
-	// State update
 	public:
 
-		void UpdateMousePos(GLFWwindow *window) noexcept;
+		void GetCurrentCorsorPos(double &PosX, double& PosY);
+		eKeyStatus GetKeyStatus(int key);
+		void AddKeyPressedStatus(int key);
+		void RemoveKeyPressedStatus(int key);
 
-	// Private data
 	public:
 
-		GLdouble xpos, ypos;
+		// Whether captures the cursor delta position
+		bool bCaptureCrusor;
+
+		// Last position of the cursor
+		double LastCursorPosX, LastCursorPosY;
+
+	private:
+
+		// Key status
+		std::unordered_set<int> KeyStatusMap;
 	};
 
 }

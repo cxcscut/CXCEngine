@@ -2,8 +2,6 @@
 
 namespace cxc {
 
-	GLdouble Camera::LastTime = glfwGetTime();
-
 	Camera::Camera() :
 		Projection(glm::mat4(1.0f)), View(glm::mat4(1.0f)),
 		HorizontalAngle(3.14f), VerticalAngle(0.0f),
@@ -42,11 +40,6 @@ namespace cxc {
 		double RadiusXOY = Radius * cosf(ThetaToXOY);
 		EyePosition.x = RadiusXOY * cosf(ThetaXOY);
 		EyePosition.y = RadiusXOY * sinf(ThetaXOY);
-	}
-
-	void Camera::InitLastTime() noexcept
-	{
-		LastTime = glfwGetTime();
 	}
 
 	glm::mat4 Camera::GetProjectionMatrix() const noexcept
@@ -130,60 +123,6 @@ namespace cxc {
 	void Camera::UpdateCurrentTime() noexcept
 	{
 		CurrentTime = glfwGetTime();
-	}
-
-	void Camera::ComputeMatrices_Moving(GLFWwindow *window, GLint xpos, GLint ypos,GLint Height,GLint Width) noexcept
-	{
-
-		CurrentTime = glfwGetTime();
-
-		DeltaTime = CurrentTime - LastTime;
-
-		HorizontalAngle += MouseSpeed * static_cast<GLfloat>(Width / 2 - xpos);
-		VerticalAngle += MouseSpeed * static_cast<GLfloat>(Height / 2 - ypos);
-
-		glm::vec3 Direction(
-			cos(VerticalAngle) * sin(HorizontalAngle),
-			sin(VerticalAngle),
-			cos(VerticalAngle)* cos(HorizontalAngle)
-		);
-
-		glm::vec3 Right(
-			sin(HorizontalAngle - 3.14f / 2.0f),
-			0,
-			cos(HorizontalAngle - 3.14f / 2.0f)
-		);
-
-		// glm::cross return the cross product of two input vectors
-		glm::vec3 Up = glm::cross(Right, Direction); 
-
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-			Position += Direction * DeltaTime * Speed;
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			Position -= Direction * DeltaTime * Speed;
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-			Position += Right * DeltaTime * Speed;
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-			Position -= Right * DeltaTime * Speed;
-		}
-
-		GLfloat FoV = InitialFov;
-
-		Projection = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-
-		View = glm::lookAt(
-			Position,
-			Position + Direction,
-			Up
-		);
-
-		LastTime = CurrentTime;
 	}
 
 	void Camera::BindCameraUniforms(GLuint ProgramID) noexcept

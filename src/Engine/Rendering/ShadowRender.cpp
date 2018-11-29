@@ -15,16 +15,16 @@ namespace cxc
 {
 	ShadowMapRender::ShadowMapRender() :
 		FrameBufferObjectID(0), DepthMapTexture(0),
-		DepthMapWidth(1024), DepthMapHeight(1024), ShadowCubeMap(0),
+		DepthMapSize(128), ShadowCubeMap(0),
 		DepthProjectionMatrix(1.0f), DepthViewMatrix(1.0f), DepthVP(1.0f),
 		bIsShadowTextureCreate(false)
 	{
-		CubeMapIterator[0] = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f) };
-		CubeMapIterator[1] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, glm::vec3(-1.0f,0.0f,0.0f), glm::vec3(0.0f,-1.0f,0.0f) };
-		CubeMapIterator[2] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f) };
-		CubeMapIterator[3] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, glm::vec3(0.0f,-1.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f) };
-		CubeMapIterator[4] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, glm::vec3(0.0f,0.0f,1.0f), glm::vec3(0.0f,-1.0f,0.0f) };
-		CubeMapIterator[5] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, glm::vec3(0.0f,0.0f,-1.0f), glm::vec3(0.0f,-1.0f,0.0f) };
+		CubeMapIterator[0] = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f) };
+		CubeMapIterator[1] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f) };
+		CubeMapIterator[2] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f) };
+		CubeMapIterator[3] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f) };
+		CubeMapIterator[4] = { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f) };
+		CubeMapIterator[5] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f) };
 	}
 
 	ShadowMapRender::ShadowMapRender(const std::string& Name) :
@@ -46,23 +46,9 @@ namespace cxc
 		}
 	}
 
-	void ShadowMapRender::SetShadowMapTextureSize(uint32_t Height, uint32_t Width)
+	void ShadowMapRender::SetShadowMapResolution(GLuint Size)
 	{
-		if (Height == Width)
-		{
-			DepthMapHeight = Height;
-			DepthMapWidth = Width;
-		}
-		else
-		{
-			std::cerr << "DepthMap height must equal to the width " << std::endl;
-		}
-	}
-
-	void ShadowMapRender::SetShadowMapResolution(GLuint Width, GLuint Height)
-	{
-		DepthMapHeight = Height;
-		DepthMapWidth = Width;
+		DepthMapSize = Size;
 	}
 
 	void ShadowMapRender::SetLightSpaceMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept
@@ -78,14 +64,9 @@ namespace cxc
 		return FrameBufferObjectID;
 	}
 
-	GLuint ShadowMapRender::GetShadowMapWidth() const noexcept
+	GLuint ShadowMapRender::GetShadowMapSize() const noexcept
 	{
-		return DepthMapWidth;
-	}
-
-	GLuint ShadowMapRender::GetShadowMapHeight() const noexcept
-	{
-		return DepthMapHeight;
+		return DepthMapSize;
 	}
 
 	glm::mat4 ShadowMapRender::GetShadowMapDepthVP() const noexcept
@@ -141,8 +122,8 @@ namespace cxc
 			// Depth texture
 			glGenTextures(1, &DepthMapTexture);
 			glBindTexture(GL_TEXTURE_2D, DepthMapTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, DepthMapWidth,
-				DepthMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, DepthMapSize,
+				DepthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -172,7 +153,7 @@ namespace cxc
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 			for (uint16_t i = 0; i < 6; i++) {
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT32, DepthMapWidth, DepthMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT32, DepthMapSize, DepthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 			}
 
 			glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, ShadowCubeMap, 0);

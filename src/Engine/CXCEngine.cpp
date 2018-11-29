@@ -53,8 +53,6 @@ namespace cxc
 		{
 			// Set camera
 			World->pSceneMgr->SetCameraParams(CameraPosition, CameraOrigin, UpVector, ProjectionMatrix);
-
-			World->pSceneMgr->InitCameraStatus(World->pWindowMgr->GetWindowHandle());
 		}
 	}
 

@@ -103,7 +103,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Engine\Animation\Animation.cpp" />
-    <ClCompile Include="..\..\engine\controller\CommandHandler.cpp" />
     <ClCompile Include="..\..\engine\controller\InputManager.cpp" />
     <ClCompile Include="..\..\Engine\CXCEngine.cpp" />
     <ClCompile Include="..\..\Engine\Material\Material.cpp" />
@@ -136,7 +135,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Engine\Animation\Animation.h" />
-    <ClInclude Include="..\..\engine\controller\CommandHandler.h" />
     <ClInclude Include="..\..\engine\controller\InputManager.h" />
     <ClInclude Include="..\..\Engine\CXCEngine.h" />
     <ClInclude Include="..\..\engine\general\DefineTypes.h" />
