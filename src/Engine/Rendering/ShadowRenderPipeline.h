@@ -6,43 +6,43 @@
 namespace cxc
 {
 	class Mesh;
-	class BaseLighting;
-	class ShadowMapRender;
+	class LightSource;
+	class ShadowRender;
 
-	class ShadowedMeshRenderPipeline : public RenderPipeline
+	class ShadowRenderLightingPassPipeline : public RenderPipeline
 	{
 	public:
 
-		ShadowedMeshRenderPipeline();
-		ShadowedMeshRenderPipeline(const std::string& Name);
+		ShadowRenderLightingPassPipeline();
+		ShadowRenderLightingPassPipeline(const std::string& Name);
 
-		virtual ~ShadowedMeshRenderPipeline();
+		virtual ~ShadowRenderLightingPassPipeline();
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 	};
 
-	class ShadowMapCookingPipeline : public RenderPipeline
+	class ShadowRenderBasePassPipeline : public RenderPipeline
 	{
 	public:
 
-		ShadowMapCookingPipeline();
+		ShadowRenderBasePassPipeline();
 
-		virtual ~ShadowMapCookingPipeline();
-
-	public:
-
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual ~ShadowRenderBasePassPipeline();
 
 	public:
 
-		void CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
-		void RenderShadowsToTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+
+	public:
+
+		void CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
+		void RenderShadowsToTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
 
 	};
 }

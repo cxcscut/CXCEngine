@@ -38,7 +38,7 @@ namespace cxc
 		pOwnerRender.reset();
 	}
 
-	void RenderPipeline::BindLightUniforms(std::vector<std::shared_ptr<BaseLighting>> Lights)
+	void RenderPipeline::BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights)
 	{
 		GLint LightNumLoc = glGetUniformLocation(ProgramID, "LightNum");
 		glUniform1i(LightNumLoc, Lights.size());
@@ -142,12 +142,12 @@ namespace cxc
 		return bResult;
 	}
 
-	void RenderPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void RenderPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Do noting in the base render class
 	}
 
-	void RenderPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void RenderPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		GLint TexSamplerHandle;
 		GLint Eyepos_loc, M_MatrixID;
@@ -203,7 +203,7 @@ namespace cxc
 		pMesh->DrawMesh();
 	}
 
-	void RenderPipeline::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void RenderPipeline::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Do noting in the base render class
 	}

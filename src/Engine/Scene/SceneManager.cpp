@@ -144,7 +144,7 @@ namespace cxc {
 
 			case FbxNodeAttribute::eLight:
 			{
-				std::vector<std::shared_ptr<BaseLighting>> LoadedLights;
+				std::vector<std::shared_ptr<LightSource>> LoadedLights;
 				FbxAMatrix lGlobalPosition;
 				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
 				if (!bLightLoadingRes)
@@ -197,7 +197,7 @@ namespace cxc {
 		return true;
 	}
 
-	void SceneManager::PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
+	void SceneManager::PreRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
 	{
 		for (auto pObject : m_ObjectMap)
 			if (pObject.second->isEnable())
@@ -207,7 +207,7 @@ namespace cxc {
 			}
 	}
 
-	void SceneManager::Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
+	void SceneManager::Render(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
 	{
 		for (auto pObject : m_ObjectMap)
 			if (pObject.second->isEnable())
@@ -217,7 +217,7 @@ namespace cxc {
 			}
 	}
 
-	void SceneManager::PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
+	void SceneManager::PostRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
 	{
 		for (auto pObject : m_ObjectMap)
 			if (pObject.second->isEnable())
@@ -263,7 +263,7 @@ namespace cxc {
 		}
 	}
 
-	std::shared_ptr<BaseLighting> SceneManager::GetLight(uint32_t LightIndex)
+	std::shared_ptr<LightSource> SceneManager::GetLight(uint32_t LightIndex)
 	{
 		if (GetLightCount() <= LightIndex)
 		{
@@ -273,7 +273,7 @@ namespace cxc {
 			return Lights[LightIndex];
 	}
 
-	std::shared_ptr<BaseLighting> SceneManager::GetLight(const std::string& LightName)
+	std::shared_ptr<LightSource> SceneManager::GetLight(const std::string& LightName)
 	{
 		for (auto pLight : Lights)
 		{
@@ -347,7 +347,7 @@ namespace cxc {
 		}
 	}
 
-	void SceneManager::AddLight(std::shared_ptr<BaseLighting> pNewLight)
+	void SceneManager::AddLight(std::shared_ptr<LightSource> pNewLight)
 	{
 		bool bIsLightExist = false;
 		for (auto pLight : Lights)
@@ -367,7 +367,7 @@ namespace cxc {
 
 	void SceneManager::AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, float LightIntensity, eLightType Type)
 	{
-		auto pNewLight = NewObject<BaseLighting>(Name, LightPosition, LightDirection, LightIntensity, Type);
+		auto pNewLight = NewObject<LightSource>(Name, LightPosition, LightDirection, LightIntensity, Type);
 		if (pNewLight)
 		{
 			Lights.push_back(pNewLight);

@@ -112,8 +112,9 @@
     <ClCompile Include="..\..\engine\physics\Collider3D.cpp" />
     <ClCompile Include="..\..\Engine\Physics\PhysicalWorld.cpp" />
     <ClCompile Include="..\..\engine\physics\RigidBody3D.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\DeferredRender.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\DeferredRenderPipeline.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\Font.cpp" />
-    <ClCompile Include="..\..\Engine\Rendering\FontsManager.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\MeshRender.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\RenderManager.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\RenderPipeline.cpp" />
@@ -405,8 +406,9 @@
     <ClInclude Include="..\..\engine\physics\ode\timer.h" />
     <ClInclude Include="..\..\Engine\Physics\PhysicalWorld.h" />
     <ClInclude Include="..\..\engine\physics\RigidBody3D.h" />
+    <ClInclude Include="..\..\Engine\Rendering\DeferredRender.h" />
+    <ClInclude Include="..\..\Engine\Rendering\DeferredRenderPipeline.h" />
     <ClInclude Include="..\..\Engine\Rendering\Font.h" />
-    <ClInclude Include="..\..\Engine\Rendering\FontsManager.h" />
     <ClInclude Include="..\..\Engine\Rendering\MeshRender.h" />
     <ClInclude Include="..\..\Engine\Rendering\RenderManager.h" />
     <ClInclude Include="..\..\Engine\Rendering\RenderPipeline.h" />

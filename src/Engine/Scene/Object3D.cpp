@@ -303,7 +303,7 @@ namespace cxc {
 
 	}
 
-	void Object3D::PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
+	void Object3D::PreRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
 	{
 		for (auto pMesh : Meshes)
 		{
@@ -317,7 +317,7 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
+	void Object3D::Render(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
 	{
 		for (auto pMesh : Meshes)
 		{
@@ -331,7 +331,7 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
+	void Object3D::PostRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
 	{
 		for (auto pMesh : Meshes)
 		{

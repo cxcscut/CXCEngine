@@ -20,7 +20,7 @@ namespace cxc
 	class MeshRender;
 	class Mesh;
 	class Object3D;
-	class BaseLighting;
+	class LightSource;
 
 	class RenderPipeline
 	{
@@ -42,7 +42,7 @@ namespace cxc
 
 	public:
 
-		void BindLightUniforms(std::vector<std::shared_ptr<BaseLighting>> Lights);
+		void BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights);
 
 	public:
 
@@ -57,9 +57,9 @@ namespace cxc
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights);
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
 
 	protected:
 

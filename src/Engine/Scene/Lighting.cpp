@@ -2,48 +2,48 @@
 
 namespace cxc {
 
-	BaseLighting::BaseLighting()
+	LightSource::LightSource()
 	{
 
 	}
 
-	BaseLighting::BaseLighting(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, float Intensity, eLightType type)
+	LightSource::LightSource(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, float Intensity, eLightType type)
 		:LightPos(pos),LightDirection(dir), LightType(type), LightName(Name), LightIntensity(Intensity)
 	{
 
 	}
 
-	BaseLighting::~BaseLighting()
+	LightSource::~LightSource()
 	{
 
 	}
 
-	void BaseLighting::SetLightPos(float x, float y, float z) noexcept
+	void LightSource::SetLightPos(float x, float y, float z) noexcept
 	{
 		LightPos = glm::vec3(x, y, z);
 	}
 
-	void BaseLighting::SetLightType(eLightType type) noexcept
+	void LightSource::SetLightType(eLightType type) noexcept
 	{
 		LightType = type;
 	}
 
-	void BaseLighting::SetDirection(float x, float y, float z) noexcept
+	void LightSource::SetDirection(float x, float y, float z) noexcept
 	{
 		LightDirection = glm::vec3(x, y, z);
 	}
 
-	glm::vec3 BaseLighting::GetDirection() const noexcept
+	glm::vec3 LightSource::GetDirection() const noexcept
 	{
 		return LightDirection;
 	}
 
-	eLightType BaseLighting::GetLightType() const noexcept
+	eLightType LightSource::GetLightType() const noexcept
 	{
 		return LightType;
 	}
 
-	glm::vec3 BaseLighting::GetLightPos() const noexcept
+	glm::vec3 LightSource::GetLightPos() const noexcept
 	{
 		return LightPos;
 	}

@@ -13,7 +13,7 @@
 
 namespace cxc
 {
-	ShadowMapRender::ShadowMapRender() :
+	ShadowRender::ShadowRender() :
 		FrameBufferObjectID(0), DepthMapTexture(0),
 		DepthMapSize(128), ShadowCubeMap(0),
 		DepthProjectionMatrix(1.0f), DepthViewMatrix(1.0f), DepthVP(1.0f),
@@ -27,13 +27,13 @@ namespace cxc
 		CubeMapIterator[5] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f) };
 	}
 
-	ShadowMapRender::ShadowMapRender(const std::string& Name) :
-		ShadowMapRender()
+	ShadowRender::ShadowRender(const std::string& Name) :
+		ShadowRender()
 	{
 		SetRenderName(Name);
 	}
 
-	ShadowMapRender::~ShadowMapRender()
+	ShadowRender::~ShadowRender()
 	{
 		if (FrameBufferObjectID)
 		{
@@ -46,12 +46,12 @@ namespace cxc
 		}
 	}
 
-	void ShadowMapRender::SetShadowMapResolution(GLuint Size)
+	void ShadowRender::SetShadowMapResolution(GLuint Size)
 	{
 		DepthMapSize = Size;
 	}
 
-	void ShadowMapRender::SetLightSpaceMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept
+	void ShadowRender::SetLightSpaceMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept
 	{
 		DepthProjectionMatrix = Projection;
 		DepthViewMatrix = View;
@@ -59,32 +59,32 @@ namespace cxc
 		DepthVP = Projection * View;
 	}
 
-	GLuint ShadowMapRender::GetShadowMapFBO() const noexcept
+	GLuint ShadowRender::GetShadowMapFBO() const noexcept
 	{
 		return FrameBufferObjectID;
 	}
 
-	GLuint ShadowMapRender::GetShadowMapSize() const noexcept
+	GLuint ShadowRender::GetShadowMapSize() const noexcept
 	{
 		return DepthMapSize;
 	}
 
-	glm::mat4 ShadowMapRender::GetShadowMapDepthVP() const noexcept
+	glm::mat4 ShadowRender::GetShadowMapDepthVP() const noexcept
 	{
 		return DepthVP;
 	}
 
-	GLuint ShadowMapRender::GetShadowMapDepthTexture() const noexcept
+	GLuint ShadowRender::GetShadowMapDepthTexture() const noexcept
 	{
 		return DepthMapTexture;
 	}
 
-	GLuint ShadowMapRender::GetShadowCubeMap() const noexcept
+	GLuint ShadowRender::GetShadowCubeMap() const noexcept
 	{
 		return ShadowCubeMap;
 	}
 
-	bool ShadowMapRender::InitShadowMapRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept
+	bool ShadowRender::InitShadowMapRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
 	{
 		if (bIsShadowTextureCreate)
 			return true;
@@ -180,7 +180,7 @@ namespace cxc
 		return true;
 	}
 
-	void ShadowMapRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		auto pLight = Lights[0];
 		bool bResult = InitShadowMapRender(Lights);
@@ -207,7 +207,7 @@ namespace cxc
 		}
 	}
 
-	void ShadowMapRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Shadow depth map cooked in the pre-render process
 		auto ShadowMapPipeline = GetPipelinePtr("ShadowDepthTexturePipeline");
@@ -219,7 +219,7 @@ namespace cxc
 		ShadowMapPipeline->PostRender(pMesh, Lights);
 	}
 
-	void ShadowMapRender::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRender::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Determing which pipeline should be used to render the material
 		bool bHasTexture = false;

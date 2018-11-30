@@ -6,9 +6,10 @@
 namespace cxc
 {
 	class Mesh;
-	class BaseLighting;
+	class LightSource;
 
-	class ShadowMapRender : public MeshRender
+	/* ShadowRender does not support casting shadows of multiple dynamic lights */
+	class ShadowRender : public MeshRender
 	{
 		using CubeMapCameraPose = struct CubeMapCameraPose {
 			GLenum CubeMapFace;
@@ -18,10 +19,10 @@ namespace cxc
 
 	public:
 
-		ShadowMapRender();
-		ShadowMapRender(const std::string& RenderName);
+		ShadowRender();
+		ShadowRender(const std::string& RenderName);
 
-		virtual ~ShadowMapRender();
+		virtual ~ShadowRender();
 
 	public:
 
@@ -37,13 +38,13 @@ namespace cxc
 		void SetShadowMapResolution(GLuint Size);
 		void SetLightSpaceMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept;
 
-		bool InitShadowMapRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
+		bool InitShadowMapRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights) override;
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 
 	private:
 

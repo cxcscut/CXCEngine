@@ -35,7 +35,7 @@ namespace cxc
 	// Light
 	public:
 		
-		static bool GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<BaseLighting>>& OutLights, FbxAMatrix& pParentGlobalPosition);
+		static bool GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<LightSource>>& OutLights, FbxAMatrix& pParentGlobalPosition);
 
 	// Camera 
 	public:

@@ -28,7 +28,7 @@
 
 namespace cxc {
 
-	class ShadowMapRender;
+	class ShadowRender;
 	class MaterialManager;
 	class TextureManager;
 	class Shape;
@@ -132,9 +132,9 @@ namespace cxc {
 
 		virtual void Scale(const glm::vec3& ScalingVector) noexcept;
 
-		virtual void PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
-		virtual void Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
-		virtual void PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
+		virtual void PreRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
+		virtual void Render(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
+		virtual void PostRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
 
 		virtual void Tick(float DeltaSeconds);
 

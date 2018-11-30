@@ -633,7 +633,7 @@ namespace cxc {
 		return FbxAMatrix(lT, lR, lS);
 	}
 
-	bool FBXSDKUtil::GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<BaseLighting>>& OutLights, FbxAMatrix& pParentGlobalPosition)
+	bool FBXSDKUtil::GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<LightSource>>& OutLights, FbxAMatrix& pParentGlobalPosition)
 	{
 		if (!pNode)
 			return false;
@@ -641,7 +641,7 @@ namespace cxc {
 		bool bHasFoundAnyLightNode = false;
 		FbxAMatrix lGlobalOffPosition;
 
-		std::shared_ptr<BaseLighting> pNewLight = std::make_shared<BaseLighting>();
+		std::shared_ptr<LightSource> pNewLight = std::make_shared<LightSource>();
 
 		// Get light from root node
 		FbxLight* lLight = pNode->GetLight();

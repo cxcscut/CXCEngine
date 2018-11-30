@@ -163,10 +163,10 @@ namespace cxc {
 		void SetSize(float size) noexcept { m_SceneSize = size; };
 
 		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, float LightIntensity, eLightType Type);
-		void AddLight(std::shared_ptr<BaseLighting> pNewLight);
+		void AddLight(std::shared_ptr<LightSource> pNewLight);
 		void RemoveLight(const std::string& LightName);
-		std::shared_ptr<BaseLighting> GetLight(uint32_t LightIndex);
-		std::shared_ptr<BaseLighting> GetLight(const std::string& LightName);
+		std::shared_ptr<LightSource> GetLight(uint32_t LightIndex);
+		std::shared_ptr<LightSource> GetLight(const std::string& LightName);
 		uint32_t GetLightCount() const { return Lights.size(); }
 
 	public:
@@ -180,9 +180,9 @@ namespace cxc {
 		void AllocateBuffers();
 		void ReleaseBuffers();
 
-		void PreRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
-		void Render(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
-		void PostRender(const std::vector<std::shared_ptr<BaseLighting>>& Lights) noexcept;
+		void PreRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
+		void Render(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
+		void PostRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
 
 	// Physics settings
 	public:
@@ -200,7 +200,7 @@ namespace cxc {
 	private:
 
 		// Lights
-		std::vector<std::shared_ptr<BaseLighting>> Lights;
+		std::vector<std::shared_ptr<LightSource>> Lights;
 
 		// Hashmap for culling
 		std::unordered_set<std::shared_ptr<Object3D>> hash;

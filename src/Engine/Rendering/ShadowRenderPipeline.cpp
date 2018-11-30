@@ -13,28 +13,28 @@
 
 namespace cxc
 {
-	ShadowedMeshRenderPipeline::ShadowedMeshRenderPipeline()
+	ShadowRenderLightingPassPipeline::ShadowRenderLightingPassPipeline()
 	{
 
 	}
 
-	ShadowedMeshRenderPipeline::ShadowedMeshRenderPipeline(const std::string& Name)
+	ShadowRenderLightingPassPipeline::ShadowRenderLightingPassPipeline(const std::string& Name)
 		: RenderPipeline(Name)
 	{
 
 	}
 
-	ShadowedMeshRenderPipeline::~ShadowedMeshRenderPipeline()
+	ShadowRenderLightingPassPipeline::~ShadowRenderLightingPassPipeline()
 	{
 
 	}
 
-	void ShadowedMeshRenderPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRenderLightingPassPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 
 	}
 
-	void ShadowedMeshRenderPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRenderLightingPassPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		GLint TexSamplerHandle, depthBiasMVP_loc;
 		GLint ShadowMapSampler_loc, Eyepos_loc, M_MatrixID;
@@ -45,9 +45,13 @@ namespace cxc
 		if (Lights.empty())
 			return;
 
+		auto pLight = Lights[0];
+		if (!pLight)
+			return;
+
 		auto pWorld = World::GetInstance();
 		auto pRender = pOwnerRender.lock();
-		auto pShadowRender = dynamic_cast<ShadowMapRender*>(pRender.get());
+		auto pShadowRender = dynamic_cast<ShadowRender*>(pRender.get());
 		if (!pShadowRender)
 			return;
 
@@ -66,7 +70,8 @@ namespace cxc
 		Ka_loc = glGetUniformLocation(ProgramID, "Ka");
 		Ks_loc = glGetUniformLocation(ProgramID, "Ks");
 		Kd_loc = glGetUniformLocation(ProgramID, "Kd");
-		ShiniessLoc = glGetUniformLocation(ProgramID, "uniform float Shiniess");
+		ShiniessLoc = glGetUniformLocation(ProgramID, "Shiniess");
+		LightPowerLoc = glGetUniformLocation(ProgramID, "LightPower");
 
 		shadowmapCube_loc = glGetUniformLocation(ProgramID, "shadowmapCube");
 		depthBiasMVP_loc = glGetUniformLocation(ProgramID, "DepthBiasMVP");
@@ -128,26 +133,26 @@ namespace cxc
 		pMesh->DrawMesh();
 	}
 
-	void ShadowedMeshRenderPipeline::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRenderLightingPassPipeline::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 
 	}
 
-	ShadowMapCookingPipeline::ShadowMapCookingPipeline()
+	ShadowRenderBasePassPipeline::ShadowRenderBasePassPipeline()
 		: RenderPipeline()
 	{
 		PipelineName = "ShadowDepthTexturePipeline";
 	}
 
-	ShadowMapCookingPipeline::~ShadowMapCookingPipeline()
+	ShadowRenderBasePassPipeline::~ShadowRenderBasePassPipeline()
 	{
 
 	}
 
-	void ShadowMapCookingPipeline::RenderShadowsToTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRenderBasePassPipeline::RenderShadowsToTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		auto pRender = pOwnerRender.lock();
-		ShadowMapRender* pShadowRender = dynamic_cast<ShadowMapRender*>(pRender.get());
+		ShadowRender* pShadowRender = dynamic_cast<ShadowRender*>(pRender.get());
 		if (!pShadowRender)
 			return;
 
@@ -179,10 +184,10 @@ namespace cxc
 		pMesh->DrawMesh();
 	}
 
-	void ShadowMapCookingPipeline::CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRenderBasePassPipeline::CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		auto pRender = pOwnerRender.lock();
-		ShadowMapRender* pShadowRender = dynamic_cast<ShadowMapRender*>(pRender.get());
+		ShadowRender* pShadowRender = dynamic_cast<ShadowRender*>(pRender.get());
 		if (!pShadowRender || Lights.empty())
 			return;
 
@@ -218,18 +223,18 @@ namespace cxc
 		}
 	}
 
-	void ShadowMapCookingPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRenderBasePassPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 
 	}
 
-	void ShadowMapCookingPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRenderBasePassPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Cook shadow depth texture
 		CookShadowMapDepthTexture(pMesh, Lights);
 	}
 
-	void ShadowMapCookingPipeline::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<BaseLighting>>& Lights)
+	void ShadowRenderBasePassPipeline::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 
 	}

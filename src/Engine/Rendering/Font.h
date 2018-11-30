@@ -22,12 +22,6 @@ namespace cxc {
 
 		Font(const std::string &TexPath);
 
-		Font(const Font &) = delete;
-		Font(const Font &&) = delete;
-
-		Font& operator=(const Font &) = delete;
-		Font& operator=(const Font &&) = delete;
-
 	public:
 
 		void InitText2D(const std::string &Tex_Path);

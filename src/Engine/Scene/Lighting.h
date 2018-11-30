@@ -21,16 +21,16 @@ namespace cxc {
 		InvalidType
 	};
 
-	class BaseLighting
+	class LightSource
 	{
 
 		friend class FBXSDKUtil;
 
 	public:
 
-		BaseLighting();
-		BaseLighting(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, float Intensity, eLightType type);
-		virtual ~BaseLighting();
+		LightSource();
+		LightSource(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, float Intensity, eLightType type);
+		virtual ~LightSource();
 
 	public:
 
