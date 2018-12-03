@@ -13,37 +13,6 @@
 
 namespace cxc {
 
-	class Font final
-	{
-	public:
-
-		explicit Font();
-		~Font();
-
-		Font(const std::string &TexPath);
-
-	public:
-
-		void InitText2D(const std::string &Tex_Path);
-		void PrintText2D(const std::string &Text,
-			GLint xpos, GLint ypos,
-			GLuint size) const;
-		void CleanText2D() const;
-
-		void LoadFontTexFromFile(const std::string &TexPath);
-		void AccquireFontResources();
-		void ReleaseFontResources();
-
-		GLuint GetFontTexID() const noexcept;
-
-		GLint GetFontProgramID() const noexcept;
-
-	private:
-
-		GLint FontProgram;
-		GLuint FontTexID;
-
-	};
 
 }
 #endif // CXC_FONT_H

@@ -1,4 +1,5 @@
 #include "MeshRender.h"
+#include "ShadowRenderPipeline.h"
 
 #ifndef CXC_SHADOWRENDER_H
 #define CXC_SHADOWRENDER_H
@@ -26,6 +27,10 @@ namespace cxc
 
 	public:
 
+		virtual bool InitializeRender() override;
+
+	public:
+
 		const CubeMapCameraPose* GetCubeMapPose() const { return CubeMapIterator; }
 		GLuint GetShadowMapFBO() const noexcept;
 		GLuint GetShadowMapSize() const noexcept;
@@ -46,8 +51,20 @@ namespace cxc
 		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 
+	public:
+
+		void SetBasePassPipeline(std::shared_ptr<ShadowRenderBasePassPipeline> BasePassPipeline);
+		void SetLightingPassPipeline(std::shared_ptr<ShadowRenderLightingPassPipeline> LightingPassPipeline);
+
 	private:
 
+		/* Basepass pipeline */
+		std::shared_ptr<ShadowRenderBasePassPipeline> pBasePassPipeline;
+
+		/* Lightingpass Pipelines */
+		std::shared_ptr<ShadowRenderLightingPassPipeline> pLightingPassPipeline;
+
+		// Whether the shadow textures have been created
 		bool bIsShadowTextureCreate;
 
 		// FBO

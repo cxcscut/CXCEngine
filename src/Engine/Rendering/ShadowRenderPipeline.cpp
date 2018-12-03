@@ -15,13 +15,7 @@ namespace cxc
 {
 	ShadowRenderLightingPassPipeline::ShadowRenderLightingPassPipeline()
 	{
-
-	}
-
-	ShadowRenderLightingPassPipeline::ShadowRenderLightingPassPipeline(const std::string& Name)
-		: RenderPipeline(Name)
-	{
-
+		PipelineName = "LightingPassPipeline";
 	}
 
 	ShadowRenderLightingPassPipeline::~ShadowRenderLightingPassPipeline()
@@ -36,9 +30,8 @@ namespace cxc
 
 	void ShadowRenderLightingPassPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
-		GLint TexSamplerHandle, depthBiasMVP_loc;
+		GLint depthBiasMVP_loc;
 		GLint ShadowMapSampler_loc, Eyepos_loc, M_MatrixID;
-		GLint Ka_loc, Ks_loc, Kd_loc, ShiniessLoc;
 		GLint shadowmapCube_loc;
 		GLint LightPowerLoc;
 
@@ -50,27 +43,19 @@ namespace cxc
 			return;
 
 		auto pWorld = World::GetInstance();
-		auto pRender = pOwnerRender.lock();
-		auto pShadowRender = dynamic_cast<ShadowRender*>(pRender.get());
+		auto pShadowRender = std::dynamic_pointer_cast<ShadowRender>(pOwnerRender.lock());
 		if (!pShadowRender)
 			return;
 
 		auto pOwnerObject = pMesh->GetOwnerObject();
 
 		glUseProgram(ProgramID);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
 		BindLightUniforms(Lights);
 
-		TexSamplerHandle = glGetUniformLocation(ProgramID, "TexSampler");
 		Eyepos_loc = glGetUniformLocation(ProgramID, "EyePosition_worldspace");
 		M_MatrixID = glGetUniformLocation(ProgramID, "M");
-		Ka_loc = glGetUniformLocation(ProgramID, "Ka");
-		Ks_loc = glGetUniformLocation(ProgramID, "Ks");
-		Kd_loc = glGetUniformLocation(ProgramID, "Kd");
-		ShiniessLoc = glGetUniformLocation(ProgramID, "Shiniess");
 		LightPowerLoc = glGetUniformLocation(ProgramID, "LightPower");
 
 		shadowmapCube_loc = glGetUniformLocation(ProgramID, "shadowmapCube");
@@ -106,8 +91,6 @@ namespace cxc
 		glm::vec3 EyePosition = pWorld->pSceneMgr->pCamera->EyePosition;
 		glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
 
-		glUniform1f(LightPowerLoc, pLight->GetIntensity());
-
 		glBindVertexArray(pOwnerObject->GetVAO());
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pMesh->GetMeshEBO());
 
@@ -123,11 +106,11 @@ namespace cxc
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
 		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Normal
 
-																														   // Set model matrix
+		// Set model matrix
 		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->getTransMatrix()[0][0]);
 
 		// Bind the material of the mesh
-		pMesh->BindMaterial(Ka_loc, Kd_loc, Ks_loc, ShiniessLoc, TexSamplerHandle);
+		pMesh->BindMaterial(ProgramID);
 
 		// Draw the mesh
 		pMesh->DrawMesh();
@@ -139,9 +122,9 @@ namespace cxc
 	}
 
 	ShadowRenderBasePassPipeline::ShadowRenderBasePassPipeline()
-		: RenderPipeline()
+		: MeshRenderPipeline()
 	{
-		PipelineName = "ShadowDepthTexturePipeline";
+		PipelineName = "BasePassPipeline";
 	}
 
 	ShadowRenderBasePassPipeline::~ShadowRenderBasePassPipeline()
@@ -163,7 +146,6 @@ namespace cxc
 		glViewport(0, 0, pShadowRender->GetShadowMapSize(), pShadowRender->GetShadowMapSize());
 
 		GLint depthMVP_Loc = glGetUniformLocation(ProgramID, "depthMVP");
-
 		glm::mat4 depthMVP;
 
 		glEnable(GL_CULL_FACE);
@@ -182,6 +164,9 @@ namespace cxc
 
 		// Draw mesh depth to the texture
 		pMesh->DrawMesh();
+
+		// Switch to back face culling
+		glCullFace(GL_BACK);
 	}
 
 	void ShadowRenderBasePassPipeline::CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)

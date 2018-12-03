@@ -44,6 +44,21 @@ namespace cxc
 		{
 			glDeleteTextures(1, &DepthMapTexture);
 		}
+
+		if (ShadowCubeMap)
+		{
+			glDeleteTextures(1, &ShadowCubeMap);
+		}
+	}
+
+	bool ShadowRender::InitializeRender()
+	{
+		bool bSuccessful = true;
+
+		bSuccessful &= pBasePassPipeline->InitializePipeline();
+		bSuccessful &= pLightingPassPipeline->InitializePipeline();
+
+		return bSuccessful;
 	}
 
 	void ShadowRender::SetShadowMapResolution(GLuint Size)
@@ -210,47 +225,43 @@ namespace cxc
 	void ShadowRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Shadow depth map cooked in the pre-render process
-		auto ShadowMapPipeline = GetPipelinePtr("ShadowDepthTexturePipeline");
-
 		// Cook the shadow depth map
-		UsePipeline(ShadowMapPipeline);
-		ShadowMapPipeline->PreRender(pMesh, Lights);
-		ShadowMapPipeline->Render(pMesh, Lights);
-		ShadowMapPipeline->PostRender(pMesh, Lights);
+		if (pBasePassPipeline)
+		{
+			UsePipeline(pBasePassPipeline);
+			pBasePassPipeline->PreRender(pMesh, Lights);
+			pBasePassPipeline->Render(pMesh, Lights);
+			pBasePassPipeline->PostRender(pMesh, Lights);
+		}
 	}
 
 	void ShadowRender::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
-		// Determing which pipeline should be used to render the material
-		bool bHasTexture = false;
-		if (pMesh->GetMeshMaterial())
+		if (pLightingPassPipeline)
 		{
-			bHasTexture = pMesh->GetMeshMaterial()->pTextures.size() > 0;
+			UsePipeline(pLightingPassPipeline);
+			BindCameraUniforms(pLightingPassPipeline->GetPipelineProgramID());
+			pLightingPassPipeline->PreRender(pMesh, Lights);
+			pLightingPassPipeline->Render(pMesh, Lights);
+			pLightingPassPipeline->PostRender(pMesh, Lights);
 		}
+	}
 
-		// Switch pipeline to render the material that has textures or do not has textures
-		auto pRenderMgr = RenderManager::GetInstance();
-		if (bHasTexture)
+	void ShadowRender::SetBasePassPipeline(std::shared_ptr<ShadowRenderBasePassPipeline> BasePassPipeline)
+	{
+		if (BasePassPipeline)
 		{
-			// Texturing pipeline is used in rendering process
-			auto TexturingShadowedMeshPipeline = GetPipelinePtr("TexturingShadowedMeshPipeline");
-
-			UsePipeline(TexturingShadowedMeshPipeline);
-			BindCameraUniforms(TexturingShadowedMeshPipeline->GetPipelineProgramID());
-			TexturingShadowedMeshPipeline->PreRender(pMesh, Lights);
-			TexturingShadowedMeshPipeline->Render(pMesh, Lights);
-			TexturingShadowedMeshPipeline->PostRender(pMesh, Lights);
+			pBasePassPipeline = BasePassPipeline;
+			BasePassPipeline->SetOwnerRender(shared_from_this());
 		}
-		else
-		{
-			// Non-texturing pipline is used in the rendering process
-			auto  NonTexturingShadowedMeshPipeline = GetPipelinePtr("NonTexturingShadowedMeshPipeline");
+	}
 
-			UsePipeline(NonTexturingShadowedMeshPipeline);
-			BindCameraUniforms(NonTexturingShadowedMeshPipeline->GetPipelineProgramID());
-			NonTexturingShadowedMeshPipeline->PreRender(pMesh, Lights);
-			NonTexturingShadowedMeshPipeline->Render(pMesh, Lights);
-			NonTexturingShadowedMeshPipeline->PostRender(pMesh, Lights);
+	void ShadowRender::SetLightingPassPipeline(std::shared_ptr<ShadowRenderLightingPassPipeline> LightingPassPipeline)
+	{
+		if (LightingPassPipeline)
+		{
+			pLightingPassPipeline = LightingPassPipeline;
+			LightingPassPipeline->SetOwnerRender(shared_from_this());
 		}
 	}
 }

@@ -13,11 +13,6 @@ uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M;
 uniform vec3 EyePosition_worldspace;
-uniform vec3 Kd;
-uniform vec3 Ks;
-uniform vec3 Ka;
-
-uniform sampler2D TexSampler;
 
 mat4 MVP = P * V * M ;
 

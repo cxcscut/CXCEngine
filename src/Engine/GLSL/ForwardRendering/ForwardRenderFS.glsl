@@ -9,10 +9,15 @@ in vec3 Normal_worldspace;
 
 out vec3 color;
 uniform vec3 EyePosition_worldspace;
-uniform vec3 Ks;
-uniform vec3 Ka;
-uniform vec3 Kd;
-uniform float Shiniess;
+
+struct MaterialProperties
+{
+	vec3 Ka;
+	vec3 Kd;
+	vec3 Ks;
+	float Shiniess;
+	sampler2D TexSampler;
+};
 
 struct LightSource
 {
@@ -21,8 +26,22 @@ struct LightSource
 	float Intensity;
 };
 
+uniform MaterialProperties Material;
 uniform LightSource Lights[MAX_LIGHTS_NUM];
 uniform int LightNum;
+
+subroutine vec3 GetDiffuseFactor();
+subroutine (GetDiffuseFactor) vec3 TextureDiffuse()
+{
+	return texture(Material.TexSampler, UV).rgb;
+}
+
+subroutine (GetDiffuseFactor) vec3 NonTextureDiffuse()
+{
+	return Material.Kd;
+}
+
+subroutine uniform GetDiffuseFactor DiffuseFactorSelection;
 
 vec3 Shading(struct LightSource Light, vec3 n)
 {
@@ -36,13 +55,13 @@ vec3 Shading(struct LightSource Light, vec3 n)
 	float cos_theta = clamp(dot(n,l),0,1);
 	float cos_alpha = clamp(dot(H,n),0,1);
 
-	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
+	vec3 MaterialAmbientColor = Material.Ka * vec3(0.2,0.2,0.2);
 
-	vec3 MaterialDiffuseColor = Kd * Light.Color * Light.Intensity * cos_theta / distance ;
-	vec3 MaterialSpecularColor = Ks * Light.Color * Light.Intensity * pow(cos_alpha, Shiniess) / distance ;
+	vec3 MaterialDiffuseColor = DiffuseFactorSelection() * Light.Color * Light.Intensity * cos_theta / distance ;
+	vec3 MaterialSpecularColor = Material.Ks * Light.Color * Light.Intensity * pow(cos_alpha, Material.Shiniess) / distance ;
 
 	color = MaterialAmbientColor * MaterialDiffuseColor +
-			MaterialSpecularColor  +
+			MaterialSpecularColor +
 			MaterialDiffuseColor;
 
 	return color;
@@ -51,8 +70,8 @@ vec3 Shading(struct LightSource Light, vec3 n)
 void main()
 {
 	vec3 n = normalize( Normal_worldspace );
-
 	vec3 OutColor;
+
 	for(int LightIndex = 0; LightIndex < LightNum; ++LightIndex)
 	{
 		OutColor += Shading(Lights[LightIndex], n);

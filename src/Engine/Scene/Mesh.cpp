@@ -26,8 +26,16 @@ namespace cxc {
 			return pOwnerObject.lock();
 	}
 
-	void Mesh::BindMaterial(GLuint KaLocation, GLuint KdLocation, GLuint KsLocation, GLuint ShiniessLoc, GLuint TexSampler)
+	void Mesh::BindMaterial(GLuint ProgramID)
 	{
+		GLuint TexSamplerLocation = glGetUniformLocation(ProgramID, "Material.TexSampler");
+		GLuint KaLocation = glGetUniformLocation(ProgramID, "Material.Ka");
+		GLuint KdLocation = glGetUniformLocation(ProgramID, "Material.Ks");
+		GLuint KsLocation = glGetUniformLocation(ProgramID, "Material.Kd");
+		GLuint ShiniessLoc = glGetUniformLocation(ProgramID, "Material.Shiniess");
+
+		bool bHasTexture = true;
+
 		if (pMaterial)
 		{
 			glUniform3f(KaLocation, pMaterial->AmbientFactor.x, pMaterial->AmbientFactor.y, pMaterial->AmbientFactor.z);
@@ -37,11 +45,30 @@ namespace cxc {
 
 			if (pMaterial->pTextures.size() > 0)
 			{
+				// Choose the texture diffuse subroutine
+				GLuint TextureDiffuseSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "TextureDiffuse");
+				glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &TextureDiffuseSubroutineIndex);
+				
 				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::UserTextureUnit);
 				glBindTexture(GL_TEXTURE_2D, pMaterial->pTextures[0]->GetTextureID());
 
-				glUniform1i(TexSampler, (GLuint)TextureUnit::UserTextureUnit);
+				glUniform1i(TexSamplerLocation, (GLuint)TextureUnit::UserTextureUnit);
 			}
+			else
+			{
+				bHasTexture = false;
+			}
+		}
+		else
+		{
+			bHasTexture = false;
+		}
+
+		if (!bHasTexture)
+		{
+			// Choose the non-texture diffuse subroutine
+			GLuint NonTextureDiffuseSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "NonTextureDiffuse");
+			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &NonTextureDiffuseSubroutineIndex);
 		}
 	}
 

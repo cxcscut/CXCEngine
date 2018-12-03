@@ -1,23 +1,22 @@
 #include "../../../Engine/CXCEngine.h"
+#include "../../../Engine/Rendering/ForwardRender.h"
 #include "../../../Engine/Rendering/ShadowRender.h"
 #include "../../../Engine/Rendering/ShadowRenderPipeline.h"
 
 using namespace cxc;
 
-static const std::string PhongVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\PhongShaderVS.glsl";
-static const std::string PhongFSWithNoTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\NontexturingPhongFS.glsl";
-static const std::string PhongFSWithTextureFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\TexturingPhongFS.glsl";
-static const std::string ShadowMapCookingVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureVS.glsl.";
-static const std::string ShadowMapCookingFSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\depthTextureFS.glsl";
+static const std::string ForwardRenderVSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ForwardRendering\\ForwardRenderVS.glsl";
+static const std::string ForwardRenderFSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ForwardRendering\\ForwardRenderFS.glsl";
 
-static const std::string ShadowVSFilePath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowVS.glsl";
-static const std::string TexturingShadowOmniLightFSPathFile = "G:\\cxcengine\\src\\Engine\\GLSL\\TexturingShadowOmniLightFS.glsl";
-static const std::string NonTexturingShadowOmniLightFSPathFile = "G:\\cxcengine\\src\\Engine\\GLSL\\NonTexturingShadowOmniLightFS.glsl";
+static const std::string ShadowRenderDepthVSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowRendering\\depthTextureVS.glsl";
+static const std::string ShadowRenderDepthFSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowRendering\\depthTextureFS.glsl";
+static const std::string ShadowRenderVSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowRendering\\ShadowVS.glsl";
+static const std::string ShadowRenderFSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowRendering\\ShadowFS.glsl";
 
 static const std::string SceneFBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\EN_Building_H_03.FBX";
 
-std::shared_ptr<MeshRender> UseStandardRender();
-std::shared_ptr<MeshRender> UseShadowRender();
+std::shared_ptr<MeshRender> CreateStandardRender();
+std::shared_ptr<MeshRender> CreateShadowRender();
 
 int main()
 {
@@ -38,7 +37,6 @@ int main()
 
 	GEngine::SetCamera(CameraPos , CameraOrigin, CameraUpVector, ProjectionMatrix);
 	auto pSceneManager = SceneManager::GetInstance();
-	auto PhongRender = UseStandardRender();
 
 	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);
 	if (bResult)
@@ -50,7 +48,7 @@ int main()
 			auto MeshCount = pObject.second->GetMeshCount();
 			for (size_t i = 0; i < MeshCount; ++i)
 			{
-				GEngine::BindMeshRender(PhongRender, pObject.second, i);
+				GEngine::BindMeshRender(CreateShadowRender() , pObject.second, i);
 			}			
 		}
 	}
@@ -61,61 +59,50 @@ int main()
 	return 0;
 }
 
-std::shared_ptr<MeshRender> UseStandardRender()
+std::shared_ptr<MeshRender> CreateStandardRender()
 {
 	auto pWorld = World::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
 	auto pRenderMgr = RenderManager::GetInstance();
 
-	// Phong render with no shadows
-	auto PhongVS = pRenderMgr->FactoryShader("PhongVS", eShaderType::VERTEX_SHADER, PhongVSFilePath);
-	auto PhongFSWithNoTexture = pRenderMgr->FactoryShader("PhongFSWithNoTexture", eShaderType::FRAGMENT_SHADER, PhongFSWithNoTextureFilePath);
-	auto PhongFSWithTexture = pRenderMgr->FactoryShader("PhongFSWithTexture", eShaderType::FRAGMENT_SHADER, PhongFSWithTextureFilePath);
+	// Foward Phong render with no shadows
+	auto ForwardPhongVS = pRenderMgr->FactoryShader("ForwardVS", eShaderType::VERTEX_SHADER, ForwardRenderVSPath);
+	auto ForwardPhongFS = pRenderMgr->FactoryShader("ForwardFS", eShaderType::FRAGMENT_SHADER, ForwardRenderFSPath);
 
-	auto TexturingPipeline = NewObject<RenderPipeline>("TexturingPipeline");
-	auto NontexturingPipeline = NewObject<RenderPipeline>("NontexturingPipeline");
+	auto ForwardPhongPipeline = NewObject<ForwardRenderPipeline>("ForwardPhongPipeline");
+	ForwardPhongPipeline->AttachShader(ForwardPhongVS);
+	ForwardPhongPipeline->AttachShader(ForwardPhongFS);
 
-	TexturingPipeline->AttachShader(PhongVS);
-	TexturingPipeline->AttachShader(PhongFSWithTexture);
-
-	NontexturingPipeline->AttachShader(PhongVS);
-	NontexturingPipeline->AttachShader(PhongFSWithNoTexture);
-
-	auto PhongRender = NewObject<MeshRender>("PhongRender");
-	PhongRender->AddRenderingPipeline(TexturingPipeline);
-	PhongRender->AddRenderingPipeline(NontexturingPipeline);
+	auto PhongRender = NewObject<ForwardRender>("ForwardPhongRender");
+	PhongRender->SetForwardRenderPipeline(ForwardPhongPipeline);
 	PhongRender->InitializeRender();
 	pRenderMgr->AddRender(PhongRender);
 
 	return PhongRender;
 }
 
-std::shared_ptr<MeshRender> UseShadowRender()
+std::shared_ptr<MeshRender> CreateShadowRender()
 {
 	auto pWorld = World::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
 	auto pRenderMgr = RenderManager::GetInstance();
 
 	auto ShadowMapRender = NewObject<ShadowRender>("ShadowRender");
-	auto ShadowMapPipeline = NewObject<ShadowRenderBasePassPipeline>();
-	auto TexturingShadowedMeshPipeline = NewObject<ShadowRenderLightingPassPipeline>("TexturingShadowedMeshPipeline");
-	auto NonTexturingShadowedMeshPipeline = NewObject<ShadowRenderLightingPassPipeline>("NonTexturingShadowedMeshPipeline");
-	auto ShadowMapCookingVS = pRenderMgr->FactoryShader("ShadowMapCookingVS", eShaderType::VERTEX_SHADER, ShadowMapCookingVSFilePath);
-	auto ShadowMapCookingFS = pRenderMgr->FactoryShader("ShadowMapCookingFS", eShaderType::FRAGMENT_SHADER, ShadowMapCookingFSFilePath);
-	auto ShadowVS = pRenderMgr->FactoryShader("ShadowVS", eShaderType::VERTEX_SHADER, ShadowVSFilePath);
-	auto TexturingShadowOmniLightFS = pRenderMgr->FactoryShader("TexturingShadowOmniLightFS", eShaderType::FRAGMENT_SHADER, TexturingShadowOmniLightFSPathFile);
-	auto NonTexturingShadowOmniLightFS = pRenderMgr->FactoryShader("NonTexturingShadowOmniLightFS", eShaderType::FRAGMENT_SHADER, NonTexturingShadowOmniLightFSPathFile);
+	auto ShadowBasePassPipeline = NewObject<ShadowRenderBasePassPipeline>();
+	auto ShadowLightingPassPipeline = NewObject<ShadowRenderLightingPassPipeline>();
 
-	ShadowMapPipeline->AttachShader(ShadowMapCookingVS);
-	ShadowMapPipeline->AttachShader(ShadowMapCookingFS);
-	TexturingShadowedMeshPipeline->AttachShader(ShadowVS);
-	TexturingShadowedMeshPipeline->AttachShader(TexturingShadowOmniLightFS);
-	NonTexturingShadowedMeshPipeline->AttachShader(ShadowVS);
-	NonTexturingShadowedMeshPipeline->AttachShader(NonTexturingShadowOmniLightFS);
+	auto ShadowMapCookingVS = pRenderMgr->FactoryShader("ShadowMapCookingVS", eShaderType::VERTEX_SHADER, ShadowRenderDepthVSPath);
+	auto ShadowMapCookingFS = pRenderMgr->FactoryShader("ShadowMapCookingFS", eShaderType::FRAGMENT_SHADER, ShadowRenderDepthFSPath);
+	auto ShadowVS = pRenderMgr->FactoryShader("ShadowVS", eShaderType::VERTEX_SHADER, ShadowRenderVSPath);
+	auto ShadowFS = pRenderMgr->FactoryShader("ShadowFS", eShaderType::FRAGMENT_SHADER, ShadowRenderFSPath);
 
-	ShadowMapRender->AddRenderingPipeline(ShadowMapPipeline);
-	ShadowMapRender->AddRenderingPipeline(TexturingShadowedMeshPipeline);
-	ShadowMapRender->AddRenderingPipeline(NonTexturingShadowedMeshPipeline);
+	ShadowBasePassPipeline->AttachShader(ShadowMapCookingVS);
+	ShadowBasePassPipeline->AttachShader(ShadowMapCookingFS);
+	ShadowLightingPassPipeline->AttachShader(ShadowVS);
+	ShadowLightingPassPipeline->AttachShader(ShadowFS);
+
+	ShadowMapRender->SetBasePassPipeline(ShadowBasePassPipeline);
+	ShadowMapRender->SetLightingPassPipeline(ShadowLightingPassPipeline);
 
 	ShadowMapRender->InitializeRender();
 	ShadowMapRender->SetShadowMapResolution(512);

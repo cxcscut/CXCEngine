@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -115,9 +115,9 @@
     <ClCompile Include="..\..\Engine\Rendering\DeferredRender.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\DeferredRenderPipeline.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\Font.cpp" />
+    <ClCompile Include="..\..\Engine\Rendering\ForwardRender.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\MeshRender.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\RenderManager.cpp" />
-    <ClCompile Include="..\..\Engine\Rendering\RenderPipeline.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\Shader.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\ShadowRender.cpp" />
     <ClCompile Include="..\..\Engine\Rendering\ShadowRenderPipeline.cpp" />
@@ -409,9 +409,9 @@
     <ClInclude Include="..\..\Engine\Rendering\DeferredRender.h" />
     <ClInclude Include="..\..\Engine\Rendering\DeferredRenderPipeline.h" />
     <ClInclude Include="..\..\Engine\Rendering\Font.h" />
+    <ClInclude Include="..\..\Engine\Rendering\ForwardRender.h" />
     <ClInclude Include="..\..\Engine\Rendering\MeshRender.h" />
     <ClInclude Include="..\..\Engine\Rendering\RenderManager.h" />
-    <ClInclude Include="..\..\Engine\Rendering\RenderPipeline.h" />
     <ClInclude Include="..\..\Engine\Rendering\Shader.h" />
     <ClInclude Include="..\..\Engine\Rendering\ShadowRender.h" />
     <ClInclude Include="..\..\Engine\Rendering\ShadowRenderPipeline.h" />

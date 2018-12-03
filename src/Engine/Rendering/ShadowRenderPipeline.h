@@ -1,4 +1,4 @@
-#include "RenderPipeline.h"
+#include "MeshRender.h"
 
 #ifndef CXC_SHADOWRENDERPIPELINE_H
 #define CXC_SHADOWRENDERPIPELINE_H
@@ -9,12 +9,11 @@ namespace cxc
 	class LightSource;
 	class ShadowRender;
 
-	class ShadowRenderLightingPassPipeline : public RenderPipeline
+	class ShadowRenderLightingPassPipeline : public MeshRenderPipeline
 	{
 	public:
 
 		ShadowRenderLightingPassPipeline();
-		ShadowRenderLightingPassPipeline(const std::string& Name);
 
 		virtual ~ShadowRenderLightingPassPipeline();
 
@@ -25,7 +24,7 @@ namespace cxc
 		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 	};
 
-	class ShadowRenderBasePassPipeline : public RenderPipeline
+	class ShadowRenderBasePassPipeline : public MeshRenderPipeline
 	{
 	public:
 

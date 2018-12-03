@@ -9,18 +9,43 @@ in vec3 LightDirection_worldspace;
 in vec3 Normal_worldspace;
 in vec4 ShadowCoord;
 
-uniform sampler2D TexSampler;
-uniform samplerCube shadowmapCube[MAX_LIGHT_NUM];
+struct MaterialProperties
+{
+	vec3 Ka;
+	vec3 Kd;
+	vec3 Ks;
+	float Shiniess;
+	sampler2D TexSampler;
+};
+
+struct LightSource
+{
+	vec3 Position;
+	vec3 Color;
+	float Intensity;
+};
 
 out vec3 color;
-uniform float LightPower;
 uniform vec3 LightPosition_worldspace;
 uniform vec3 EyePosition_worldspace;
-uniform vec3 Kd;
-uniform vec3 Ks;
-uniform vec3 Ka;
-uniform float Shiniess;
 uniform mat4 DepthBiasMVP;
+uniform samplerCube shadowmapCube;
+uniform MaterialProperties Material;
+uniform LightSource Lights[MAX_LIGHT_NUM];
+uniform int LightNum;
+
+subroutine vec3 GetDiffuseFactor();
+subroutine (GetDiffuseFactor) vec3 TextureDiffuse()
+{
+	return texture(Material.TexSampler, UV).rgb;
+}
+
+subroutine (GetDiffuseFactor) vec3 NonTextureDiffuse()
+{
+	return Material.Kd;
+}
+
+subroutine uniform GetDiffuseFactor DiffuseFactorSelection;
 
 // Poisson sampling
 vec2 poissonDisk[16] = vec2[]( 
@@ -60,16 +85,6 @@ float VectorToDepthValue(vec3 Vec)
     return (NormZComp + 1.0) * 0.5;
 }
 
-struct LightSource
-{
-	vec3 Position;
-	vec3 Color;
-	float Intensity;
-}
-
-uniform LightSource[MAX_LIGHT_NUM];
-uniform int LightNum;
-
 vec3 Shading(struct LightSource Light, vec3 n)
 {
 	float distance = length(Light.Position - Position_worldspace);
@@ -100,11 +115,11 @@ vec3 Shading(struct LightSource Light, vec3 n)
 
 	visibility = clamp(visibility, 0.0f, 1.0f);
 
-	vec3 MaterialDiffuseColor = visibility * texture(TexSampler, UV).rgb * Light.Color * Light.Intensity * cos_theta / distance;
-	vec3 MaterialAmbientColor = Ka * vec3(0.2,0.2,0.2);
-	vec3 MaterialSpecularColor = visibility * Ks * Light.Color * Light.Intensity  * pow(cos_alpha, Shiniess)  / distance;
+	vec3 MaterialDiffuseColor = visibility * DiffuseFactorSelection() * Light.Color * Light.Intensity * cos_theta / distance;
+	vec3 MaterialAmbientColor = Material.Ka * vec3(0.2,0.2,0.2);
+	vec3 MaterialSpecularColor = visibility * Material.Ks * Light.Color * Light.Intensity  * pow(cos_alpha, Material.Shiniess)  / distance;
 
-	RetColor = MaterialAmbientColor * MaterialDiffuseColor + 
+	vec3 RetColor = MaterialAmbientColor * MaterialDiffuseColor + 
 			MaterialDiffuseColor +
 			MaterialSpecularColor;
 
@@ -114,12 +129,6 @@ vec3 Shading(struct LightSource Light, vec3 n)
 void main()
 {
 	vec3 n = normalize( Normal_worldspace );
-
-	vec3 OutColor;
-	for(int LightIndex; LightIndex < LightNum; ++LightIndex)
-	{
-		OutColor += Shading(Lights[LightIndex], n);
-	}
-
-	color = OutColor;
+	
+	color = Shading(Lights[0], n);;
 }

@@ -1,5 +1,4 @@
-#include "DeferredRenderPipeline.h"
-#include "DeferredRender.h"
+#include "ForwardRender.h"
 
 #if WIN32
 
@@ -15,35 +14,73 @@
 
 namespace cxc
 {
-	DeferredRenderGeometryPassPipeline::DeferredRenderGeometryPassPipeline():
-		MeshRenderPipeline("GeometryPassPipeline")
+	ForwardRender::ForwardRender()
 	{
 
 	}
 
-	DeferredRenderGeometryPassPipeline::~DeferredRenderGeometryPassPipeline()
+	ForwardRender::ForwardRender(const std::string& Name):
+		MeshRender(Name)
 	{
 
 	}
 
-
-	void DeferredRenderGeometryPassPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	ForwardRender::~ForwardRender()
 	{
-		GLint Eyepos_loc, M_MatrixID;
+
+	}
+
+	bool ForwardRender::InitializeRender()
+	{
+		bool bSuccessful = true;
+
+		// Initialize all the pipelines
+		bSuccessful &= pFowardRenderPipeline->InitializePipeline();
+
+		return bSuccessful;
+	}
+
+	void ForwardRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	{
+
+		// Use pipeline before submit the uniforms to program
+		UsePipeline(pFowardRenderPipeline);
+		BindCameraUniforms(pFowardRenderPipeline->GetPipelineProgramID());
+		pFowardRenderPipeline->Render(pMesh, Lights);
+	}
+
+	ForwardRenderPipeline::ForwardRenderPipeline():
+		MeshRenderPipeline()
+	{
+
+	}
+
+	ForwardRenderPipeline::ForwardRenderPipeline(const std::string& Name)
+		: MeshRenderPipeline(Name)
+	{
+
+	}
+
+	ForwardRenderPipeline::~ForwardRenderPipeline()
+	{
+
+	}
+
+	void ForwardRenderPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	{
+		GLuint Eyepos_loc, M_MatrixID;
 
 		auto pWorld = World::GetInstance();
-		auto pDeferredRender = std::dynamic_pointer_cast<DeferredRender>(pOwnerRender.lock());
+		auto pRender = pOwnerRender.lock();
 		auto pOwnerObject = pMesh->GetOwnerObject();
-		assert(pDeferredRender != nullptr);
-		if (!pDeferredRender)
+
+		if (Lights.empty())
 			return;
 
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, pDeferredRender->GetGBufferID());
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
 		BindLightUniforms(Lights);
-		
+
 		M_MatrixID = glGetUniformLocation(ProgramID, "M");
 		Eyepos_loc = glGetUniformLocation(ProgramID, "EyePosition_worldspace");
 
@@ -75,20 +112,12 @@ namespace cxc
 		pMesh->DrawMesh();
 	}
 
-	DeferredRenderLightingPassPipeline::DeferredRenderLightingPassPipeline():
-		MeshRenderPipeline("LightingPassPipeline")
-	{ 
-
-	}
-
-	DeferredRenderLightingPassPipeline::~DeferredRenderLightingPassPipeline()
+	void ForwardRender::SetForwardRenderPipeline(std::shared_ptr<ForwardRenderPipeline> Pipeline)
 	{
-
+		if (Pipeline)
+		{
+			pFowardRenderPipeline = Pipeline;
+			Pipeline->SetOwnerRender(shared_from_this());
+		}
 	}
-
-	void DeferredRenderLightingPassPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
-	{
-
-	}
-
 }

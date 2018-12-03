@@ -75,9 +75,6 @@
     <ClCompile Include="..\..\Engine\Rendering\RenderManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Engine\Rendering\RenderPipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Engine\Scene\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -106,6 +103,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Engine\Rendering\DeferredRenderPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\Rendering\ForwardRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -950,9 +950,6 @@
     <ClInclude Include="..\..\Engine\Rendering\RenderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Engine\Rendering\RenderPipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Engine\Scene\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -981,6 +978,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Engine\Rendering\DeferredRenderPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Engine\Rendering\ForwardRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

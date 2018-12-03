@@ -1,5 +1,5 @@
 #include "Shader.h"
-#include "RenderPipeline.h"
+#include "MeshRender.h"
 
 namespace cxc
 {
@@ -22,7 +22,7 @@ namespace cxc
 
 	}
 
-	void Shader::AttachToRenderPipeline(std::shared_ptr<RenderPipeline> pRenderPipeline)
+	void Shader::AttachToRenderPipeline(std::shared_ptr<MeshRenderPipeline> pRenderPipeline)
 	{
 		pRenderPipeline->AttachShader(shared_from_this());
 	}

@@ -22,15 +22,33 @@ namespace cxc
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
+		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 
 	private:
 
 		void CreateGBufferTextures();
 
+	public:
+
+		GLuint GetGBufferID() const { return GeometryFrameBuffer; }
+		GLuint GetVertexPositionTextureID() const { return VertexPositionTexture; }
+		GLuint GetVertexDiffuseTextureID() const { return VertexDiffuseTexture; }
+		GLuint GetVertexNormalTextureID() const { return VertexNormalTexture; }
+
+		void SetGeometryPassPipeline(std::shared_ptr<DeferredRenderGeometryPassPipeline> GeometryPassPipeline)
+		{ pGeometryPassPipeline = GeometryPassPipeline; }
+
+		void SetLightingPassPipeline(std::shared_ptr<DeferredRenderLightingPassPipeline> LightingPassPipeline)
+		{ pLightingPassPipeline = LightingPassPipeline;}
+
 	private:
+
+		/* Geometry passing pipeline */
+		std::shared_ptr<DeferredRenderGeometryPassPipeline> pGeometryPassPipeline;
+
+		/* Lighting pass pipeline */
+		std::shared_ptr<DeferredRenderLightingPassPipeline> pLightingPassPipeline;
 
 		/* G-Buffer storing vertex position, color ,normal */
 		GLuint GeometryFrameBuffer;
@@ -39,7 +57,7 @@ namespace cxc
 		GLuint VertexPositionTexture;
 
 		/* Texture storing the vertex color, which equals to diffuse color + specular color, the ambient color calulated in the lighting pass */
-		GLuint VertexColorTexture;
+		GLuint VertexDiffuseTexture;
 
 		/* Texture storing the vertex normal */
 		GLuint VertexNormalTexture;
