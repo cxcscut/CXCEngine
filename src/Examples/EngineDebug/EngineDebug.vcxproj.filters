@@ -116,9 +116,6 @@
     <ClInclude Include="..\..\engine\general\DefineTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\engine\general\EngineCompoents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\engine\libraries\fbx-sdk\include\fbxsdk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -992,18 +989,8 @@
     <None Include="..\..\Engine\Utilities\MultiTree.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="..\..\Engine\GLSL\PhongShaderVS.glsl" />
-    <None Include="..\..\Engine\GLSL\TexturingPhongFS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureVS.glsl" />
-    <None Include="..\..\Engine\GLSL\NontexturingPhongFS.glsl" />
-    <None Include="..\..\Engine\GLSL\ShadowVS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
     <None Include="..\..\Engine\Utilities\EngineTemplate.inl">
       <Filter>Header Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\..\Engine\GLSL\TexturingShadowOmniLightFS.glsl" />
-    <Text Include="..\..\Engine\GLSL\NonTexturingShadowOmniLightFS.glsl" />
   </ItemGroup>
 </Project>

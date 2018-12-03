@@ -37,6 +37,7 @@ int main()
 
 	GEngine::SetCamera(CameraPos , CameraOrigin, CameraUpVector, ProjectionMatrix);
 	auto pSceneManager = SceneManager::GetInstance();
+	auto ShadowRender = CreateShadowRender();
 
 	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);
 	if (bResult)
@@ -48,7 +49,7 @@ int main()
 			auto MeshCount = pObject.second->GetMeshCount();
 			for (size_t i = 0; i < MeshCount; ++i)
 			{
-				GEngine::BindMeshRender(CreateShadowRender() , pObject.second, i);
+				GEngine::BindMeshRender(ShadowRender, pObject.second, i);
 			}			
 		}
 	}

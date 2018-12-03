@@ -85,7 +85,7 @@ float VectorToDepthValue(vec3 Vec)
     return (NormZComp + 1.0) * 0.5;
 }
 
-vec3 Shading(struct LightSource Light, vec3 n)
+vec3 Shading(LightSource Light, vec3 n)
 {
 	float distance = length(Light.Position - Position_worldspace);
 
@@ -97,7 +97,7 @@ vec3 Shading(struct LightSource Light, vec3 n)
 	float cos_theta = clamp(dot(n,l),0,1);
 	float cos_alpha = clamp(dot(H,n),0,1);
 
-	float Bias = 0.0000001;
+	float Bias = 0;
 	float visibility = 1.0;
 
 	float testDepth = VectorToDepthValue(Light.Position - Position_worldspace);

@@ -30,8 +30,8 @@ namespace cxc {
 	{
 		GLuint TexSamplerLocation = glGetUniformLocation(ProgramID, "Material.TexSampler");
 		GLuint KaLocation = glGetUniformLocation(ProgramID, "Material.Ka");
-		GLuint KdLocation = glGetUniformLocation(ProgramID, "Material.Ks");
-		GLuint KsLocation = glGetUniformLocation(ProgramID, "Material.Kd");
+		GLuint KdLocation = glGetUniformLocation(ProgramID, "Material.Kd");
+		GLuint KsLocation = glGetUniformLocation(ProgramID, "Material.Ks");
 		GLuint ShiniessLoc = glGetUniformLocation(ProgramID, "Material.Shiniess");
 
 		bool bHasTexture = true;

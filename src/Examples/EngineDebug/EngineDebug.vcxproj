@@ -139,7 +139,6 @@
     <ClInclude Include="..\..\engine\controller\InputManager.h" />
     <ClInclude Include="..\..\Engine\CXCEngine.h" />
     <ClInclude Include="..\..\engine\general\DefineTypes.h" />
-    <ClInclude Include="..\..\engine\general\EngineCompoents.h" />
     <ClInclude Include="..\..\engine\libraries\fbx-sdk\include\fbxsdk.h" />
     <ClInclude Include="..\..\engine\libraries\fbx-sdk\include\fbxsdk\core\arch\fbxalloc.h" />
     <ClInclude Include="..\..\engine\libraries\fbx-sdk\include\fbxsdk\core\arch\fbxarch.h" />
@@ -428,20 +427,10 @@
     <ClInclude Include="..\..\Engine\World\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Engine\GLSL\NontexturingPhongFS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureFS.glsl" />
-    <None Include="..\..\Engine\GLSL\depthTextureVS.glsl" />
-    <None Include="..\..\Engine\GLSL\PhongShaderVS.glsl" />
-    <None Include="..\..\Engine\GLSL\ShadowVS.glsl" />
-    <None Include="..\..\Engine\GLSL\TexturingPhongFS.glsl" />
     <None Include="..\..\Engine\Utilities\EngineTemplate.inl" />
     <None Include="..\..\Engine\Utilities\MultiTree.inl" />
     <None Include="..\..\Engine\Utilities\Singleton.inl" />
     <None Include="main\test.FBX" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\..\Engine\GLSL\NonTexturingShadowOmniLightFS.glsl" />
-    <Text Include="..\..\Engine\GLSL\TexturingShadowOmniLightFS.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

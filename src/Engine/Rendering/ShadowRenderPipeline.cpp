@@ -49,7 +49,8 @@ namespace cxc
 
 		auto pOwnerObject = pMesh->GetOwnerObject();
 
-		glUseProgram(ProgramID);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
 		BindLightUniforms(Lights);
@@ -164,9 +165,6 @@ namespace cxc
 
 		// Draw mesh depth to the texture
 		pMesh->DrawMesh();
-
-		// Switch to back face culling
-		glCullFace(GL_BACK);
 	}
 
 	void ShadowRenderBasePassPipeline::CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
