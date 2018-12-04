@@ -14,6 +14,7 @@ namespace cxc
 	public:
 
 		DeferredRender();
+		DeferredRender(const std::string& Name);
 		virtual ~DeferredRender();
 
 	public:
@@ -36,19 +37,12 @@ namespace cxc
 		GLuint GetVertexDiffuseTextureID() const { return VertexDiffuseTexture; }
 		GLuint GetVertexNormalTextureID() const { return VertexNormalTexture; }
 
-		void SetGeometryPassPipeline(std::shared_ptr<DeferredRenderGeometryPassPipeline> GeometryPassPipeline)
-		{ pGeometryPassPipeline = GeometryPassPipeline; }
-
-		void SetLightingPassPipeline(std::shared_ptr<DeferredRenderLightingPassPipeline> LightingPassPipeline)
-		{ pLightingPassPipeline = LightingPassPipeline;}
+		void SetDeferredRenderPipeline(std::shared_ptr<DeferredRenderPipeline> Pipeline);
 
 	private:
 
 		/* Geometry passing pipeline */
-		std::shared_ptr<DeferredRenderGeometryPassPipeline> pGeometryPassPipeline;
-
-		/* Lighting pass pipeline */
-		std::shared_ptr<DeferredRenderLightingPassPipeline> pLightingPassPipeline;
+		std::shared_ptr<DeferredRenderPipeline> pDeferredRenderPipeline;
 
 		/* G-Buffer storing vertex position, color ,normal */
 		GLuint GeometryFrameBuffer;

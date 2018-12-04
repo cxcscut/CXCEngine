@@ -17,7 +17,7 @@ namespace cxc
 		FrameBufferObjectID(0), DepthMapTexture(0),
 		DepthMapSize(128), ShadowCubeMap(0),
 		DepthProjectionMatrix(1.0f), DepthViewMatrix(1.0f), DepthVP(1.0f),
-		bIsShadowTextureCreate(false)
+		bIsShadowTextureCreate(false), bHasDepthTexturesCleared(false)
 	{
 		CubeMapIterator[0] = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f) };
 		CubeMapIterator[1] = { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f) };
@@ -205,20 +205,25 @@ namespace cxc
 			return;
 		}
 
-		if (pLight->GetLightType() == eLightType::OmniDirectional)
+		if (!bHasDepthTexturesCleared)
 		{
-			// Bind the shadowmap framebuffer switched from the system framebuffer
-			glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferObjectID);
+			if (pLight->GetLightType() == eLightType::OmniDirectional)
+			{
+				// Bind the shadowmap framebuffer switched from the system framebuffer
+				glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferObjectID);
 
-			// Clear the six face of the cube map for the next rendering
-			for (uint16_t i = 0; i < 6; i++) {
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, CubeMapIterator[i].CubeMapFace, ShadowCubeMap, 0);
+				// Clear the six face of the cube map for the next rendering
+				for (uint16_t i = 0; i < 6; i++) {
+					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, CubeMapIterator[i].CubeMapFace, ShadowCubeMap, 0);
+					glClear(GL_DEPTH_BUFFER_BIT);
+				}
+			}
+			else
+			{
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}
-		}
-		else
-		{
-			glClear(GL_DEPTH_BUFFER_BIT);
+
+			bHasDepthTexturesCleared = true;
 		}
 	}
 
@@ -245,6 +250,9 @@ namespace cxc
 			pLightingPassPipeline->Render(pMesh, Lights);
 			pLightingPassPipeline->PostRender(pMesh, Lights);
 		}
+
+		// Reset the flag
+		bHasDepthTexturesCleared = false;
 	}
 
 	void ShadowRender::SetBasePassPipeline(std::shared_ptr<ShadowRenderBasePassPipeline> BasePassPipeline)

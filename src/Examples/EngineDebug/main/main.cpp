@@ -2,21 +2,30 @@
 #include "../../../Engine/Rendering/ForwardRender.h"
 #include "../../../Engine/Rendering/ShadowRender.h"
 #include "../../../Engine/Rendering/ShadowRenderPipeline.h"
+#include "../../../Engine/Rendering/DeferredRender.h"
+#include "../../../Engine/Rendering/DeferredRenderPipeline.h"
 
 using namespace cxc;
 
+// Forward render shaders
 static const std::string ForwardRenderVSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ForwardRendering\\ForwardRenderVS.glsl";
 static const std::string ForwardRenderFSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ForwardRendering\\ForwardRenderFS.glsl";
 
+// Shadow render shaders
 static const std::string ShadowRenderDepthVSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowRendering\\depthTextureVS.glsl";
 static const std::string ShadowRenderDepthFSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowRendering\\depthTextureFS.glsl";
 static const std::string ShadowRenderVSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowRendering\\ShadowVS.glsl";
 static const std::string ShadowRenderFSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\ShadowRendering\\ShadowFS.glsl";
 
+// Deferred render shaders
+static const std::string DeferredRenderVSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\DeferredRendering\\DeferredRenderVS.glsl";
+static const std::string DeferredRenderFSPath = "G:\\cxcengine\\src\\Engine\\GLSL\\DeferredRendering\\DeferredRenderFS.glsl";
+
 static const std::string SceneFBXFile = "G:\\cxcengine\\src\\Examples\\EngineDebug\\main\\EN_Building_H_03.FBX";
 
 std::shared_ptr<MeshRender> CreateStandardRender();
 std::shared_ptr<MeshRender> CreateShadowRender();
+std::shared_ptr<MeshRender> CreateDeferredRender();
 
 int main()
 {
@@ -36,8 +45,10 @@ int main()
 	GEngine::InitializeEngine();
 
 	GEngine::SetCamera(CameraPos , CameraOrigin, CameraUpVector, ProjectionMatrix);
+	auto pRenderMgr = RenderManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
-	auto ShadowRender = CreateShadowRender();
+	auto pRender = CreateDeferredRender();
+	pRenderMgr->AddRender(pRender);
 
 	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);
 	if (bResult)
@@ -49,7 +60,7 @@ int main()
 			auto MeshCount = pObject.second->GetMeshCount();
 			for (size_t i = 0; i < MeshCount; ++i)
 			{
-				GEngine::BindMeshRender(ShadowRender, pObject.second, i);
+				GEngine::BindMeshRender(pRender, pObject.second, i);
 			}			
 		}
 	}
@@ -62,8 +73,6 @@ int main()
 
 std::shared_ptr<MeshRender> CreateStandardRender()
 {
-	auto pWorld = World::GetInstance();
-	auto pSceneManager = SceneManager::GetInstance();
 	auto pRenderMgr = RenderManager::GetInstance();
 
 	// Foward Phong render with no shadows
@@ -77,15 +86,12 @@ std::shared_ptr<MeshRender> CreateStandardRender()
 	auto PhongRender = NewObject<ForwardRender>("ForwardPhongRender");
 	PhongRender->SetForwardRenderPipeline(ForwardPhongPipeline);
 	PhongRender->InitializeRender();
-	pRenderMgr->AddRender(PhongRender);
 
 	return PhongRender;
 }
 
 std::shared_ptr<MeshRender> CreateShadowRender()
 {
-	auto pWorld = World::GetInstance();
-	auto pSceneManager = SceneManager::GetInstance();
 	auto pRenderMgr = RenderManager::GetInstance();
 
 	auto ShadowMapRender = NewObject<ShadowRender>("ShadowRender");
@@ -107,8 +113,25 @@ std::shared_ptr<MeshRender> CreateShadowRender()
 
 	ShadowMapRender->InitializeRender();
 	ShadowMapRender->SetShadowMapResolution(512);
-	pRenderMgr->AddRender(ShadowMapRender);
 
 	return ShadowMapRender;
+}
+
+std::shared_ptr<MeshRender> CreateDeferredRender()
+{
+	auto pRenderMgr = RenderManager::GetInstance();
+
+	auto pDeferredRender = NewObject<DeferredRender>("DeferredRender");
+	auto pDeferredRenderPipeline = NewObject<DeferredRenderPipeline>();
+
+	auto DeferredRenderVS = pRenderMgr->FactoryShader("DeferredShaderVS", eShaderType::VERTEX_SHADER, DeferredRenderVSPath);
+	auto DeferredRenderFS = pRenderMgr->FactoryShader("DeferredShaderFS", eShaderType::FRAGMENT_SHADER, DeferredRenderFSPath);
+	pDeferredRenderPipeline->AttachShader(DeferredRenderVS);
+	pDeferredRenderPipeline->AttachShader(DeferredRenderFS);
+
+	pDeferredRender->SetDeferredRenderPipeline(pDeferredRenderPipeline);
+	pDeferredRender->InitializeRender();
+
+	return pDeferredRender;
 }
 

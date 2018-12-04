@@ -67,6 +67,9 @@ namespace cxc
 		// Whether the shadow textures have been created
 		bool bIsShadowTextureCreate;
 
+		// Whether the depth textures have been cleared
+		bool bHasDepthTexturesCleared;
+
 		// FBO
 		GLuint FrameBufferObjectID;
 

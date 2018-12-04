@@ -20,7 +20,13 @@ namespace cxc
 		GeometryFrameBuffer(0), VertexPositionTexture(0),
 		VertexDiffuseTexture(0), VertexNormalTexture(0)
 	{
-		RenderName = "DeferredRender";
+		RenderName = "DefaultDeferredRender";
+	}
+
+	DeferredRender::DeferredRender(const std::string& Name)
+		: MeshRender(Name)
+	{
+
 	}
 
 	DeferredRender::~DeferredRender()
@@ -50,15 +56,24 @@ namespace cxc
 	{
 		bool bSuccessful = true;
 
-		bSuccessful &= pGeometryPassPipeline->InitializePipeline();
-		bSuccessful &= pLightingPassPipeline->InitializePipeline();
+		bSuccessful &= pDeferredRenderPipeline->InitializePipeline();
 
 		return bSuccessful;
+	}
+
+	void DeferredRender::SetDeferredRenderPipeline(std::shared_ptr<DeferredRenderPipeline> Pipeline)
+	{
+		pDeferredRenderPipeline = Pipeline;
+		pDeferredRenderPipeline->SetOwnerRender(shared_from_this());
 	}
 
 	void DeferredRender::CreateGBufferTextures()
 	{
 		auto pWindowMgr = WindowManager::GetInstance();
+
+		// Create G-Buffer frambuffer object
+		glGenFramebuffers(1, &GeometryFrameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, GeometryFrameBuffer);
 
 		// Create vertex position texture
 		glGenTextures(1, &VertexPositionTexture);
@@ -88,8 +103,10 @@ namespace cxc
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, VertexNormalTexture, 0);
 
 		// Bind the attachments
-		GLuint Attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-		glDrawBuffers(3, Attachments);
+		GLuint Attachments[4] = {GL_NONE, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		glDrawBuffers(4, Attachments);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void DeferredRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
@@ -98,18 +115,18 @@ namespace cxc
 		CreateGBufferTextures();
 
 		// Use pipeline before commit the uniforms to program
-		UsePipeline(pGeometryPassPipeline);
-		BindCameraUniforms(pGeometryPassPipeline->GetPipelineProgramID());
-		pGeometryPassPipeline->Render(pMesh, Lights);
+		UsePipeline(pDeferredRenderPipeline);
+		BindCameraUniforms(pDeferredRenderPipeline->GetPipelineProgramID());
+		pDeferredRenderPipeline->PreRender(pMesh, Lights);
 	}
 
 	void DeferredRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Lighting pass to render the final mesh using G-Buffer
-		if (pLightingPassPipeline)
+		if (pDeferredRenderPipeline)
 		{
-			UsePipeline(pLightingPassPipeline);
-			pLightingPassPipeline->Render(pMesh, Lights);
+			UsePipeline(pDeferredRenderPipeline);
+			pDeferredRenderPipeline->Render(pMesh, Lights);
 		}
 	}
 }
