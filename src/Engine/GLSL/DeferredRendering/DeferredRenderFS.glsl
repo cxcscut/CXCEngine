@@ -1,5 +1,5 @@
 #version 430 core
-#define DEFERRED_MAX_LIGHTS_NUM 1024
+#define DEFERRED_MAX_LIGHTS_NUM 128
 
 struct MaterialProperties
 {
@@ -25,7 +25,7 @@ uniform vec3 EyePosition;
 
 subroutine void RenderPassType();
 subroutine vec3 DiffuseModel();
-subroutine uniform RenderPassType RenderPassSelection;
+subroutine uniform RenderPassType RenderPassSelectionFS;
 subroutine uniform DiffuseModel DiffuseModelSelection;
 
 uniform sampler2D VertexPositionTex;
@@ -41,46 +41,51 @@ layout (location = 1) out vec3 gPosition;
 layout (location = 2) out vec3 gDiffuseFactor;
 layout (location = 3) out vec3 gNormal;
 
-subroutine (DiffuseModel) vec3 TextureDiffuse()
+layout (index = 0) subroutine (DiffuseModel) vec3 TextureDiffuse()
 {
 	return texture(Material.TexSampler, TexCoord).rgb;
 }
 
-subroutine (DiffuseModel) vec3 NonTextureDiffuse()
+layout (index = 1) subroutine (DiffuseModel) vec3 NonTextureDiffuse()
 {
 	return Material.Kd;
-}
-
-subroutine (RenderPassType) void GeometryPass()
-{
-	gPosition = Position;
-	gNormal = Normal;
-	gDiffuseFactor = DiffuseModelSelection();
 }
 
 vec3 FragShading(vec3 vertex_position, vec3 vertex_normal, vec3 diffuse_factor)
 {
 	vec3 MaterialAmbientColor = Material.Ka * vec3(0.2, 0.2, 0.2);
-	vec3 MaterialAlbedoColor;
+	vec3 MaterialDiffuseColor, MaterialSpecularColor;
+	vec3 FinalColor;
 
 	for(int LightIndex = 0; LightIndex < LightNum; ++LightIndex)
 	{
 		float LightDistance = length(Lights[LightIndex].Position - vertex_position);
-		vec3 LightDirection = normalize(vertex_position - Lights[LightIndex].Position);
+		vec3 LightDirection = normalize(Lights[LightIndex].Position - vertex_position);
 		vec3 EyeDirection = normalize(EyePosition - vertex_position);
 		vec3 HalfVector = normalize(LightDirection + EyeDirection);
 
 		float CosTheta = clamp(dot(vertex_normal, LightDirection), 0, 1);
 		float CosAlpha = clamp(dot(HalfVector, vertex_normal), 0, 1);
 
-		vec3 MaterialDiffuseColor = diffuse_factor * Lights[LightIndex].Color * Lights[LightIndex].Intensity * CosTheta / LightDistance;
-		vec3 MaterialSpecularColor = Material.Ks * Lights[LightIndex].Color * Lights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) / LightDistance;
+		MaterialDiffuseColor = diffuse_factor * Lights[LightIndex].Color * Lights[LightIndex].Intensity * CosTheta / LightDistance;
+		MaterialSpecularColor = Material.Ks * Lights[LightIndex].Color * Lights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) / LightDistance;
+
+		FinalColor += MaterialAmbientColor * MaterialDiffuseColor + 
+					MaterialDiffuseColor + 
+					MaterialSpecularColor;
 	}
 
-	return MaterialAmbientColor + MaterialAlbedoColor;
+	return FinalColor;
 }
 
-subroutine (RenderPassType) void LightingPass()
+layout (index = 2) subroutine (RenderPassType) void GeometryPassFS()
+{
+	gPosition = Position;
+	gNormal = Normal;
+	gDiffuseFactor = DiffuseModelSelection();
+}
+
+layout (index = 3) subroutine (RenderPassType) void LightingPassFS()
 {
 	vec3 pos = vec3(texture(VertexPositionTex, TexCoord));
 	vec3 n = vec3(texture(VertexNormalTex, TexCoord));
@@ -91,5 +96,5 @@ subroutine (RenderPassType) void LightingPass()
 
 void main()
 {
-	RenderPassSelection();
+	RenderPassSelectionFS();
 }

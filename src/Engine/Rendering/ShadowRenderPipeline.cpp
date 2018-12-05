@@ -63,6 +63,11 @@ namespace cxc
 		depthBiasMVP_loc = glGetUniformLocation(ProgramID, "DepthBiasMVP");
 		ShadowMapSampler_loc = glGetUniformLocation(ProgramID, "shadowmap");
 
+		// Get subroutine uniforms info
+		GLsizei ActiveSubroutinesUniformCountFS;
+		glGetProgramStageiv(ProgramID, GL_FRAGMENT_SHADER, GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS, &ActiveSubroutinesUniformCountFS);
+		std::vector<GLuint> SubroutineIndicesFS(ActiveSubroutinesUniformCountFS, 0);
+
 		// Bind depth texture to the texture unit 1
 		// We use texture unit 0 for the objects texture sampling 
 		// while texture unit 1 for depth buffer sampling
@@ -92,26 +97,18 @@ namespace cxc
 		glm::vec3 EyePosition = pWorld->pSceneMgr->pCamera->EyePosition;
 		glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
 
-		glBindVertexArray(pOwnerObject->GetVAO());
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pMesh->GetMeshEBO());
-
-		glBindBuffer(GL_ARRAY_BUFFER, pOwnerObject->GetVertexCoordsVBO());
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
-
-		glBindBuffer(GL_ARRAY_BUFFER, pOwnerObject->GetTexCoordsVBO());
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::TEXTURE_LOCATION), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Texcoords
-
-		glBindBuffer(GL_ARRAY_BUFFER, pOwnerObject->GetNormalsVBO());
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Normal
-
 		// Set model matrix
 		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->getTransMatrix()[0][0]);
 
 		// Bind the material of the mesh
-		pMesh->BindMaterial(ProgramID);
+		MaterialDiffuseSubroutineInfo DiffuseModelInfo;
+		DiffuseModelInfo.SubroutineUniformName = "DiffuseFactorSelection";
+		DiffuseModelInfo.TexturedSubroutineName = "TextureDiffuse";
+		DiffuseModelInfo.NonTexturedSubroutineName = "NonTextureDiffuse";
+		pMesh->BindMaterial(ProgramID, DiffuseModelInfo, SubroutineIndicesFS);
+
+		// Submit the subroutines selections
+		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, SubroutineIndicesFS.size(), &SubroutineIndicesFS.front());
 
 		// Draw the mesh
 		pMesh->DrawMesh();

@@ -77,7 +77,7 @@ namespace cxc
 
 		// Create vertex position texture
 		glGenTextures(1, &VertexPositionTexture);
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, VertexPositionTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -86,7 +86,7 @@ namespace cxc
 
 		// Create vertex color texture
 		glGenTextures(1, &VertexDiffuseTexture);
-		glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, VertexDiffuseTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -95,7 +95,7 @@ namespace cxc
 
 		// Create vertex normal texture
 		glGenTextures(1, &VertexNormalTexture);
-		glActiveTexture(GL_TEXTURE3);
+		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, VertexNormalTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -111,22 +111,27 @@ namespace cxc
 
 	void DeferredRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
+		UsePipeline(pDeferredRenderPipeline);
+
 		// Create the G-Buffer and textures;
 		CreateGBufferTextures();
 
-		// Use pipeline before commit the uniforms to program
-		UsePipeline(pDeferredRenderPipeline);
 		BindCameraUniforms(pDeferredRenderPipeline->GetPipelineProgramID());
 		pDeferredRenderPipeline->PreRender(pMesh, Lights);
+
+		UsePipeline(nullptr);
 	}
 
 	void DeferredRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
+		UsePipeline(pDeferredRenderPipeline);
+
 		// Lighting pass to render the final mesh using G-Buffer
 		if (pDeferredRenderPipeline)
 		{
-			UsePipeline(pDeferredRenderPipeline);
 			pDeferredRenderPipeline->Render(pMesh, Lights);
 		}
+
+		UsePipeline(nullptr);
 	}
 }

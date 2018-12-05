@@ -15,20 +15,20 @@ uniform mat4 M;
 mat4 MVP = P * V * M ;
 
 subroutine void RenderPassType();
-subroutine uniform RenderPassType RenderPassSelection;
+subroutine uniform RenderPassType RenderPassSelectionVS;
 
-subroutine (RenderPassType) void GeometryPass()
+layout (index = 0) subroutine (RenderPassType) void GeometryPassVS()
 {
 	gl_Position = MVP * vec4(vertexPosition_modelspace, 1);
 
-	Position= (M * vec4(vertexPosition_modelspace,1)).xyz;
+	Position = (M * vec4(vertexPosition_modelspace,1)).xyz;
 
 	Normal = mat3(transpose(inverse(M))) * vertexNormal_modelspace;
 
 	TexCoord = vertexUV;
 }
 
-subroutine (RenderPassType) void LightingPass()
+layout (index = 1) subroutine (RenderPassType) void LightingPassVS()
 {
 	gl_Position = vec4(vertexPosition_modelspace, 1.0f);
 
@@ -37,5 +37,5 @@ subroutine (RenderPassType) void LightingPass()
 
 void main()
 {
-	RenderPassSelection();	
+	RenderPassSelectionVS();	
 }

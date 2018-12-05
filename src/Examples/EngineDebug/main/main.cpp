@@ -47,7 +47,7 @@ int main()
 	GEngine::SetCamera(CameraPos , CameraOrigin, CameraUpVector, ProjectionMatrix);
 	auto pRenderMgr = RenderManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
-	auto pRender = CreateDeferredRender();
+	auto pRender = CreateStandardRender();
 	pRenderMgr->AddRender(pRender);
 
 	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);

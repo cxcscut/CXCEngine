@@ -17,6 +17,15 @@ namespace cxc
 	class Texture2D;
 	class Object3D;
 
+	using MaterialDiffuseSubroutineInfo = struct {
+
+		std::string SubroutineUniformName;
+
+		std::string TexturedSubroutineName;
+
+		std::string NonTexturedSubroutineName;
+	};
+
 	class Material final
 	{
 

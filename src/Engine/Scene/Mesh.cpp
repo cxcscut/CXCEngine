@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Object3D.h"
 
 namespace cxc {
 
@@ -26,7 +27,7 @@ namespace cxc {
 			return pOwnerObject.lock();
 	}
 
-	void Mesh::BindMaterial(GLuint ProgramID)
+	void Mesh::BindMaterial(GLuint ProgramID, const MaterialDiffuseSubroutineInfo& DiffuseModelInfo, std::vector<GLuint>& SubroutinesIndicesFS)
 	{
 		GLuint TexSamplerLocation = glGetUniformLocation(ProgramID, "Material.TexSampler");
 		GLuint KaLocation = glGetUniformLocation(ProgramID, "Material.Ka");
@@ -35,6 +36,7 @@ namespace cxc {
 		GLuint ShiniessLoc = glGetUniformLocation(ProgramID, "Material.Shiniess");
 
 		bool bHasTexture = true;
+		GLint DiffuseModelSubroutineLoc = glGetSubroutineUniformLocation(ProgramID, GL_FRAGMENT_SHADER, DiffuseModelInfo.SubroutineUniformName.c_str());
 
 		if (pMaterial)
 		{
@@ -46,9 +48,17 @@ namespace cxc {
 			if (pMaterial->pTextures.size() > 0)
 			{
 				// Choose the texture diffuse subroutine
-				GLuint TextureDiffuseSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "TextureDiffuse");
-				glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &TextureDiffuseSubroutineIndex);
 				
+				GLuint TextureDiffuseSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, DiffuseModelInfo.TexturedSubroutineName.c_str());
+				if (DiffuseModelSubroutineLoc >= 0)
+				{
+					SubroutinesIndicesFS[DiffuseModelSubroutineLoc] = TextureDiffuseSubroutineIndex;
+				}
+				else
+				{
+					std::cerr << "Failed to find the subroutine uniform : " << DiffuseModelInfo.SubroutineUniformName << std::endl;
+				}
+
 				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::UserTextureUnit);
 				glBindTexture(GL_TEXTURE_2D, pMaterial->pTextures[0]->GetTextureID());
 
@@ -67,8 +77,16 @@ namespace cxc {
 		if (!bHasTexture)
 		{
 			// Choose the non-texture diffuse subroutine
-			GLuint NonTextureDiffuseSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "NonTextureDiffuse");
-			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &NonTextureDiffuseSubroutineIndex);
+			GLuint NonTextureDiffuseSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, DiffuseModelInfo.NonTexturedSubroutineName.c_str());
+
+			if (DiffuseModelSubroutineLoc >= 0)
+			{
+				SubroutinesIndicesFS[DiffuseModelSubroutineLoc] = NonTextureDiffuseSubroutineIndex;
+			}
+			else
+			{
+				std::cerr << "Failed to find the subroutine uniform : " << DiffuseModelInfo.SubroutineUniformName << std::endl;
+			}
 		}
 	}
 
@@ -89,6 +107,22 @@ namespace cxc {
 
 	void Mesh::DrawMesh()
 	{
+		auto pOwner = pOwnerObject.lock();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
+		glBindVertexArray(pOwner->GetVAO());
+
+		glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetVertexCoordsVBO());
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
+
+		glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetTexCoordsVBO());
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::TEXTURE_LOCATION), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Texcoords
+
+		glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetNormalsVBO());
+		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
+		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Normal
+
 		// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
 		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 	}

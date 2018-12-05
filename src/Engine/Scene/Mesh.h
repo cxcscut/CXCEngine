@@ -29,7 +29,7 @@ namespace cxc
 
 	public:
 
-		void BindMaterial(GLuint ProgramID);
+		void BindMaterial(GLuint ProgramID, const MaterialDiffuseSubroutineInfo& DiffuseModelInfo ,std::vector<GLuint>& SubroutinesIndicesFS);
 	
 	public:
 

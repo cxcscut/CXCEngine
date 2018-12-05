@@ -37,6 +37,8 @@ namespace cxc
 			glUseProgram(Pipeline->GetPipelineProgramID());
 			CurrentUsedPipeline = Pipeline;
 		}
+		else
+			glUseProgram(0);
 	}
 
 	void MeshRender::BindCameraUniforms(GLuint ProgramID)
