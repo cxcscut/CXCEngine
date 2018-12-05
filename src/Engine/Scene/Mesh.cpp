@@ -108,8 +108,8 @@ namespace cxc {
 	void Mesh::DrawMesh()
 	{
 		auto pOwner = pOwnerObject.lock();
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
 		glBindVertexArray(pOwner->GetVAO());
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetVertexCoordsVBO());
 		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
@@ -125,5 +125,11 @@ namespace cxc {
 
 		// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
 		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		glDisableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
+		glDisableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
+		glDisableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
 	}
 }

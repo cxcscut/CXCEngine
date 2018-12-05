@@ -43,7 +43,7 @@ subroutine (GetDiffuseFactor) vec3 NonTextureDiffuse()
 
 subroutine uniform GetDiffuseFactor DiffuseFactorSelection;
 
-vec3 Shading(struct LightSource Light, vec3 n)
+vec3 Shading(LightSource Light, vec3 n)
 {
 	float distance = length(Light.Position - Position_worldspace);
 

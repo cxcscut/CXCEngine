@@ -108,6 +108,7 @@ namespace cxc
 		pMesh->BindMaterial(ProgramID, DiffuseModelInfo, SubroutineIndicesFS);
 
 		// Submit the subroutines selections
+		if(ActiveSubroutinesUniformCountFS > 0)
 		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, SubroutineIndicesFS.size(), &SubroutineIndicesFS.front());
 
 		// Draw the mesh
