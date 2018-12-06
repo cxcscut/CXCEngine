@@ -13,6 +13,7 @@
 - Deferred rendering
 - Fustrum culling based on Octree space partition
 - Separated layers of game logic and rendering
+- Physics based on Open Dynamics Engine
 
 ## External dependencies
 
