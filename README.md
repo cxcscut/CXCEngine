@@ -6,13 +6,13 @@
 
 ## Features
 
-- 1. Importing scene from FBX files
-- 2. Per face materials
-- 3. Forward rendering
-- 4. ShadowMap
-- 5. Deferred rendering
-- 6. Fustrum culling based on Octree space partition
-- 7. Separated layers of game logic and rendering
+- Importing scene from FBX files
+- Per face materials
+- Forward rendering
+- ShadowMap
+- Deferred rendering
+- Fustrum culling based on Octree space partition
+- Separated layers of game logic and rendering
 
 ## External dependencies
 
@@ -23,4 +23,9 @@
 - GLM  
 - Open Dynamics Engine  
   
+## To do
+
+- Skeleton animation
+- LightMap
+- NormalMap
 
