@@ -25,6 +25,7 @@ namespace cxc
 
 		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 
 	private:
 
@@ -41,11 +42,16 @@ namespace cxc
 
 	private:
 
+		bool bIsGBufferDirty;
+
 		/* Geometry passing pipeline */
 		std::shared_ptr<DeferredRenderPipeline> pDeferredRenderPipeline;
 
 		/* G-Buffer storing vertex position, color ,normal */
 		GLuint GeometryFrameBuffer;
+
+		/* Depth buffer */
+		GLuint DepthBuffer;
 
 		/* Texture storing the vertex position */
 		GLuint VertexPositionTexture;

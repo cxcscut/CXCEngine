@@ -37,19 +37,27 @@ namespace cxc
 	DeferredRenderPipeline::DeferredRenderPipeline():
 		MeshRenderPipeline("DeferredRenderPipeline"),
 		SceenQuardVAO(0), SceenQuardEBO(0),
-		SceenQuardVerticesVBO(0), SceenQuardTexCoordsVBO(0)
+		SceenQuardVerticesVBO(0), SceenQuardTexCoordsVBO(0),
+		bShouldDrawSceenQuard(true)
 	{
 		CreateSceenQuardBuffers();
 	}
 
 	DeferredRenderPipeline::~DeferredRenderPipeline()
 	{
-		ReleaseSceenQuardbuffers();
+		ReleaseSceenQuardBuffers();
 	}
 
 	void DeferredRenderPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
+		bShouldDrawSceenQuard = true;
+	}
+
+	void DeferredRenderPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	{
+		// Geometry pass
 		auto pWorld = World::GetInstance();
+		auto pWindowMgr = pWorld->pWindowMgr;
 		auto pDeferredRender = std::dynamic_pointer_cast<DeferredRender>(pOwnerRender.lock());
 		auto pOwnerObject = pMesh->GetOwnerObject();
 		assert(pDeferredRender != nullptr);
@@ -57,9 +65,10 @@ namespace cxc
 			return;
 
 		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, pDeferredRender->GetGBufferID());
-		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
+		glViewport(0, 0, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight());
 
 		// Active the geometry pass
 		GLsizei ActiveSubroutinesUniformCountVS, ActiveSubroutinesUniformCountFS;
@@ -70,16 +79,16 @@ namespace cxc
 
 		GLint RenderPassSelectionVSLoc = glGetSubroutineUniformLocation(ProgramID, GL_VERTEX_SHADER, "RenderPassSelectionVS");
 		GLint RenderPassSelectionFSLoc = glGetSubroutineUniformLocation(ProgramID, GL_FRAGMENT_SHADER, "RenderPassSelectionFS");
-		GLuint DeferredRenderingGeometryPassVSIndex = glGetSubroutineIndex(ProgramID, GL_VERTEX_SHADER, "GeometryPass");
-		GLuint DeferredRenderingGeometryPassFSIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "GeometryPass");
+		GLuint DeferredRenderingGeometryPassVSIndex = glGetSubroutineIndex(ProgramID, GL_VERTEX_SHADER, "GeometryPassVS");
+		GLuint DeferredRenderingGeometryPassFSIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "GeometryPassFS");
 		
-		if (RenderPassSelectionFSLoc >= 0 && RenderPassSelectionVSLoc >= 0)
-		{
+		if (RenderPassSelectionVSLoc >= 0)
 			SubroutineIndicesVS[RenderPassSelectionVSLoc] = DeferredRenderingGeometryPassVSIndex;
-			SubroutineIndicesFS[RenderPassSelectionFSLoc] = DeferredRenderingGeometryPassFSIndex;
-		}
 
-		 // Set model matrix	
+		if (RenderPassSelectionFSLoc >= 0 )
+			SubroutineIndicesFS[RenderPassSelectionFSLoc] = DeferredRenderingGeometryPassFSIndex;
+
+		// Set model matrix	
 		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
 		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->getTransMatrix()[0][0]);
 
@@ -90,19 +99,25 @@ namespace cxc
 		DiffuseModelInfo.NonTexturedSubroutineName = "NonTextureDiffuse";
 		pMesh->BindMaterial(ProgramID, DiffuseModelInfo, SubroutineIndicesFS);
 
-		// Submit subroutines selections
+		// Subroutines selections array
 		if(ActiveSubroutinesUniformCountVS > 0)
-			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, ActiveSubroutinesUniformCountVS, &SubroutineIndicesVS.front());
+			glUniformSubroutinesuiv(GL_VERTEX_SHADER, ActiveSubroutinesUniformCountVS, &SubroutineIndicesVS.front());
 
 		if(ActiveSubroutinesUniformCountFS > 0)
-			glUniformSubroutinesuiv(GL_VERTEX_SHADER, ActiveSubroutinesUniformCountFS, &SubroutineIndicesFS.front());
+			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, ActiveSubroutinesUniformCountFS, &SubroutineIndicesFS.front());
 
 		// Draw the mesh
 		pMesh->DrawMesh();
 	}
 
-	void DeferredRenderPipeline::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void DeferredRenderPipeline::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
+		// The sceen quard shuold only be drawn once
+		if (!bShouldDrawSceenQuard)
+			return;
+		else
+			bShouldDrawSceenQuard = false;
+
 		// In the lighting pass of deferred rendering we should do:
 		// 1. Bind the framebuffer object to the default framebuffer
 		// 2. Disable depth test and clear the color buffer
@@ -134,12 +149,15 @@ namespace cxc
 		GLuint DeferredRenderingLightingPassVSIndex = glGetSubroutineIndex(ProgramID, GL_VERTEX_SHADER, "LightingPassVS");
 		GLuint DeferredRenderingLightingPassFSIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "LightingPassFS");
 
-		if (RenderPassSelectionFSLoc >= 0 && RenderPassSelectionVSLoc >= 0)
+		if (RenderPassSelectionVSLoc >= 0)
 		{
 			SubroutineIndicesVS[RenderPassSelectionVSLoc] = DeferredRenderingLightingPassVSIndex;
-			SubroutineIndicesFS[RenderPassSelectionFSLoc] = DeferredRenderingLightingPassFSIndex;
-
 			glUniformSubroutinesuiv(GL_VERTEX_SHADER, ActiveSubroutinesUniformCountVS, &SubroutineIndicesVS.front());
+		}
+
+		if (RenderPassSelectionFSLoc >= 0)
+		{
+			SubroutineIndicesFS[RenderPassSelectionFSLoc] = DeferredRenderingLightingPassFSIndex;
 			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, ActiveSubroutinesUniformCountFS, &SubroutineIndicesFS.front());
 		}
 
@@ -182,6 +200,12 @@ namespace cxc
 		glDisable(GL_DEPTH_TEST);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 		glEnable(GL_DEPTH_TEST);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
 	}
 
 	void DeferredRenderPipeline::CreateSceenQuardBuffers()
@@ -202,22 +226,22 @@ namespace cxc
 		glBufferData(GL_ARRAY_BUFFER, sizeof(LightingPassTexCoords), LightingPassTexCoords, GL_STATIC_DRAW);
 	}
 
-	void DeferredRenderPipeline::ReleaseSceenQuardbuffers()
+	void DeferredRenderPipeline::ReleaseSceenQuardBuffers()
 	{
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
-
+		
 		// Release buffers
-		if (SceenQuardVAO)
+		if (glIsVertexArray(SceenQuardVAO))
 			glDeleteVertexArrays(1, &SceenQuardVAO);
-
-		if (SceenQuardEBO)
+		
+		if (glIsBuffer(SceenQuardEBO))
 			glDeleteBuffers(1, &SceenQuardEBO);
 
-		if (SceenQuardVerticesVBO)
+		if (glIsBuffer(SceenQuardVerticesVBO))
 			glDeleteBuffers(1, &SceenQuardVerticesVBO);
 
-		if (SceenQuardTexCoordsVBO)
+		if (glIsBuffer(SceenQuardTexCoordsVBO))
 			glDeleteBuffers(1, &SceenQuardTexCoordsVBO);
 	}
 }

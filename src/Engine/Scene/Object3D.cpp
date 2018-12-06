@@ -256,7 +256,7 @@ namespace cxc {
 
 	void Object3D::ReleaseBuffers() noexcept
 	{
-		if (m_VAO)
+		if (glIsVertexArray(m_VAO))
 		{
 			glDeleteVertexArrays(1, &m_VAO);
 		}
@@ -269,19 +269,19 @@ namespace cxc {
 			}
 		}
 
-		if (m_VBO[0])
+		if (glIsBuffer(m_VBO[0]))
 		{
 			glDeleteBuffers(1, &m_VBO[0]);
 			glDisableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
 		}
 
-		if (m_VBO[1])
+		if (glIsBuffer(m_VBO[1]))
 		{
 			glDeleteBuffers(1, &m_VBO[1]);
 			glDisableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
 		}
 
-		if (m_VBO[2])
+		if (glIsBuffer(m_VBO[2]))
 		{
 			glDeleteBuffers(1, &m_VBO[2]);
 			glDisableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));

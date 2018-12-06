@@ -5,20 +5,23 @@
 #include "..\Window\Window.h"
 #include "..\Scene\Mesh.h"
 #include "..\Rendering\RenderManager.h"
+#include "..\World\World.h"
 
 #else 
 
 #include "../Window/Window.h"
 #include "../Scene/Mesh.h"
 #include "../Rendering/RenderManager.h"
+#include "../World/World.h"
 
 #endif
 
 namespace cxc
 {
 	DeferredRender::DeferredRender():
-		GeometryFrameBuffer(0), VertexPositionTexture(0),
-		VertexDiffuseTexture(0), VertexNormalTexture(0)
+		GeometryFrameBuffer(0), DepthBuffer(0),
+		VertexPositionTexture(0), VertexDiffuseTexture(0), VertexNormalTexture(0),
+		bIsGBufferDirty(false)
 	{
 		RenderName = "DefaultDeferredRender";
 	}
@@ -31,22 +34,27 @@ namespace cxc
 
 	DeferredRender::~DeferredRender()
 	{
-		if (VertexDiffuseTexture)
+		if (glIsTexture(VertexDiffuseTexture))
 		{
 			glDeleteTextures(1, &VertexDiffuseTexture);
 		}
 
-		if (VertexPositionTexture)
+		if (glIsTexture(VertexPositionTexture))
 		{
 			glDeleteTextures(1, &VertexPositionTexture);
 		}
 
-		if (VertexNormalTexture)
+		if (glIsTexture(VertexNormalTexture))
 		{
 			glDeleteTextures(1, &VertexNormalTexture);
 		}
 
-		if (GeometryFrameBuffer)
+		if (glIsRenderbuffer(DepthBuffer))
+		{
+			glDeleteRenderbuffers(1, &DepthBuffer);
+		}
+
+		if (glIsFramebuffer(GeometryFrameBuffer))
 		{
 			glDeleteFramebuffers(1, &GeometryFrameBuffer);
 		}
@@ -71,67 +79,111 @@ namespace cxc
 	{
 		auto pWindowMgr = WindowManager::GetInstance();
 
-		// Create G-Buffer frambuffer object
-		glGenFramebuffers(1, &GeometryFrameBuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, GeometryFrameBuffer);
+		// Create framebuffer
+		if (!glIsFramebuffer(GeometryFrameBuffer))
+		{
+			// Create G-Buffer frambuffer object
+			glGenFramebuffers(1, &GeometryFrameBuffer);
+			glBindFramebuffer(GL_FRAMEBUFFER, GeometryFrameBuffer);
 
-		// Create vertex position texture
-		glGenTextures(1, &VertexPositionTexture);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, VertexPositionTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, VertexPositionTexture, 0);
+			// Bind the attachments
+			GLuint Attachments[4] = { GL_NONE, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+			glDrawBuffers(4, Attachments);
+		}
 
-		// Create vertex color texture
-		glGenTextures(1, &VertexDiffuseTexture);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, VertexDiffuseTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, VertexDiffuseTexture, 0);
+		// Create depth buffer
+		if (!glIsRenderbuffer(DepthBuffer))
+		{
+			glGenRenderbuffers(1, &DepthBuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, DepthBuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight());
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, DepthBuffer);
+		}
 
-		// Create vertex normal texture
-		glGenTextures(1, &VertexNormalTexture);
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, VertexNormalTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, VertexNormalTexture, 0);
+		if (!glIsTexture(VertexPositionTexture))
+		{
+			// Create vertex position texture
+			glGenTextures(1, &VertexPositionTexture);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, VertexPositionTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, VertexPositionTexture, 0);
+		}
 
-		// Bind the attachments
-		GLuint Attachments[4] = {GL_NONE, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-		glDrawBuffers(4, Attachments);
+		if (!glIsTexture(VertexDiffuseTexture))
+		{
+			// Create vertex color texture
+			glGenTextures(1, &VertexDiffuseTexture);
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, VertexDiffuseTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, VertexDiffuseTexture, 0);
+		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		if (!glIsTexture(VertexNormalTexture))
+		{
+			// Create vertex normal texture
+			glGenTextures(1, &VertexNormalTexture);
+			glActiveTexture(GL_TEXTURE4);
+			glBindTexture(GL_TEXTURE_2D, VertexNormalTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, VertexNormalTexture, 0);
+		}
 	}
 
 	void DeferredRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
+		// Clear the G-Buffer for rendering
+		if (bIsGBufferDirty && glIsFramebuffer(GeometryFrameBuffer))
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, GeometryFrameBuffer);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			bIsGBufferDirty = false;
+		}
+
 		UsePipeline(pDeferredRenderPipeline);
 
-		// Create the G-Buffer and textures;
-		CreateGBufferTextures();
+		// Geometry pass to rendering the scene to the G-Buffer
+		if (pDeferredRenderPipeline)
+		{
 
-		BindCameraUniforms(pDeferredRenderPipeline->GetPipelineProgramID());
-		pDeferredRenderPipeline->PreRender(pMesh, Lights);
-
-		UsePipeline(nullptr);
+			pDeferredRenderPipeline->PreRender(pMesh, Lights);
+		}
 	}
 
 	void DeferredRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		UsePipeline(pDeferredRenderPipeline);
-
-		// Lighting pass to render the final mesh using G-Buffer
+		
+		// Geometry pass to rendering the scene to the G-Buffer
 		if (pDeferredRenderPipeline)
 		{
-			pDeferredRenderPipeline->Render(pMesh, Lights);
-		}
+			// Create the G-Buffer and textures;
+			CreateGBufferTextures();
 
-		UsePipeline(nullptr);
+			pDeferredRenderPipeline->Render(pMesh, Lights);
+
+			// Marked dirty
+			bIsGBufferDirty = true;
+		}
+	}
+
+	void DeferredRender::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	{
+		UsePipeline(pDeferredRenderPipeline);
+
+		// Lighting pass to render the final scene using G-Buffer
+		if (pDeferredRenderPipeline)
+		{
+			BindCameraUniforms(pDeferredRenderPipeline->GetPipelineProgramID());
+			pDeferredRenderPipeline->PostRender(pMesh, Lights);
+		}
 	}
 }

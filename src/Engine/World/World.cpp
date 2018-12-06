@@ -149,6 +149,7 @@ namespace cxc {
 
 	void World::CleanFrameBuffer() const noexcept
 	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		if (pWindowMgr->isEnableDepthTest())
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		else

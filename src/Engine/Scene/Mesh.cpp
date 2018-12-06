@@ -48,7 +48,6 @@ namespace cxc {
 			if (pMaterial->pTextures.size() > 0)
 			{
 				// Choose the texture diffuse subroutine
-				
 				GLuint TextureDiffuseSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, DiffuseModelInfo.TexturedSubroutineName.c_str());
 				if (DiffuseModelSubroutineLoc >= 0)
 				{
@@ -99,7 +98,7 @@ namespace cxc {
 
 	void Mesh::ReleaseMeshEBO()
 	{
-		if (MeshEBO)
+		if (glIsBuffer(MeshEBO))
 		{
 			glDeleteBuffers(1, &MeshEBO);
 		}
@@ -127,6 +126,7 @@ namespace cxc {
 		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 		glDisableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
 		glDisableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
