@@ -2,30 +2,25 @@
 
 ## Introduction
 
- **CxcEngine** is a tiny cross-platform OpenGL engine developed with C++ 11 which can be used in 3D graphics rendering, it supports muliti-thread redering, basic shading and model loading from obj format file which can be exported by 3DS MAX or blender.
+ **CxcEngine** is a easy-to-use cross-platform graphics engine based on C++ 11 and OpenGL. CXCEngine intends for a light-weight game engine.
 
-![ShadowMapping of Directional light](Img/Shading.bmp)
+## Features
 
-![ShadowMapping of Omni-Directional light](Img/Omni-Directional_ShadowMapping.bmp)
+- 1. Importing scene from FBX files
+- 2. Per face materials
+- 3. Forward rendering
+- 4. ShadowMap
+- 5. Deferred rendering
+- 6. Fustrum culling based on Octree space partition
+- 7. Separated layers of game logic and rendering
 
-## Dependencies
+## External dependencies
 
-- **OpenGL Library**  
-  Including the header file gl.h and glu.h.
-- **OpenGL Utility Toolkit**  
-  Including the header file glut.h and static libray glut32.lib.
-- **GLFW**  
-  It is a open source and multi-platform library for OpenGL which provides a simple API for creating windows, contexts and surfaces, receiving input and events. it includes the header file glfw3.h, static libray glfw3.lib as well as dynamic libray glfw3.dll.
-- **GLEW**  
-  It is the OpenGL Extension Wrangler library which includes the header file glew.h and static library glew32.lib as well as dynamic library glew32.dll.
-- **GLM**  
-  The OpenGL mathematics library including glm.hpp and matrix_transformation.hpp etc.
-- **Open Dynamics Engine**  
-  Physics Engine
+- OpenGL Library
+- OpenGL Utility Toolkit
+- GLFW  
+- GLEW  
+- GLM  
+- Open Dynamics Engine  
   
-**To do:**
-
-1. Multiple lights rendering
-2. Skeleton animation
-3. Deferred rendering
 
