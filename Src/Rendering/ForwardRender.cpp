@@ -69,7 +69,6 @@ namespace cxc
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
-		BindLightUniforms(Lights);
 
 		M_MatrixID = glGetUniformLocation(ProgramID, "M");
 		Eyepos_loc = glGetUniformLocation(ProgramID, "EyePosition_worldspace");
@@ -79,11 +78,17 @@ namespace cxc
 		glGetProgramStageiv(ProgramID, GL_FRAGMENT_SHADER, GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS, &ActiveSubroutinesUniformCountFS);
 		std::vector<GLuint> SubroutineIndicesFS(ActiveSubroutinesUniformCountFS, 0);
 
-		glm::vec3 EyePosition = pWorld->pSceneMgr->pCamera->EyePosition;
-		glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
+		auto CurrentActiveCamera = pWorld->pSceneMgr->GetCurrentActiveCamera();
+		if (CurrentActiveCamera)
+		{
+			glm::vec3 EyePosition = CurrentActiveCamera->EyePosition;
+			glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
+		}
+
+		BindLightUniforms(Lights, SubroutineIndicesFS);
 
 		 // Set model matrix																										  
-		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->getTransMatrix()[0][0]);
+		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->GetObjectModelMatrix()[0][0]);
 
 		// Bind the material of the mesh
 		MaterialDiffuseSubroutineInfo DiffuseModelInfo;

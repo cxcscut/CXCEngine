@@ -87,7 +87,7 @@ namespace cxc {
 		}
 	}
 
-	glm::mat4 RigidBody3D::getTransMatrix() const noexcept
+	glm::mat4 RigidBody3D::GetObjectModelMatrix() const noexcept
 	{
 		auto R = dGeomGetRotation(m_pCollider->getGeomID());
 		auto pos = dGeomGetPosition(m_pCollider->getGeomID());

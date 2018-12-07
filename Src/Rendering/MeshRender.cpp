@@ -34,7 +34,9 @@ namespace cxc
 	void MeshRender::BindCameraUniforms(GLuint ProgramID)
 	{
 		auto SceneManager = SceneManager::GetInstance();
-		SceneManager->pCamera->BindCameraUniforms(ProgramID);
+		auto CurrentActiveCamera = SceneManager->GetCurrentActiveCamera();
+		if(CurrentActiveCamera)
+			CurrentActiveCamera->BindCameraUniforms(ProgramID);
 	}
 
 	MeshRenderPipeline::MeshRenderPipeline()
@@ -57,20 +59,70 @@ namespace cxc
 		pOwnerRender.reset();
 	}
 
-	void MeshRenderPipeline::BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights)
+	void MeshRenderPipeline::BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights, std::vector<GLuint>& SubroutineIndices)
 	{
-		GLint LightNumLoc = glGetUniformLocation(ProgramID, "LightNum");
-		glUniform1i(LightNumLoc, Lights.size());
+		GLint OmniLightNumLoc = glGetUniformLocation(ProgramID, "OmniLightNum");
+		GLint DirectionalLightNumLoc = glGetUniformLocation(ProgramID, "DirectionalLightNum");
+		
+		size_t OmniLightsCount = 0, DirectionalLightsCount = 0;
 
 		for (size_t LightIndex = 0; LightIndex < Lights.size(); ++LightIndex)
 		{
 			auto pLight = Lights[LightIndex];
 			if (pLight)
 			{
-				std::string LightUniformNamePrefix = "Lights[" + std::to_string(LightIndex) + "]";
-				GLint LightPosLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Position").c_str());
-				GLint LightColorLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Color").c_str());
-				GLint LightIntensityLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Intensity").c_str());
+				GLint LightPosLoc, LightColorLoc, LightIntensityLoc, LightAtteunationLoc;
+				GLint LightAtteunationSubroutineIndex;
+				std::string LightUniformNamePrefix, LightAtteunationSubroutineName;
+
+				switch (pLight->GetLightType())
+				{
+				case eLightType::OmniDirectional:
+					{
+						LightUniformNamePrefix = "OmniLights[" + std::to_string(OmniLightsCount) + "]";
+						LightAtteunationSubroutineName = "OmniLightAttenuations[" + std::to_string(OmniLightsCount) + "]";
+						OmniLightsCount++;
+						break;
+					}
+				case eLightType::Directional:
+					{
+						LightUniformNamePrefix = "DirectionalLights[" + std::to_string(DirectionalLightsCount) + "]";
+						LightAtteunationSubroutineName = "DirectionalLightAtteunations[" + std::to_string(DirectionalLightsCount) + "]";
+						GLuint LightTargetPosLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".TargetPos").c_str());
+						glUniform3f(LightTargetPosLoc, pLight->GetTargetPos()[0], pLight->GetTargetPos()[1], pLight->GetTargetPos()[2]);
+						DirectionalLightsCount++;
+						break;
+					}
+				}
+
+				LightPosLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Position").c_str());
+				LightColorLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Color").c_str());
+				LightIntensityLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Intensity").c_str());
+				LightAtteunationLoc = glGetSubroutineUniformLocation(ProgramID, GL_FRAGMENT_SHADER, (LightAtteunationSubroutineName).c_str());
+
+				switch (pLight->GetAtteunationType())
+				{
+				case eLightAtteunationType::None:
+					LightAtteunationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "None");
+					break;
+
+				case eLightAtteunationType::Linear:
+					LightAtteunationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Linear");
+					break;
+
+				case eLightAtteunationType::Quadratic:
+					LightAtteunationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Quadratic");
+					break;
+
+				case eLightAtteunationType::Cubic:
+					LightAtteunationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Cubic");
+					break;
+				}
+				
+				if (LightAtteunationLoc >= 0)
+				{
+					SubroutineIndices[LightAtteunationLoc] = LightAtteunationSubroutineIndex;
+				}
 
 				// Light properties
 				glUniform3f(LightPosLoc, pLight->GetLightPos()[0], pLight->GetLightPos()[1], pLight->GetLightPos()[2]);
@@ -78,6 +130,9 @@ namespace cxc
 				glUniform1f(LightIntensityLoc, pLight->GetIntensity());
 			}
 		}
+
+		glUniform1i(OmniLightNumLoc, OmniLightsCount);
+		glUniform1i(DirectionalLightNumLoc, DirectionalLightsCount);
 	}
 
 	bool MeshRenderPipeline::CheckLinkingStatus(std::string& OutResultLog) const

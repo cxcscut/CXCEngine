@@ -7,8 +7,9 @@ namespace cxc {
 
 	}
 
-	LightSource::LightSource(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &dir, float Intensity, eLightType type)
-		:LightPos(pos),LightDirection(dir), LightType(type), LightName(Name), LightIntensity(Intensity)
+	LightSource::LightSource(const std::string& Name, const glm::vec3 &pos, const glm::vec3 &TargetPos, float Intensity, eLightType type)
+		:LightPos(pos), TargetPos(TargetPos), LightType(type), LightName(Name), LightIntensity(Intensity),
+		AtteunationType(eLightAtteunationType::Linear)
 	{
 
 	}
@@ -28,14 +29,14 @@ namespace cxc {
 		LightType = type;
 	}
 
-	void LightSource::SetDirection(float x, float y, float z) noexcept
+	void LightSource::SetTargetPos(float x, float y, float z) noexcept
 	{
-		LightDirection = glm::vec3(x, y, z);
+		TargetPos = glm::vec3(x, y, z);
 	}
 
-	glm::vec3 LightSource::GetDirection() const noexcept
+	glm::vec3 LightSource::GetTargetPos() const noexcept
 	{
-		return LightDirection;
+		return TargetPos;
 	}
 
 	eLightType LightSource::GetLightType() const noexcept

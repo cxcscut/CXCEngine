@@ -9,7 +9,6 @@ namespace cxc {
 		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
 	{
 		pMaterialMgr = MaterialManager::GetInstance();
-		pCamera = std::make_shared<Camera>();
 		pRenderMgr = RenderManager::GetInstance();
 	}
 
@@ -45,15 +44,18 @@ namespace cxc {
 			object.second->UpdateMeshTransMatrix();
 	}
 
-	void SceneManager::SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
+	void SceneManager::AddCamera(const std::string& CameraName, 
+		const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
 		const glm::mat4 &ProjectionMatrix) noexcept
 	{
-
-		pCamera->EyePosition = eye;
-		pCamera->CameraOrigin = origin;
-		pCamera->UpVector = up;
-		pCamera->SetAllMatrix(glm::lookAt(eye, origin, up), ProjectionMatrix);
-		pCamera->ComputeAngles();
+		auto pNewCamera = std::make_shared<Camera>();
+		pNewCamera->CameraName = CameraName;
+		pNewCamera->EyePosition = eye;
+		pNewCamera->CameraOrigin = origin;
+		pNewCamera->UpVector = up;
+		pNewCamera->SetAllMatrix(glm::lookAt(eye, origin, up), ProjectionMatrix);
+		pNewCamera->ComputeAngles();
+		AddCamera(pNewCamera);
 	}
 
 	void SceneManager::UpdateBoundary(const CXCRect3 &AABB) noexcept
@@ -289,6 +291,8 @@ namespace cxc {
 		else
 		{
 			std::queue<std::shared_ptr<OctreeNode>> q;
+			if (!CurrentActiveCamera)
+				return;
 
 			q.push(pRoot);
 			
@@ -306,7 +310,7 @@ namespace cxc {
 							continue;
 
 						auto AABB = pObject.second->GetAABB();
-						if(pCamera->isRectInFrustum(AABB.max, AABB.min))
+						if(CurrentActiveCamera->isRectInFrustum(AABB.max, AABB.min))
 								hash.insert(pObject.second);
 					}
 				}
@@ -315,7 +319,7 @@ namespace cxc {
 					for (std::size_t k = 0; k < 8; k++)
 					{
 						auto pChildNode = pRoot->FindNode(pNode->code + std::to_string(k));
-						if (pCamera->isRectInFrustum(pChildNode->AABB.max, pChildNode->AABB.min))
+						if (CurrentActiveCamera->isRectInFrustum(pChildNode->AABB.max, pChildNode->AABB.min))
 							q.push(pChildNode);
 					}
 				}
@@ -355,9 +359,44 @@ namespace cxc {
 		}
 	}
 
-	void SceneManager::AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, float LightIntensity, eLightType Type)
+	void SceneManager::AddCamera(std::shared_ptr<Camera> pNewCamera)
 	{
-		auto pNewLight = NewObject<LightSource>(Name, LightPosition, LightDirection, LightIntensity, Type);
+		pCameras.insert(std::make_pair(pNewCamera->CameraName, pNewCamera));
+	}
+
+	std::shared_ptr<Camera> SceneManager::GetCamera(const std::string& CameraName)
+	{
+		auto CameraIter = pCameras.find(CameraName);
+		if (CameraIter != pCameras.end())
+		{
+			return CameraIter->second;
+		}
+		else
+			return nullptr;
+	}
+
+	std::shared_ptr<Camera> SceneManager::GetCurrentActiveCamera()
+	{
+		return CurrentActiveCamera;
+	}
+
+	void SceneManager::SetCameraActive(const std::string& CameraName)
+	{
+		auto pCamera = GetCamera(CameraName);
+		if (pCamera)
+		{
+			CurrentActiveCamera = pCamera;
+		}
+	}
+
+	void SceneManager::SetCameraActive(std::shared_ptr<Camera> pCamera)
+	{
+		CurrentActiveCamera = pCamera;
+	}
+
+	void SceneManager::AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& TargetPos, float LightIntensity, eLightType Type)
+	{
+		auto pNewLight = NewObject<LightSource>(Name, LightPosition, TargetPos, LightIntensity, Type);
 		if (pNewLight)
 		{
 			Lights.push_back(pNewLight);

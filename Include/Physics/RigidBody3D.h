@@ -20,7 +20,7 @@ namespace cxc {
 
 		void addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
 
-		glm::mat4 getTransMatrix() const noexcept;
+		glm::mat4 GetObjectModelMatrix() const noexcept;
 
 		std::shared_ptr<Collider3D> getColliderPtr() noexcept;
 

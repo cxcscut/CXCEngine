@@ -28,11 +28,13 @@ int main()
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 	GEngine::InitializeEngine();
 
-	GEngine::SetCamera(CameraPos, CameraOrigin, CameraUpVector, ProjectionMatrix);
 	auto pRenderMgr = RenderManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
 	auto pForwardRender = CreateForwardRender();
 	pRenderMgr->AddRender(pForwardRender);
+
+	pSceneManager->AddCamera("MainCamera", CameraPos, CameraOrigin, CameraUpVector, ProjectionMatrix);
+	pSceneManager->SetCameraActive("MainCamera");
 
 	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);
 	if (bResult)

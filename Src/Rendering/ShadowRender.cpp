@@ -112,17 +112,11 @@ namespace cxc
 			// Two pass shadow map
 			if (pLight->GetLightType() == eLightType::Directional)
 			{
-				// Parallel light
-				DepthProjectionMatrix = glm::ortho<float>(-100, 100, -100, 100, -100, 200);
-				DepthViewMatrix = glm::lookAt(pLight->GetLightPos(), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
-				DepthVP = DepthProjectionMatrix * DepthViewMatrix;
+				
 			}
 			else
 			{
-				// Spot Light
-				DepthProjectionMatrix = glm::perspective(glm::radians(90.0f), 4.0f / 3.0f, 0.1f, 1000.0f);
-				DepthViewMatrix = glm::lookAt(pLight->GetLightPos(), pLight->GetLightPos() + pLight->GetDirection(), glm::vec3(0, 0, -1));
-				DepthVP = DepthProjectionMatrix * DepthViewMatrix;
+				
 			}
 
 			// Depth texture

@@ -71,7 +71,7 @@ namespace cxc
 
 	public:
 
-		void BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights);
+		void BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights, std::vector<GLuint>& SubroutineIndices);
 
 	public:
 

@@ -121,7 +121,6 @@ namespace cxc {
 		bool LoadSceneFromFBX(const std::string& filepath) noexcept;
 		void ProcessSceneNode(FbxNode* pNode) noexcept;
 
-	// Object loading from obj files
 	public:
 
 		// Delete object
@@ -129,30 +128,37 @@ namespace cxc {
 
 	public:
 
-		// Pointer to resource manager
 		std::shared_ptr<MaterialManager> pMaterialMgr;
-		std::shared_ptr<Camera> pCamera;
+		std::unordered_map<std::string, std::shared_ptr<Camera>> pCameras;
 		std::shared_ptr<RenderManager> pRenderMgr;
 
-		// Return the pointer to the specific sprite
 		std::shared_ptr<Object3D > GetObject3D (const std::string &sprite_name) const noexcept;
-
-		// Camera interface
-		void SetCameraParams(const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
-							const glm::mat4 &ProjectionMatrix) noexcept;
-
-		// Return the SpriteMap
 		const std::unordered_map<std::string, std::shared_ptr<Object3D >> &GetObjectMap() const noexcept;
 
 		void SetCenter(const glm::vec3 &center) noexcept { m_SceneCenter = center; };
 		void SetSize(float size) noexcept { m_SceneSize = size; };
 
-		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& LightDirection, float LightIntensity, eLightType Type);
+		// Lights
+	public:
+
+		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& TargetPos, float LightIntensity, eLightType Type);
 		void AddLight(std::shared_ptr<LightSource> pNewLight);
 		void RemoveLight(const std::string& LightName);
 		std::shared_ptr<LightSource> GetLight(uint32_t LightIndex);
 		std::shared_ptr<LightSource> GetLight(const std::string& LightName);
 		uint32_t GetLightCount() const { return Lights.size(); }
+
+	public:
+
+		void AddCamera(const std::string& CameraName,
+			const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
+			const glm::mat4 &ProjectionMatrix) noexcept;
+
+		void AddCamera(std::shared_ptr<Camera> pNewCamera);
+		std::shared_ptr<Camera> GetCamera(const std::string& CameraName);
+		std::shared_ptr<Camera> GetCurrentActiveCamera();
+		void SetCameraActive(std::shared_ptr<Camera> pCamera);
+		void SetCameraActive(const std::string& CameraName);
 
 	public:
 
@@ -183,6 +189,8 @@ namespace cxc {
 		void AddObjectInternal(const std::string &SpriteName, const std::shared_ptr<Object3D> &ObjectPtr, bool isKinematics = false) noexcept;
 
 	private:
+
+		std::shared_ptr<Camera> CurrentActiveCamera;
 
 		// Lights
 		std::vector<std::shared_ptr<LightSource>> Lights;

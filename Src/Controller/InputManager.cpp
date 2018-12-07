@@ -59,14 +59,13 @@ namespace cxc {
 		{
 			auto pEngine = World::GetInstance();
 			auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
-			if (!pRender)
+			auto pCurrentActiveCamera = pEngine->pSceneMgr->GetCurrentActiveCamera();
+			if (!pRender || !pCurrentActiveCamera)
 				return;
 
 			auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
 			if (!CurrentUsedPipeline) return;
-
 			auto ProgramID = CurrentUsedPipeline->GetPipelineProgramID();
-			auto pCamera = pEngine->pSceneMgr->pCamera;
 
 			double CurrentX, CurrentY;
 			double CursorDeltaX, CursorDeltaY;
@@ -79,14 +78,14 @@ namespace cxc {
 			float DeltaHorizontal = -PI * (CursorDeltaX / pEngine->pWindowMgr->GetWindowWidth() / 2);
 			float DeltaVertical = PI * (CursorDeltaY / pEngine->pWindowMgr->GetWindowHeight() / 2);
 
-			auto Forward = pCamera->CameraOrigin - pCamera->EyePosition;
-			auto RotMatrix = glm::rotate(glm::mat4(1.0f), DeltaHorizontal, pCamera->UpVector);
-			RotMatrix = glm::rotate(RotMatrix, DeltaVertical, pCamera->GetCameraRightVector());
+			auto Forward = pCurrentActiveCamera->CameraOrigin - pCurrentActiveCamera->EyePosition;
+			auto RotMatrix = glm::rotate(glm::mat4(1.0f), DeltaHorizontal, pCurrentActiveCamera->UpVector);
+			RotMatrix = glm::rotate(RotMatrix, DeltaVertical, pCurrentActiveCamera->GetCameraRightVector());
 			auto RotatedForward = RotMatrix * glm::vec4(Forward, 1);
-			pCamera->CameraOrigin = pCamera->EyePosition + (glm::vec3)RotatedForward;
+			pCurrentActiveCamera->CameraOrigin = pCurrentActiveCamera->EyePosition + (glm::vec3)RotatedForward;
 
-			pCamera->ComputeViewMatrix();
-			pCamera->BindCameraUniforms(ProgramID);
+			pCurrentActiveCamera->ComputeViewMatrix();
+			pCurrentActiveCamera->BindCameraUniforms(ProgramID);
 		}
 		else
 		{
@@ -97,9 +96,9 @@ namespace cxc {
 	void InputManager::ProcessingKeyboardInput()
 	{
 		auto pEngine = World::GetInstance();
-		auto pCamera = pEngine->pSceneMgr->pCamera;
+		auto pCurrentActiveCamera = pEngine->pSceneMgr->GetCurrentActiveCamera();
 		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
-		if (!pRender)
+		if (!pRender || !pCurrentActiveCamera)
 			return;
 
 		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
@@ -110,38 +109,38 @@ namespace cxc {
 		if (GetKeyStatus(GLFW_KEY_W) == eKeyStatus::PRESSED)
 		{
 			// Camera moving forward
-			auto ForwardVector = pCamera->GetCameraForwardVector();
+			auto ForwardVector = pCurrentActiveCamera->GetCameraForwardVector();
 			auto MovingVector = ForwardVector * MovingStep;
-			pCamera->EyePosition += MovingVector;
-			pCamera->CameraOrigin += MovingVector;
+			pCurrentActiveCamera->EyePosition += MovingVector;
+			pCurrentActiveCamera->CameraOrigin += MovingVector;
 		}
 		if (GetKeyStatus(GLFW_KEY_S) == eKeyStatus::PRESSED)
 		{
 			// Camera moving backward
-			auto ForwardVector = pCamera->GetCameraForwardVector();
+			auto ForwardVector = pCurrentActiveCamera->GetCameraForwardVector();
 			auto MovingVector = ForwardVector * MovingStep;
-			pCamera->EyePosition -= MovingVector;
-			pCamera->CameraOrigin -= MovingVector;
+			pCurrentActiveCamera->EyePosition -= MovingVector;
+			pCurrentActiveCamera->CameraOrigin -= MovingVector;
 		}
 		if (GetKeyStatus(GLFW_KEY_A) == eKeyStatus::PRESSED)
 		{
 			// Camera moving left
-			auto RightVector = pCamera->GetCameraRightVector();
+			auto RightVector = pCurrentActiveCamera->GetCameraRightVector();
 			auto MovingVector = RightVector * MovingStep;
-			pCamera->EyePosition += MovingVector;
-			pCamera->CameraOrigin += MovingVector;
+			pCurrentActiveCamera->EyePosition += MovingVector;
+			pCurrentActiveCamera->CameraOrigin += MovingVector;
 		}
 		if (GetKeyStatus(GLFW_KEY_D) == eKeyStatus::PRESSED)
 		{
 			// Camera moving right
-			auto RightVector = pCamera->GetCameraRightVector();
+			auto RightVector = pCurrentActiveCamera->GetCameraRightVector();
 			auto MovingVector = RightVector * MovingStep;
-			pCamera->EyePosition -= MovingVector;
-			pCamera->CameraOrigin -= MovingVector;
+			pCurrentActiveCamera->EyePosition -= MovingVector;
+			pCurrentActiveCamera->CameraOrigin -= MovingVector;
 		}
 
-		pCamera->ComputeViewMatrix();
-		pCamera->BindViewMatrix(ProgramID);
+		pCurrentActiveCamera->ComputeViewMatrix();
+		pCurrentActiveCamera->BindViewMatrix(ProgramID);
 	}
 
 	void InputManager::InitializeInput(GLFWwindow *window) const noexcept

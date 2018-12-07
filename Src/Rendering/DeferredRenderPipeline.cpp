@@ -78,9 +78,12 @@ namespace cxc
 		if (RenderPassSelectionFSLoc >= 0 )
 			SubroutineIndicesFS[RenderPassSelectionFSLoc] = DeferredRenderingGeometryPassFSIndex;
 
+		// Bind the lights uniforms
+		BindLightUniforms(Lights, SubroutineIndicesFS);
+
 		// Set model matrix	
 		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
-		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->getTransMatrix()[0][0]);
+		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->GetObjectModelMatrix()[0][0]);
 
 		// Bind the material of the mesh
 		MaterialDiffuseSubroutineInfo DiffuseModelInfo;
@@ -124,9 +127,6 @@ namespace cxc
 		glClear(GL_COLOR_BUFFER_BIT);
 		glViewport(0, 0, pWorld->pWindowMgr->GetWindowWidth(), pWorld->pWindowMgr->GetWindowHeight());
 
-		// Bind the lights uniforms
-		BindLightUniforms(Lights);
-
 		// Active the lighting pass
 		GLsizei ActiveSubroutinesUniformCountVS, ActiveSubroutinesUniformCountFS;
 		glGetProgramStageiv(ProgramID, GL_VERTEX_SHADER, GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS, &ActiveSubroutinesUniformCountVS);
@@ -142,14 +142,22 @@ namespace cxc
 		if (RenderPassSelectionVSLoc >= 0)
 		{
 			SubroutineIndicesVS[RenderPassSelectionVSLoc] = DeferredRenderingLightingPassVSIndex;
-			glUniformSubroutinesuiv(GL_VERTEX_SHADER, ActiveSubroutinesUniformCountVS, &SubroutineIndicesVS.front());
 		}
 
 		if (RenderPassSelectionFSLoc >= 0)
 		{
 			SubroutineIndicesFS[RenderPassSelectionFSLoc] = DeferredRenderingLightingPassFSIndex;
-			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, ActiveSubroutinesUniformCountFS, &SubroutineIndicesFS.front());
 		}
+
+		// Bind the material of the mesh
+		MaterialDiffuseSubroutineInfo DiffuseModelInfo;
+		DiffuseModelInfo.SubroutineUniformName = "DiffuseModelSelection";
+		DiffuseModelInfo.TexturedSubroutineName = "TextureDiffuse";
+		DiffuseModelInfo.NonTexturedSubroutineName = "NonTextureDiffuse";
+		pMesh->BindMaterial(ProgramID, DiffuseModelInfo, SubroutineIndicesFS);
+
+		// Bind the lights uniforms
+		BindLightUniforms(Lights, SubroutineIndicesFS);
 
 		// Bind G-Buffer textures, the texture unit 0 and 1 are reserved
 		GLuint VertexPositionTexLoc = glGetUniformLocation(ProgramID, "VertexPositionTex");
@@ -167,9 +175,19 @@ namespace cxc
 		glBindTexture(GL_TEXTURE_2D, pDeferredRender->GetVertexNormalTextureID());
 
 		GLuint Eyepos_loc = glGetUniformLocation(ProgramID, "EyePosition");
-		glm::vec3 EyePosition = pWorld->pSceneMgr->pCamera->EyePosition;
-		glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
+		auto CurrentActiveCamera = pWorld->pSceneMgr->GetCurrentActiveCamera();
+		if (CurrentActiveCamera)
+		{
+			glm::vec3 EyePosition = CurrentActiveCamera->EyePosition;
+			glUniform3f(Eyepos_loc, EyePosition.x, EyePosition.y, EyePosition.z);
+		}
 		
+		if(ActiveSubroutinesUniformCountVS > 0)
+			glUniformSubroutinesuiv(GL_VERTEX_SHADER, ActiveSubroutinesUniformCountVS, &SubroutineIndicesVS.front());
+
+		if(ActiveSubroutinesUniformCountFS > 0)
+			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, ActiveSubroutinesUniformCountFS, &SubroutineIndicesFS.front());
+
 		// Draw sceen quard
 		DrawSceenQuard();
 	}

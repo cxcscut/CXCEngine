@@ -640,9 +640,26 @@ namespace cxc {
 			// Marked as successful
 			bHasFoundAnyLightNode = true;
 
-			/* Save the light configuration */
 			// Light Name
 			pNewLight->LightName = pNode->GetName();
+
+			// Light decay type
+			auto DecayType = lLight->DecayType.Get();
+			switch (DecayType)
+			{
+			case fbxsdk::FbxLight::eNone:
+				pNewLight->AtteunationType = eLightAtteunationType::None;
+				break;
+			case fbxsdk::FbxLight::eLinear:
+				pNewLight->AtteunationType = eLightAtteunationType::Linear;
+				break;
+			case fbxsdk::FbxLight::eQuadratic:
+				pNewLight->AtteunationType = eLightAtteunationType::Quadratic;
+				break;
+			case fbxsdk::FbxLight::eCubic:
+				pNewLight->AtteunationType = eLightAtteunationType::Cubic;
+				break;
+			}
 
 			// Light color
 			FbxDouble3 LightColor = lLight->Color.Get();
@@ -656,7 +673,7 @@ namespace cxc {
 
 			// Whether to cast shadow
 			pNewLight->bCastShadow = lLight->CastShadows.Get();
-
+			
 			// Light type
 			switch (lLight->LightType.Get())
 			{
@@ -685,11 +702,21 @@ namespace cxc {
 				pNewLight->LightType = eLightType::InvalidType;
 				break;
 			}
+			
+			// Get the target of the directional light
+			auto TargetNode = pNode->GetTarget();
+			FbxAMatrix TargetGlobalOffPosition = GetGlobalPosition(TargetNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition) * GetGeometry(TargetNode);
+			pNewLight->SetTargetPos(TargetGlobalOffPosition.GetT()[0], TargetGlobalOffPosition.GetT()[1], TargetGlobalOffPosition.GetT()[2]);
 
 			// Get global position and orientation
 			FbxAMatrix lGlobalPosition = GetGlobalPosition(pNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
 			FbxAMatrix lGeometryOffset = GetGeometry(pNode);
 			lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
+
+			// Set rotation
+			auto RotMatrix = glm::rotate(glm::mat4(1.0f), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[0])), glm::vec3(1, 0, 0));
+			RotMatrix = glm::rotate(RotMatrix, static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[1])), glm::vec3(0, 1, 0));
+			RotMatrix = glm::rotate(RotMatrix, static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[2])), glm::vec3(0, 0, 1));
 
 			pNewLight->SetLightPos(lGlobalOffPosition.GetT()[0], lGlobalOffPosition.GetT()[1], lGlobalOffPosition.GetT()[2]);
 
