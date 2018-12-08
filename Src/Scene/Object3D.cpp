@@ -12,7 +12,6 @@ namespace cxc {
 	Object3D::Object3D() :
 		ObjectName(""),
 		isLoaded(false), enable(GL_TRUE), m_ModelMatrix(1.0f),
-		bReceiveShadows(true),
 		isKinematics(false)
 	{
 

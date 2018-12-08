@@ -22,6 +22,8 @@ struct LightSource
 {
 	vec3 Position;
 	vec3 Color;
+	vec3 TargetPos;
+	float CutOffAngle;
 	float Intensity;
 };
 
@@ -85,7 +87,7 @@ float VectorToDepthValue(vec3 Vec)
     return (NormZComp + 1.0) * 0.5;
 }
 
-vec3 Shading(LightSource Light, vec3 n)
+vec3 OmniLightShading(LightSource Light, vec3 n)
 {
 	float distance = length(Light.Position - Position_worldspace);
 
@@ -130,5 +132,5 @@ void main()
 {
 	vec3 n = normalize( Normal_worldspace );
 	
-	color = Shading(Lights[0], n);;
+	color = OmniLightShading(Lights[0], n);;
 }

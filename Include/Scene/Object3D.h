@@ -156,7 +156,6 @@ namespace cxc {
 		GLuint GetNormalsVBO() const { return m_VBO[2]; }
 
 		GLboolean isEnable() const noexcept { return enable; };
-		bool isReceiveShadows() const{ return bReceiveShadows; }
 		void Enable() noexcept { enable = GL_TRUE; };
 		void Disable() noexcept { enable = GL_FALSE; };
 
@@ -223,9 +222,6 @@ namespace cxc {
 
 		// Kinematics object has infinite mass such as walls and earth.
 		bool isKinematics;
-
-		/* Whether the object receives shadows */
-		bool bReceiveShadows;
 	};
 
 }

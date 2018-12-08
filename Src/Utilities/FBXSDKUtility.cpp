@@ -629,8 +629,6 @@ namespace cxc {
 			return false;
 
 		bool bHasFoundAnyLightNode = false;
-		FbxAMatrix lGlobalOffPosition;
-
 		std::shared_ptr<LightSource> pNewLight = std::make_shared<LightSource>();
 
 		// Get light from root node
@@ -674,6 +672,7 @@ namespace cxc {
 			// Whether to cast shadow
 			pNewLight->bCastShadow = lLight->CastShadows.Get();
 			
+			FbxAMatrix TargetGlobalOffPosition;
 			// Light type
 			switch (lLight->LightType.Get())
 			{
@@ -682,13 +681,18 @@ namespace cxc {
 				pNewLight->LightType = eLightType::OmniDirectional;
 				break;
 			case 1:
+			{
 				// Directional light
 				pNewLight->LightType = eLightType::Directional;
 				break;
+			}
 			case 2:
+			{
 				// Spot light
 				pNewLight->LightType = eLightType::Spot;
+				pNewLight->CutOffAngle = lLight->OuterAngle.Get();
 				break;
+			}
 			case 3:
 				// Area light
 				pNewLight->LightType = eLightType::Area;
@@ -705,13 +709,16 @@ namespace cxc {
 			
 			// Get the target of the directional light
 			auto TargetNode = pNode->GetTarget();
-			FbxAMatrix TargetGlobalOffPosition = GetGlobalPosition(TargetNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition) * GetGeometry(TargetNode);
-			pNewLight->SetTargetPos(TargetGlobalOffPosition.GetT()[0], TargetGlobalOffPosition.GetT()[1], TargetGlobalOffPosition.GetT()[2]);
+			if (TargetNode)
+			{
+				TargetGlobalOffPosition = GetGlobalPosition(TargetNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition) * GetGeometry(TargetNode);
+				pNewLight->SetTargetPos(TargetGlobalOffPosition.GetT()[0], TargetGlobalOffPosition.GetT()[1], TargetGlobalOffPosition.GetT()[2]);
+			}
 
 			// Get global position and orientation
 			FbxAMatrix lGlobalPosition = GetGlobalPosition(pNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
 			FbxAMatrix lGeometryOffset = GetGeometry(pNode);
-			lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
+			FbxAMatrix lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
 
 			// Set rotation
 			auto RotMatrix = glm::rotate(glm::mat4(1.0f), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[0])), glm::vec3(1, 0, 0));

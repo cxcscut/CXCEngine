@@ -40,6 +40,7 @@ namespace cxc {
 		void SetIntensity(float NewIntensity) { LightIntensity = NewIntensity; }
 		void SetLightColor(float r, float g, float b) { LightColor = glm::vec3(r, g, b); }
 		void SetLightAtteunationType(eLightAtteunationType NewAtteunationType) { AtteunationType = NewAtteunationType; }
+		void SetCutOffAngle(float OuterAngle) { CutOffAngle = OuterAngle; }
 
 		eLightAtteunationType GetAtteunationType() const { return AtteunationType; }
 		glm::vec3 GetTargetPos() const noexcept;
@@ -48,25 +49,38 @@ namespace cxc {
 		const std::string& GetLightName() const { return LightName; }
 		float GetIntensity() const { return LightIntensity; }
 		glm::vec3 GetLightColor() const noexcept { return LightColor; }
+		float GetCutOffAngle() const { return CutOffAngle; }
 
 	private:
 
+		// Name of the light source
 		std::string LightName;
 
+		// Color of the light source
 		glm::vec3 LightColor;
 
+		// Position of the light source
 		glm::vec3 LightPos;
 
+		// Target position the light source is looking at
 		glm::vec3 TargetPos;
 
+		// Intensity of the light source
 		float LightIntensity;
 
+		// Type of the light source
 		eLightType LightType;
 
+		// Atteunation of the light source
 		eLightAtteunationType AtteunationType;
 
+		// Cutoff angle of the spotlight
+		float CutOffAngle;
+
+		// Whether the Light casts 
 		bool bCastLight;
 
+		// Whether the light casts shadows
 		bool bCastShadow;
 
 	};

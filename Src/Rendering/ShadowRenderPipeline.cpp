@@ -135,7 +135,7 @@ namespace cxc
 			return;
 
 		auto pOwnerObject = pMesh->GetOwnerObject();
-		if (!pOwnerObject->isEnable() || !pOwnerObject->isReceiveShadows())
+		if (!pOwnerObject->isEnable())
 			return;
 
 		glViewport(0, 0, pShadowRender->GetShadowMapSize(), pShadowRender->GetShadowMapSize());
