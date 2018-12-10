@@ -14,6 +14,7 @@ static const std::string DeferredRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\Defer
 static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
 
 std::shared_ptr<MeshRender> CreateDeferredRender();
+void LogicEntry();
 
 int main()
 {
@@ -55,6 +56,9 @@ int main()
 		}
 	}
 
+	// Set the logic entry
+	GEngine::SetLogicEntry(LogicEntry);
+
 	// Start engine
 	GEngine::StartEngine();
 
@@ -77,4 +81,28 @@ std::shared_ptr<MeshRender> CreateDeferredRender()
 	pDeferredRender->InitializeRender();
 
 	return pDeferredRender;
+}
+
+void RotateLight(std::shared_ptr<LightSource> pLight)
+{
+	// Compute the angles of the light
+	auto LightPos = pLight->GetLightPos();
+	auto ThetaXOY = atan2(LightPos.x, LightPos.y);
+	auto DeltaTheta = glm::radians(4.0f);
+
+	// Apply a delta to the angle
+	ThetaXOY += DeltaTheta;
+
+	// Compute the position 
+	auto RadiusXOY = glm::length(glm::vec2(LightPos.x, LightPos.y));
+	pLight->SetLightPos(RadiusXOY * sinf(ThetaXOY), RadiusXOY * cosf(ThetaXOY), LightPos.z);
+}
+
+void LogicEntry()
+{
+	auto pSceneMgr = SceneManager::GetInstance();
+	RotateLight(pSceneMgr->GetLight("Omni001"));
+	RotateLight(pSceneMgr->GetLight("Omni002"));
+	RotateLight(pSceneMgr->GetLight("Omni003"));
+	RotateLight(pSceneMgr->GetLight("Omni004"));
 }

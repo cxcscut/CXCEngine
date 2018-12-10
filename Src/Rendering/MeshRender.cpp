@@ -64,7 +64,7 @@ namespace cxc
 		GLint OmniLightNumLoc = glGetUniformLocation(ProgramID, "OmniLightNum");
 		GLint DirectionalLightNumLoc = glGetUniformLocation(ProgramID, "DirectionalLightNum");
 		GLint SpotLightNumLoc = glGetUniformLocation(ProgramID, "SpotLightNum");
-		GLuint LightTargetPosLoc, SpotLightCutOffAngleLoc;
+		GLint LightTargetPosLoc, SpotLightCutOffAngleLoc, LightAreaRadiusLoc;
 		size_t OmniLightsCount = 0, DirectionalLightsCount = 0, SpotLightCount = 0;
 
 		for (size_t LightIndex = 0; LightIndex < Lights.size(); ++LightIndex)
@@ -72,16 +72,16 @@ namespace cxc
 			auto pLight = Lights[LightIndex];
 			if (pLight)
 			{
-				GLint LightPosLoc, LightColorLoc, LightIntensityLoc, LightAtteunationLoc;
-				GLint LightAtteunationSubroutineIndex;
-				std::string LightUniformNamePrefix, LightAtteunationSubroutineName;
+				GLint LightPosLoc, LightColorLoc, LightIntensityLoc, LightAttenuationLoc;
+				GLint LightAttenuationSubroutineIndex;
+				std::string LightUniformNamePrefix, LightAttenuationSubroutineName;
 
 				switch (pLight->GetLightType())
 				{
 				case eLightType::OmniDirectional:
 					{
 						LightUniformNamePrefix = "OmniLights[" + std::to_string(OmniLightsCount) + "]";
-						LightAtteunationSubroutineName = "OmniLightAttenuations[" + std::to_string(OmniLightsCount) + "]";
+						LightAttenuationSubroutineName = "OmniLightAtteunations[" + std::to_string(OmniLightsCount) + "]";
 						
 						OmniLightsCount++;
 						break;
@@ -89,7 +89,7 @@ namespace cxc
 				case eLightType::Directional:
 					{
 						LightUniformNamePrefix = "DirectionalLights[" + std::to_string(DirectionalLightsCount) + "]";
-						LightAtteunationSubroutineName = "DirectionalLightAtteunations[" + std::to_string(DirectionalLightsCount) + "]";
+						LightAttenuationSubroutineName = "DirectionalLightAttenuations[" + std::to_string(DirectionalLightsCount) + "]";
 						
 						DirectionalLightsCount++;
 						break;
@@ -97,7 +97,7 @@ namespace cxc
 				case eLightType::Spot:
 					{
 						LightUniformNamePrefix = "SpotLights[" + std::to_string(SpotLightCount) + "]";
-						LightAtteunationSubroutineName = "SpotLightAtteunations[" + std::to_string(SpotLightCount) + "]";
+						LightAttenuationSubroutineName = "SpotLightAttenuations[" + std::to_string(SpotLightCount) + "]";
 						SpotLightCount++;
 						break;
 					}
@@ -108,30 +108,31 @@ namespace cxc
 				LightPosLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Position").c_str());
 				LightColorLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Color").c_str());
 				LightIntensityLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Intensity").c_str());
-				LightAtteunationLoc = glGetSubroutineUniformLocation(ProgramID, GL_FRAGMENT_SHADER, (LightAtteunationSubroutineName).c_str());
+				LightAreaRadiusLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".AreaRadius").c_str());
+				LightAttenuationLoc = glGetSubroutineUniformLocation(ProgramID, GL_FRAGMENT_SHADER, (LightAttenuationSubroutineName).c_str());
 
 				switch (pLight->GetAtteunationType())
 				{
 				case eLightAtteunationType::None:
-					LightAtteunationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "None");
+					LightAttenuationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "None");
 					break;
 
 				case eLightAtteunationType::Linear:
-					LightAtteunationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Linear");
+					LightAttenuationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Linear");
 					break;
 
 				case eLightAtteunationType::Quadratic:
-					LightAtteunationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Quadratic");
+					LightAttenuationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Quadratic");
 					break;
 
 				case eLightAtteunationType::Cubic:
-					LightAtteunationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Cubic");
+					LightAttenuationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Cubic");
 					break;
 				}
 				
-				if (LightAtteunationLoc >= 0)
+				if (LightAttenuationLoc >= 0)
 				{
-					SubroutineIndices[LightAtteunationLoc] = LightAtteunationSubroutineIndex;
+					SubroutineIndices[LightAttenuationLoc] = LightAttenuationSubroutineIndex;
 				}
 
 				// Light properties
@@ -140,6 +141,7 @@ namespace cxc
 				glUniform3f(LightPosLoc, pLight->GetLightPos()[0], pLight->GetLightPos()[1], pLight->GetLightPos()[2]);
 				glUniform3f(LightColorLoc, pLight->GetLightColor()[0], pLight->GetLightColor()[1], pLight->GetLightColor()[2]);
 				glUniform1f(LightIntensityLoc, pLight->GetIntensity());
+				glUniform1f(LightAreaRadiusLoc, pLight->GetAreaRadius());
 			}
 		}
 

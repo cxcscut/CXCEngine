@@ -41,6 +41,7 @@ namespace cxc {
 		void SetLightColor(float r, float g, float b) { LightColor = glm::vec3(r, g, b); }
 		void SetLightAtteunationType(eLightAtteunationType NewAtteunationType) { AtteunationType = NewAtteunationType; }
 		void SetCutOffAngle(float OuterAngle) { CutOffAngle = OuterAngle; }
+		void SetAreaRadius(float Radius) { AreaRadius = Radius; }
 
 		eLightAtteunationType GetAtteunationType() const { return AtteunationType; }
 		glm::vec3 GetTargetPos() const noexcept;
@@ -50,6 +51,7 @@ namespace cxc {
 		float GetIntensity() const { return LightIntensity; }
 		glm::vec3 GetLightColor() const noexcept { return LightColor; }
 		float GetCutOffAngle() const { return CutOffAngle; }
+		float GetAreaRadius() const { return AreaRadius; }
 
 	private:
 
@@ -64,6 +66,9 @@ namespace cxc {
 
 		// Target position the light source is looking at
 		glm::vec3 TargetPos;
+
+		// Radius of the light area
+		float AreaRadius;
 
 		// Intensity of the light source
 		float LightIntensity;

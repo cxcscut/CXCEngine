@@ -3,7 +3,6 @@
 
 in vec2 UV;
 in vec3 Position_worldspace;
-in vec3 EyeDirection_worldspace;
 in vec3 LightDirection_worldspace;
 in vec3 Normal_worldspace;
 
@@ -23,14 +22,42 @@ struct LightSource
 {
 	vec3 Position;
 	vec3 Color;
+	vec3 TargetPos;
+	float CutOffAngle;
 	float Intensity;
 };
 
 uniform MaterialProperties Material;
-uniform LightSource Lights[MAX_LIGHTS_NUM];
-uniform int LightNum;
+uniform LightSource OmniLights[MAX_LIGHTS_NUM];
+uniform LightSource DirectionalLights[MAX_LIGHTS_NUM];
+uniform LightSource SpotLights[MAX_LIGHTS_NUM];
+uniform int OmniLightNum;
+uniform int DirectionalLightNum;
+uniform int SpotLightNum;
 
 subroutine vec3 GetDiffuseFactor();
+subroutine float AttenuationType(float Distance);
+
+layout (index = 0) subroutine (AttenuationType) float None(float Distance)
+{
+	return 1.0f;
+}
+
+subroutine (AttenuationType) float Linear(float Distance)
+{
+	return 1 / Distance;
+}
+
+subroutine (AttenuationType) float Quadratic(float Distance)
+{
+	return 1 / pow(Distance, 2);
+}
+
+subroutine (AttenuationType) float Cubic(float Distance)
+{
+	return 1 / pow(Distance, 3);
+}
+
 subroutine (GetDiffuseFactor) vec3 TextureDiffuse()
 {
 	return texture(Material.TexSampler, UV).rgb;
@@ -42,40 +69,113 @@ subroutine (GetDiffuseFactor) vec3 NonTextureDiffuse()
 }
 
 subroutine uniform GetDiffuseFactor DiffuseFactorSelection;
+subroutine uniform AttenuationType SpotLightAttenuations[MAX_LIGHTS_NUM];
+subroutine uniform AttenuationType OmniLightAttenuations[MAX_LIGHTS_NUM];
+subroutine uniform AttenuationType DirectionalLightAttenuations[MAX_LIGHTS_NUM];
 
-vec3 Shading(LightSource Light, vec3 n)
+vec3 OmniLightFragShading(vec3 n)
 {
-	float distance = length(Light.Position - Position_worldspace);
+	vec3 MaterialAmbientColor = Material.Ka * vec3(0.2, 0.2, 0.2);
+	vec3 MaterialDiffuseColor, MaterialSpecularColor;
+	vec3 FinalColor = vec3(0,0,0);
+	vec3 E = normalize(EyePosition_worldspace- Position_worldspace);
 
-	vec3 l = normalize(Light.Position - Position_worldspace);
+	for(int LightIndex = 0; LightIndex < OmniLightNum; ++LightIndex)
+	{
+		float distance = length(OmniLights[LightIndex].Position - Position_worldspace);
+		vec3 l = normalize(OmniLights[LightIndex].Position - Position_worldspace);
+		vec3 H = normalize(l + E);
 
-	vec3 E = normalize(EyePosition_worldspace + EyeDirection_worldspace);
-	vec3 H = normalize(l + E);
+		float cos_theta = clamp(dot(n,l),0,1);
+		float cos_alpha = clamp(dot(H,n),0,1);
 
-	float cos_theta = clamp(dot(n,l),0,1);
-	float cos_alpha = clamp(dot(H,n),0,1);
+		vec3 MaterialAmbientColor = Material.Ka * vec3(0.2,0.2,0.2);
 
-	vec3 MaterialAmbientColor = Material.Ka * vec3(0.2,0.2,0.2);
+		vec3 MaterialDiffuseColor = DiffuseFactorSelection() * OmniLights[LightIndex].Color * OmniLights[LightIndex].Intensity * cos_theta * OmniLightAttenuations[LightIndex](distance);
+		vec3 MaterialSpecularColor = Material.Ks * OmniLights[LightIndex].Color * OmniLights[LightIndex].Intensity * pow(cos_alpha, Material.Shiniess) * OmniLightAttenuations[LightIndex](distance) ;
+	
+		FinalColor += MaterialAmbientColor * MaterialDiffuseColor +
+				MaterialSpecularColor +
+				MaterialDiffuseColor;
+	}
 
-	vec3 MaterialDiffuseColor = DiffuseFactorSelection() * Light.Color * Light.Intensity * cos_theta / distance ;
-	vec3 MaterialSpecularColor = Material.Ks * Light.Color * Light.Intensity * pow(cos_alpha, Material.Shiniess) / distance ;
+	return FinalColor;
+}
 
-	color = MaterialAmbientColor * MaterialDiffuseColor +
-			MaterialSpecularColor +
-			MaterialDiffuseColor;
+vec3 DirectionalLightFragShading(vec3 n)
+{
+	vec3 MaterialAmbientColor = Material.Ka * vec3(0.2, 0.2, 0.2);
+	vec3 MaterialDiffuseColor, MaterialSpecularColor;
+	vec3 FinalColor = vec3(0,0,0);
+	vec3 E = normalize(EyePosition_worldspace- Position_worldspace);
 
-	return color;
+	for(int LightIndex = 0; LightIndex < OmniLightNum; ++LightIndex)
+	{
+		float distance = length(DirectionalLights[LightIndex].Position - Position_worldspace);
+		vec3 l = normalize(DirectionalLights[LightIndex].Position - Position_worldspace);
+		vec3 H = normalize(l + E);
+
+		float cos_theta = clamp(dot(n,l),0,1);
+		float cos_alpha = clamp(dot(H,n),0,1);
+
+		vec3 MaterialAmbientColor = Material.Ka * vec3(0.2,0.2,0.2);
+
+		vec3 MaterialDiffuseColor = DiffuseFactorSelection() *DirectionalLights[LightIndex].Color * DirectionalLights[LightIndex].Intensity * cos_theta * DirectionalLightAttenuations[LightIndex](distance);
+		vec3 MaterialSpecularColor = Material.Ks * DirectionalLights[LightIndex].Color * DirectionalLights[LightIndex].Intensity * pow(cos_alpha, Material.Shiniess) * DirectionalLightAttenuations[LightIndex](distance) ;
+	
+		FinalColor += MaterialAmbientColor * MaterialDiffuseColor +
+				MaterialSpecularColor +
+				MaterialDiffuseColor;
+	}
+
+	return FinalColor;
+}
+
+vec3 SpotLightFragShading(vec3 n)
+{
+	vec3 MaterialAmbientColor = Material.Ka * vec3(0.2, 0.2, 0.2);
+	vec3 MaterialDiffuseColor, MaterialSpecularColor;
+	vec3 FinalColor = vec3(0,0,0);
+
+	vec3 EyeDirection = normalize(EyePosition_worldspace- Position_worldspace);
+
+	for(int LightIndex = 0; LightIndex < SpotLightNum; ++LightIndex)
+	{
+		float LightDistance = length(SpotLights[LightIndex].Position - Position_worldspace);
+		vec3 LightDirection = normalize(SpotLights[LightIndex].Position - SpotLights[LightIndex].TargetPos);
+		vec3 HalfVector = normalize(LightDirection + EyeDirection);
+
+		vec3 LightToVertexDir = normalize(Position_worldspace - SpotLights[LightIndex].Position);
+		float Visibility = 1.0f;
+		if(clamp(dot(LightToVertexDir, -LightDirection), 0, 1) >= cos(SpotLights[LightIndex].CutOffAngle / 2))
+		{
+ 			Visibility = 1.0f;
+		}
+		else
+		{
+			Visibility = 0.0f;
+		}
+
+		float CosTheta = clamp(dot(n, LightDirection), 0, 1);
+		float CosAlpha = clamp(dot(HalfVector, n), 0, 1);
+
+		MaterialDiffuseColor = Visibility * 0.01 * DiffuseFactorSelection() * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * CosTheta * SpotLightAttenuations[LightIndex](LightDistance);
+		MaterialSpecularColor = Visibility * 0.01 * Material.Ks * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) * SpotLightAttenuations[LightIndex](LightDistance);
+
+		
+		FinalColor += MaterialAmbientColor * MaterialDiffuseColor +
+				MaterialDiffuseColor +
+				MaterialSpecularColor;
+	}
+
+	return FinalColor;
 }
 
 void main()
 {
 	vec3 n = normalize( Normal_worldspace );
-	vec3 OutColor;
-
-	for(int LightIndex = 0; LightIndex < LightNum; ++LightIndex)
-	{
-		OutColor += Shading(Lights[LightIndex], n);
-	}
-
-	color = OutColor;
+	
+	color = OmniLightFragShading(n) +
+			DirectionalLightFragShading(n) +
+			SpotLightFragShading(n);
 }

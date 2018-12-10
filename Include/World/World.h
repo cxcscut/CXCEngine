@@ -104,6 +104,7 @@ namespace cxc {
 	public:
 
 		float GetWorldSeconds() const;
+		std::shared_ptr<LogicFramework> GetLogicWorld() { return m_LogicFramework; }
 
 	public:
 

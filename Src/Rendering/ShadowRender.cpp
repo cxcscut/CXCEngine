@@ -26,17 +26,17 @@ namespace cxc
 
 	ShadowRender::~ShadowRender()
 	{
-		if (FrameBufferObjectID)
+		if (glIsFramebuffer(FrameBufferObjectID))
 		{
 			glDeleteFramebuffers(1, &FrameBufferObjectID);
 		}
 
-		if (DepthMapTexture)
+		if (glIsTexture(DepthMapTexture))
 		{
 			glDeleteTextures(1, &DepthMapTexture);
 		}
 
-		if (ShadowCubeMap)
+		if (glIsTexture(ShadowCubeMap))
 		{
 			glDeleteTextures(1, &ShadowCubeMap);
 		}

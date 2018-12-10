@@ -55,6 +55,10 @@ namespace cxc
 
 	public:
 
+		static void SetLogicEntry(std::function<void(void)> LogicEntry);
+
+	public:
+
 		static void InitializeEngine();
 
 		static void StartEngine();

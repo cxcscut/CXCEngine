@@ -17,6 +17,7 @@ namespace cxc
 
 	void LogicFramework::LogicTick(float DeltaSeconds)
 	{
-		
+		// Tick the game logic entry
+		LogicEntryFunction();
 	}
 }

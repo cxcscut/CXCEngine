@@ -2,7 +2,8 @@
 
 namespace cxc {
 
-	LightSource::LightSource()
+	LightSource::LightSource():
+		AreaRadius(10000.0f)
 	{
 
 	}

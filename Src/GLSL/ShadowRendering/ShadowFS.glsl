@@ -1,11 +1,9 @@
 #version 430 core
-#define MAX_LIGHT_NUM 4
+
 #extension GL_NV_shadow_samplers_cube : enable
 
 in vec2 UV;
 in vec3 Position_worldspace;
-in vec3 EyeDirection_worldspace;
-in vec3 LightDirection_worldspace;
 in vec3 Normal_worldspace;
 in vec4 ShadowCoord;
 
@@ -33,10 +31,15 @@ uniform vec3 EyePosition_worldspace;
 uniform mat4 DepthBiasMVP;
 uniform samplerCube shadowmapCube;
 uniform MaterialProperties Material;
-uniform LightSource Lights[MAX_LIGHT_NUM];
-uniform int LightNum;
+
+uniform LightSource OmniLight;
+uniform LightSource DirectionalLight;
+uniform LightSource SpotLight;
 
 subroutine vec3 GetDiffuseFactor();
+subroutine float Atteunation(float LightDistance);
+subroutine vec3 LightType();
+
 subroutine (GetDiffuseFactor) vec3 TextureDiffuse()
 {
 	return texture(Material.TexSampler, UV).rgb;
@@ -47,6 +50,30 @@ subroutine (GetDiffuseFactor) vec3 NonTextureDiffuse()
 	return Material.Kd;
 }
 
+layout (index = 0) subroutine (Atteunation) float None(float LightDistance)
+{
+	return 1.0f;
+}
+
+subroutine (Atteunation) float Linear(float LightDistance)
+{
+	return 1 / LightDistance;
+}
+
+subroutine (Atteunation) float Quadratic(float LightDistance)
+{
+	return 1 / pow(LightDistance, 2);
+}
+
+subroutine (Atteunation) float Cubic(float LightDistance)
+{
+	return 1 / pow(LightDistance, 3);
+}
+
+subroutine uniform LightType LightTypeSelection;
+subroutine uniform Atteunation OmniLightAtteunation;
+subroutine uniform Atteunation DirectionalLightAtteunation;
+subroutine uniform Atteunation SpotLightAtteunation;
 subroutine uniform GetDiffuseFactor DiffuseFactorSelection;
 
 // Poisson sampling
@@ -87,13 +114,15 @@ float VectorToDepthValue(vec3 Vec)
     return (NormZComp + 1.0) * 0.5;
 }
 
-vec3 OmniLightShading(LightSource Light, vec3 n)
+subroutine (LightType) vec3 OmniLightFragShading()
 {
-	float distance = length(Light.Position - Position_worldspace);
+	float distance = length(OmniLight.Position - Position_worldspace);
+	
+	vec3 n = normalize( Normal_worldspace );
 
-	vec3 l = normalize( Light.Position - Position_worldspace );
+	vec3 l = normalize( OmniLight.Position - Position_worldspace );
 
-	vec3 E = normalize(EyePosition_worldspace + EyeDirection_worldspace);
+	vec3 E = normalize( EyePosition_worldspace - Position_worldspace);
 	vec3 H = normalize(l + E);
 
 	float cos_theta = clamp(dot(n,l),0,1);
@@ -102,7 +131,7 @@ vec3 OmniLightShading(LightSource Light, vec3 n)
 	float Bias = 0;
 	float visibility = 1.0;
 
-	float testDepth = VectorToDepthValue(Light.Position - Position_worldspace);
+	float testDepth = VectorToDepthValue(OmniLight.Position - Position_worldspace);
 
 	// 4x sampling
 	for (int i=0;i<4;i++)
@@ -117,9 +146,9 @@ vec3 OmniLightShading(LightSource Light, vec3 n)
 
 	visibility = clamp(visibility, 0.0f, 1.0f);
 
-	vec3 MaterialDiffuseColor = visibility * DiffuseFactorSelection() * Light.Color * Light.Intensity * cos_theta / distance;
+	vec3 MaterialDiffuseColor = 0.01 * visibility * DiffuseFactorSelection() * OmniLight.Color * OmniLight.Intensity * cos_theta * OmniLightAtteunation(distance);
 	vec3 MaterialAmbientColor = Material.Ka * vec3(0.2,0.2,0.2);
-	vec3 MaterialSpecularColor = visibility * Material.Ks * Light.Color * Light.Intensity  * pow(cos_alpha, Material.Shiniess)  / distance;
+	vec3 MaterialSpecularColor = 0.01 * visibility * Material.Ks * OmniLight.Color * OmniLight.Intensity  * pow(cos_alpha, Material.Shiniess) * OmniLightAtteunation(distance);
 
 	vec3 RetColor = MaterialAmbientColor * MaterialDiffuseColor + 
 			MaterialDiffuseColor +
@@ -128,9 +157,17 @@ vec3 OmniLightShading(LightSource Light, vec3 n)
 	return RetColor;
 }
 
+subroutine (LightType) vec3 DirectionalLightFragShading()
+{
+	return vec3(0,0,0);
+}
+
+subroutine (LightType) vec3 SpotLightFragShading()
+{
+	return vec3(0,0,0);
+}
+
 void main()
 {
-	vec3 n = normalize( Normal_worldspace );
-	
-	color = OmniLightShading(Lights[0], n);;
+	color = LightTypeSelection();
 }

@@ -679,6 +679,8 @@ namespace cxc {
 			case 0 :
 				// Omnidirectional light
 				pNewLight->LightType = eLightType::OmniDirectional;
+				pNewLight->AtteunationType = eLightAtteunationType::Quadratic;
+				pNewLight->SetIntensity(0.5f);
 				break;
 			case 1:
 			{
@@ -706,7 +708,7 @@ namespace cxc {
 				pNewLight->LightType = eLightType::InvalidType;
 				break;
 			}
-			
+
 			// Get the target of the directional light
 			auto TargetNode = pNode->GetTarget();
 			if (TargetNode)

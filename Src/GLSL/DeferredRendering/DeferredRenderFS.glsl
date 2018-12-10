@@ -10,7 +10,7 @@ layout (location = 1) out vec3 gPosition;
 layout (location = 2) out vec3 gDiffuseFactor;
 layout (location = 3) out vec3 gNormal;
 
-subroutine float AtteunationType(float Distance);
+subroutine float AttenuationType(float Distance);
 subroutine void RenderPassType();
 subroutine vec3 DiffuseModel();
 
@@ -28,6 +28,7 @@ struct LightSource
 	vec3 Position;
 	vec3 Color;
 	vec3 TargetPos;
+	float AreaRadius;
 	float CutOffAngle;
 	float Intensity;
 };
@@ -41,9 +42,9 @@ uniform int DirectionalLightNum;
 uniform int SpotLightNum;
 uniform vec3 EyePosition;
 
-subroutine uniform AtteunationType SpotLightAtteunations[DEFERRED_MAX_LIGHTS_NUM];
-subroutine uniform AtteunationType OmniLightAttenuations[DEFERRED_MAX_LIGHTS_NUM];
-subroutine uniform AtteunationType DirectionalLightAtteunations[DEFERRED_MAX_LIGHTS_NUM];
+subroutine uniform AttenuationType SpotLightAttenuations[DEFERRED_MAX_LIGHTS_NUM];
+subroutine uniform AttenuationType OmniLightAttenuations[DEFERRED_MAX_LIGHTS_NUM];
+subroutine uniform AttenuationType DirectionalLightAttenuations[DEFERRED_MAX_LIGHTS_NUM];
 subroutine uniform RenderPassType RenderPassSelectionFS;
 subroutine uniform DiffuseModel DiffuseModelSelection;
 
@@ -51,24 +52,24 @@ uniform sampler2D VertexPositionTex;
 uniform sampler2D VertexNormalTex;
 uniform sampler2D VertexDiffuseTex;
 
-layout (index = 0) subroutine (AtteunationType) float None(float Distance)
+layout (index = 0) subroutine (AttenuationType) float None(float Distance)
 {
 	return 1.0f;
 }
 
-subroutine (AtteunationType) float Linear(float Distance)
+subroutine (AttenuationType) float Linear(float Distance)
 {
-	return 1 / Distance;
+	return 1 / (Distance + None(Distance));
 }
 
-subroutine (AtteunationType) float Quadratic(float Distance)
+subroutine (AttenuationType) float Quadratic(float Distance)
 {
-	return 1 / pow(Distance, 2);
+	return 1 / (pow(Distance, 2) + Linear(Distance));
 }
 
-subroutine (AtteunationType) float Cubic(float Distance)
+subroutine (AttenuationType) float Cubic(float Distance)
 {
-	return 1 / pow(Distance, 3);
+	return 1 / (pow(Distance, 3) + Quadratic(Distance));
 }
 
 subroutine (DiffuseModel) vec3 TextureDiffuse()
@@ -92,6 +93,7 @@ vec3 OmniLightFragShading(vec3 vertex_position, vec3 vertex_normal, vec3 diffuse
 	for(int LightIndex = 0; LightIndex < OmniLightNum; ++LightIndex)
 	{
 		float LightDistance = length(OmniLights[LightIndex].Position - vertex_position);
+
 		vec3 LightDirection = normalize(OmniLights[LightIndex].Position - vertex_position);
 		vec3 HalfVector = normalize(LightDirection + EyeDirection);
 
@@ -101,9 +103,7 @@ vec3 OmniLightFragShading(vec3 vertex_position, vec3 vertex_normal, vec3 diffuse
 		MaterialDiffuseColor = diffuse_factor * OmniLights[LightIndex].Color * OmniLights[LightIndex].Intensity * CosTheta * OmniLightAttenuations[LightIndex](LightDistance);
 		MaterialSpecularColor = Material.Ks * OmniLights[LightIndex].Color * OmniLights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) * OmniLightAttenuations[LightIndex](LightDistance);
 
-		FinalColor += MaterialAmbientColor * MaterialDiffuseColor + 
-					MaterialDiffuseColor + 
-					MaterialSpecularColor;
+		FinalColor += LightDistance <= OmniLights[LightIndex].AreaRadius ? MaterialAmbientColor * MaterialDiffuseColor + MaterialDiffuseColor + MaterialSpecularColor : vec3(0,0,0);
 	}
 
 	return FinalColor;
@@ -126,12 +126,10 @@ vec3 DirectionalLightFragShading(vec3 vertex_position, vec3 vertex_normal, vec3 
 		float CosTheta = clamp(dot(vertex_normal, LightDirection), 0, 1);
 		float CosAlpha = clamp(dot(HalfVector, vertex_normal), 0, 1);
 
-		MaterialDiffuseColor = diffuse_factor * DirectionalLights[LightIndex].Color * DirectionalLights[LightIndex].Intensity * CosTheta * DirectionalLightAtteunations[LightIndex](LightDistance);
-		MaterialSpecularColor = Material.Ks * DirectionalLights[LightIndex].Color * DirectionalLights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) * DirectionalLightAtteunations[LightIndex](LightDistance);
+		MaterialDiffuseColor = diffuse_factor * DirectionalLights[LightIndex].Color * DirectionalLights[LightIndex].Intensity * CosTheta * DirectionalLightAttenuations[LightIndex](LightDistance);
+		MaterialSpecularColor = Material.Ks * DirectionalLights[LightIndex].Color * DirectionalLights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) * DirectionalLightAttenuations[LightIndex](LightDistance);
 
-		FinalColor += MaterialAmbientColor * MaterialDiffuseColor +
-				MaterialDiffuseColor +
-				MaterialSpecularColor;
+		FinalColor += LightDistance <= DirectionalLights[LightIndex].AreaRadius ? MaterialAmbientColor * MaterialDiffuseColor + MaterialDiffuseColor + MaterialSpecularColor : vec3(0,0,0);
 	}
 
 	return FinalColor;
@@ -165,13 +163,10 @@ vec3 SpotLightFragShading(vec3 vertex_position, vec3 vertex_normal, vec3 diffuse
 		float CosTheta = clamp(dot(vertex_normal, LightDirection), 0, 1);
 		float CosAlpha = clamp(dot(HalfVector, vertex_normal), 0, 1);
 
-		MaterialDiffuseColor = Visibility * 0.01 * diffuse_factor * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * CosTheta * SpotLightAtteunations[LightIndex](LightDistance);
-		MaterialSpecularColor = Visibility * 0.01 * Material.Ks * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) * SpotLightAtteunations[LightIndex](LightDistance);
+		MaterialDiffuseColor = Visibility * 0.01 * diffuse_factor * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * CosTheta * SpotLightAttenuations[LightIndex](LightDistance);
+		MaterialSpecularColor = Visibility * 0.01 * Material.Ks * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) * SpotLightAttenuations[LightIndex](LightDistance);
 
-		
-		FinalColor += MaterialAmbientColor * MaterialDiffuseColor +
-				MaterialDiffuseColor +
-				MaterialSpecularColor;
+		FinalColor += LightDistance <= SpotLights[LightIndex].AreaRadius ? MaterialAmbientColor * MaterialDiffuseColor + MaterialDiffuseColor + MaterialSpecularColor : vec3(0,0,0);
 	}
 
 	return FinalColor;
@@ -187,7 +182,7 @@ subroutine (RenderPassType) void GeometryPassFS()
 subroutine (RenderPassType) void LightingPassFS()
 {
 	vec3 pos = vec3(texture(VertexPositionTex, TexCoord));
-	vec3 n = vec3(texture(VertexNormalTex, TexCoord));
+	vec3 n = normalize(vec3(texture(VertexNormalTex, TexCoord)));
 	vec3 diffuse_factor = vec3(texture(VertexDiffuseTex, TexCoord));
 
 	FragColor = vec4(OmniLightFragShading(pos, n, diffuse_factor), 1) 

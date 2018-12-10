@@ -61,6 +61,10 @@ namespace cxc
 
 		/* Texture storing the vertex normal */
 		GLuint VertexNormalTexture;
+
+	private:
+
+		
 	};
 }
 

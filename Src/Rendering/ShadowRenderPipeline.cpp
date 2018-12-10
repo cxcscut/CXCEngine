@@ -14,6 +14,81 @@ namespace cxc
 
 	}
 
+	void ShadowRenderLightingPassPipeline::BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights, std::vector<GLuint>& SubroutineIndices)
+	{
+		if (Lights.empty())
+			return;
+
+		auto pLight = Lights[0];
+		if (!pLight)
+			return;
+
+		GLint LightTargetPosLoc, SpotLightCutOffAngleLoc;
+		GLint LightPosLoc, LightColorLoc, LightIntensityLoc, LightAttenuationLoc;
+		GLint LightAttenuationSubroutineIndex;
+		std::string LightUniformNamePrefix, LightAttenuationSubroutineName;
+
+		switch (pLight->GetLightType())
+		{
+		case eLightType::OmniDirectional:
+		{
+			LightUniformNamePrefix = "OmniLight";
+			LightAttenuationSubroutineName = "OmniLightAttenuation";
+			break;
+		}
+		case eLightType::Directional:
+		{
+			LightUniformNamePrefix = "DirectionalLight";
+			LightAttenuationSubroutineName = "DirectionalLightAtteunation";
+			break;
+		}
+		case eLightType::Spot:
+		{
+			LightUniformNamePrefix = "SpotLight";
+			LightAttenuationSubroutineName = "SpotLightAtteunations";
+			break;
+		}
+		}
+
+		SpotLightCutOffAngleLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".CutOffAngle").c_str());
+		LightTargetPosLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".TargetPos").c_str());
+		LightPosLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Position").c_str());
+		LightColorLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Color").c_str());
+		LightIntensityLoc = glGetUniformLocation(ProgramID, (LightUniformNamePrefix + ".Intensity").c_str());
+		LightAttenuationLoc = glGetSubroutineUniformLocation(ProgramID, GL_FRAGMENT_SHADER, (LightAttenuationSubroutineName).c_str());
+
+		switch (pLight->GetAtteunationType())
+		{
+		case eLightAtteunationType::None:
+			LightAttenuationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "None");
+			break;
+
+		case eLightAtteunationType::Linear:
+			LightAttenuationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Linear");
+			break;
+
+		case eLightAtteunationType::Quadratic:
+			LightAttenuationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Quadratic");
+			break;
+
+		case eLightAtteunationType::Cubic:
+			LightAttenuationSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "Cubic");
+			break;
+		}
+
+		if (LightAttenuationLoc >= 0)
+		{
+			SubroutineIndices[LightAttenuationLoc] = LightAttenuationSubroutineIndex;
+		}
+
+		// Light properties
+		glUniform1f(SpotLightCutOffAngleLoc, glm::radians(pLight->GetCutOffAngle()));
+		glUniform3f(LightTargetPosLoc, pLight->GetTargetPos()[0], pLight->GetTargetPos()[1], pLight->GetTargetPos()[2]);
+		glUniform3f(LightPosLoc, pLight->GetLightPos()[0], pLight->GetLightPos()[1], pLight->GetLightPos()[2]);
+		glUniform3f(LightColorLoc, pLight->GetLightColor()[0], pLight->GetLightColor()[1], pLight->GetLightColor()[2]);
+		glUniform1f(LightIntensityLoc, pLight->GetIntensity());
+	}
+
 	void ShadowRenderLightingPassPipeline::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 
@@ -102,6 +177,25 @@ namespace cxc
 		DiffuseModelInfo.TexturedSubroutineName = "TextureDiffuse";
 		DiffuseModelInfo.NonTexturedSubroutineName = "NonTextureDiffuse";
 		pMesh->BindMaterial(ProgramID, DiffuseModelInfo, SubroutineIndicesFS);
+
+		// Set the light type selection subroutine
+		GLint LightTypeSubroutineLoc = glGetSubroutineUniformLocation(ProgramID, GL_FRAGMENT_SHADER, "LightTypeSelection");
+		GLuint LightTypeSubroutineIndex;
+		switch (pLight->GetLightType())
+		{
+		case eLightType::Directional:
+			LightTypeSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "DirectionalLightFragShading");
+			break;
+		case eLightType::OmniDirectional:
+			LightTypeSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "OmniLightFragShading");
+			break;
+		case eLightType::Spot:
+			LightTypeSubroutineIndex = glGetSubroutineIndex(ProgramID, GL_FRAGMENT_SHADER, "SpotLightFragShading");
+			break;
+		}
+
+		if (LightTypeSubroutineLoc >= 0)
+			SubroutineIndicesFS[LightTypeSubroutineLoc] = LightTypeSubroutineIndex;
 
 		// Submit the subroutines selections
 		if(ActiveSubroutinesUniformCountFS > 0)
