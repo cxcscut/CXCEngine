@@ -18,7 +18,7 @@ void LogicEntry();
 
 int main()
 {
-	glm::vec3 CameraPos = glm::vec3(50, 50, 50);
+	glm::vec3 CameraPos = glm::vec3(200, 200, 200);
 	glm::vec3 CameraOrigin = glm::vec3(0, 0, 0);
 	glm::vec3 CameraUpVector = glm::vec3(0, 0, 1);
 	glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f);
@@ -88,7 +88,7 @@ void RotateLight(std::shared_ptr<LightSource> pLight)
 	// Compute the angles of the light
 	auto LightPos = pLight->GetLightPos();
 	auto ThetaXOY = atan2(LightPos.x, LightPos.y);
-	auto DeltaTheta = glm::radians(4.0f);
+	auto DeltaTheta = glm::radians(1.0f);
 
 	// Apply a delta to the angle
 	ThetaXOY += DeltaTheta;

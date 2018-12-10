@@ -680,7 +680,7 @@ namespace cxc {
 				// Omnidirectional light
 				pNewLight->LightType = eLightType::OmniDirectional;
 				pNewLight->AtteunationType = eLightAtteunationType::Quadratic;
-				pNewLight->SetIntensity(0.5f);
+				pNewLight->SetIntensity(1.0f);
 				break;
 			case 1:
 			{
