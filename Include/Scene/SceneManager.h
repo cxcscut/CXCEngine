@@ -4,7 +4,7 @@
 #include "Material/MaterialManager.h"
 #include "Scene/Camera.h"
 #include "Utilities/FBXSDKUtility.h"
-#include "Rendering/RenderManager.h"
+#include "Rendering/RendererManager.h"
 
 #ifndef CXC_SCENEMANAGER_H
 #define CXC_SCENEMANAGER_H
@@ -130,7 +130,7 @@ namespace cxc {
 
 		std::shared_ptr<MaterialManager> pMaterialMgr;
 		std::unordered_map<std::string, std::shared_ptr<Camera>> pCameras;
-		std::shared_ptr<RenderManager> pRenderMgr;
+		std::shared_ptr<RendererManager> pRenderMgr;
 
 		std::shared_ptr<Object3D > GetObject3D (const std::string &sprite_name) const noexcept;
 		const std::unordered_map<std::string, std::shared_ptr<Object3D >> &GetObjectMap() const noexcept;

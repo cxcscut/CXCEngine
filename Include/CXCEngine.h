@@ -51,7 +51,7 @@ namespace cxc
 	public:
 
 		static void ConfigureEngineDisplaySettings(const DisplayParameters& DisplayConf);
-		static void BindMeshRender(std::shared_ptr<MeshRender> pRender, std::shared_ptr<Object3D> pObject, uint32_t MeshIndex);
+		static void BindMeshRender(std::shared_ptr<MeshRenderer> pRender, std::shared_ptr<Object3D> pObject, uint32_t MeshIndex);
 
 	public:
 

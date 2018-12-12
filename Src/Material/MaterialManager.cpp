@@ -1,5 +1,5 @@
 #include "Material/MaterialManager.h"
-#include "Rendering/RenderManager.h"
+#include "Rendering/RendererManager.h"
 
 namespace cxc {
 

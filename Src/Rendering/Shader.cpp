@@ -1,5 +1,5 @@
 #include "Rendering/Shader.h"
-#include "Rendering/MeshRender.h"
+#include "Rendering/MeshRenderer.h"
 
 namespace cxc
 {

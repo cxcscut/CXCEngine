@@ -38,7 +38,7 @@ namespace cxc
 		}
 	}
 
-	void GEngine::BindMeshRender(std::shared_ptr<MeshRender> pRender, std::shared_ptr<Object3D> pObject, uint32_t MeshIndex)
+	void GEngine::BindMeshRender(std::shared_ptr<MeshRenderer> pRender, std::shared_ptr<Object3D> pObject, uint32_t MeshIndex)
 	{
 		auto pMesh = pObject->GetMesh(MeshIndex);
 		if (pMesh)

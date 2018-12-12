@@ -1,4 +1,4 @@
-#include "MeshRender.h"
+#include "MeshRenderer.h"
 
 #ifndef CXC_SHADOWRENDERPIPELINE_H
 #define CXC_SHADOWRENDERPIPELINE_H
@@ -7,7 +7,7 @@ namespace cxc
 {
 	class Mesh;
 	class LightSource;
-	class ShadowRender;
+	class ShadowRenderer;
 
 	class ShadowRenderLightingPassPipeline : public MeshRenderPipeline
 	{

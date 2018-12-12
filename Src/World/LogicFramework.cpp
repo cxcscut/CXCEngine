@@ -7,7 +7,7 @@ namespace cxc
 	LogicFramework::LogicFramework():
 		LogicFrameRates(30)
 	{
-
+		LogicEntryFunction = []() {};
 	}
 
 	LogicFramework::~LogicFramework()

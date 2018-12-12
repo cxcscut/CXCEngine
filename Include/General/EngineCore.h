@@ -1,7 +1,7 @@
 #ifndef CXC_ENGINECOMPOENTS_H
 #define CXC_ENGINECOMPOENTS_H
 
-#include "Rendering/RenderManager.h"
+#include "Rendering/RendererManager.h"
 #include "Controller/InputManager.h"
 #include "Material/MaterialManager.h"
 #include "Scene/SceneManager.h"

@@ -1,4 +1,4 @@
-#include "MeshRender.h"
+#include "MeshRenderer.h"
 
 #ifndef CXC_FORWARDRENDER_H
 #define CXC_FORWARDRENDER_H
@@ -7,13 +7,13 @@ namespace cxc
 {
 	class ForwardRenderPipeline;
 
-	class ForwardRender : public MeshRender
+	class ForwardRenderer : public MeshRenderer
 	{
 	public:
 
-		ForwardRender();
-		ForwardRender(const std::string& Name);
-		virtual ~ForwardRender();
+		ForwardRenderer();
+		ForwardRenderer(const std::string& Name);
+		virtual ~ForwardRenderer();
 
 	public:
 

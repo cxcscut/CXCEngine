@@ -1,5 +1,5 @@
 #include "CXCEngine.h"
-#include "Rendering/ForwardRender.h"
+#include "Rendering/ForwardRenderer.h"
 
 using namespace cxc;
 
@@ -9,7 +9,7 @@ static const std::string ForwardRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\Forwar
 
 static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
 
-std::shared_ptr<MeshRender> CreateForwardRender();
+std::shared_ptr<MeshRenderer> CreateForwardRender();
 
 int main()
 {
@@ -28,7 +28,7 @@ int main()
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 	GEngine::InitializeEngine();
 
-	auto pRenderMgr = RenderManager::GetInstance();
+	auto pRenderMgr = RendererManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
 	auto pForwardRender = CreateForwardRender();
 	pRenderMgr->AddRender(pForwardRender);
@@ -57,9 +57,9 @@ int main()
 	return 0;
 }
 
-std::shared_ptr<MeshRender> CreateForwardRender()
+std::shared_ptr<MeshRenderer> CreateForwardRender()
 {
-	auto pRenderMgr = RenderManager::GetInstance();
+	auto pRenderMgr = RendererManager::GetInstance();
 
 	// Foward Phong render with no shadows
 	auto ForwardPhongVS = pRenderMgr->FactoryShader("ForwardVS", eShaderType::VERTEX_SHADER, ForwardRenderVSPath);
@@ -69,7 +69,7 @@ std::shared_ptr<MeshRender> CreateForwardRender()
 	ForwardPhongPipeline->AttachShader(ForwardPhongVS);
 	ForwardPhongPipeline->AttachShader(ForwardPhongFS);
 
-	auto PhongRender = NewObject<ForwardRender>("ForwardPhongRender");
+	auto PhongRender = NewObject<ForwardRenderer>("ForwardPhongRender");
 	PhongRender->SetForwardRenderPipeline(ForwardPhongPipeline);
 	PhongRender->InitializeRender();
 

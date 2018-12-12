@@ -3,9 +3,7 @@
 #include "ode/ode.h"
 #include "Scene/Mesh.h"
 #include "Physics/RigidBody3D.h"
-#include "Rendering/RenderManager.h"
-
-
+#include "Rendering/RendererManager.h"
 
 #ifndef CXC_DRAWOBJECT_H
 #define CXC_DRAWOBJECT_H
@@ -15,7 +13,7 @@
 
 namespace cxc {
 
-	class ShadowRender;
+	class ShadowRenderer;
 	class MaterialManager;
 	class TextureManager;
 	class Shape;

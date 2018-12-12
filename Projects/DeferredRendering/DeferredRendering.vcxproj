@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -111,14 +111,14 @@
     <ClCompile Include="..\..\src\physics\Collider3D.cpp" />
     <ClCompile Include="..\..\src\physics\PhysicalWorld.cpp" />
     <ClCompile Include="..\..\src\physics\RigidBody3D.cpp" />
-    <ClCompile Include="..\..\src\rendering\DeferredRender.cpp" />
+    <ClCompile Include="..\..\src\rendering\DeferredRenderer.cpp" />
     <ClCompile Include="..\..\src\rendering\DeferredRenderPipeline.cpp" />
     <ClCompile Include="..\..\src\rendering\Font.cpp" />
-    <ClCompile Include="..\..\src\rendering\ForwardRender.cpp" />
-    <ClCompile Include="..\..\src\rendering\MeshRender.cpp" />
-    <ClCompile Include="..\..\src\rendering\RenderManager.cpp" />
+    <ClCompile Include="..\..\src\rendering\ForwardRenderer.cpp" />
+    <ClCompile Include="..\..\src\rendering\MeshRenderer.cpp" />
+    <ClCompile Include="..\..\Src\Rendering\RendererManager.cpp" />
     <ClCompile Include="..\..\src\rendering\Shader.cpp" />
-    <ClCompile Include="..\..\src\rendering\ShadowRender.cpp" />
+    <ClCompile Include="..\..\src\rendering\ShadowRenderer.cpp" />
     <ClCompile Include="..\..\src\rendering\ShadowRenderPipeline.cpp" />
     <ClCompile Include="..\..\src\scene\Camera.cpp" />
     <ClCompile Include="..\..\src\scene\Lighting.cpp" />
@@ -146,14 +146,14 @@
     <ClInclude Include="..\..\include\physics\Collider3D.h" />
     <ClInclude Include="..\..\include\physics\PhysicalWorld.h" />
     <ClInclude Include="..\..\include\physics\RigidBody3D.h" />
-    <ClInclude Include="..\..\include\rendering\DeferredRender.h" />
+    <ClInclude Include="..\..\Include\Rendering\DeferredRenderer.h" />
     <ClInclude Include="..\..\include\rendering\DeferredRenderPipeline.h" />
     <ClInclude Include="..\..\include\rendering\Font.h" />
-    <ClInclude Include="..\..\include\rendering\ForwardRender.h" />
-    <ClInclude Include="..\..\include\rendering\MeshRender.h" />
+    <ClInclude Include="..\..\Include\Rendering\ForwardRenderer.h" />
+    <ClInclude Include="..\..\Include\Rendering\MeshRenderer.h" />
     <ClInclude Include="..\..\include\rendering\RenderManager.h" />
     <ClInclude Include="..\..\include\rendering\Shader.h" />
-    <ClInclude Include="..\..\include\rendering\ShadowRender.h" />
+    <ClInclude Include="..\..\Include\Rendering\ShadowRenderer.h" />
     <ClInclude Include="..\..\include\rendering\ShadowRenderPipeline.h" />
     <ClInclude Include="..\..\include\scene\Camera.h" />
     <ClInclude Include="..\..\include\scene\Lighting.h" />

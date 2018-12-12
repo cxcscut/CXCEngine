@@ -1,12 +1,12 @@
-#include "Rendering/DeferredRender.h"
+#include "Rendering/DeferredRenderer.h"
 #include "Window/Window.h"
 #include "Scene/Mesh.h"
-#include "Rendering/RenderManager.h"
+#include "Rendering/RendererManager.h"
 #include "World/World.h"
 
 namespace cxc
 {
-	DeferredRender::DeferredRender():
+	DeferredRenderer::DeferredRenderer():
 		GeometryFrameBuffer(0), DepthBuffer(0),
 		VertexPositionTexture(0), VertexDiffuseTexture(0), VertexNormalTexture(0),
 		bIsGBufferDirty(false)
@@ -14,13 +14,13 @@ namespace cxc
 		RenderName = "DefaultDeferredRender";
 	}
 
-	DeferredRender::DeferredRender(const std::string& Name)
-		: MeshRender(Name)
+	DeferredRenderer::DeferredRenderer(const std::string& Name)
+		: MeshRenderer(Name)
 	{
 
 	}
 
-	DeferredRender::~DeferredRender()
+	DeferredRenderer::~DeferredRenderer()
 	{
 		if (glIsTexture(VertexDiffuseTexture))
 		{
@@ -48,7 +48,7 @@ namespace cxc
 		}
 	}
 
-	bool DeferredRender::InitializeRender()
+	bool DeferredRenderer::InitializeRender()
 	{
 		bool bSuccessful = true;
 
@@ -57,13 +57,13 @@ namespace cxc
 		return bSuccessful;
 	}
 
-	void DeferredRender::SetDeferredRenderPipeline(std::shared_ptr<DeferredRenderPipeline> Pipeline)
+	void DeferredRenderer::SetDeferredRenderPipeline(std::shared_ptr<DeferredRenderPipeline> Pipeline)
 	{
 		pDeferredRenderPipeline = Pipeline;
 		pDeferredRenderPipeline->SetOwnerRender(shared_from_this());
 	}
 
-	void DeferredRender::CreateGBufferTextures()
+	void DeferredRenderer::CreateGBufferTextures()
 	{
 		auto pWindowMgr = WindowManager::GetInstance();
 
@@ -125,7 +125,7 @@ namespace cxc
 		}
 	}
 
-	void DeferredRender::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void DeferredRenderer::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Clear the G-Buffer for rendering
 		if (bIsGBufferDirty && glIsFramebuffer(GeometryFrameBuffer))
@@ -146,7 +146,7 @@ namespace cxc
 		}
 	}
 
-	void DeferredRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void DeferredRenderer::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		UsePipeline(pDeferredRenderPipeline);
 		
@@ -163,7 +163,7 @@ namespace cxc
 		}
 	}
 
-	void DeferredRender::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void DeferredRenderer::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		UsePipeline(pDeferredRenderPipeline);
 

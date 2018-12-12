@@ -1,8 +1,8 @@
 #include "CXCEngine.h"
-#include "Rendering/ForwardRender.h"
-#include "Rendering/ShadowRender.h"
+#include "Rendering/ForwardRenderer.h"
+#include "Rendering/ShadowRenderer.h"
 #include "Rendering/ShadowRenderPipeline.h"
-#include "Rendering/DeferredRender.h"
+#include "Rendering/DeferredRenderer.h"
 #include "Rendering/DeferredRenderPipeline.h"
 
 using namespace cxc;
@@ -14,7 +14,7 @@ static const std::string ShadowRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\ShadowR
 
 static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
 
-std::shared_ptr<MeshRender> CreateShadowRender();
+std::shared_ptr<MeshRenderer> CreateShadowRender();
 
 int main()
 {
@@ -33,7 +33,7 @@ int main()
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 	GEngine::InitializeEngine();
 
-	auto pRenderMgr = RenderManager::GetInstance();
+	auto pRenderMgr = RendererManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
 	auto pRender = CreateShadowRender();
 	pRenderMgr->AddRender(pRender);
@@ -62,11 +62,11 @@ int main()
 	return 0;
 }
 
-std::shared_ptr<MeshRender> CreateShadowRender()
+std::shared_ptr<MeshRenderer> CreateShadowRender()
 {
-	auto pRenderMgr = RenderManager::GetInstance();
+	auto pRenderMgr = RendererManager::GetInstance();
 
-	auto ShadowMapRender = NewObject<ShadowRender>("ShadowRender");
+	auto ShadowMapRender = NewObject<ShadowRenderer>("ShadowRenderer");
 	auto ShadowBasePassPipeline = NewObject<ShadowRenderBasePassPipeline>();
 	auto ShadowLightingPassPipeline = NewObject<ShadowRenderLightingPassPipeline>();
 

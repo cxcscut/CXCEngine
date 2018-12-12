@@ -1,5 +1,5 @@
 #include "Rendering/ShadowRenderPipeline.h"
-#include "Rendering/ShadowRender.h"
+#include "Rendering/ShadowRenderer.h"
 #include "World/World.h"
 
 namespace cxc
@@ -109,7 +109,7 @@ namespace cxc
 			return;
 
 		auto pWorld = World::GetInstance();
-		auto pShadowRender = std::dynamic_pointer_cast<ShadowRender>(pOwnerRender.lock());
+		auto pShadowRender = std::dynamic_pointer_cast<ShadowRenderer>(pOwnerRender.lock());
 		if (!pShadowRender)
 			return;
 
@@ -224,7 +224,7 @@ namespace cxc
 	void ShadowRenderBasePassPipeline::RenderShadowsToTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		auto pRender = pOwnerRender.lock();
-		ShadowRender* pShadowRender = dynamic_cast<ShadowRender*>(pRender.get());
+		ShadowRenderer* pShadowRender = dynamic_cast<ShadowRenderer*>(pRender.get());
 		if (!pShadowRender)
 			return;
 
@@ -258,7 +258,7 @@ namespace cxc
 	void ShadowRenderBasePassPipeline::CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		auto pRender = pOwnerRender.lock();
-		ShadowRender* pShadowRender = dynamic_cast<ShadowRender*>(pRender.get());
+		ShadowRenderer* pShadowRender = dynamic_cast<ShadowRenderer*>(pRender.get());
 		if (!pShadowRender || Lights.empty())
 			return;
 

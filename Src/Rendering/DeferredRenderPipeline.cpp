@@ -1,5 +1,5 @@
 #include "Rendering/DeferredRenderPipeline.h"
-#include "Rendering/DeferredRender.h"
+#include "Rendering/DeferredRenderer.h"
 #include "Scene/Mesh.h"
 #include "World/World.h"
 
@@ -48,7 +48,7 @@ namespace cxc
 		// Geometry pass
 		auto pWorld = World::GetInstance();
 		auto pWindowMgr = pWorld->pWindowMgr;
-		auto pDeferredRender = std::dynamic_pointer_cast<DeferredRender>(pOwnerRender.lock());
+		auto pDeferredRender = std::dynamic_pointer_cast<DeferredRenderer>(pOwnerRender.lock());
 		auto pOwnerObject = pMesh->GetOwnerObject();
 		assert(pDeferredRender != nullptr);
 		if (!pDeferredRender)
@@ -116,7 +116,7 @@ namespace cxc
 		// 2. Disable depth test and clear the color buffer
 		// 3. Render a quard covering the whole sceen, and the texcoords of the quard ranging between 0.0f and 1.0f
 		auto pWorld = World::GetInstance();
-		auto pDeferredRender = std::dynamic_pointer_cast<DeferredRender>(pOwnerRender.lock());
+		auto pDeferredRender = std::dynamic_pointer_cast<DeferredRenderer>(pOwnerRender.lock());
 		assert(pDeferredRender != nullptr);
 		if (!pDeferredRender)
 			return;

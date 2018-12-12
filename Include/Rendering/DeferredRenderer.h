@@ -1,4 +1,4 @@
-#include "MeshRender.h"
+#include "MeshRenderer.h"
 #include "DeferredRenderPipeline.h"
 
 #ifndef CXC_DEFERREDRENDER_H
@@ -9,13 +9,13 @@ namespace cxc
 	class Mesh;
 	class LightSource;
 
-	class DeferredRender : public MeshRender
+	class DeferredRenderer : public MeshRenderer
 	{
 	public:
 
-		DeferredRender();
-		DeferredRender(const std::string& Name);
-		virtual ~DeferredRender();
+		DeferredRenderer();
+		DeferredRenderer(const std::string& Name);
+		virtual ~DeferredRenderer();
 
 	public:
 

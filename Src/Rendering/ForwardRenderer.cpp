@@ -1,26 +1,26 @@
-#include "Rendering/ForwardRender.h"
+#include "Rendering/ForwardRenderer.h"
 #include "Scene/Mesh.h"
 #include "World/World.h"
 
 namespace cxc
 {
-	ForwardRender::ForwardRender()
+	ForwardRenderer::ForwardRenderer()
 	{
 
 	}
 
-	ForwardRender::ForwardRender(const std::string& Name):
-		MeshRender(Name)
+	ForwardRenderer::ForwardRenderer(const std::string& Name):
+		MeshRenderer(Name)
 	{
 
 	}
 
-	ForwardRender::~ForwardRender()
+	ForwardRenderer::~ForwardRenderer()
 	{
 
 	}
 
-	bool ForwardRender::InitializeRender()
+	bool ForwardRenderer::InitializeRender()
 	{
 		bool bSuccessful = true;
 
@@ -30,7 +30,7 @@ namespace cxc
 		return bSuccessful;
 	}
 
-	void ForwardRender::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void ForwardRenderer::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 
 		// Use pipeline before submit the uniforms to program
@@ -107,7 +107,7 @@ namespace cxc
 		pMesh->DrawMesh();
 	}
 
-	void ForwardRender::SetForwardRenderPipeline(std::shared_ptr<ForwardRenderPipeline> Pipeline)
+	void ForwardRenderer::SetForwardRenderPipeline(std::shared_ptr<ForwardRenderPipeline> Pipeline)
 	{
 		if (Pipeline)
 		{

@@ -1,23 +1,23 @@
-#include "Rendering/RenderManager.h"
+#include "Rendering/RendererManager.h"
 
 namespace cxc {
 
-	RenderManager::RenderManager()
+	RendererManager::RendererManager()
 	{
 		
 	}
 
-	RenderManager::~RenderManager()
+	RendererManager::~RendererManager()
 	{
 		
 	}
 
-	void RenderManager::SetCurrentUsedRender(std::shared_ptr<MeshRender> pRender)
+	void RendererManager::SetCurrentUsedRender(std::shared_ptr<MeshRenderer> pRender)
 	{
 		CurrentUsedRender = pRender;
 	}
 
-	std::shared_ptr<Shader> RenderManager::FactoryShader(const std::string& ShaderName, eShaderType ShaderType, const std::string& ShaderFileName)
+	std::shared_ptr<Shader> RendererManager::FactoryShader(const std::string& ShaderName, eShaderType ShaderType, const std::string& ShaderFileName)
 	{
 		auto pNewShader = NewObject<Shader>(ShaderName, ShaderFileName, ShaderType);
 		if (pNewShader && pNewShader->CompileShader())
@@ -31,7 +31,7 @@ namespace cxc {
 			return nullptr;
 	}
 
-	std::shared_ptr<Shader>RenderManager::GetShader(const std::string& ShaderName)
+	std::shared_ptr<Shader>RendererManager::GetShader(const std::string& ShaderName)
 	{
 		auto iter = pShadersMap.find(ShaderName);
 		if (iter != pShadersMap.end())
@@ -42,7 +42,7 @@ namespace cxc {
 			return nullptr;
 	}
 
-	void RenderManager::AddShader(std::shared_ptr<Shader> pShader)
+	void RendererManager::AddShader(std::shared_ptr<Shader> pShader)
 	{
 		if (pShader)
 		{
@@ -50,7 +50,7 @@ namespace cxc {
 		}
 	}
 
-	std::shared_ptr<MeshRender> RenderManager::GetRenderPtr(const std::string &name) noexcept
+	std::shared_ptr<MeshRenderer> RendererManager::GetRenderPtr(const std::string &name) noexcept
 	{
 		auto it = RendersMap.find(name);
 		if (it != RendersMap.end())
@@ -60,7 +60,7 @@ namespace cxc {
 
 	}
 
-	void RenderManager::UseRender(const std::string& RenderName)
+	void RendererManager::UseRender(const std::string& RenderName)
 	{
 		auto pRender = GetRenderPtr(RenderName);
 		if (pRender)
@@ -69,7 +69,7 @@ namespace cxc {
 		}
 	}
 
-	void RenderManager::AddRender(std::shared_ptr<MeshRender> pRender) noexcept
+	void RendererManager::AddRender(std::shared_ptr<MeshRenderer> pRender) noexcept
 	{
 		if (pRender)
 		{
@@ -77,7 +77,7 @@ namespace cxc {
 		}
 	}
 
-	void RenderManager::DeleteRender(const std::string &name) noexcept
+	void RendererManager::DeleteRender(const std::string &name) noexcept
 	{
 		auto it = RendersMap.find(name);
 		if (it != RendersMap.end())

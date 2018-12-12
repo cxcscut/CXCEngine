@@ -14,15 +14,15 @@ namespace cxc
 	class MeshRenderPipeline;
 
 	/* Base class for all render */
-	class MeshRender : public std::enable_shared_from_this<MeshRender>
+	class MeshRenderer : public std::enable_shared_from_this<MeshRenderer>
 	{
 
 	public:
 
-		MeshRender();
-		MeshRender(const std::string& Name);
+		MeshRenderer();
+		MeshRenderer(const std::string& Name);
 
-		virtual ~MeshRender();
+		virtual ~MeshRenderer();
 
 	public:
 
@@ -62,7 +62,7 @@ namespace cxc
 
 	public:
 
-		void SetOwnerRender(std::shared_ptr<MeshRender> pNewOwner) { pOwnerRender = pNewOwner; }
+		void SetOwnerRender(std::shared_ptr<MeshRenderer> pNewOwner) { pOwnerRender = pNewOwner; }
 		void SetPipelineName(const std::string& Name) { PipelineName = Name; }
 
 		GLuint GetPipelineProgramID() const { return ProgramID; }
@@ -93,7 +93,7 @@ namespace cxc
 	protected:
 
 		// Weak pointer to the render that owns it
-		std::weak_ptr<MeshRender> pOwnerRender;
+		std::weak_ptr<MeshRenderer> pOwnerRender;
 
 	protected:
 

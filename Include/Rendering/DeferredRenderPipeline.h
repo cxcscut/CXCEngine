@@ -1,11 +1,11 @@
-#include "MeshRender.h"
+#include "MeshRenderer.h"
 
 #ifndef CXC_DEFERREDRENDERPIPELINE_H
 #define CXC_DEFERREDRENDERPIPELINE_H
 
 namespace cxc
 {
-	class DeferredRender;
+	class DeferredRenderer;
 
 	class DeferredRenderPipeline : public MeshRenderPipeline
 	{

@@ -1,8 +1,8 @@
 #include "CXCEngine.h"
-#include "Rendering/ForwardRender.h"
-#include "Rendering/ShadowRender.h"
+#include "Rendering/ForwardRenderer.h"
+#include "Rendering/ShadowRenderer.h"
 #include "Rendering/ShadowRenderPipeline.h"
-#include "Rendering/DeferredRender.h"
+#include "Rendering/DeferredRenderer.h"
 #include "Rendering/DeferredRenderPipeline.h"
 
 using namespace cxc;
@@ -13,7 +13,7 @@ static const std::string DeferredRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\Defer
 
 static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
 
-std::shared_ptr<MeshRender> CreateDeferredRender();
+std::shared_ptr<MeshRenderer> CreateDeferredRender();
 void LogicEntry();
 
 int main()
@@ -33,7 +33,7 @@ int main()
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 	GEngine::InitializeEngine();
 
-	auto pRenderMgr = RenderManager::GetInstance();
+	auto pRenderMgr = RendererManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
 	auto pRender = CreateDeferredRender();
 	pRenderMgr->AddRender(pRender);
@@ -65,11 +65,11 @@ int main()
 	return 0;
 }
 
-std::shared_ptr<MeshRender> CreateDeferredRender()
+std::shared_ptr<MeshRenderer> CreateDeferredRender()
 {
-	auto pRenderMgr = RenderManager::GetInstance();
+	auto pRenderMgr = RendererManager::GetInstance();
 
-	auto pDeferredRender = NewObject<DeferredRender>("DeferredRender");
+	auto pDeferredRender = NewObject<DeferredRenderer>("DeferredRenderer");
 	auto pDeferredRenderPipeline = NewObject<DeferredRenderPipeline>();
 
 	auto DeferredRenderVS = pRenderMgr->FactoryShader("DeferredShaderVS", eShaderType::VERTEX_SHADER, DeferredRenderVSPath);

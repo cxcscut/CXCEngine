@@ -9,7 +9,7 @@ namespace cxc {
 		m_Boundary(),m_SceneCenter(glm::vec3(0,0,0)),m_SceneSize(5000.0f)
 	{
 		pMaterialMgr = MaterialManager::GetInstance();
-		pRenderMgr = RenderManager::GetInstance();
+		pRenderMgr = RendererManager::GetInstance();
 	}
 
 	SceneManager::~SceneManager()

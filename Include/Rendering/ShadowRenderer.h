@@ -1,4 +1,4 @@
-#include "MeshRender.h"
+#include "MeshRenderer.h"
 #include "ShadowRenderPipeline.h"
 
 #ifndef CXC_SHADOWRENDER_H
@@ -9,8 +9,8 @@ namespace cxc
 	class Mesh;
 	class LightSource;
 
-	/* ShadowRender does not support casting shadows of multiple dynamic lights */
-	class ShadowRender : public MeshRender
+	/* ShadowRenderer does not support casting shadows of multiple dynamic lights */
+	class ShadowRenderer : public MeshRenderer
 	{
 		using CubeMapCameraPose = struct CubeMapCameraPose {
 			GLenum CubeMapFace;
@@ -20,10 +20,10 @@ namespace cxc
 
 	public:
 
-		ShadowRender();
-		ShadowRender(const std::string& RenderName);
+		ShadowRenderer();
+		ShadowRenderer(const std::string& RenderName);
 
-		virtual ~ShadowRender();
+		virtual ~ShadowRenderer();
 
 	public:
 

@@ -18,94 +18,109 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\CXCEngine.cpp">
+    <ClCompile Include="..\..\src\animation\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\animation\Animation.cpp">
+    <ClCompile Include="..\..\src\controller\InputManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\controller\InputManager.cpp">
+    <ClCompile Include="..\..\src\CXCEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\material\Material.cpp">
+    <ClCompile Include="..\..\src\material\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\material\MaterialManager.cpp">
+    <ClCompile Include="..\..\src\material\MaterialManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\material\Texture2D.cpp">
+    <ClCompile Include="..\..\src\material\Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\material\TextureManager.cpp">
+    <ClCompile Include="..\..\src\material\TextureManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\physics\Collider3D.cpp">
+    <ClCompile Include="..\..\src\physics\Collider3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\physics\PhysicalWorld.cpp">
+    <ClCompile Include="..\..\src\physics\PhysicalWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\physics\RigidBody3D.cpp">
+    <ClCompile Include="..\..\src\physics\RigidBody3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\DeferredRender.cpp">
+    <ClCompile Include="..\..\src\rendering\DeferredRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\DeferredRenderPipeline.cpp">
+    <ClCompile Include="..\..\src\rendering\DeferredRenderPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\Font.cpp">
+    <ClCompile Include="..\..\src\rendering\Font.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\ForwardRender.cpp">
+    <ClCompile Include="..\..\src\rendering\ForwardRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\MeshRender.cpp">
+    <ClCompile Include="..\..\src\rendering\MeshRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\RenderManager.cpp">
+    <ClCompile Include="..\..\src\rendering\RenderManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\Shader.cpp">
+    <ClCompile Include="..\..\src\rendering\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\ShadowRender.cpp">
+    <ClCompile Include="..\..\src\rendering\ShadowRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\rendering\ShadowRenderPipeline.cpp">
+    <ClCompile Include="..\..\src\rendering\ShadowRenderPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\scene\Camera.cpp">
+    <ClCompile Include="..\..\src\scene\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\scene\Lighting.cpp">
+    <ClCompile Include="..\..\src\scene\Lighting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\scene\Mesh.cpp">
+    <ClCompile Include="..\..\src\scene\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\scene\Object3D.cpp">
+    <ClCompile Include="..\..\src\scene\Object3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\scene\SceneManager.cpp">
+    <ClCompile Include="..\..\src\scene\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\utilities\FBXSDKUtility.cpp">
+    <ClCompile Include="..\..\src\script\ScriptParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\utilities\FileHelper.cpp">
+    <ClCompile Include="..\..\src\utilities\FBXSDKUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\window\Window.cpp">
+    <ClCompile Include="..\..\src\utilities\FileHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\world\LogicFramework.cpp">
+    <ClCompile Include="..\..\src\window\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\world\World.cpp">
+    <ClCompile Include="..\..\src\world\LogicFramework.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\script\ScriptParser.cpp">
+    <ClCompile Include="..\..\src\world\World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Rendering\DeferredRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Rendering\ForwardRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Rendering\MeshRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Rendering\RendererManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Rendering\ShadowRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -204,6 +219,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\general\EngineCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Rendering\DeferredRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Rendering\ForwardRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Rendering\MeshRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Rendering\RendererManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Rendering\ShadowRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,26 +1,26 @@
-#include "Rendering/MeshRender.h"
+#include "Rendering/MeshRenderer.h"
 #include "Scene/SceneManager.h"
 #include "World/World.h"
 
 namespace cxc
 {
-	MeshRender::MeshRender()
+	MeshRenderer::MeshRenderer()
 	{
 
 	}
 
-	MeshRender::MeshRender(const std::string& Name)
-		: MeshRender()
+	MeshRenderer::MeshRenderer(const std::string& Name)
+		: MeshRenderer()
 	{
 		RenderName = Name;
 	}
 
-	MeshRender::~MeshRender()
+	MeshRenderer::~MeshRenderer()
 	{
 
 	}
 
-	void MeshRender::UsePipeline(std::shared_ptr<MeshRenderPipeline> Pipeline)
+	void MeshRenderer::UsePipeline(std::shared_ptr<MeshRenderPipeline> Pipeline)
 	{
 		if (Pipeline)
 		{
@@ -31,7 +31,7 @@ namespace cxc
 			glUseProgram(0);
 	}
 
-	void MeshRender::BindCameraUniforms(GLuint ProgramID)
+	void MeshRenderer::BindCameraUniforms(GLuint ProgramID)
 	{
 		auto SceneManager = SceneManager::GetInstance();
 		auto CurrentActiveCamera = SceneManager->GetCurrentActiveCamera();
