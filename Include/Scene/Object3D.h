@@ -82,6 +82,7 @@ namespace cxc {
 		friend class Mesh;
 
 		explicit Object3D();
+		explicit Object3D(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals);
 		explicit Object3D(std::vector<glm::vec3>& Vertices,
 			std::vector<glm::vec3>& Normals,
 			std::vector<glm::vec2>& UVs,
@@ -161,6 +162,7 @@ namespace cxc {
 		std::string CompareTag() noexcept { return tag; };
 		
 		std::shared_ptr<Mesh> GetMesh(uint16_t Index);
+		void AddMesh(std::shared_ptr<Mesh> pNewMesh);
 
 	private:
 

@@ -9,6 +9,12 @@ namespace cxc {
 		pOwnerObject.reset();
 	}
 
+	Mesh::Mesh(const std::vector<uint32_t>& indices):
+		Mesh()
+	{
+		Indices = indices;
+	}
+
 	Mesh::~Mesh()
 	{
 
@@ -91,9 +97,12 @@ namespace cxc {
 
 	void Mesh::AllocateMeshEBO()
 	{
-		glGenBuffers(1, &MeshEBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * Indices.size(), &Indices.front(), GL_STATIC_DRAW);
+		if (!Indices.empty())
+		{
+			glGenBuffers(1, &MeshEBO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * Indices.size(), &Indices.front(), GL_STATIC_DRAW);
+		}
 	}
 
 	void Mesh::ReleaseMeshEBO()
@@ -110,17 +119,26 @@ namespace cxc {
 		glBindVertexArray(pOwner->GetVAO());
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
 
-		glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetVertexCoordsVBO());
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
+		if (glIsBuffer(pOwner->GetVertexCoordsVBO()) == GL_TRUE)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetVertexCoordsVBO());
+			glEnableVertexAttribArray(static_cast<GLuint>(Location::VERTEX_LOCATION));
+			glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
+		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetTexCoordsVBO());
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::TEXTURE_LOCATION), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Texcoords
+		if (glIsBuffer(pOwner->GetTexCoordsVBO()) == GL_TRUE)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetTexCoordsVBO());
+			glEnableVertexAttribArray(static_cast<GLuint>(Location::TEXTURE_LOCATION));
+			glVertexAttribPointer(static_cast<GLuint>(Location::TEXTURE_LOCATION), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Texcoords
+		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetNormalsVBO());
-		glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
-		glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Normal
+		if (glIsBuffer(pOwner->GetNormalsVBO()) == GL_TRUE)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetNormalsVBO());
+			glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
+			glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Normal
+		}
 
 		// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
 		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));

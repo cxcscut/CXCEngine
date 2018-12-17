@@ -101,7 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\animation\Animation.cpp" />
+    <ClCompile Include="..\..\Src\Animation\AnimationStack.cpp" />
     <ClCompile Include="..\..\src\controller\InputManager.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
@@ -128,13 +128,14 @@
     <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
     <ClCompile Include="..\..\src\utilities\FBXSDKUtility.cpp" />
     <ClCompile Include="..\..\src\utilities\FileHelper.cpp" />
+    <ClCompile Include="..\..\Src\Utilities\GeomtryUtil.cpp" />
     <ClCompile Include="..\..\src\window\Window.cpp" />
     <ClCompile Include="..\..\src\world\LogicFramework.cpp" />
     <ClCompile Include="..\..\src\world\World.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\animation\Animation.h" />
+    <ClInclude Include="..\..\Include\Animation\AnimationStack.h" />
     <ClInclude Include="..\..\include\controller\InputManager.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
     <ClInclude Include="..\..\include\general\DefineTypes.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="..\..\include\script\ScriptParser.h" />
     <ClInclude Include="..\..\include\utilities\FBXSDKUtility.h" />
     <ClInclude Include="..\..\include\utilities\FileHelper.h" />
+    <ClInclude Include="..\..\Include\Utilities\GeometryUtil.h" />
     <ClInclude Include="..\..\include\window\Window.h" />
     <ClInclude Include="..\..\include\world\LogicFramework.h" />
     <ClInclude Include="..\..\include\world\World.h" />

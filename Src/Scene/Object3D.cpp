@@ -25,6 +25,19 @@ namespace cxc {
 
 	}
 
+	Object3D::Object3D(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals):
+		Object3D()
+	{
+		m_VertexCoords = std::move(Vertices);
+		m_VertexNormals = std::move(Normals);
+
+		// Compute the pivot after object being initialized
+		ComputePivot();
+
+		// Compute the boundary of the object
+		ComputeObjectBoundary();
+	}
+
 	Object3D::Object3D(std::vector<glm::vec3>& Vertices,
 		std::vector<glm::vec3>& Normals,
 		std::vector<glm::vec2>& UVs,
@@ -114,6 +127,15 @@ namespace cxc {
 
 		if (isKinematics)
 			dBodySetKinematic(GetBodyID());
+	}
+
+	void Object3D::AddMesh(std::shared_ptr<Mesh> pNewMesh)
+	{
+		if (pNewMesh)
+		{
+			Meshes.push_back(pNewMesh);
+			pNewMesh->SetOwnerObject(shared_from_this());
+		}
 	}
 
 	std::shared_ptr<Mesh> Object3D::GetMesh(uint16_t Index)
@@ -211,17 +233,26 @@ namespace cxc {
 		glGenVertexArrays(1, &m_VAO);
 		glBindVertexArray(m_VAO);
 
-		glGenBuffers(1, &m_VBO[0]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO[0]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexCoords.size(), &m_VertexCoords.front(), GL_STATIC_DRAW);
+		if (!m_VertexCoords.empty())
+		{
+			glGenBuffers(1, &m_VBO[0]);
+			glBindBuffer(GL_ARRAY_BUFFER, m_VBO[0]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexCoords.size(), &m_VertexCoords.front(), GL_STATIC_DRAW);
+		}
 
-		glGenBuffers(1, &m_VBO[1]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO[1]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * m_TexCoords.size(), &m_TexCoords.front(), GL_STATIC_DRAW);
+		if (!m_TexCoords.empty())
+		{
+			glGenBuffers(1, &m_VBO[1]);
+			glBindBuffer(GL_ARRAY_BUFFER, m_VBO[1]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * m_TexCoords.size(), &m_TexCoords.front(), GL_STATIC_DRAW);
+		}
 
-		glGenBuffers(1, &m_VBO[2]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO[2]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexNormals.size(), &m_VertexNormals.front(), GL_STATIC_DRAW);
+		if (!m_VertexCoords.empty())
+		{
+			glGenBuffers(1, &m_VBO[2]);
+			glBindBuffer(GL_ARRAY_BUFFER, m_VBO[2]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexNormals.size(), &m_VertexNormals.front(), GL_STATIC_DRAW);
+		}
 
 		for (auto pMesh : Meshes)
 		{

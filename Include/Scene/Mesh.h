@@ -15,6 +15,7 @@ namespace cxc
 
 	public:
 		Mesh();
+		Mesh(const std::vector<uint32_t>& Indices);
 		~Mesh();
 
 	public:

@@ -20,6 +20,9 @@ namespace cxc
 		explicit FBXSDKUtil();
 		~FBXSDKUtil();
 
+	// Animation
+	public:
+
 	// Light
 	public:
 		

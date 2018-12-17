@@ -8,6 +8,12 @@
 
 namespace cxc {
 
+	enum class eShadingMode : uint32_t 
+	{
+		SurfaceMode = 0,
+		WireframeMode = 1
+	};
+
 	class RendererManager final : public Singleton<RendererManager>
 	{
 	

@@ -146,8 +146,9 @@ vec3 SpotLightFragShading(vec3 n)
 		vec3 HalfVector = normalize(LightDirection + EyeDirection);
 
 		vec3 LightToVertexDir = normalize(Position_worldspace - SpotLights[LightIndex].Position);
-		float Visibility = 1.0f;
-		if(clamp(dot(LightToVertexDir, -LightDirection), 0, 1) >= cos(SpotLights[LightIndex].CutOffAngle / 2))
+
+		float Visibility;
+		if(dot(LightToVertexDir, -LightDirection) >= cos(SpotLights[LightIndex].CutOffAngle * 0.5f))
 		{
  			Visibility = 1.0f;
 		}
@@ -159,11 +160,10 @@ vec3 SpotLightFragShading(vec3 n)
 		float CosTheta = clamp(dot(n, LightDirection), 0, 1);
 		float CosAlpha = clamp(dot(HalfVector, n), 0, 1);
 
-		MaterialDiffuseColor = Visibility * 0.01 * DiffuseFactorSelection() * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * CosTheta * SpotLightAttenuations[LightIndex](LightDistance);
-		MaterialSpecularColor = Visibility * 0.01 * Material.Ks * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) * SpotLightAttenuations[LightIndex](LightDistance);
-
+		MaterialDiffuseColor = Visibility * 0.1 * DiffuseFactorSelection() * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * CosTheta * SpotLightAttenuations[LightIndex](LightDistance);
+		MaterialSpecularColor = Visibility * 0.1 * Material.Ks * SpotLights[LightIndex].Color * SpotLights[LightIndex].Intensity * pow(CosAlpha, Material.Shiniess) * SpotLightAttenuations[LightIndex](LightDistance);
 		
-		FinalColor += MaterialAmbientColor * MaterialDiffuseColor +
+		FinalColor += MaterialAmbientColor  +
 				MaterialDiffuseColor +
 				MaterialSpecularColor;
 	}

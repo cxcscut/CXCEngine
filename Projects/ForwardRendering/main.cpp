@@ -8,12 +8,13 @@ static const std::string ForwardRenderVSPath = "G:\\cxcengine\\Src\\GLSL\\Forwar
 static const std::string ForwardRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\ForwardRendering\\ForwardRenderFS.glsl";
 
 static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
+static const std::string HumanoidScene = "G:\\cxcengine\\Projects\\Models\\humanoid.fbx";
 
 std::shared_ptr<MeshRenderer> CreateForwardRender();
 
 int main()
 {
-	glm::vec3 CameraPos = glm::vec3(50, 50, 50);
+	glm::vec3 CameraPos = glm::vec3(150, 150, 150);
 	glm::vec3 CameraOrigin = glm::vec3(0, 0, 0);
 	glm::vec3 CameraUpVector = glm::vec3(0, 0, 1);
 	glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f);
@@ -36,7 +37,7 @@ int main()
 	pSceneManager->AddCamera("MainCamera", CameraPos, CameraOrigin, CameraUpVector, ProjectionMatrix);
 	pSceneManager->SetCameraActive("MainCamera");
 
-	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);
+	bool bResult = pSceneManager->LoadSceneFromFBX(HumanoidScene);
 	if (bResult)
 	{
 		// Bind mesh render

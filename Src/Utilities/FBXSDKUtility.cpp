@@ -710,11 +710,13 @@ namespace cxc {
 			}
 
 			// Get the target of the directional light
-			auto TargetNode = pNode->GetTarget();
-			if (TargetNode)
+			auto pTargetNode = pNode->GetTarget();
+			if (pTargetNode)
 			{
-				TargetGlobalOffPosition = GetGlobalPosition(TargetNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition) * GetGeometry(TargetNode);
-				pNewLight->SetTargetPos(TargetGlobalOffPosition.GetT()[0], TargetGlobalOffPosition.GetT()[1], TargetGlobalOffPosition.GetT()[2]);
+				TargetGlobalOffPosition = GetGlobalPosition(pTargetNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
+				FbxAMatrix lTargetNodeGeometryOfferset = GetGeometry(pTargetNode);
+				FbxAMatrix lTargetNodeGlobalOffPosition = TargetGlobalOffPosition * lTargetNodeGeometryOfferset;
+				pNewLight->SetTargetPos(lTargetNodeGlobalOffPosition.GetT()[0], lTargetNodeGlobalOffPosition.GetT()[1], lTargetNodeGlobalOffPosition.GetT()[2]);
 			}
 
 			// Get global position and orientation

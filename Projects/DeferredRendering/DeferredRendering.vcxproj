@@ -101,7 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\animation\Animation.cpp" />
+    <ClCompile Include="..\..\Src\Animation\AnimationStack.cpp" />
     <ClCompile Include="..\..\src\controller\InputManager.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
@@ -134,7 +134,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\animation\Animation.h" />
+    <ClInclude Include="..\..\Include\Animation\AnimationStack.h" />
     <ClInclude Include="..\..\include\controller\InputManager.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
     <ClInclude Include="..\..\include\general\DefineTypes.h" />
