@@ -19,6 +19,8 @@ namespace cxc {
 	class Shape;
 	class Material;
 	class RendringPipeline;
+	class AnimContext;
+
 
 	enum class Location : GLuint {
 		VERTEX_LOCATION = 0,
@@ -80,6 +82,7 @@ namespace cxc {
 		friend class OctreeNode;
 		friend class FBXSDKUtil;
 		friend class Mesh;
+		friend class AnimContext;
 
 		explicit Object3D();
 		explicit Object3D(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals);
@@ -92,7 +95,6 @@ namespace cxc {
 		Object3D(const std::string &object_name);
 		Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag = "", GLboolean _enable = GL_TRUE);
 
-		// Vertex Processing
 	public:
 
 		void ComputeNormal(glm::vec3 &normal, const glm::vec3 &vertex1, const glm::vec3 &vertex2, const glm::vec3 &vertex3) const noexcept;
@@ -100,14 +102,13 @@ namespace cxc {
 		uint32_t GetMeshCount() const noexcept { return Meshes.size(); }
 		void SetPivot(const glm::vec3& NewPivot) noexcept { Pivot = NewPivot; }
 		void ComputePivot() noexcept;
-		// Model adjusting
+
 	public:
 
 		//virtual void CalculateSizeVector() noexcept;
 		glm::vec3 CalculateRotatedCoordinate(const glm::vec3 &original_vec, const glm::vec3 &start, const glm::vec3 &direction, float degree) const noexcept;
 		void ComputeObjectBoundary() noexcept;
 
-		// Model transformation
 	public:
 		virtual void Translate(const glm::vec3 &TranslationVector) noexcept;
 		virtual void RotateWorldSpace(const glm::vec3 &RotationAxis, float Degree) noexcept;
@@ -138,7 +139,6 @@ namespace cxc {
 
 		void UpdateMeshTransMatrix() noexcept;
 
-		// Private data access interface
 	public:
 
 		bool CheckLoadingStatus() const noexcept;
@@ -164,6 +164,11 @@ namespace cxc {
 		std::shared_ptr<Mesh> GetMesh(uint16_t Index);
 		void AddMesh(std::shared_ptr<Mesh> pNewMesh);
 
+	public:
+
+		std::shared_ptr<AnimContext> GetAnimationContext() { return pAnimContext; }
+		void CreateAnimationContext();
+
 	private:
 
 		// is enabled
@@ -177,7 +182,15 @@ namespace cxc {
 
 		// Tag for collision detection
 		std::string tag;
-		
+	
+		// if obj file has been loaded
+		bool isLoaded;
+
+		// Kinematics object has infinite mass such as walls and earth.
+		bool isKinematics;
+
+	private:
+
 		// Max, min and center coordinates
 		glm::vec3 MaxCoords, MinCoords;
 
@@ -187,6 +200,8 @@ namespace cxc {
 		// AABB bounding box
 		CXCRect3 AABB;
 
+	private:
+
 		// Codes of the OctreeNode that contain the object
 		std::unordered_set<std::string> m_OctreePtrs;
 		
@@ -195,6 +210,11 @@ namespace cxc {
 
 		// Parent object
 		std::weak_ptr<Object3D> pParentNode;
+
+		// Meshes 
+		std::vector<std::shared_ptr<Mesh>> Meshes;
+
+	private:
 
 		// Model matrix
 		glm::mat4 m_ModelMatrix;
@@ -211,17 +231,13 @@ namespace cxc {
 		// UVs
 		std::vector<glm::vec2> m_TexCoords;
 
-		// Meshes 
-		std::vector<std::shared_ptr<Mesh>> Meshes;
-
 		// ID of VBO, EBO and VAO
 		GLuint  m_VBO[3], m_VAO;
 
-		// if obj file has been loaded
-		bool isLoaded;
+	private:
 
-		// Kinematics object has infinite mass such as walls and earth.
-		bool isKinematics;
+		// Animation context
+		std::shared_ptr<AnimContext> pAnimContext;
 	};
 
 }

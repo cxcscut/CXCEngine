@@ -86,8 +86,8 @@ vec3 OmniLightFragShading(vec3 n)
 		vec3 l = normalize(OmniLights[LightIndex].Position - Position_worldspace);
 		vec3 H = normalize(l + E);
 
-		float cos_theta = clamp(dot(n,l),0,1);
-		float cos_alpha = clamp(dot(H,n),0,1);
+		float cos_theta = clamp(dot(n, l), 0, 1);
+		float cos_alpha = clamp(dot(H, n), 0, 1);
 
 		vec3 MaterialAmbientColor = Material.Ka * vec3(0.2,0.2,0.2);
 
@@ -115,8 +115,8 @@ vec3 DirectionalLightFragShading(vec3 n)
 		vec3 l = normalize(DirectionalLights[LightIndex].Position - Position_worldspace);
 		vec3 H = normalize(l + E);
 
-		float cos_theta = clamp(dot(n,l),0,1);
-		float cos_alpha = clamp(dot(H,n),0,1);
+		float cos_theta = clamp(dot(n, l), 0, 1);
+		float cos_alpha = clamp(dot(H, n), 0, 1);
 
 		vec3 MaterialAmbientColor = Material.Ka * vec3(0.2,0.2,0.2);
 

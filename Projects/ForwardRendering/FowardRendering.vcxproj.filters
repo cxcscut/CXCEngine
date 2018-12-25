@@ -105,10 +105,22 @@
     <ClCompile Include="..\..\Src\Rendering\ShadowRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Src\Animation\AnimationStack.cpp">
+    <ClCompile Include="..\..\Src\Utilities\GeomtryUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Src\Utilities\GeomtryUtil.cpp">
+    <ClCompile Include="..\..\Src\Animation\AnimContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Animation\AnimCurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Animation\AnimLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Animation\AnimStack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Animation\AnimKeyFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -206,10 +218,22 @@
     <ClInclude Include="..\..\Include\Rendering\ShadowRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\Animation\AnimationStack.h">
+    <ClInclude Include="..\..\Include\Utilities\GeometryUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\Utilities\GeometryUtil.h">
+    <ClInclude Include="..\..\Include\Animation\AnimContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Animation\AnimCurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Animation\AnimKeyFrame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Animation\AnimLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Animation\AnimStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

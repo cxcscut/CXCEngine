@@ -317,11 +317,11 @@ namespace cxc {
 			{
 				PolygonVertexCount = lPolygonCount * TRIANGLE_VERTEX_COUNT;
 			}
-			
+
 			std::vector<glm::vec3> Vertices;
 			std::vector<glm::vec3> Normals;
 			std::vector<glm::vec2> UVs;
-			std::vector<uint32_t> Indices; 
+			std::vector<uint32_t> Indices;
 			std::map<VertexIndexPacket, uint32_t> VertexIndexingMap;
 
 			FbxStringList UVNames;
@@ -387,7 +387,7 @@ namespace cxc {
 
 						CurrentUV = UVElement->GetDirectArray().GetAt(UVIndex);
 						UVs.push_back(glm::vec2(
-							static_cast<float>(CurrentUV[0]), 
+							static_cast<float>(CurrentUV[0]),
 							1.0f - static_cast<float>(CurrentUV[1])
 						));
 					}
@@ -671,7 +671,7 @@ namespace cxc {
 
 			// Whether to cast shadow
 			pNewLight->bCastShadow = lLight->CastShadows.Get();
-			
+		
 			FbxAMatrix TargetGlobalOffPosition;
 			// Light type
 			switch (lLight->LightType.Get())

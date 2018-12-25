@@ -3,6 +3,7 @@
 #include "Material/TextureManager.h"
 #include "Utilities/FileHelper.h"
 #include "World/World.h"
+#include "Animation/AnimContext.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "Image_loader/stb_image.h"
@@ -28,8 +29,8 @@ namespace cxc {
 	Object3D::Object3D(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals):
 		Object3D()
 	{
-		m_VertexCoords = std::move(Vertices);
-		m_VertexNormals = std::move(Normals);
+		m_VertexCoords = Vertices;
+		m_VertexNormals = Normals;
 
 		// Compute the pivot after object being initialized
 		ComputePivot();
@@ -44,10 +45,10 @@ namespace cxc {
 		std::vector<uint32_t>& Indices):
 		Object3D()
 	{
-		m_VertexCoords = std::move(Vertices);
-		m_VertexNormals = std::move(Normals);
-		m_TexCoords = std::move(UVs);
-		m_VertexIndices = std::move(Indices);
+		m_VertexCoords = Vertices;
+		m_VertexNormals = Normals;
+		m_TexCoords = UVs;
+		m_VertexIndices = Indices;
 
 		// Compute the pivot after object being initialized
 		ComputePivot();
@@ -309,7 +310,11 @@ namespace cxc {
 
 	void Object3D::Tick(float DeltaSeconds)
 	{
-
+		// Animating 
+		if (pAnimContext)
+		{
+			pAnimContext->Tick(DeltaSeconds);
+		}
 	}
 
 	void Object3D::PreRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
@@ -383,6 +388,11 @@ namespace cxc {
 			auto pNode = pChildNode.lock();
 			pNode->RotateWithArbitraryAxis(start, direction, degree);
 		}
+	}
+
+	void Object3D::CreateAnimationContext()
+	{
+		pAnimContext = NewObject<AnimContext>(shared_from_this());
 	}
 
 	CXCRect3::CXCRect3(const glm::vec3 &_max, const glm::vec3 &_min) :max(_max), min(_min) {};

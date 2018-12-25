@@ -16,7 +16,59 @@ namespace cxc
 
 	std::shared_ptr<Object3D> GeometryUtil::MakeSphere(float Radius, const glm::vec3& Center, uint32_t Segment, const glm::vec3& Color)
 	{
+		std::vector<glm::vec3> Vertices;
+		std::vector<glm::vec3> Normals;
+		std::vector<uint32_t> Indices;
 
+		// Create vertices and normals of the sphere
+		for (size_t Latitude = 0; Latitude <= Segment; ++Latitude)
+		{
+			float Theta = Latitude * PI / Segment;
+			float sinTheta = sinf(Theta);
+			float cosTheta = cosf(Theta);
+
+			for (size_t Longtitude = 0; Longtitude <= Segment; ++Longtitude)
+			{
+				float Phi = Longtitude * PI / Segment;
+				float sinPhi = sinf(Phi);
+				float cosPhi = cosf(Phi);
+
+				glm::vec3 Normal(cosPhi * sinTheta, cosTheta, sinPhi * sinTheta);
+				glm::vec3 Vertex = Normal * Radius;
+
+				Vertices.emplace_back(Vertex);
+				Normals.emplace_back(Normal);
+			}
+		}
+
+		// Create the indices array of the sphere
+		for (size_t Latitude = 0; Latitude < Segment; ++Latitude)
+		{
+			for (size_t Longtitude = 0; Longtitude < Segment; ++Longtitude)
+			{
+				int first = (Latitude * (Segment + 1)) + Longtitude;
+				int second = first + Segment + 1;
+
+				Indices.push_back(first);
+				Indices.push_back(second);
+				Indices.push_back(first + 1);
+
+				Indices.push_back(second);
+				Indices.push_back(second + 1);
+				Indices.push_back(first + 1);
+			}
+		}
+
+		auto pSphere = NewObject<Object3D>(Vertices, Normals);
+		pSphere->Translate(Center);
+
+		auto pMesh = NewObject<Mesh>(Indices);
+		auto pMaterial = NewObject<Material>();
+		pMaterial->DiffuseFactor = Color;
+		pMesh->SetMeshMaterial(pMaterial);
+		pSphere->AddMesh(pMesh);
+
+		return pSphere;
 	}
 
 	std::shared_ptr<Object3D> GeometryUtil::MakeBox(const glm::vec3& Center, const glm::vec3& Extent, const glm::vec3& Color)
@@ -61,20 +113,17 @@ namespace cxc
 			20, 21, 22, 20, 22, 23
 		};
 
-		std::shared_ptr<Object3D> pBox = std::make_shared<Object3D>(Vertices, Normals);
+		std::shared_ptr<Object3D> pBox = NewObject<Object3D>(Vertices, Normals);
 		pBox->Translate(Center);
 		pBox->Scale(Extent);
 
-		auto pMesh = std::make_shared<Mesh>(Indices);
-		auto pMaterial = std::make_shared<Material>();
+		auto pMesh = NewObject<Mesh>(Indices);
+		auto pMaterial = NewObject<Material>();
 		pMaterial->DiffuseFactor = Color;
 		pMesh->SetMeshMaterial(pMaterial);
 		pBox->AddMesh(pMesh);
-	}
 
-	std::shared_ptr<Object3D> GeometryUtil::MakeCone(const glm::vec3& Center, const glm::vec3& Direction, float ConeAngle, const glm::vec3& Color)
-	{
-
+		return pBox;
 	}
 
 	glm::vec3 GeometryUtil::ComputeSurfaceNormal(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3)
