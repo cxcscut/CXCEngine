@@ -14,6 +14,10 @@ namespace cxc
 		Looping = 1 /* The animation will loop */
 	};
 
+	/* 
+		AnimContext is the instance that stores the runtime information of a AnimStack, 
+		such as current time of the animation, the current active AnimStack
+	*/
 	class AnimContext final
 	{
 	public:

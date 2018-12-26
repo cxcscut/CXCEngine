@@ -101,9 +101,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Src\Animation\AnimationCurve.cpp" />
-    <ClCompile Include="..\..\Src\Animation\AnimationLayer.cpp" />
-    <ClCompile Include="..\..\src\animation\AnimationStack.cpp" />
     <ClCompile Include="..\..\Src\Controller\InputManager.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
@@ -136,9 +133,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Include\Animation\AnimationCurve.h" />
-    <ClInclude Include="..\..\Include\Animation\AnimationLayer.h" />
-    <ClInclude Include="..\..\Include\Animation\AnimationStack.h" />
     <ClInclude Include="..\..\include\controller\InputManager.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
     <ClInclude Include="..\..\include\general\DefineTypes.h" />

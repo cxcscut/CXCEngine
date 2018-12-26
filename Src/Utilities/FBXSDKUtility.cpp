@@ -481,7 +481,6 @@ namespace cxc {
 
 			// Create the object
 			pNewObject = std::make_shared<Object3D>(Vertices, Normals, UVs, Indices);
-			pNewObject->InitializeRigidBody(WorldID, SpaceID);
 			pNewObject->ObjectName = pNode->GetName();
 			pNewObject->isLoaded = true;
 
@@ -518,17 +517,16 @@ namespace cxc {
 			FbxAMatrix lGeometryOffset = GetGeometry(pNode);
 			lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
 
-			// Set rotation
-			auto RotMatrix = glm::rotate(glm::mat4(1.0f), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[0])), glm::vec3(1, 0, 0));
-			RotMatrix = glm::rotate(RotMatrix, static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[1])), glm::vec3(0, 1, 0));
-			RotMatrix = glm::rotate(RotMatrix, static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[2])), glm::vec3(0, 0, 1));
-			pNewObject->setRotation(pNewObject->getRotation() * (glm::mat3)RotMatrix);
-
 			// Set translation
-			pNewObject->setPossition(lGlobalPosition.GetT()[0], lGlobalPosition.GetT()[1], lGlobalPosition.GetT()[2]);
+			pNewObject->Translate(glm::vec3(lGlobalPosition.GetT()[0], lGlobalPosition.GetT()[1], lGlobalPosition.GetT()[2]));
+
+			// Set rotation
+			pNewObject->RotateLocalSpace(glm::vec3(1, 0, 0), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[0])));
+			pNewObject->RotateLocalSpace(glm::vec3(0, 1, 0), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[1])));
+			pNewObject->RotateLocalSpace(glm::vec3(0, 0, 1), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[2])));
 
 			// Set sacling
-			pNewObject->SetScalingFactor(glm::vec3(lGlobalPosition.GetS()[0], lGlobalPosition.GetS()[1], lGlobalPosition.GetS()[2]));
+			pNewObject->Scale(glm::vec3(glm::vec3(lGlobalPosition.GetS()[0], lGlobalPosition.GetS()[1], lGlobalPosition.GetS()[2])));
 
 			OutObjects.push_back(pNewObject);
 		}

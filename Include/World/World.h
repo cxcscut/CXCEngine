@@ -58,7 +58,7 @@ namespace cxc {
 
 	public:
 
-		void AddObject(const std::shared_ptr<Object3D > &pObject, bool isKinematics = false) noexcept;
+		void AddObject(const std::shared_ptr<Object3D > &pObject) noexcept;
 
 	public:
 
@@ -105,6 +105,7 @@ namespace cxc {
 
 		float GetWorldSeconds() const;
 		std::shared_ptr<LogicFramework> GetLogicWorld() { return m_LogicFramework; }
+		std::shared_ptr<PhysicalWorld> GetPhysicalWorld() { return m_PhysicalWorld; }
 
 	public:
 

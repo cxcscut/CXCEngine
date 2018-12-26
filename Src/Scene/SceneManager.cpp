@@ -38,12 +38,6 @@ namespace cxc {
 		
 	}
 
-	void SceneManager::UpdateMeshTransMatrix() noexcept
-	{
-		for (auto object : m_ObjectMap)
-			object.second->UpdateMeshTransMatrix();
-	}
-
 	void SceneManager::AddCamera(const std::string& CameraName, 
 		const glm::vec3 &eye, const glm::vec3 &origin, const glm::vec3 &up,
 		const glm::mat4 &ProjectionMatrix) noexcept
@@ -55,6 +49,7 @@ namespace cxc {
 		pNewCamera->UpVector = up;
 		pNewCamera->SetAllMatrix(glm::lookAt(eye, origin, up), ProjectionMatrix);
 		pNewCamera->ComputeAngles();
+		pNewCamera->ComputeViewMatrix();
 		AddCamera(pNewCamera);
 	}
 
@@ -69,7 +64,7 @@ namespace cxc {
 		m_Boundary.min.z = std::fmin(m_Boundary.min.z, AABB.min.z);
 	}
 
-	void SceneManager::AddObjectInternal(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr, bool isKinematics) noexcept
+	void SceneManager::AddObjectInternal(const std::string &ObjectName, const std::shared_ptr<Object3D > &ObjectPtr) noexcept
 	{
 		if (!ObjectPtr->CheckLoaded())
 		{
@@ -78,8 +73,6 @@ namespace cxc {
 		}
 
 		m_ObjectMap.insert(std::make_pair(ObjectName, ObjectPtr));
-
-		ObjectPtr->isKinematics = isKinematics;
 
 		UpdateBoundary(ObjectPtr->GetAABB());
 	}

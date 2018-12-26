@@ -20,7 +20,7 @@ namespace cxc {
 	class Material;
 	class RendringPipeline;
 	class AnimContext;
-
+	class World;
 
 	enum class Location : GLuint {
 		VERTEX_LOCATION = 0,
@@ -67,13 +67,13 @@ namespace cxc {
 			texcoords = uv;
 		}
 
-		// For customized type, overloaded operator < is needed for std::map
+		// Overload operator < to use in the std::map
 		bool operator<(const VertexIndexPacket &that) const {
 			return memcmp((void*)this, (void*)&that, sizeof(VertexIndexPacket)) > 0;
 		};
 	};
 
-	class Object3D : public RigidBody3D, public std::enable_shared_from_this<Object3D>
+	class Object3D : public std::enable_shared_from_this<Object3D>
 	{
 
 	public:
@@ -84,9 +84,9 @@ namespace cxc {
 		friend class Mesh;
 		friend class AnimContext;
 
-		explicit Object3D();
-		explicit Object3D(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals);
-		explicit Object3D(std::vector<glm::vec3>& Vertices,
+		Object3D();
+		Object3D(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals);
+		Object3D(std::vector<glm::vec3>& Vertices,
 			std::vector<glm::vec3>& Normals,
 			std::vector<glm::vec2>& UVs,
 			std::vector<uint32_t>& Indices);
@@ -98,10 +98,9 @@ namespace cxc {
 	public:
 
 		void ComputeNormal(glm::vec3 &normal, const glm::vec3 &vertex1, const glm::vec3 &vertex2, const glm::vec3 &vertex3) const noexcept;
-		glm::vec3 GetPivot() const noexcept { return Pivot; }
+		glm::vec3 GetPivot() const noexcept;
 		uint32_t GetMeshCount() const noexcept { return Meshes.size(); }
 		void SetPivot(const glm::vec3& NewPivot) noexcept { Pivot = NewPivot; }
-		void ComputePivot() noexcept;
 
 	public:
 
@@ -110,14 +109,20 @@ namespace cxc {
 		void ComputeObjectBoundary() noexcept;
 
 	public:
-		virtual void Translate(const glm::vec3 &TranslationVector) noexcept;
-		virtual void RotateWorldSpace(const glm::vec3 &RotationAxis, float Degree) noexcept;
-		virtual void RotateLocalSpace(const glm::vec3 &RotationAxis, float Degree) noexcept;
 
-		// Rotation with arbitrary axis
-		virtual void RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept;
+		virtual void Translate(const glm::vec3 &TranslationVector) ;
+		virtual void RotateWorldSpace(const glm::vec3 &RotationAxisWorldSpace, float Degree) ;
+		virtual void RotateLocalSpace(const glm::vec3 &RotationAxisLocalSpace, float Degree) ;
+		virtual void RotateWithArbitraryAxis(const glm::vec3 &Position, const glm::vec3 &RotationAxis, float Degree);
+		virtual void Scale(const glm::vec3& ScalingVector);
+		virtual glm::mat4 GetModelMatrix() const;
 
-		virtual void Scale(const glm::vec3& ScalingVector) noexcept;
+		glm::vec3 GetWorldSpaceLocalOrigin() const;
+		glm::vec3 GetWorldSpaceAxisX() const;
+		glm::vec3 GetWorldSpaceAxisY() const;
+		glm::vec3 GetWorldSpaceAxisZ() const;
+
+	public:
 
 		virtual void PreRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
 		virtual void Render(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
@@ -127,17 +132,6 @@ namespace cxc {
 
 		void InitBuffers() noexcept;
 		void ReleaseBuffers() noexcept;
-
-		// Physics interface
-	public:
-
-		void InitializeRigidBody(dWorldID world, dSpaceID) noexcept;
-
-		// 0 - gravity off
-		// 1 - gravity on
-		void SetObjectGravityMode(int mode) noexcept;
-
-		void UpdateMeshTransMatrix() noexcept;
 
 	public:
 
@@ -169,7 +163,7 @@ namespace cxc {
 		std::shared_ptr<AnimContext> GetAnimationContext() { return pAnimContext; }
 		void CreateAnimationContext();
 
-	private:
+	protected:
 
 		// is enabled
 		GLboolean enable;
@@ -186,10 +180,7 @@ namespace cxc {
 		// if obj file has been loaded
 		bool isLoaded;
 
-		// Kinematics object has infinite mass such as walls and earth.
-		bool isKinematics;
-
-	private:
+	protected:
 
 		// Max, min and center coordinates
 		glm::vec3 MaxCoords, MinCoords;
@@ -200,7 +191,7 @@ namespace cxc {
 		// AABB bounding box
 		CXCRect3 AABB;
 
-	private:
+	protected:
 
 		// Codes of the OctreeNode that contain the object
 		std::unordered_set<std::string> m_OctreePtrs;
@@ -214,10 +205,10 @@ namespace cxc {
 		// Meshes 
 		std::vector<std::shared_ptr<Mesh>> Meshes;
 
-	private:
+	protected:
 
 		// Model matrix
-		glm::mat4 m_ModelMatrix;
+		glm::mat4 ModelMatrix;
 
 		// Vertex index buffer
 		std::vector<uint32_t> m_VertexIndices;
@@ -234,7 +225,7 @@ namespace cxc {
 		// ID of VBO, EBO and VAO
 		GLuint  m_VBO[3], m_VAO;
 
-	private:
+	protected:
 
 		// Animation context
 		std::shared_ptr<AnimContext> pAnimContext;

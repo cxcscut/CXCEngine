@@ -128,6 +128,7 @@
     <ClCompile Include="..\..\src\scene\Lighting.cpp" />
     <ClCompile Include="..\..\src\scene\Mesh.cpp" />
     <ClCompile Include="..\..\src\scene\Object3D.cpp" />
+    <ClCompile Include="..\..\Src\Scene\Pawn.cpp" />
     <ClCompile Include="..\..\src\scene\SceneManager.cpp" />
     <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
     <ClCompile Include="..\..\src\utilities\FBXSDKUtility.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="..\..\include\scene\Lighting.h" />
     <ClInclude Include="..\..\include\scene\Mesh.h" />
     <ClInclude Include="..\..\include\scene\Object3D.h" />
+    <ClInclude Include="..\..\Include\Scene\Pawn.h" />
     <ClInclude Include="..\..\include\scene\SceneManager.h" />
     <ClInclude Include="..\..\include\script\ScriptParser.h" />
     <ClInclude Include="..\..\include\utilities\FBXSDKUtility.h" />

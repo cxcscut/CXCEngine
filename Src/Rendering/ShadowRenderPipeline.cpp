@@ -156,7 +156,7 @@ namespace cxc
 			0.5, 0.5, 0.5, 1.0
 		);
 
-		glm::mat4 depthBiasMVP = biasMatrix * pShadowRender->GetShadowMapDepthVP() * pOwnerObject->GetObjectModelMatrix();
+		glm::mat4 depthBiasMVP = biasMatrix * pShadowRender->GetShadowMapDepthVP() * pOwnerObject->GetModelMatrix();
 		glUniformMatrix4fv(depthBiasMVP_loc, 1, GL_FALSE, &depthBiasMVP[0][0]);
 
 		auto CurrentActiveCamera = pWorld->pSceneMgr->GetCurrentActiveCamera();
@@ -169,7 +169,7 @@ namespace cxc
 		BindLightUniforms(Lights, SubroutineIndicesFS);
 
 		// Set model matrix
-		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->GetObjectModelMatrix()[0][0]);
+		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->GetModelMatrix()[0][0]);
 
 		// Bind the material of the mesh
 		MaterialDiffuseSubroutineInfo DiffuseModelInfo;
@@ -247,7 +247,7 @@ namespace cxc
 		glVertexAttribPointer(static_cast<GLuint>(Location::VERTEX_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Vertex position
 
 		// Rendering depth map of the mesh to depth texture
-		depthMVP = pShadowRender->GetShadowMapDepthVP() * pOwnerObject->GetObjectModelMatrix();
+		depthMVP = pShadowRender->GetShadowMapDepthVP() * pOwnerObject->GetModelMatrix();
 
 		glUniformMatrix4fv(depthMVP_Loc, 1, GL_FALSE, &depthMVP[0][0]);
 

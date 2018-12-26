@@ -20,7 +20,7 @@ namespace cxc {
 
 		void addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
 
-		glm::mat4 GetObjectModelMatrix() const noexcept;
+		glm::mat4 GetRigidBodyModelMatrix() const noexcept;
 
 		std::shared_ptr<Collider3D> getColliderPtr() noexcept;
 
@@ -35,7 +35,7 @@ namespace cxc {
 	public:
 
 		void SetScalingFactor(const glm::vec3& ScalingVector) noexcept;
-		void setPossition(dReal x, dReal y, dReal z) noexcept;
+		void setPosition(dReal x, dReal y, dReal z) noexcept;
 		void setRotation(const glm::mat3 rot) noexcept;
 		void setLinearVelocity(dReal x, dReal y, dReal z) noexcept;
 		void setAngularVelocity(dReal x, dReal y, dReal z) noexcept;
@@ -94,7 +94,7 @@ namespace cxc {
 		dJointID createJoint(int type,dJointGroupID joint_group) noexcept;
 		void destroyJoint(dJointID joint) noexcept;
 
-	private:
+	protected:
 
 		// Scaling factor of the object
 		glm::vec3 ScalingFactor;
@@ -108,6 +108,9 @@ namespace cxc {
 		std::shared_ptr<Collider3D> m_pCollider;
 
 		int m_GravityMode;
+
+		// Kinematics object has infinite mass such as walls and earth.
+		bool isKinematics;
 	};
 }
 

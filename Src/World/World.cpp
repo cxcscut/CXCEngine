@@ -22,14 +22,11 @@ namespace cxc {
 
 	}
 
-	void World::AddObject(const std::shared_ptr<Object3D > &pObject, bool isKinematics) noexcept
+	void World::AddObject(const std::shared_ptr<Object3D> &pObject) noexcept
 	{
 		if (pObject)
 		{
-			pSceneMgr->AddObjectInternal(pObject->GetObjectName(), pObject, isKinematics);
-
-			if(!pObject->IsInitialize())
-				pObject->InitializeRigidBody(m_PhysicalWorld->GetWorldID(), m_PhysicalWorld->GetTopSpaceID());
+			pSceneMgr->AddObjectInternal(pObject->GetObjectName(), pObject);
 		}
 	}
 

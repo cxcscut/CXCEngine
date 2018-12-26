@@ -179,14 +179,13 @@ namespace cxc {
 	public:
 
 		void BuildOctree() noexcept;
-		void UpdateMeshTransMatrix() noexcept;
 
 	private:
 
 		void UpdateBoundary(const CXCRect3 &AABB) noexcept;
 
 		// Add object to object map
-		void AddObjectInternal(const std::string &SpriteName, const std::shared_ptr<Object3D> &ObjectPtr, bool isKinematics = false) noexcept;
+		void AddObjectInternal(const std::string &SpriteName, const std::shared_ptr<Object3D> &ObjectPtr) noexcept;
 
 	private:
 

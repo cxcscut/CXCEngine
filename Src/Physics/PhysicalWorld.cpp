@@ -1,5 +1,6 @@
 #include "Physics/PhysicalWorld.h"
 #include "World/World.h"
+#include "Scene/Pawn.h"
 
 namespace cxc
 {
@@ -120,14 +121,22 @@ namespace cxc
 		}
 	}
 
-	void PhysicalWorld::PhysicsTick(float Seconds)
+	void PhysicalWorld::PhysicsTick(float DeltaSeconds)
 	{
 		if (!bPhysicsPaused)
 		{
 			auto pWorld = World::GetInstance();
 			if (pWorld)
 			{
-				pWorld->pSceneMgr->UpdateMeshTransMatrix();
+				auto ObjectMap = pWorld->pSceneMgr->GetObjectMap();
+				for (auto pObject : ObjectMap)
+				{
+					auto pPawn = std::dynamic_pointer_cast<Pawn>(pObject.second);
+					if (pPawn)
+					{
+						pPawn->PhysicalTick(DeltaSeconds);
+					}
+				}
 			}
 
 			dSpaceCollide(TopLevelSpace, reinterpret_cast<void *>(this), &PhysicalWorld::nearCallback);

@@ -83,7 +83,7 @@ namespace cxc
 
 		// Set model matrix	
 		GLuint M_MatrixID = glGetUniformLocation(ProgramID, "M");
-		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->GetObjectModelMatrix()[0][0]);
+		glUniformMatrix4fv(M_MatrixID, 1, GL_FALSE, &pOwnerObject->GetModelMatrix()[0][0]);
 
 		// Bind the material of the mesh
 		MaterialDiffuseSubroutineInfo DiffuseModelInfo;

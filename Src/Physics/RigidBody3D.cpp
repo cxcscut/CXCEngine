@@ -5,7 +5,8 @@ namespace cxc {
 	RigidBody3D::RigidBody3D():
 		m_WorldID(0),
 		m_BodyID(0),Initialized(false),m_GravityMode(0),
-		ScalingFactor(glm::vec3(1.0f, 1.0f, 1.0f))
+		ScalingFactor(glm::vec3(1.0f, 1.0f, 1.0f)),
+		isKinematics(false)
 	{
 
 		m_pCollider = std::make_shared<Collider3D>();
@@ -36,7 +37,7 @@ namespace cxc {
 		m_WorldID = world;
 
 		m_BodyID = dBodyCreate(m_WorldID);
-
+		
 		dBodySetData(m_BodyID, user_data);
 
 		dBodySetGravityMode(m_BodyID, m_GravityMode);
@@ -61,7 +62,7 @@ namespace cxc {
 		return ScalingFactor;
 	}
 
-	void RigidBody3D::setPossition(dReal x, dReal y, dReal z) noexcept
+	void RigidBody3D::setPosition(dReal x, dReal y, dReal z) noexcept
 	{
 		dBodySetPosition(m_BodyID, x, y, z);
 		m_pCollider->setGeomPosition(x, y, z);
@@ -87,7 +88,7 @@ namespace cxc {
 		}
 	}
 
-	glm::mat4 RigidBody3D::GetObjectModelMatrix() const noexcept
+	glm::mat4 RigidBody3D::GetRigidBodyModelMatrix() const noexcept
 	{
 		auto R = dGeomGetRotation(m_pCollider->getGeomID());
 		auto pos = dGeomGetPosition(m_pCollider->getGeomID());

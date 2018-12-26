@@ -12,8 +12,7 @@ namespace cxc {
 
 	Object3D::Object3D() :
 		ObjectName(""),
-		isLoaded(false), enable(GL_TRUE), m_ModelMatrix(1.0f),
-		isKinematics(false)
+		isLoaded(false), enable(GL_TRUE)
 	{
 
 		pParentNode.reset();
@@ -32,9 +31,6 @@ namespace cxc {
 		m_VertexCoords = Vertices;
 		m_VertexNormals = Normals;
 
-		// Compute the pivot after object being initialized
-		ComputePivot();
-
 		// Compute the boundary of the object
 		ComputeObjectBoundary();
 	}
@@ -50,17 +46,14 @@ namespace cxc {
 		m_TexCoords = UVs;
 		m_VertexIndices = Indices;
 
-		// Compute the pivot after object being initialized
-		ComputePivot();
-
 		// Compute the boundary of the object
 		ComputeObjectBoundary();
 	}
 
-	Object3D::Object3D(const std::string &sprite_name)
+	Object3D::Object3D(const std::string &object_name)
 		: Object3D()
 	{
-		ObjectName = sprite_name;
+		ObjectName = object_name;
 	}
 
 	Object3D::Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag, GLboolean _enable)
@@ -88,6 +81,11 @@ namespace cxc {
 		isLoaded = true;
 	}
 
+	glm::vec3 Object3D::GetPivot() const noexcept
+	{
+		return (glm::vec3)(ModelMatrix * glm::vec4(Pivot, 1));
+	}
+
 	void Object3D::ComputeNormal(glm::vec3 &normal, const glm::vec3 &vertex1, const glm::vec3 &vertex2, const glm::vec3 &vertex3) const noexcept
 	{
 		glm::vec3 vector12 = vertex2 - vertex1;
@@ -110,24 +108,6 @@ namespace cxc {
 			MinCoords.y = std::fmin(Vertex.y, MinCoords.y);
 			MinCoords.z = std::fmin(Vertex.z, MinCoords.z);
 		}
-	}
-	void Object3D::ComputePivot() noexcept
-	{
-		for (auto Vertex : m_VertexCoords)
-		{
-			Pivot += Vertex;
-		}
-
-		Pivot /= m_VertexCoords.size();
-	}
-
-	void Object3D::InitializeRigidBody(dWorldID world,dSpaceID space) noexcept
-	{
-		createRigidBody(world, reinterpret_cast<void*>(this));
-		addCollider(space, m_VertexCoords, m_VertexIndices);
-
-		if (isKinematics)
-			dBodySetKinematic(GetBodyID());
 	}
 
 	void Object3D::AddMesh(std::shared_ptr<Mesh> pNewMesh)
@@ -152,53 +132,84 @@ namespace cxc {
 		return ObjectName;
 	}
 
-	void Object3D::Scale(const glm::vec3& ScalingVector) noexcept
+	void Object3D::Scale(const glm::vec3& ScalingVector) 
 	{
-		SetScalingFactor(GetScalingFactor() * ScalingVector);
+		auto ScalingMatrix = glm::scale(glm::mat4(1.0f), ScalingVector);
+		ModelMatrix = ModelMatrix * ScalingMatrix;
 	}
 
-	void Object3D::Translate(const glm::vec3 &TranslationVector) noexcept
+	glm::mat4 Object3D::GetModelMatrix() const
 	{
+		return ModelMatrix;
+	}
 
-		//auto TranlationMatrix = glm::translate(glm::mat4(1.0f),move_vector);
-
-		// Left-multiplication with TransformationMatrix
-		//m_TransformationMatrix = TranlationMatrix * m_TransformationMatrix;
-
-		auto new_pos = getPosition() + TranslationVector;
-
-		setPossition(new_pos.x, new_pos.y, new_pos.z);
+	void Object3D::Translate(const glm::vec3 &TranslationVector) 
+	{
+		auto TranslationMatrix = glm::translate(glm::mat4(1.0f), TranslationVector);
+		ModelMatrix = TranslationMatrix * ModelMatrix;
 		
 		// Perform translation on children node
 		for (auto &pChildNode : pChildNodes)
 		{
-			auto pNode = pChildNode.lock();
-			pNode->Translate(TranslationVector);
+			if (!pChildNode.expired())
+			{
+				auto pNode = pChildNode.lock();
+				pNode->Translate(TranslationVector);
+			}
 		}
-
 	}
 
-	void Object3D::RotateWorldSpace(const glm::vec3 &RotationAxis, float Degree) noexcept
+	void Object3D::RotateWorldSpace(const glm::vec3 &RotationAxisWorldSpace, float Degree) 
 	{
-		auto RotationMatrix = glm::rotate(glm::mat4(1.0f), Degree, RotationAxis);
+		auto RotMatrix = glm::rotate(glm::mat4(1.0f), Degree, RotationAxisWorldSpace);
+		ModelMatrix = RotMatrix * ModelMatrix;
 
-		// Left-multiplication with TransformationMatrix
-		//m_TransformationMatrix = RotationMatrix * m_TransformationMatrix;
-
-		setRotation(glm::mat3(RotationMatrix) * getRotation());
-		
 		// Perform translation on children node
 		for (auto &pChildNode : pChildNodes)
 		{
-			auto pNode = pChildNode.lock();
-			pNode->RotateWorldSpace(RotationAxis, Degree);
+			if (!pChildNode.expired())
+			{
+				auto pNode = pChildNode.lock();
+				pNode->RotateWorldSpace(RotationAxisWorldSpace, Degree);
+			}
 		}
-
 	}
 
-	void Object3D::RotateLocalSpace(const glm::vec3 &RotationAxis, float Degree) noexcept
+	glm::vec3 Object3D::GetWorldSpaceLocalOrigin() const
 	{
-		RotateWithArbitraryAxis(Pivot, RotationAxis, Degree);
+		return (glm::vec3)(GetModelMatrix() * glm::vec4(0, 0, 0, 1));
+	}
+
+	glm::vec3 Object3D::GetWorldSpaceAxisX() const
+	{
+		return glm::normalize((glm::vec3)(ModelMatrix * glm::vec4(1, 0, 0, 1)));
+	}
+
+	glm::vec3 Object3D::GetWorldSpaceAxisY() const
+	{
+		return glm::normalize((glm::vec3)(ModelMatrix * glm::vec4(0, 1, 0, 1)));
+	}
+
+	glm::vec3 Object3D::GetWorldSpaceAxisZ() const
+	{
+		return glm::normalize((glm::vec3)(ModelMatrix * glm::vec4(0, 0, 1, 1)));
+	}
+
+	void Object3D::RotateLocalSpace(const glm::vec3 &RotationAxisLocalSpace, float Degree) 
+	{
+		auto RotationAxisWorldSpace = (glm::vec3)(ModelMatrix * glm::vec4(RotationAxisLocalSpace, 1)) - GetWorldSpaceLocalOrigin();
+		auto RotMatrix = glm::rotate(glm::mat4(1.0f), Degree, RotationAxisWorldSpace);
+		ModelMatrix = ModelMatrix * RotMatrix;
+
+		// Perform translation on children node
+		for (auto &pChildNode : pChildNodes)
+		{
+			if (!pChildNode.expired())
+			{
+				auto pNode = pChildNode.lock();
+				pNode->RotateLocalSpace(RotationAxisLocalSpace, Degree);
+			}
+		}
 	}
 
 	void Object3D ::SetObjectName(const std::string &name) noexcept
@@ -298,16 +309,6 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::UpdateMeshTransMatrix() noexcept
-	{
-		UpdateMeshTransform();
-	}
-	
-	void Object3D::SetObjectGravityMode(int mode) noexcept
-	{
-		setGravityMode(mode);
-	}
-
 	void Object3D::Tick(float DeltaSeconds)
 	{
 		// Animating 
@@ -359,7 +360,7 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::RotateWithArbitraryAxis(const glm::vec3 &start, const glm::vec3 &direction, float degree) noexcept
+	void Object3D::RotateWithArbitraryAxis(const glm::vec3 &Position, const glm::vec3 &RotationAxis, float Degree) 
 	{
 		// In the global coordinate system, matrix multiplication sequence should be reversed
 		// while in the local coordinate system, matrix multiplication sequence should not be reversed
@@ -367,26 +368,20 @@ namespace cxc {
 
 		// Perform rotation on root node
 		// Move to world origin
-		glm::mat4 M = glm::translate(glm::rotate(glm::translate(glm::mat4(1.0f),start),degree,direction),-start);
+		glm::mat4 TransToOrigin = glm::translate(glm::mat4(1.0f), -Position);
+		glm::mat4 RotMatrix = glm::rotate(glm::mat4(1.0f), Degree, RotationAxis);
+		glm::mat4 TransBack = glm::translate(glm::mat4(1.0f), Position);
 
-		// Perform rotation on root node
-		// Set 3x3 Rotation matrix
-		setRotation((glm::mat3)M * getRotation());
-
-		auto P = getPosition();
-
-		// Set position vector
-		setPossition(
-			M[0][0] * P.x + M[1][0] * P.y + M[2][0] * P.z + M[3][0],
-			M[0][1] * P.x + M[1][1] * P.y + M[2][1] * P.z + M[3][1],
-			M[0][2] * P.x + M[1][2] * P.y + M[2][2] * P.z + M[3][2]
-		);
+		ModelMatrix = TransBack * RotMatrix * TransToOrigin * ModelMatrix;
 
 		// Perform rotation on children node
 		for (auto pChildNode : pChildNodes)
 		{
-			auto pNode = pChildNode.lock();
-			pNode->RotateWithArbitraryAxis(start, direction, degree);
+			if (!pChildNode.expired())
+			{
+				auto pNode = pChildNode.lock();
+				pNode->RotateWithArbitraryAxis(Position, RotationAxis, Degree);
+			}
 		}
 	}
 

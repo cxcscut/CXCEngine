@@ -8,6 +8,9 @@ namespace cxc
 	class AnimLayer;
 	enum class eAnimPlayMode : uint16_t;
 
+	/*
+		AnimStack is a collection of AnimLayer, different AnimLayer can be blended
+	*/
 	class AnimStack final
 	{
 	public:

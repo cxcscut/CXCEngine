@@ -4,7 +4,7 @@
 #include "fbxsdk.h"
 #include "Scene/Lighting.h"
 #include "Scene/Camera.h"
-#include "Scene/Object3D.h"
+#include "Scene/Pawn.h"
 #include "Material/TextureManager.h"
 
 #define GET_MAX(a, b)   (a) < (b) ?  (b) : (a)
