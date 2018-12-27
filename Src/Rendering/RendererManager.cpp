@@ -1,4 +1,6 @@
 #include "Rendering/RendererManager.h"
+#include "Rendering/RendererContext.h"
+#include "Geometry/SubMesh.h"
 
 namespace cxc {
 
@@ -12,9 +14,9 @@ namespace cxc {
 		
 	}
 
-	void RendererManager::SetCurrentUsedRender(std::shared_ptr<MeshRenderer> pRender)
+	void RendererManager::SetCurrentUsedRenderer(std::shared_ptr<SubMeshRenderer> pRenderer)
 	{
-		CurrentUsedRender = pRender;
+		CurrentUsedRenderer = pRenderer;
 	}
 
 	std::shared_ptr<Shader> RendererManager::FactoryShader(const std::string& ShaderName, eShaderType ShaderType, const std::string& ShaderFileName)
@@ -50,37 +52,83 @@ namespace cxc {
 		}
 	}
 
-	std::shared_ptr<MeshRenderer> RendererManager::GetRenderPtr(const std::string &name) noexcept
+	std::shared_ptr<SubMeshRenderer> RendererManager::GetRendererPtr(const std::string &name) noexcept
 	{
-		auto it = RendersMap.find(name);
-		if (it != RendersMap.end())
+		auto it = RenderersMap.find(name);
+		if (it != RenderersMap.end())
 			return it->second;
 		else
 			return nullptr;
 
 	}
 
-	void RendererManager::UseRender(const std::string& RenderName)
+	void RendererManager::UseRenderer(std::shared_ptr<SubMeshRenderer> pRenderer)
 	{
-		auto pRender = GetRenderPtr(RenderName);
-		if (pRender)
+		if (pRenderer)
+			CurrentUsedRenderer = pRenderer;
+	}
+
+	void RendererManager::UseRenderer(const std::string& RenderName)
+	{
+		auto pRenderer = GetRendererPtr(RenderName);
+		if (pRenderer)
 		{
-			CurrentUsedRender = pRender;
+			CurrentUsedRenderer = pRenderer;
 		}
 	}
 
-	void RendererManager::AddRender(std::shared_ptr<MeshRenderer> pRender) noexcept
+	void RendererManager::AddRenderer(std::shared_ptr<SubMeshRenderer> pRenderer) noexcept
 	{
-		if (pRender)
+		if (pRenderer)
 		{
-			RendersMap.insert(std::make_pair(pRender->GetRenderName(), pRender));
+			RenderersMap.insert(std::make_pair(pRenderer->GetRendererName(), pRenderer));
 		}
 	}
 
-	void RendererManager::DeleteRender(const std::string &name) noexcept
+	void RendererManager::DeleteRenderer(const std::string &name) noexcept
 	{
-		auto it = RendersMap.find(name);
-		if (it != RendersMap.end())
-			RendersMap.erase(it);
+		auto it = RenderersMap.find(name);
+		if (it != RenderersMap.end())
+			RenderersMap.erase(it);
+	}
+
+	void RendererManager::AddSubMeshToRendererContext(std::shared_ptr<SubMesh> pSubMesh)
+	{
+		auto RendererBindingIter = SubMeshRendererBindings.find(pSubMesh);
+		if (RendererBindingIter == SubMeshRendererBindings.end())
+			return;
+
+		auto pSubMeshRenderer = RendererBindingIter->second;
+		auto SubRendererIter = RendererContextsMap.find(pSubMeshRenderer->GetRendererName());
+		if (SubRendererIter != RendererContextsMap.end())
+		{
+			auto Context = SubRendererIter->second;
+			Context->AddBindedSubMesh(pSubMesh);
+		}
+		else
+		{
+			auto Context = NewObject<RendererContext>(pSubMeshRenderer);
+			Context->AddBindedSubMesh(pSubMesh);
+			RendererContextsMap.insert(std::make_pair(pSubMeshRenderer->GetRendererName(), Context));
+		}
+	}
+
+	void RendererManager::ClearRendererContext()
+	{
+		RendererContextsMap.clear();
+	}
+
+	void RendererManager::BindSubMeshRenderer(std::shared_ptr<SubMesh> pSubMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer)
+	{
+		SubMeshRendererBindings.insert(std::make_pair(pSubMesh, pSubMeshRenderer));
+	}
+
+	void RendererManager::UnBindSubMeshRenderer(std::shared_ptr<SubMesh> pSubMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer)
+	{
+		auto Iter = SubMeshRendererBindings.find(pSubMesh);
+		if (Iter != SubMeshRendererBindings.end())
+		{
+			SubMeshRendererBindings.erase(Iter);
+		}
 	}
 }

@@ -1,5 +1,6 @@
 #include "Utilities/GeometryUtil.h"
-#include "Scene/Object3D.h"
+#include "Geometry/Mesh.h"
+#include "Geometry/SubMesh.h"
 #include "Material/Material.h"
 
 namespace cxc
@@ -14,7 +15,7 @@ namespace cxc
 
 	}
 
-	std::shared_ptr<Object3D> GeometryUtil::MakeSphere(float Radius, const glm::vec3& Center, uint32_t Segment, const glm::vec3& Color)
+	std::shared_ptr<Mesh> GeometryUtil::MakeSphere(float Radius, const glm::vec3& Center, uint32_t Segment, const glm::vec3& Color)
 	{
 		std::vector<glm::vec3> Vertices;
 		std::vector<glm::vec3> Normals;
@@ -59,19 +60,19 @@ namespace cxc
 			}
 		}
 
-		auto pSphere = NewObject<Object3D>(Vertices, Normals);
+		auto pSphere = NewObject<Mesh>(Vertices, Normals);
 		pSphere->Translate(Center);
 
-		auto pMesh = NewObject<Mesh>(Indices);
+		auto pSubMesh = NewObject<SubMesh>(Indices);
 		auto pMaterial = NewObject<Material>();
 		pMaterial->DiffuseFactor = Color;
-		pMesh->SetMeshMaterial(pMaterial);
-		pSphere->AddMesh(pMesh);
+		pSubMesh->SetSubMeshMaterial(pMaterial);
+		pSphere->AddSubMesh(pSubMesh);
 
 		return pSphere;
 	}
 
-	std::shared_ptr<Object3D> GeometryUtil::MakeBox(const glm::vec3& Center, const glm::vec3& Extent, const glm::vec3& Color)
+	std::shared_ptr<Mesh> GeometryUtil::MakeBox(const glm::vec3& Center, const glm::vec3& Extent, const glm::vec3& Color)
 	{
 		// Create the vertices of the box
 		std::vector<glm::vec3> Vertices = 
@@ -113,15 +114,15 @@ namespace cxc
 			20, 21, 22, 20, 22, 23
 		};
 
-		std::shared_ptr<Object3D> pBox = NewObject<Object3D>(Vertices, Normals);
+		std::shared_ptr<Mesh> pBox = NewObject<Mesh>(Vertices, Normals);
 		pBox->Translate(Center);
 		pBox->Scale(Extent);
 
-		auto pMesh = NewObject<Mesh>(Indices);
+		auto pSubMesh = NewObject<SubMesh>(Indices);
 		auto pMaterial = NewObject<Material>();
 		pMaterial->DiffuseFactor = Color;
-		pMesh->SetMeshMaterial(pMaterial);
-		pBox->AddMesh(pMesh);
+		pSubMesh->SetSubMeshMaterial(pMaterial);
+		pBox->AddSubMesh(pSubMesh);
 
 		return pBox;
 	}

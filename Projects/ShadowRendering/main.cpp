@@ -14,7 +14,9 @@ static const std::string ShadowRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\ShadowR
 
 static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
 
-std::shared_ptr<MeshRenderer> CreateShadowRender();
+std::shared_ptr<SubMeshRenderer> CreateShadowRender();
+void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CObject>>& Objects);
+std::vector<std::shared_ptr<CObject>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes);
 
 int main()
 {
@@ -33,27 +35,20 @@ int main()
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 	GEngine::InitializeEngine();
 
-	auto pRenderMgr = RendererManager::GetInstance();
+	auto pRendererMgr = RendererManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
-	auto pRender = CreateShadowRender();
-	pRenderMgr->AddRender(pRender);
+	auto pRenderer = CreateShadowRender();
+	pRendererMgr->AddRenderer(pRenderer);
 
 	pSceneManager->AddCamera("MainCamera", CameraPos, CameraOrigin, CameraUpVector, ProjectionMatrix);
 	pSceneManager->SetCameraActive("MainCamera");
 
-	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);
+	std::vector<std::shared_ptr<Mesh>> OutMeshes;
+	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile, OutMeshes);
+	auto Objects = CreateObjects(OutMeshes);
 	if (bResult)
 	{
-		// Bind mesh render
-		auto ObjectMap = pSceneManager->GetObjectMap();
-		for (auto pObject : ObjectMap)
-		{
-			auto MeshCount = pObject.second->GetMeshCount();
-			for (size_t i = 0; i < MeshCount; ++i)
-			{
-				GEngine::BindMeshRender(pRender, pObject.second, i);
-			}
-		}
+		BindSubMeshRenderer(pRenderer, Objects);
 	}
 
 	// Start engine
@@ -62,28 +57,63 @@ int main()
 	return 0;
 }
 
-std::shared_ptr<MeshRenderer> CreateShadowRender()
+std::vector<std::shared_ptr<CObject>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes)
 {
-	auto pRenderMgr = RendererManager::GetInstance();
+	auto pSceneManager = SceneManager::GetInstance();
+	std::vector<std::shared_ptr<CObject>> RetObjects;
+
+	for (auto pMesh : Meshes)
+	{
+		auto Object = NewObject<CObject>();
+		auto StaticMeshComponent = NewObject<CStaticMeshComponent>(pMesh);
+		Object->AttachComponent<CStaticMeshComponent>(StaticMeshComponent);
+		RetObjects.push_back(Object);
+	}
+
+	return RetObjects;
+}
+
+void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CObject>>& Objects)
+{
+	auto pRendererMgr = RendererManager::GetInstance();
+
+	for (auto Object : Objects)
+	{
+		auto StaticMeshComponent = Object->GetComponent<CStaticMeshComponent>();
+		if (StaticMeshComponent)
+		{
+			size_t SubMeshCount = StaticMeshComponent->GetStaticMesh()->GetSubMeshCount();
+			for (size_t Index = 0; Index < SubMeshCount; ++Index)
+			{
+				auto pSubMesh = StaticMeshComponent->GetStaticMesh()->GetSubMesh(Index);
+				pRendererMgr->BindSubMeshRenderer(pSubMesh, pRenderer);
+			}
+		}
+	}
+}
+
+std::shared_ptr<SubMeshRenderer> CreateShadowRender()
+{
+	auto pRendererMgr = RendererManager::GetInstance();
 
 	auto ShadowMapRender = NewObject<ShadowRenderer>("ShadowRenderer");
 	auto ShadowBasePassPipeline = NewObject<ShadowRenderBasePassPipeline>();
 	auto ShadowLightingPassPipeline = NewObject<ShadowRenderLightingPassPipeline>();
 
-	auto ShadowMapCookingVS = pRenderMgr->FactoryShader("ShadowMapCookingVS", eShaderType::VERTEX_SHADER, ShadowRenderDepthVSPath);
-	auto ShadowMapCookingFS = pRenderMgr->FactoryShader("ShadowMapCookingFS", eShaderType::FRAGMENT_SHADER, ShadowRenderDepthFSPath);
-	auto ShadowVS = pRenderMgr->FactoryShader("ShadowVS", eShaderType::VERTEX_SHADER, ShadowRenderVSPath);
-	auto ShadowFS = pRenderMgr->FactoryShader("ShadowFS", eShaderType::FRAGMENT_SHADER, ShadowRenderFSPath);
+	auto ShadowMapCookingVS = pRendererMgr->FactoryShader("ShadowMapCookingVS", eShaderType::VERTEX_SHADER, ShadowRenderDepthVSPath);
+	auto ShadowMapCookingFS = pRendererMgr->FactoryShader("ShadowMapCookingFS", eShaderType::FRAGMENT_SHADER, ShadowRenderDepthFSPath);
+	auto ShadowVS = pRendererMgr->FactoryShader("ShadowVS", eShaderType::VERTEX_SHADER, ShadowRenderVSPath);
+	auto ShadowFS = pRendererMgr->FactoryShader("ShadowFS", eShaderType::FRAGMENT_SHADER, ShadowRenderFSPath);
 
 	ShadowBasePassPipeline->AttachShader(ShadowMapCookingVS);
 	ShadowBasePassPipeline->AttachShader(ShadowMapCookingFS);
 	ShadowLightingPassPipeline->AttachShader(ShadowVS);
 	ShadowLightingPassPipeline->AttachShader(ShadowFS);
 
-	ShadowMapRender->SetBasePassPipeline(ShadowBasePassPipeline);
-	ShadowMapRender->SetLightingPassPipeline(ShadowLightingPassPipeline);
+	ShadowMapRender->AddPipeline(ShadowBasePassPipeline);
+	ShadowMapRender->AddPipeline(ShadowLightingPassPipeline);
 
-	ShadowMapRender->InitializeRender();
+	ShadowMapRender->InitializeRenderer();
 	ShadowMapRender->SetShadowMapResolution(512);
 
 	return ShadowMapRender;

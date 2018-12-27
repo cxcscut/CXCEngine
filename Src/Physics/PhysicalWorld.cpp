@@ -1,6 +1,6 @@
 #include "Physics/PhysicalWorld.h"
 #include "World/World.h"
-#include "Scene/Pawn.h"
+#include "Actor/CPawn.h"
 
 namespace cxc
 {
@@ -15,13 +15,13 @@ namespace cxc
 		dBodyID b2 = dGeomGetBody(o2);
 		if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact)) return;
 
-		Object3D *rgbd3d_ptr1 = nullptr, *rgbd3d_ptr2 = nullptr;
+		CObject *rgbd3d_ptr1 = nullptr, *rgbd3d_ptr2 = nullptr;
 
 		// Only trimesh user data can be cast into Shape*
 		if (b1 && dGeomGetClass(o1) == dTriMeshClass)
-			rgbd3d_ptr1 = reinterpret_cast<Object3D*>(dBodyGetData(b1));
+			rgbd3d_ptr1 = reinterpret_cast<CObject*>(dBodyGetData(b1));
 		if (b2 && dGeomGetClass(o2) == dTriMeshClass)
-			rgbd3d_ptr2 = reinterpret_cast<Object3D*>(dBodyGetData(b2));
+			rgbd3d_ptr2 = reinterpret_cast<CObject*>(dBodyGetData(b2));
 
 		if ((rgbd3d_ptr1 && rgbd3d_ptr1->CompareTag() == "collision_free") ||
 			(rgbd3d_ptr2 && rgbd3d_ptr2->CompareTag() == "collision_free"))
@@ -131,7 +131,7 @@ namespace cxc
 				auto ObjectMap = pWorld->pSceneMgr->GetObjectMap();
 				for (auto pObject : ObjectMap)
 				{
-					auto pPawn = std::dynamic_pointer_cast<Pawn>(pObject.second);
+					auto pPawn = std::dynamic_pointer_cast<CPawn>(pObject.second);
 					if (pPawn)
 					{
 						pPawn->PhysicalTick(DeltaSeconds);

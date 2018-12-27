@@ -114,7 +114,6 @@
     <ClCompile Include="..\..\src\rendering\DeferredRenderPipeline.cpp" />
     <ClCompile Include="..\..\src\rendering\Font.cpp" />
     <ClCompile Include="..\..\Src\Rendering\ForwardRenderer.cpp" />
-    <ClCompile Include="..\..\Src\Rendering\MeshRenderer.cpp" />
     <ClCompile Include="..\..\Src\Rendering\RendererManager.cpp" />
     <ClCompile Include="..\..\src\rendering\Shader.cpp" />
     <ClCompile Include="..\..\Src\Rendering\ShadowRenderer.cpp" />
@@ -122,7 +121,6 @@
     <ClCompile Include="..\..\src\scene\Camera.cpp" />
     <ClCompile Include="..\..\src\scene\Lighting.cpp" />
     <ClCompile Include="..\..\src\scene\Mesh.cpp" />
-    <ClCompile Include="..\..\src\scene\Object3D.cpp" />
     <ClCompile Include="..\..\src\scene\SceneManager.cpp" />
     <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
     <ClCompile Include="..\..\src\utilities\FBXSDKUtility.cpp" />
@@ -148,7 +146,6 @@
     <ClInclude Include="..\..\include\rendering\DeferredRenderPipeline.h" />
     <ClInclude Include="..\..\include\rendering\Font.h" />
     <ClInclude Include="..\..\Include\Rendering\ForwardRenderer.h" />
-    <ClInclude Include="..\..\Include\Rendering\MeshRenderer.h" />
     <ClInclude Include="..\..\Include\Rendering\RendererManager.h" />
     <ClInclude Include="..\..\include\rendering\Shader.h" />
     <ClInclude Include="..\..\Include\Rendering\ShadowRenderer.h" />
@@ -156,7 +153,6 @@
     <ClInclude Include="..\..\include\scene\Camera.h" />
     <ClInclude Include="..\..\include\scene\Lighting.h" />
     <ClInclude Include="..\..\include\scene\Mesh.h" />
-    <ClInclude Include="..\..\include\scene\Object3D.h" />
     <ClInclude Include="..\..\include\scene\SceneManager.h" />
     <ClInclude Include="..\..\include\script\ScriptParser.h" />
     <ClInclude Include="..\..\include\utilities\FBXSDKUtility.h" />

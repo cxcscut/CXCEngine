@@ -101,7 +101,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Src\Animation\AnimationStack.cpp" />
+    <ClCompile Include="..\..\Src\Animation\AnimContext.cpp" />
+    <ClCompile Include="..\..\Src\Animation\AnimCurve.cpp" />
+    <ClCompile Include="..\..\Src\Animation\AnimKeyFrame.cpp" />
+    <ClCompile Include="..\..\Src\Animation\AnimLayer.cpp" />
+    <ClCompile Include="..\..\Src\Animation\AnimStack.cpp" />
+    <ClCompile Include="..\..\Src\Components\CComponent.cpp" />
     <ClCompile Include="..\..\src\controller\InputManager.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
@@ -115,16 +120,20 @@
     <ClCompile Include="..\..\src\rendering\DeferredRenderPipeline.cpp" />
     <ClCompile Include="..\..\src\rendering\Font.cpp" />
     <ClCompile Include="..\..\src\rendering\ForwardRenderer.cpp" />
-    <ClCompile Include="..\..\src\rendering\MeshRenderer.cpp" />
+    <ClCompile Include="..\..\Src\Rendering\RendererContext.cpp" />
     <ClCompile Include="..\..\Src\Rendering\RendererManager.cpp" />
     <ClCompile Include="..\..\src\rendering\Shader.cpp" />
     <ClCompile Include="..\..\src\rendering\ShadowRenderer.cpp" />
     <ClCompile Include="..\..\src\rendering\ShadowRenderPipeline.cpp" />
+    <ClCompile Include="..\..\Src\Rendering\SubMeshRenderer.cpp" />
+    <ClCompile Include="..\..\Src\Scene\CActor.cpp" />
     <ClCompile Include="..\..\src\scene\Camera.cpp" />
+    <ClCompile Include="..\..\Src\Scene\CBaseObject.cpp" />
     <ClCompile Include="..\..\src\scene\Lighting.cpp" />
     <ClCompile Include="..\..\src\scene\Mesh.cpp" />
-    <ClCompile Include="..\..\src\scene\Object3D.cpp" />
+    <ClCompile Include="..\..\Src\Scene\Pawn.cpp" />
     <ClCompile Include="..\..\src\scene\SceneManager.cpp" />
+    <ClCompile Include="..\..\Src\Scene\SubMesh.cpp" />
     <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
     <ClCompile Include="..\..\src\utilities\FBXSDKUtility.cpp" />
     <ClCompile Include="..\..\src\utilities\FileHelper.cpp" />
@@ -134,7 +143,12 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Include\Animation\AnimationStack.h" />
+    <ClInclude Include="..\..\Include\Animation\AnimContext.h" />
+    <ClInclude Include="..\..\Include\Animation\AnimCurve.h" />
+    <ClInclude Include="..\..\Include\Animation\AnimKeyFrame.h" />
+    <ClInclude Include="..\..\Include\Animation\AnimLayer.h" />
+    <ClInclude Include="..\..\Include\Animation\AnimStack.h" />
+    <ClInclude Include="..\..\Include\Components\CComponent.h" />
     <ClInclude Include="..\..\include\controller\InputManager.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
     <ClInclude Include="..\..\include\general\DefineTypes.h" />
@@ -150,16 +164,20 @@
     <ClInclude Include="..\..\include\rendering\DeferredRenderPipeline.h" />
     <ClInclude Include="..\..\include\rendering\Font.h" />
     <ClInclude Include="..\..\Include\Rendering\ForwardRenderer.h" />
-    <ClInclude Include="..\..\Include\Rendering\MeshRenderer.h" />
+    <ClInclude Include="..\..\Include\Rendering\RendererContext.h" />
     <ClInclude Include="..\..\include\rendering\RenderManager.h" />
     <ClInclude Include="..\..\include\rendering\Shader.h" />
     <ClInclude Include="..\..\Include\Rendering\ShadowRenderer.h" />
     <ClInclude Include="..\..\include\rendering\ShadowRenderPipeline.h" />
+    <ClInclude Include="..\..\Include\Rendering\SubMeshRenderer.h" />
+    <ClInclude Include="..\..\Include\Scene\CActor.h" />
     <ClInclude Include="..\..\include\scene\Camera.h" />
+    <ClInclude Include="..\..\Include\Scene\CBaseObject.h" />
     <ClInclude Include="..\..\include\scene\Lighting.h" />
     <ClInclude Include="..\..\include\scene\Mesh.h" />
-    <ClInclude Include="..\..\include\scene\Object3D.h" />
+    <ClInclude Include="..\..\Include\Scene\Pawn.h" />
     <ClInclude Include="..\..\include\scene\SceneManager.h" />
+    <ClInclude Include="..\..\Include\Scene\SubMesh.h" />
     <ClInclude Include="..\..\include\script\ScriptParser.h" />
     <ClInclude Include="..\..\include\utilities\FBXSDKUtility.h" />
     <ClInclude Include="..\..\include\utilities\FileHelper.h" />

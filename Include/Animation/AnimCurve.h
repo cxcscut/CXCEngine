@@ -33,6 +33,9 @@ namespace cxc
 		std::shared_ptr<AnimKeyFrame> FindCurrentKeyFrame(float CurrentTime);
 		void SortKeyFramesByStartTime();
 
+		void ComputeShapeDeformation();
+		void ComputeSkinDeformation();
+
 	private:
 
 		// Start time of the curve node;

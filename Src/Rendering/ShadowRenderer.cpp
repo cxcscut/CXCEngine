@@ -1,6 +1,6 @@
 #include "Rendering/ShadowRenderer.h"
 #include "Rendering/RendererManager.h"
-#include "Scene/Mesh.h"
+#include "Geometry/SubMesh.h"
 
 namespace cxc
 {
@@ -21,7 +21,7 @@ namespace cxc
 	ShadowRenderer::ShadowRenderer(const std::string& Name) :
 		ShadowRenderer()
 	{
-		SetRenderName(Name);
+		SetRendererName(Name);
 	}
 
 	ShadowRenderer::~ShadowRenderer()
@@ -42,12 +42,14 @@ namespace cxc
 		}
 	}
 
-	bool ShadowRenderer::InitializeRender()
+	bool ShadowRenderer::InitializeRenderer()
 	{
 		bool bSuccessful = true;
 
-		bSuccessful &= pBasePassPipeline->InitializePipeline();
-		bSuccessful &= pLightingPassPipeline->InitializePipeline();
+		for (auto Pipeline : RenderPipelines)
+		{
+			bSuccessful &= Pipeline->InitializePipeline();
+		}
 
 		return bSuccessful;
 	}
@@ -180,16 +182,9 @@ namespace cxc
 		return true;
 	}
 
-	void ShadowRenderer::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void ShadowRenderer::ClearShadowMapBuffer(const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		auto pLight = Lights[0];
-		bool bResult = InitShadowMapRender(Lights);
-		if (!bResult)
-		{
-			std::cerr << "Failed to initialize the shadow map render" << std::endl;
-			return;
-		}
-
 		if (!bHasDepthTexturesCleared)
 		{
 			if (pLight->GetLightType() == eLightType::OmniDirectional)
@@ -212,49 +207,19 @@ namespace cxc
 		}
 	}
 
-	void ShadowRenderer::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void ShadowRenderer::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
-		// Shadow depth map cooked in the pre-render process
-		// Cook the shadow depth map
-		if (pBasePassPipeline)
-		{
-			UsePipeline(pBasePassPipeline);
-			pBasePassPipeline->PreRender(pMesh, Lights);
-			pBasePassPipeline->Render(pMesh, Lights);
-			pBasePassPipeline->PostRender(pMesh, Lights);
-		}
-	}
+		// Create shadow map buffers if needed
+		InitShadowMapRender(Lights);
 
-	void ShadowRenderer::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
-	{
-		if (pLightingPassPipeline)
-		{
-			UsePipeline(pLightingPassPipeline);
-			BindCameraUniforms(pLightingPassPipeline->GetPipelineProgramID());
-			pLightingPassPipeline->PreRender(pMesh, Lights);
-			pLightingPassPipeline->Render(pMesh, Lights);
-			pLightingPassPipeline->PostRender(pMesh, Lights);
-		}
+		// Clear the shadow map buffers
+		ClearShadowMapBuffer(Lights);
 
-		// Reset the flag
-		bHasDepthTexturesCleared = false;
-	}
-
-	void ShadowRenderer::SetBasePassPipeline(std::shared_ptr<ShadowRenderBasePassPipeline> BasePassPipeline)
-	{
-		if (BasePassPipeline)
+		// Rendering passes
+		for (auto Pipeline : RenderPipelines)
 		{
-			pBasePassPipeline = BasePassPipeline;
-			BasePassPipeline->SetOwnerRender(shared_from_this());
-		}
-	}
-
-	void ShadowRenderer::SetLightingPassPipeline(std::shared_ptr<ShadowRenderLightingPassPipeline> LightingPassPipeline)
-	{
-		if (LightingPassPipeline)
-		{
-			pLightingPassPipeline = LightingPassPipeline;
-			LightingPassPipeline->SetOwnerRender(shared_from_this());
+			UsePipeline(Pipeline);
+			Pipeline->Render(Context, Lights);
 		}
 	}
 }

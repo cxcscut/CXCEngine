@@ -38,13 +38,18 @@ namespace cxc
 		}
 	}
 
-	void GEngine::BindMeshRender(std::shared_ptr<MeshRenderer> pRender, std::shared_ptr<Object3D> pObject, uint32_t MeshIndex)
+	void GEngine::UnBindSubMeshRender(std::shared_ptr<SubMeshRenderer> pSubMeshRender, std::shared_ptr<Mesh> pMesh, uint32_t SubMeshIndex)
 	{
-		auto pMesh = pObject->GetMesh(MeshIndex);
-		if (pMesh)
-		{
-			pMesh->BindMeshRender(pRender);
-		}
+		auto pSubMesh = pMesh->GetSubMesh(SubMeshIndex);
+		auto pRendererMgr = RendererManager::GetInstance();
+		pRendererMgr->UnBindSubMeshRenderer(pSubMesh, pSubMeshRender);
+	}
+
+	void GEngine::BindSubMeshRender(std::shared_ptr<SubMeshRenderer> pSubMeshRender, std::shared_ptr<Mesh> pMesh, uint32_t SubMeshIndex)
+	{
+		auto pSubMesh = pMesh->GetSubMesh(SubMeshIndex);
+		auto pRendererMgr = RendererManager::GetInstance();
+		pRendererMgr->BindSubMeshRenderer(pSubMesh, pSubMeshRender);
 	}
 
 	void GEngine::InitializeEngine()

@@ -1,6 +1,8 @@
 #include "Utilities/FBXSDKUtility.h"
 #include "General/DefineTypes.h"
 #include "Material/MaterialManager.h"
+#include "Geometry/SubMesh.h"
+#include "Geometry/Mesh.h"
 
 #ifdef IOS_REF
 	#undef IOS_REF
@@ -167,13 +169,13 @@ namespace cxc {
 		}
 	}
 
-	bool FBXSDKUtil::GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Object3D> pParentNode)
+	bool FBXSDKUtil::GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Mesh>>& OutObjects, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode)
 	{
 		if (!pNode)
 			return false;
 
 		bool bHasFoundAnyObject = false;
-		std::shared_ptr<Object3D> pNewObject = nullptr;
+		std::shared_ptr<Mesh> pNewMesh = nullptr;
 		FbxAMatrix lGlobalOffPosition;
 
 		FbxMesh* pMesh = pNode->GetMesh();
@@ -186,7 +188,7 @@ namespace cxc {
 			auto pMaterialMgr = MaterialManager::GetInstance();
 			FbxLayerElementArrayTemplate<int>* lMaterialIndice = NULL;
 			FbxGeometryElement::EMappingMode lMaterialMappingMode = FbxGeometryElement::eNone;
-			std::vector<std::shared_ptr<Mesh>> NewMeshes;
+			std::vector<std::shared_ptr<SubMesh>> NewSubMeshes;
 			if (pMesh->GetElementMaterial())
 			{
 				lMaterialIndice = &pMesh->GetElementMaterial()->GetIndexArray();
@@ -224,13 +226,13 @@ namespace cxc {
 
 						std::string MaterialName = SurfaceMaterial->GetName();
 						auto LoadedMaterial = NewObject<Material>(MaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
-						auto pNewMesh = NewObject<Mesh>();
+						auto pSubNewMesh = NewObject<SubMesh>();
 
 						LoadedMaterial->pTextures = std::move(OutTextures);
 
 						pMaterialMgr->addMaterial(LoadedMaterial);
-						pNewMesh->SetMeshMaterial(LoadedMaterial);
-						NewMeshes.push_back(pNewMesh);
+						pSubNewMesh->SetSubMeshMaterial(LoadedMaterial);
+						NewSubMeshes.push_back(pSubNewMesh);
 					}
 				}
 				else if (lMaterialIndice && lMaterialMappingMode == FbxGeometryElement::eByPolygon)
@@ -269,13 +271,13 @@ namespace cxc {
 
 							std::string PolygonMaterialName = PolygonMaterial->GetName();
 							auto LoadedPolygonMaterial = NewObject<Material>(PolygonMaterialName, EmissiveFactor, AmbientFactor, DiffuseFactor, SpecularFactor, lShiniess);
-							auto pNewMesh = NewObject<Mesh>();
+							auto pSubNewMesh = NewObject<SubMesh>();
 
 							LoadedPolygonMaterial->pTextures = OutTextures;
 
 							pMaterialMgr->addMaterial(LoadedPolygonMaterial);
-							pNewMesh->SetMeshMaterial(LoadedPolygonMaterial);
-							NewMeshes.push_back(pNewMesh);
+							pSubNewMesh->SetSubMeshMaterial(LoadedPolygonMaterial);
+							NewSubMeshes.push_back(pSubNewMesh);
 						}
 					}
 				}
@@ -283,12 +285,12 @@ namespace cxc {
 			else
 			{
 				// When no materials assigned, create the mesh with default material
-				auto pMeshWithDefaultMaterial = std::make_shared<Mesh>();
+				auto pSubMeshWithDefaultMaterial = std::make_shared<SubMesh>();
 				auto pDefaultMaterial = pMaterialMgr->GetMaterial("DefaultMaterial");
 				FBX_ASSERT(pDefaultMaterial != nullptr);
 
-				pMeshWithDefaultMaterial->SetMeshMaterial(pDefaultMaterial);
-				NewMeshes.push_back(pMeshWithDefaultMaterial);
+				pSubMeshWithDefaultMaterial->SetSubMeshMaterial(pDefaultMaterial);
+				NewSubMeshes.push_back(pSubMeshWithDefaultMaterial);
 			}
 
 			// Congregate all the data of a mesh to be cached in VBOs
@@ -467,49 +469,49 @@ namespace cxc {
 					auto CurrentMaterial = pNode->GetMaterial(CurrentMaterialIndex);
 					FBX_ASSERT(CurrentMaterial != nullptr);
 
-					for (auto mesh : NewMeshes)
+					for (auto pSubMesh : NewSubMeshes)
 					{
-						if (mesh->pMaterial->MaterialName == CurrentMaterial->GetName())
+						if (pSubMesh->pMaterial->MaterialName == CurrentMaterial->GetName())
 						{
-							mesh->Indices.push_back(MeshVertexIndex[0]);
-							mesh->Indices.push_back(MeshVertexIndex[1]);
-							mesh->Indices.push_back(MeshVertexIndex[2]);
+							pSubMesh->Indices.push_back(MeshVertexIndex[0]);
+							pSubMesh->Indices.push_back(MeshVertexIndex[1]);
+							pSubMesh->Indices.push_back(MeshVertexIndex[2]);
 						}
 					}
 				}
 			}
 
 			// Create the object
-			pNewObject = std::make_shared<Object3D>(Vertices, Normals, UVs, Indices);
-			pNewObject->ObjectName = pNode->GetName();
-			pNewObject->isLoaded = true;
+			pNewMesh = std::make_shared<Mesh>(Vertices, Normals, UVs, Indices);
+			pNewMesh->MeshName = pNode->GetName();
+			pNewMesh->isLoaded = true;
 
 			// Create indice of the meshes
 			if (!pMesh->GetElementMaterial() || lMaterialMappingMode == FbxGeometryElement::eAllSame)
 			{
-				FBX_ASSERT(NewMeshes.size() == 1);
-				NewMeshes[0]->Indices = pNewObject->m_VertexIndices;
-				NewMeshes[0]->SetOwnerObject(pNewObject);
+				FBX_ASSERT(NewSubMeshes.size() == 1);
+				NewSubMeshes[0]->Indices = pNewMesh->m_VertexIndices;
+				NewSubMeshes[0]->SetOwnerObject(pNewMesh);
 
-				pNewObject->Meshes = NewMeshes;
+				pNewMesh->SubMeshes = NewSubMeshes;
 			}
 			else if (lMaterialMappingMode == FbxGeometryElement::eByPolygon)
 			{
-				FBX_ASSERT(NewMeshes.size() == lPolygonCount);
+				FBX_ASSERT(NewSubMeshes.size() == lPolygonCount);
 
-				for (auto mesh : NewMeshes)
+				for (auto mesh : NewSubMeshes)
 				{
-					mesh->SetOwnerObject(pNewObject);
+					mesh->SetOwnerObject(pNewMesh);
 				}
 
-				pNewObject->Meshes = NewMeshes;
+				pNewMesh->SubMeshes = NewSubMeshes;
 			}
 
 			// Create the parent-child linkage
 			if (pParentNode)
 			{
-				pParentNode->pChildNodes.push_back(pNewObject);
-				pNewObject->pParentNode = pParentNode;
+				pParentNode->pChildNodes.push_back(pNewMesh);
+				pNewMesh->pParentNode = pParentNode;
 			}
 
 			// Get global position of the node
@@ -518,24 +520,24 @@ namespace cxc {
 			lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
 
 			// Set translation
-			pNewObject->Translate(glm::vec3(lGlobalPosition.GetT()[0], lGlobalPosition.GetT()[1], lGlobalPosition.GetT()[2]));
+			pNewMesh->Translate(glm::vec3(lGlobalPosition.GetT()[0], lGlobalPosition.GetT()[1], lGlobalPosition.GetT()[2]));
 
 			// Set rotation
-			pNewObject->RotateLocalSpace(glm::vec3(1, 0, 0), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[0])));
-			pNewObject->RotateLocalSpace(glm::vec3(0, 1, 0), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[1])));
-			pNewObject->RotateLocalSpace(glm::vec3(0, 0, 1), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[2])));
+			pNewMesh->RotateLocalSpace(glm::vec3(1, 0, 0), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[0])));
+			pNewMesh->RotateLocalSpace(glm::vec3(0, 1, 0), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[1])));
+			pNewMesh->RotateLocalSpace(glm::vec3(0, 0, 1), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[2])));
 
 			// Set sacling
-			pNewObject->Scale(glm::vec3(glm::vec3(lGlobalPosition.GetS()[0], lGlobalPosition.GetS()[1], lGlobalPosition.GetS()[2])));
+			pNewMesh->Scale(glm::vec3(glm::vec3(lGlobalPosition.GetS()[0], lGlobalPosition.GetS()[1], lGlobalPosition.GetS()[2])));
 
-			OutObjects.push_back(pNewObject);
+			OutObjects.push_back(pNewMesh);
 		}
 
 		// Recursively traverse each node in the scene
 		int i, lCount = pNode->GetChildCount();
 		for (i = 0; i < lCount; i++)
 		{
-			bHasFoundAnyObject |= GetObjectFromNode(pNode->GetChild(i), OutObjects, WorldID, SpaceID, lGlobalOffPosition, pNewObject);
+			bHasFoundAnyObject |= GetObjectFromNode(pNode->GetChild(i), OutObjects, WorldID, SpaceID, lGlobalOffPosition, pNewMesh);
 		}
 
 		return bHasFoundAnyObject;

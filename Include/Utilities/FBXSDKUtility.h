@@ -2,9 +2,10 @@
 #define FBXCOMMON_H
 
 #include "fbxsdk.h"
+#include "Geometry/Mesh.h"
 #include "Scene/Lighting.h"
 #include "Scene/Camera.h"
-#include "Scene/Pawn.h"
+#include "Actor/CPawn.h"
 #include "Material/TextureManager.h"
 
 #define GET_MAX(a, b)   (a) < (b) ?  (b) : (a)
@@ -33,7 +34,7 @@ namespace cxc
 
 		static bool GetCameraFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Camera>>& OutCameras);
 		
-	// Mesh
+	// SubMesh
 	public:
 
 		static void GetMaterialProperties(const FbxSurfaceMaterial* pMaterial, 
@@ -46,7 +47,7 @@ namespace cxc
 			const char * pFactorPropertyName,
 			GLuint& pTextureName);
 
-		static bool GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Object3D>>& OutObjects, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Object3D> pParentNode = nullptr);
+		static bool GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Mesh>>& OutObjects, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode = nullptr);
 		static void GetTexturesFromMaterial(FbxSurfaceMaterial* pSurfaceMaterial, std::vector<std::shared_ptr<Texture2D>>& OutTextures);
 
 	private:

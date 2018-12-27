@@ -1,15 +1,15 @@
-#include "MeshRenderer.h"
+#include "SubMeshRenderer.h"
 
 #ifndef CXC_SHADOWRENDERPIPELINE_H
 #define CXC_SHADOWRENDERPIPELINE_H
 
 namespace cxc
 {
-	class Mesh;
+	class SubMesh;
 	class LightSource;
 	class ShadowRenderer;
 
-	class ShadowRenderLightingPassPipeline : public MeshRenderPipeline
+	class ShadowRenderLightingPassPipeline : public SubMeshRenderPipeline
 	{
 	public:
 
@@ -23,12 +23,10 @@ namespace cxc
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 	};
 
-	class ShadowRenderBasePassPipeline : public MeshRenderPipeline
+	class ShadowRenderBasePassPipeline : public SubMeshRenderPipeline
 	{
 	public:
 
@@ -38,14 +36,12 @@ namespace cxc
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 
 	public:
 
-		void CookShadowMapDepthTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
-		void RenderShadowsToTexture(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights);
+		void CookShadowMapDepthTexture(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights);
+		void RenderShadowsToTexture(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights);
 
 	};
 }

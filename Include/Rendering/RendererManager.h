@@ -1,12 +1,14 @@
 #include "General/DefineTypes.h"
 #include "Utilities/Singleton.inl"
 #include "Scene/Lighting.h"
-#include "Rendering/MeshRenderer.h"
+#include "Rendering/SubMeshRenderer.h"
 
 #ifndef CXC_RENDERERMANAGER_H
 #define CXC_RENDERERMANAGER_H
 
 namespace cxc {
+
+	class RendererContext;
 
 	enum class eShadingMode : uint32_t 
 	{
@@ -19,6 +21,7 @@ namespace cxc {
 	
 	public:
 		friend Singleton<RendererManager>;
+		friend class SceneManager;
 
 		explicit RendererManager();
 		~RendererManager();
@@ -31,13 +34,16 @@ namespace cxc {
 
 	public:
 
-		void AddRender( std::shared_ptr<MeshRenderer> pRender) noexcept;
-		void DeleteRender(const std::string &name) noexcept;
+		void BindSubMeshRenderer(std::shared_ptr<SubMesh> pSubMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer);
+		void UnBindSubMeshRenderer(std::shared_ptr<SubMesh> pSubMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer);
+		void AddRenderer( std::shared_ptr<SubMeshRenderer> pRenderer) noexcept;
+		void DeleteRenderer(const std::string &name) noexcept;
 
-		std::shared_ptr<MeshRenderer> GetRenderPtr(const std::string &name) noexcept;
-		void UseRender(const std::string& RenderName);
-		std::shared_ptr<MeshRenderer> GetCurrentUsedRender() { return CurrentUsedRender; }
-		void SetCurrentUsedRender(std::shared_ptr<MeshRenderer> pRender);
+		std::shared_ptr<SubMeshRenderer> GetRendererPtr(const std::string &name) noexcept;
+		void UseRenderer(std::shared_ptr<SubMeshRenderer> pRenderer);
+		void UseRenderer(const std::string& RenderName);
+		std::shared_ptr<SubMeshRenderer> GetCurrentUsedRenderer() { return CurrentUsedRenderer; }
+		void SetCurrentUsedRenderer(std::shared_ptr<SubMeshRenderer> pRenderer);
 
 	public:
 
@@ -47,9 +53,18 @@ namespace cxc {
 
 	private:
 
-		std::shared_ptr<MeshRenderer> CurrentUsedRender;
+		void AddSubMeshToRendererContext(std::shared_ptr<SubMesh> pSubMesh);
+		void ClearRendererContext();
 
-		std::unordered_map<std::string, std::shared_ptr<MeshRenderer>> RendersMap;
+	private:
+
+		std::unordered_map<std::shared_ptr<SubMesh>, std::shared_ptr<SubMeshRenderer>> SubMeshRendererBindings;
+
+		std::unordered_map<std::string, std::shared_ptr<RendererContext>> RendererContextsMap;
+
+		std::shared_ptr<SubMeshRenderer> CurrentUsedRenderer;
+
+		std::unordered_map<std::string, std::shared_ptr<SubMeshRenderer>> RenderersMap;
 
 		std::unordered_map<std::string, std::shared_ptr<Shader>> pShadersMap;
 	};

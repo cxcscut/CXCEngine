@@ -1,4 +1,4 @@
-#include "MeshRenderer.h"
+#include "SubMeshRenderer.h"
 #include "DeferredRenderPipeline.h"
 
 #ifndef CXC_DEFERREDRENDER_H
@@ -6,10 +6,10 @@
 
 namespace cxc
 {
-	class Mesh;
+	class SubMesh;
 	class LightSource;
 
-	class DeferredRenderer : public MeshRenderer
+	class DeferredRenderer : public SubMeshRenderer
 	{
 	public:
 
@@ -19,13 +19,11 @@ namespace cxc
 
 	public:
 
-		virtual bool InitializeRender() override;
+		virtual bool InitializeRenderer() override;
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 
 	private:
 
@@ -38,14 +36,7 @@ namespace cxc
 		GLuint GetVertexDiffuseTextureID() const { return VertexDiffuseTexture; }
 		GLuint GetVertexNormalTextureID() const { return VertexNormalTexture; }
 
-		void SetDeferredRenderPipeline(std::shared_ptr<DeferredRenderPipeline> Pipeline);
-
 	private:
-
-		bool bIsGBufferDirty;
-
-		/* Geometry passing pipeline */
-		std::shared_ptr<DeferredRenderPipeline> pDeferredRenderPipeline;
 
 		/* G-Buffer storing vertex position, color ,normal */
 		GLuint GeometryFrameBuffer;
@@ -61,9 +52,6 @@ namespace cxc
 
 		/* Texture storing the vertex normal */
 		GLuint VertexNormalTexture;
-
-	private:
-
 		
 	};
 }

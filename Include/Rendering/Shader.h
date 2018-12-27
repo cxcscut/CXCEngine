@@ -6,7 +6,7 @@
 
 namespace cxc
 {
-	class MeshRenderPipeline;
+	class SubMeshRenderPipeline;
 
 	enum class eShaderType : uint32_t
 	{
@@ -43,7 +43,7 @@ namespace cxc
 	public:
 
 		bool CompileShader();
-		void AttachToRenderPipeline(std::shared_ptr<MeshRenderPipeline> pRenderPipeline);
+		void AttachToRenderPipeline(std::shared_ptr<SubMeshRenderPipeline> pRenderPipeline);
 
 	protected:
 

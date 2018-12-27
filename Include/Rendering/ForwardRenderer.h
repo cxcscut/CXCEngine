@@ -1,4 +1,4 @@
-#include "MeshRenderer.h"
+#include "SubMeshRenderer.h"
 
 #ifndef CXC_FORWARDRENDER_H
 #define CXC_FORWARDRENDER_H
@@ -7,7 +7,7 @@ namespace cxc
 {
 	class ForwardRenderPipeline;
 
-	class ForwardRenderer : public MeshRenderer
+	class ForwardRenderer : public SubMeshRenderer
 	{
 	public:
 
@@ -17,24 +17,15 @@ namespace cxc
 
 	public:
 
-		virtual bool InitializeRender() override;
+		virtual bool InitializeRenderer() override;
 
 	public:
 
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-
-	public:
-
-		void SetForwardRenderPipeline(std::shared_ptr<ForwardRenderPipeline> Pipeline);
-
-	private:
-
-		/* Texturing pipeline */
-		std::shared_ptr<ForwardRenderPipeline> pFowardRenderPipeline;
+		virtual void Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 
 	};
 
-	class ForwardRenderPipeline : public MeshRenderPipeline
+	class ForwardRenderPipeline : public SubMeshRenderPipeline
 	{
 	public:
 
@@ -45,7 +36,7 @@ namespace cxc
 
 	public:
 
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 	};
 }
 

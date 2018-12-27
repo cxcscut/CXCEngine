@@ -1,26 +1,32 @@
-#include "Rendering/MeshRenderer.h"
+#include "Rendering/SubMeshRenderer.h"
 #include "Scene/SceneManager.h"
 #include "World/World.h"
 
 namespace cxc
 {
-	MeshRenderer::MeshRenderer()
+	SubMeshRenderer::SubMeshRenderer()
 	{
 
 	}
 
-	MeshRenderer::MeshRenderer(const std::string& Name)
-		: MeshRenderer()
+	SubMeshRenderer::SubMeshRenderer(const std::string& Name)
+		: SubMeshRenderer()
 	{
-		RenderName = Name;
+		RendererName = Name;
 	}
 
-	MeshRenderer::~MeshRenderer()
+	SubMeshRenderer::~SubMeshRenderer()
 	{
 
 	}
 
-	void MeshRenderer::UsePipeline(std::shared_ptr<MeshRenderPipeline> Pipeline)
+	void SubMeshRenderer::AddPipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline)
+	{
+		Pipeline->SetOwnerRenderer(shared_from_this());
+		RenderPipelines.push_back(Pipeline);
+	}
+
+	void SubMeshRenderer::UsePipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline)
 	{
 		if (Pipeline)
 		{
@@ -31,7 +37,7 @@ namespace cxc
 			glUseProgram(0);
 	}
 
-	void MeshRenderer::BindCameraUniforms(GLuint ProgramID)
+	void SubMeshRenderer::BindCameraUniforms(GLuint ProgramID)
 	{
 		auto SceneManager = SceneManager::GetInstance();
 		auto CurrentActiveCamera = SceneManager->GetCurrentActiveCamera();
@@ -39,27 +45,27 @@ namespace cxc
 			CurrentActiveCamera->BindCameraUniforms(ProgramID);
 	}
 
-	MeshRenderPipeline::MeshRenderPipeline()
+	SubMeshRenderPipeline::SubMeshRenderPipeline()
 	{
 		ProgramID = glCreateProgram();
-		pOwnerRender.reset();
+		pOwnerRenderer.reset();
 	}
 
-	MeshRenderPipeline::MeshRenderPipeline(const std::string& Name) :
-		MeshRenderPipeline()
+	SubMeshRenderPipeline::SubMeshRenderPipeline(const std::string& Name) :
+		SubMeshRenderPipeline()
 	{
 		PipelineName = Name;
 	}
 
-	MeshRenderPipeline::~MeshRenderPipeline()
+	SubMeshRenderPipeline::~SubMeshRenderPipeline()
 	{
 		if (ProgramID)
 			glDeleteProgram(ProgramID);
 
-		pOwnerRender.reset();
+		pOwnerRenderer.reset();
 	}
 
-	void MeshRenderPipeline::BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights, std::vector<GLuint>& SubroutineIndices)
+	void SubMeshRenderPipeline::BindLightUniforms(std::vector<std::shared_ptr<LightSource>> Lights, std::vector<GLuint>& SubroutineIndices)
 	{
 		GLint OmniLightNumLoc = glGetUniformLocation(ProgramID, "OmniLightNum");
 		GLint DirectionalLightNumLoc = glGetUniformLocation(ProgramID, "DirectionalLightNum");
@@ -150,7 +156,7 @@ namespace cxc
 		glUniform1i(SpotLightNumLoc, SpotLightCount);
 	}
 
-	bool MeshRenderPipeline::CheckLinkingStatus(std::string& OutResultLog) const
+	bool SubMeshRenderPipeline::CheckLinkingStatus(std::string& OutResultLog) const
 	{
 		GLint Result;
 		glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
@@ -169,7 +175,7 @@ namespace cxc
 		return Result > 0 ? true : false;
 	}
 
-	bool MeshRenderPipeline::InitializePipeline()
+	bool SubMeshRenderPipeline::InitializePipeline()
 	{
 		bool bSuccessful = true;
 
@@ -179,7 +185,7 @@ namespace cxc
 		return bSuccessful;
 	}
 
-	void MeshRenderPipeline::AttachShader(std::shared_ptr<Shader> pShader)
+	void SubMeshRenderPipeline::AttachShader(std::shared_ptr<Shader> pShader)
 	{
 		if (pShader && pShader->IsCompiled())
 		{
@@ -190,7 +196,7 @@ namespace cxc
 		}
 	}
 
-	std::shared_ptr<Shader> MeshRenderPipeline::GetAttachedShader(const std::string& ShaderName)
+	std::shared_ptr<Shader> SubMeshRenderPipeline::GetAttachedShader(const std::string& ShaderName)
 	{
 		auto iter = pShaders.find(ShaderName);
 		if (iter != pShaders.end())
@@ -201,7 +207,7 @@ namespace cxc
 			return nullptr;
 	}
 
-	void MeshRenderPipeline::DetachShader(std::shared_ptr<Shader> pShader)
+	void SubMeshRenderPipeline::DetachShader(std::shared_ptr<Shader> pShader)
 	{
 		if (pShader && pShader->IsCompiled())
 		{
@@ -215,7 +221,7 @@ namespace cxc
 		}
 	}
 
-	bool MeshRenderPipeline::LinkShaders()
+	bool SubMeshRenderPipeline::LinkShaders()
 	{
 		// Link program
 		glLinkProgram(ProgramID);

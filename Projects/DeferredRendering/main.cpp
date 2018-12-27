@@ -13,7 +13,7 @@ static const std::string DeferredRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\Defer
 
 static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
 
-std::shared_ptr<MeshRenderer> CreateDeferredRender();
+std::shared_ptr<SubMeshRenderer> CreateDeferredRender();
 void LogicEntry();
 
 int main()
@@ -33,10 +33,10 @@ int main()
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 	GEngine::InitializeEngine();
 
-	auto pRenderMgr = RendererManager::GetInstance();
+	auto pRendererMgr = RendererManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
-	auto pRender = CreateDeferredRender();
-	pRenderMgr->AddRender(pRender);
+	auto pRenderer = CreateDeferredRender();
+	pRendererMgr->AddRenderer(pRenderer);
 
 	pSceneManager->AddCamera("MainCamera", CameraPos, CameraOrigin, CameraUpVector, ProjectionMatrix);
 	pSceneManager->SetCameraActive("MainCamera");
@@ -48,10 +48,10 @@ int main()
 		auto ObjectMap = pSceneManager->GetObjectMap();
 		for (auto pObject : ObjectMap)
 		{
-			auto MeshCount = pObject.second->GetMeshCount();
+			auto MeshCount = pObject.second->GetSubMeshCount();
 			for (size_t i = 0; i < MeshCount; ++i)
 			{
-				GEngine::BindMeshRender(pRender, pObject.second, i);
+				GEngine::BindSubMeshRender(pRenderer, pObject.second, i);
 			}
 		}
 	}
@@ -65,22 +65,22 @@ int main()
 	return 0;
 }
 
-std::shared_ptr<MeshRenderer> CreateDeferredRender()
+std::shared_ptr<SubMeshRenderer> CreateDeferredRender()
 {
-	auto pRenderMgr = RendererManager::GetInstance();
+	auto pRendererMgr = RendererManager::GetInstance();
 
-	auto pDeferredRender = NewObject<DeferredRenderer>("DeferredRenderer");
+	auto pDeferredRenderer = NewObject<DeferredRenderer>("DeferredRenderer");
 	auto pDeferredRenderPipeline = NewObject<DeferredRenderPipeline>();
 
-	auto DeferredRenderVS = pRenderMgr->FactoryShader("DeferredShaderVS", eShaderType::VERTEX_SHADER, DeferredRenderVSPath);
-	auto DeferredRenderFS = pRenderMgr->FactoryShader("DeferredShaderFS", eShaderType::FRAGMENT_SHADER, DeferredRenderFSPath);
+	auto DeferredRenderVS = pRendererMgr->FactoryShader("DeferredShaderVS", eShaderType::VERTEX_SHADER, DeferredRenderVSPath);
+	auto DeferredRenderFS = pRendererMgr->FactoryShader("DeferredShaderFS", eShaderType::FRAGMENT_SHADER, DeferredRenderFSPath);
 	pDeferredRenderPipeline->AttachShader(DeferredRenderVS);
 	pDeferredRenderPipeline->AttachShader(DeferredRenderFS);
 
-	pDeferredRender->SetDeferredRenderPipeline(pDeferredRenderPipeline);
-	pDeferredRender->InitializeRender();
+	pDeferredRenderer->AddPipeline(pDeferredRenderPipeline);
+	pDeferredRenderer->InitializeRenderer();
 
-	return pDeferredRender;
+	return pDeferredRenderer;
 }
 
 void RotateLight(std::shared_ptr<LightSource> pLight)

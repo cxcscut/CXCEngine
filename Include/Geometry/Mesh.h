@@ -1,7 +1,6 @@
 #include "General/DefineTypes.h"
 
 #include "ode/ode.h"
-#include "Scene/Mesh.h"
 #include "Physics/RigidBody3D.h"
 #include "Rendering/RendererManager.h"
 
@@ -21,6 +20,7 @@ namespace cxc {
 	class RendringPipeline;
 	class AnimContext;
 	class World;
+	class SubMesh;
 
 	enum class Location : GLuint {
 		VERTEX_LOCATION = 0,
@@ -73,7 +73,7 @@ namespace cxc {
 		};
 	};
 
-	class Object3D : public std::enable_shared_from_this<Object3D>
+	class Mesh : public std::enable_shared_from_this<Mesh>
 	{
 
 	public:
@@ -81,31 +81,29 @@ namespace cxc {
 		friend class SceneManager;
 		friend class OctreeNode;
 		friend class FBXSDKUtil;
-		friend class Mesh;
+		friend class SubMesh;
 		friend class AnimContext;
+		friend class CObject;
+		friend class CActor;
+		friend class CPawn;
 
-		Object3D();
-		Object3D(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals);
-		Object3D(std::vector<glm::vec3>& Vertices,
+		Mesh();
+		Mesh(const std::string& Name);
+		Mesh(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals);
+		Mesh(std::vector<glm::vec3>& Vertices,
 			std::vector<glm::vec3>& Normals,
 			std::vector<glm::vec2>& UVs,
 			std::vector<uint32_t>& Indices);
-		virtual ~Object3D();
+		virtual ~Mesh();
 
-		Object3D(const std::string &object_name);
-		Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag = "", GLboolean _enable = GL_TRUE);
+		Mesh(const std::string& Name, const std::string &filename, const std::string &_tag = "", GLboolean _enable = GL_TRUE);
 
 	public:
 
-		void ComputeNormal(glm::vec3 &normal, const glm::vec3 &vertex1, const glm::vec3 &vertex2, const glm::vec3 &vertex3) const noexcept;
+		std::string GetMeshName() const { return MeshName; }
 		glm::vec3 GetPivot() const noexcept;
-		uint32_t GetMeshCount() const noexcept { return Meshes.size(); }
+		uint32_t GetSubMeshCount() const noexcept { return SubMeshes.size(); }
 		void SetPivot(const glm::vec3& NewPivot) noexcept { Pivot = NewPivot; }
-
-	public:
-
-		//virtual void CalculateSizeVector() noexcept;
-		glm::vec3 CalculateRotatedCoordinate(const glm::vec3 &original_vec, const glm::vec3 &start, const glm::vec3 &direction, float degree) const noexcept;
 		void ComputeObjectBoundary() noexcept;
 
 	public:
@@ -124,10 +122,6 @@ namespace cxc {
 
 	public:
 
-		virtual void PreRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
-		virtual void Render(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
-		virtual void PostRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
-
 		virtual void Tick(float DeltaSeconds);
 
 		void InitBuffers() noexcept;
@@ -136,9 +130,6 @@ namespace cxc {
 	public:
 
 		bool CheckLoadingStatus() const noexcept;
-		void SetObjectName(const std::string &Name) noexcept;
-		const std::string &GetObjectName() const noexcept;
-
 		bool CheckLoaded() const noexcept { return isLoaded; }
 		void SetLoaded() noexcept;
 
@@ -147,16 +138,9 @@ namespace cxc {
 		GLuint GetVertexCoordsVBO() const { return  m_VBO[0]; }
 		GLuint GetTexCoordsVBO() const { return m_VBO[1]; }
 		GLuint GetNormalsVBO() const { return m_VBO[2]; }
-
-		GLboolean isEnable() const noexcept { return enable; };
-		void Enable() noexcept { enable = GL_TRUE; };
-		void Disable() noexcept { enable = GL_FALSE; };
-
-		void SetTag(const std::string &_tag) noexcept { tag = _tag; };
-		std::string CompareTag() noexcept { return tag; };
 		
-		std::shared_ptr<Mesh> GetMesh(uint16_t Index);
-		void AddMesh(std::shared_ptr<Mesh> pNewMesh);
+		std::shared_ptr<SubMesh> GetSubMesh(uint16_t Index);
+		void AddSubMesh(std::shared_ptr<SubMesh> pNewMesh);
 
 	public:
 
@@ -165,17 +149,11 @@ namespace cxc {
 
 	protected:
 
-		// is enabled
-		GLboolean enable;
+		// Mesh Name
+		std::string MeshName;
 
 		// File name
 		std::string FileName;
-		
-		// Name
-		std::string ObjectName;
-
-		// Tag for collision detection
-		std::string tag;
 	
 		// if obj file has been loaded
 		bool isLoaded;
@@ -197,13 +175,13 @@ namespace cxc {
 		std::unordered_set<std::string> m_OctreePtrs;
 		
 		// Child objects
-		std::vector<std::weak_ptr<Object3D>> pChildNodes;
+		std::vector<std::weak_ptr<Mesh>> pChildNodes;
 
 		// Parent object
-		std::weak_ptr<Object3D> pParentNode;
+		std::weak_ptr<Mesh> pParentNode;
 
 		// Meshes 
-		std::vector<std::shared_ptr<Mesh>> Meshes;
+		std::vector<std::shared_ptr<SubMesh>> SubMeshes;
 
 	protected:
 

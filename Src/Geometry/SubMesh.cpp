@@ -1,39 +1,39 @@
-#include "Scene/Mesh.h"
-#include "Scene/Object3D.h"
+#include "Geometry/SubMesh.h"
+#include "Geometry/Mesh.h"
 
 namespace cxc {
 
-	Mesh::Mesh():
-		MeshEBO(0)
+	SubMesh::SubMesh():
+		SubMeshEBO(0)
 	{
-		pOwnerObject.reset();
+		pOwnerMesh.reset();
 	}
 
-	Mesh::Mesh(const std::vector<uint32_t>& indices):
-		Mesh()
+	SubMesh::SubMesh(const std::vector<uint32_t>& indices):
+		SubMesh()
 	{
 		Indices = indices;
 	}
 
-	Mesh::~Mesh()
+	SubMesh::~SubMesh()
 	{
 
 	}
 
-	void Mesh::SetOwnerObject(std::shared_ptr<Object3D> NewOwnerObject)
+	void SubMesh::SetOwnerObject(std::shared_ptr<Mesh> NewOwnerObject)
 	{
-		pOwnerObject = NewOwnerObject;
+		pOwnerMesh = NewOwnerObject;
 	}
 
-	std::shared_ptr<Object3D> Mesh::GetOwnerObject()
+	std::shared_ptr<Mesh> SubMesh::GetOwnerMesh()
 	{
-		if (pOwnerObject.expired())
+		if (pOwnerMesh.expired())
 			return nullptr;
 		else
-			return pOwnerObject.lock();
+			return pOwnerMesh.lock();
 	}
 
-	void Mesh::BindMaterial(GLuint ProgramID, const MaterialDiffuseSubroutineInfo& DiffuseModelInfo, std::vector<GLuint>& SubroutinesIndicesFS)
+	void SubMesh::BindMaterial(GLuint ProgramID, const MaterialDiffuseSubroutineInfo& DiffuseModelInfo, std::vector<GLuint>& SubroutinesIndicesFS)
 	{
 		GLuint TexSamplerLocation = glGetUniformLocation(ProgramID, "Material.TexSampler");
 		GLuint KaLocation = glGetUniformLocation(ProgramID, "Material.Ka");
@@ -95,29 +95,29 @@ namespace cxc {
 		}
 	}
 
-	void Mesh::AllocateMeshEBO()
+	void SubMesh::AllocateSubMeshEBO()
 	{
 		if (!Indices.empty())
 		{
-			glGenBuffers(1, &MeshEBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
+			glGenBuffers(1, &SubMeshEBO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, SubMeshEBO);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * Indices.size(), &Indices.front(), GL_STATIC_DRAW);
 		}
 	}
 
-	void Mesh::ReleaseMeshEBO()
+	void SubMesh::ReleaseSubMeshEBO()
 	{
-		if (glIsBuffer(MeshEBO))
+		if (glIsBuffer(SubMeshEBO))
 		{
-			glDeleteBuffers(1, &MeshEBO);
+			glDeleteBuffers(1, &SubMeshEBO);
 		}
 	}
 
-	void Mesh::DrawMesh()
+	void SubMesh::DrawSubMesh()
 	{
-		auto pOwner = pOwnerObject.lock();
+		auto pOwner = pOwnerMesh.lock();
 		glBindVertexArray(pOwner->GetVAO());
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, MeshEBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, SubMeshEBO);
 
 		if (glIsBuffer(pOwner->GetVertexCoordsVBO()) == GL_TRUE)
 		{

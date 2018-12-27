@@ -5,7 +5,7 @@
 
 namespace cxc
 {
-	class Object3D;
+	class Mesh;
 	class AnimStack;
 
 	enum class eAnimPlayMode : uint16_t
@@ -21,17 +21,17 @@ namespace cxc
 	class AnimContext final
 	{
 	public:
-		AnimContext(std::shared_ptr<Object3D> pObject);
+		AnimContext(std::shared_ptr<Mesh> pObject);
 		~AnimContext();
 
 	public:
 
 		void SetCurrentActiveAnimStack(std::shared_ptr<AnimStack> pAnimStack) { pCurrentActiveAnimStack = pAnimStack; }
-		void SetOwnerObject(std::shared_ptr<Object3D> pObject);
+		void SetOwnerObject(std::shared_ptr<Mesh> pObject);
 		void SetPlayMode(eAnimPlayMode Mode) { PlayMode = Mode; }
 
 		eAnimPlayMode GetPlayMode() const { return PlayMode; }
-		std::shared_ptr<Object3D> GetOwnerObject();
+		std::shared_ptr<Mesh> GetOwnerCActor();
 		std::shared_ptr<AnimStack> GetCurrentActiveAnimStack() { return pCurrentActiveAnimStack; }
 		std::vector<glm::vec3>&  GetDeformedVertices() { return DeformedVertices; }
 
@@ -49,8 +49,8 @@ namespace cxc
 		// Current time of the animation contex
 		float CurrentTime;
 
-		// Weak pointer back to the Object3D that owns the context
-		std::weak_ptr<Object3D> pOwnerObject;
+		// Weak pointer back to the Mesh that owns the context
+		std::weak_ptr<Mesh> pOwnerMesh;
 
 		// Current active animation stack
 		std::shared_ptr<AnimStack> pCurrentActiveAnimStack;

@@ -1,15 +1,15 @@
 #include "Animation/AnimContext.h"
 #include "Animation/AnimStack.h"
 #include "Animation/AnimLayer.h"
-#include "Scene/Object3D.h"
+#include "Geometry/Mesh.h"
 
 namespace cxc
 {
-	AnimContext::AnimContext(std::shared_ptr<Object3D> pObject):
+	AnimContext::AnimContext(std::shared_ptr<Mesh> pObject):
 		pCurrentActiveAnimStack(nullptr), CurrentTime(0.0f)
 	{
-		pOwnerObject.reset();
-		pOwnerObject = pObject;
+		pOwnerMesh.reset();
+		pOwnerMesh = pObject;
 	}
 
 	AnimContext::~AnimContext()
@@ -19,25 +19,25 @@ namespace cxc
 
 	void AnimContext::Tick(float DeltaSeconds)
 	{
-		if (pOwnerObject.expired())
+		if (pOwnerMesh.expired())
 			return;
 
-		if (pCurrentActiveAnimStack && pOwnerObject.lock())
+		if (pCurrentActiveAnimStack && pOwnerMesh.lock())
 		{
 			CurrentTime += DeltaSeconds;
 
-			auto SrcVertices = pOwnerObject.lock()->m_VertexCoords;
+			auto SrcVertices = pOwnerMesh.lock()->m_VertexCoords;
 			pCurrentActiveAnimStack->Evaluate(CurrentTime, PlayMode, SrcVertices, DeformedVertices);
 		}
 	}
 
-	void AnimContext::SetOwnerObject(std::shared_ptr<Object3D> pObject)
+	void AnimContext::SetOwnerObject(std::shared_ptr<Mesh> pObject)
 	{
-		pOwnerObject = pObject;
+		pOwnerMesh = pObject;
 	}
 
-	std::shared_ptr<Object3D> AnimContext::GetOwnerObject()
+	std::shared_ptr<Mesh> AnimContext::GetOwnerCActor()
 	{
-		return pOwnerObject.lock();
+		return pOwnerMesh.lock();
 	}
 }

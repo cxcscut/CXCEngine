@@ -58,12 +58,12 @@ namespace cxc {
 		if (bCaptureCrusor)
 		{
 			auto pEngine = World::GetInstance();
-			auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
+			auto pRenderer = pEngine->pSceneMgr->pRendererMgr->GetCurrentUsedRenderer();
 			auto pCurrentActiveCamera = pEngine->pSceneMgr->GetCurrentActiveCamera();
-			if (!pRender || !pCurrentActiveCamera)
+			if (!pRenderer || !pCurrentActiveCamera)
 				return;
 
-			auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
+			auto CurrentUsedPipeline = pRenderer->GetCurrentUsedPipeline();
 			if (!CurrentUsedPipeline) return;
 			auto ProgramID = CurrentUsedPipeline->GetPipelineProgramID();
 
@@ -97,11 +97,11 @@ namespace cxc {
 	{
 		auto pEngine = World::GetInstance();
 		auto pCurrentActiveCamera = pEngine->pSceneMgr->GetCurrentActiveCamera();
-		auto pRender = pEngine->pSceneMgr->pRenderMgr->GetCurrentUsedRender();
-		if (!pRender || !pCurrentActiveCamera)
+		auto pRenderer = pEngine->pSceneMgr->pRendererMgr->GetCurrentUsedRenderer();
+		if (!pRenderer || !pCurrentActiveCamera)
 			return;
 
-		auto CurrentUsedPipeline = pRender->GetCurrentUsedPipeline();
+		auto CurrentUsedPipeline = pRenderer->GetCurrentUsedPipeline();
 		if (!CurrentUsedPipeline) return;
 
 		auto ProgramID = CurrentUsedPipeline->GetPipelineProgramID();

@@ -1,5 +1,5 @@
 #include "General/DefineTypes.h"
-#include "Scene/Object3D.h"
+#include "Geometry/Mesh.h"
 #include "Utilities/Singleton.inl"
 
 #ifndef CXC_INPUTS_H

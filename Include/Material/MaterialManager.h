@@ -20,7 +20,7 @@ namespace cxc {
 	public:
 
 		friend Singleton<MaterialManager>;
-		friend class Object3D ;
+		friend class Mesh ;
 
 		explicit MaterialManager();
 		~MaterialManager();

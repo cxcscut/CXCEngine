@@ -1,7 +1,7 @@
 #include "Material/Material.h"
 #include "Material/MaterialManager.h"
 #include "Material/Texture2D.h"
-#include "Scene/Object3D.h"
+#include "Geometry/Mesh.h"
 
 namespace cxc
 {

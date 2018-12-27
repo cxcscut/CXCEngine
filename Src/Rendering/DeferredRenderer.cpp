@@ -1,6 +1,6 @@
 #include "Rendering/DeferredRenderer.h"
 #include "Window/Window.h"
-#include "Scene/Mesh.h"
+#include "Geometry/SubMesh.h"
 #include "Rendering/RendererManager.h"
 #include "World/World.h"
 
@@ -8,14 +8,13 @@ namespace cxc
 {
 	DeferredRenderer::DeferredRenderer():
 		GeometryFrameBuffer(0), DepthBuffer(0),
-		VertexPositionTexture(0), VertexDiffuseTexture(0), VertexNormalTexture(0),
-		bIsGBufferDirty(false)
+		VertexPositionTexture(0), VertexDiffuseTexture(0), VertexNormalTexture(0)
 	{
-		RenderName = "DefaultDeferredRender";
+		RendererName = "DefaultDeferredRender";
 	}
 
 	DeferredRenderer::DeferredRenderer(const std::string& Name)
-		: MeshRenderer(Name)
+		: SubMeshRenderer(Name)
 	{
 
 	}
@@ -48,19 +47,16 @@ namespace cxc
 		}
 	}
 
-	bool DeferredRenderer::InitializeRender()
+	bool DeferredRenderer::InitializeRenderer()
 	{
 		bool bSuccessful = true;
 
-		bSuccessful &= pDeferredRenderPipeline->InitializePipeline();
+		for (auto Pipeline : RenderPipelines)
+		{
+			bSuccessful &= Pipeline->InitializePipeline();
+		}
 
 		return bSuccessful;
-	}
-
-	void DeferredRenderer::SetDeferredRenderPipeline(std::shared_ptr<DeferredRenderPipeline> Pipeline)
-	{
-		pDeferredRenderPipeline = Pipeline;
-		pDeferredRenderPipeline->SetOwnerRender(shared_from_this());
 	}
 
 	void DeferredRenderer::CreateGBufferTextures()
@@ -125,53 +121,20 @@ namespace cxc
 		}
 	}
 
-	void DeferredRenderer::PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void DeferredRenderer::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
-		// Clear the G-Buffer for rendering
-		if (bIsGBufferDirty && glIsFramebuffer(GeometryFrameBuffer))
+		// Create the G-Buffer and textures if needed;
+		CreateGBufferTextures();
+
+		// Clear G-Buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, GeometryFrameBuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		for (auto Pipeline : RenderPipelines)
 		{
-			glBindFramebuffer(GL_FRAMEBUFFER, GeometryFrameBuffer);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			bIsGBufferDirty = false;
-		}
-
-		UsePipeline(pDeferredRenderPipeline);
-
-		// Geometry pass to rendering the scene to the G-Buffer
-		if (pDeferredRenderPipeline)
-		{
-
-			pDeferredRenderPipeline->PreRender(pMesh, Lights);
-		}
-	}
-
-	void DeferredRenderer::Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
-	{
-		UsePipeline(pDeferredRenderPipeline);
-		
-		// Geometry pass to rendering the scene to the G-Buffer
-		if (pDeferredRenderPipeline)
-		{
-			// Create the G-Buffer and textures;
-			CreateGBufferTextures();
-
-			pDeferredRenderPipeline->Render(pMesh, Lights);
-
-			// Marked dirty
-			bIsGBufferDirty = true;
-		}
-	}
-
-	void DeferredRenderer::PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights)
-	{
-		UsePipeline(pDeferredRenderPipeline);
-
-		// Lighting pass to render the final scene using G-Buffer
-		if (pDeferredRenderPipeline)
-		{
-			BindCameraUniforms(pDeferredRenderPipeline->GetPipelineProgramID());
-			pDeferredRenderPipeline->PostRender(pMesh, Lights);
+			UsePipeline(Pipeline);
+			BindCameraUniforms(Pipeline->GetPipelineProgramID());
+			Pipeline->Render(Context, Lights);
 		}
 	}
 }

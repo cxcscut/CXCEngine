@@ -7,7 +7,7 @@ namespace cxc
 {
 	class MaterialManager;
 	class Texture2D;
-	class Object3D;
+	class Mesh;
 
 	using MaterialDiffuseSubroutineInfo = struct {
 
@@ -41,7 +41,7 @@ namespace cxc
 		std::string MaterialName;
 
 		/* Object that own the material */
-		std::weak_ptr<Object3D> OwnerObject;
+		std::weak_ptr<Mesh> OwnerObject;
 
 		/* Texture2D */
 		std::vector<std::shared_ptr<Texture2D>> pTextures;

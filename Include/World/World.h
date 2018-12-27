@@ -58,10 +58,6 @@ namespace cxc {
 
 	public:
 
-		void AddObject(const std::shared_ptr<Object3D > &pObject) noexcept;
-
-	public:
-
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
 	// Configuration
@@ -113,9 +109,6 @@ namespace cxc {
 		std::shared_ptr<InputManager> pInputMgr;
 		std::shared_ptr<WindowManager> pWindowMgr;
 		std::shared_ptr<SceneManager> pSceneMgr;
-
-		// Shader path
-		void SetSceneSize(const glm::vec3 &center, float size) noexcept { pSceneMgr->SetCenter(center); pSceneMgr->SetSize(size); }
 
 	// Physics
 	public:

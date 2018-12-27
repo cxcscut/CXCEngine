@@ -22,14 +22,6 @@ namespace cxc {
 
 	}
 
-	void World::AddObject(const std::shared_ptr<Object3D> &pObject) noexcept
-	{
-		if (pObject)
-		{
-			pSceneMgr->AddObjectInternal(pObject->GetObjectName(), pObject);
-		}
-	}
-
 	GLboolean World::CreateAndDisplayWindow(GLint Width, GLint Height, const std::string Title)
 	{
 		pWindowMgr->SetWindowHeight(Height);

@@ -1,4 +1,5 @@
-#include "Scene/Object3D.h"
+#include "Geometry/Mesh.h"
+#include "Geometry/SubMesh.h"
 #include "Material/MaterialManager.h"
 #include "Material/TextureManager.h"
 #include "Utilities/FileHelper.h"
@@ -10,9 +11,9 @@
 
 namespace cxc {
 
-	Object3D::Object3D() :
-		ObjectName(""),
-		isLoaded(false), enable(GL_TRUE)
+	Mesh::Mesh() :
+		MeshName(""),
+		isLoaded(false)
 	{
 
 		pParentNode.reset();
@@ -25,8 +26,14 @@ namespace cxc {
 
 	}
 
-	Object3D::Object3D(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals):
-		Object3D()
+	Mesh::Mesh(const std::string& Name)
+		: Mesh()
+	{
+		MeshName = Name;
+	}
+
+	Mesh::Mesh(std::vector<glm::vec3>& Vertices, std::vector<glm::vec3>& Normals):
+		Mesh()
 	{
 		m_VertexCoords = Vertices;
 		m_VertexNormals = Normals;
@@ -35,11 +42,11 @@ namespace cxc {
 		ComputeObjectBoundary();
 	}
 
-	Object3D::Object3D(std::vector<glm::vec3>& Vertices,
+	Mesh::Mesh(std::vector<glm::vec3>& Vertices,
 		std::vector<glm::vec3>& Normals,
 		std::vector<glm::vec2>& UVs,
 		std::vector<uint32_t>& Indices):
-		Object3D()
+		Mesh()
 	{
 		m_VertexCoords = Vertices;
 		m_VertexNormals = Normals;
@@ -50,22 +57,15 @@ namespace cxc {
 		ComputeObjectBoundary();
 	}
 
-	Object3D::Object3D(const std::string &object_name)
-		: Object3D()
-	{
-		ObjectName = object_name;
-	}
 
-	Object3D::Object3D(const std::string &Object_name, const std::string &filename, const std::string &_tag, GLboolean _enable)
-		: Object3D()
+	Mesh::Mesh(const std::string &Name, const std::string &filename, const std::string &_tag, GLboolean _enable)
+		: Mesh()
 	{
-		ObjectName = Object_name;
+		MeshName = Name;
 		FileName = filename;
-		tag = _tag;
-		enable = _enable;
 	}
 
-	Object3D ::~Object3D()
+	Mesh ::~Mesh()
 	{
 		pParentNode.reset();
 
@@ -77,24 +77,16 @@ namespace cxc {
 		pChildNodes.clear();
 	}
 
-	void Object3D::SetLoaded() noexcept {
+	void Mesh::SetLoaded() noexcept {
 		isLoaded = true;
 	}
 
-	glm::vec3 Object3D::GetPivot() const noexcept
+	glm::vec3 Mesh::GetPivot() const noexcept
 	{
 		return (glm::vec3)(ModelMatrix * glm::vec4(Pivot, 1));
 	}
 
-	void Object3D::ComputeNormal(glm::vec3 &normal, const glm::vec3 &vertex1, const glm::vec3 &vertex2, const glm::vec3 &vertex3) const noexcept
-	{
-		glm::vec3 vector12 = vertex2 - vertex1;
-		glm::vec3 vector13 = vertex3 - vertex1;
-
-		normal = glm::normalize(glm::cross(vector12,vector13));
-	}
-
-	void Object3D::ComputeObjectBoundary() noexcept
+	void Mesh::ComputeObjectBoundary() noexcept
 	{
 		for (auto Vertex : m_VertexCoords)
 		{
@@ -110,40 +102,35 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::AddMesh(std::shared_ptr<Mesh> pNewMesh)
+	void Mesh::AddSubMesh(std::shared_ptr<SubMesh> pNewMesh)
 	{
 		if (pNewMesh)
 		{
-			Meshes.push_back(pNewMesh);
+			SubMeshes.push_back(pNewMesh);
 			pNewMesh->SetOwnerObject(shared_from_this());
 		}
 	}
 
-	std::shared_ptr<Mesh> Object3D::GetMesh(uint16_t Index)
+	std::shared_ptr<SubMesh> Mesh::GetSubMesh(uint16_t Index)
 	{
-		if (Index >= Meshes.size())
+		if (Index >= SubMeshes.size())
 			return nullptr;
 		else
-			return Meshes[Index];
+			return SubMeshes[Index];
 	}
 
-	const std::string &Object3D ::GetObjectName() const noexcept
-	{
-		return ObjectName;
-	}
-
-	void Object3D::Scale(const glm::vec3& ScalingVector) 
+	void Mesh::Scale(const glm::vec3& ScalingVector) 
 	{
 		auto ScalingMatrix = glm::scale(glm::mat4(1.0f), ScalingVector);
 		ModelMatrix = ModelMatrix * ScalingMatrix;
 	}
 
-	glm::mat4 Object3D::GetModelMatrix() const
+	glm::mat4 Mesh::GetModelMatrix() const
 	{
 		return ModelMatrix;
 	}
 
-	void Object3D::Translate(const glm::vec3 &TranslationVector) 
+	void Mesh::Translate(const glm::vec3 &TranslationVector) 
 	{
 		auto TranslationMatrix = glm::translate(glm::mat4(1.0f), TranslationVector);
 		ModelMatrix = TranslationMatrix * ModelMatrix;
@@ -159,7 +146,7 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::RotateWorldSpace(const glm::vec3 &RotationAxisWorldSpace, float Degree) 
+	void Mesh::RotateWorldSpace(const glm::vec3 &RotationAxisWorldSpace, float Degree) 
 	{
 		auto RotMatrix = glm::rotate(glm::mat4(1.0f), Degree, RotationAxisWorldSpace);
 		ModelMatrix = RotMatrix * ModelMatrix;
@@ -175,27 +162,27 @@ namespace cxc {
 		}
 	}
 
-	glm::vec3 Object3D::GetWorldSpaceLocalOrigin() const
+	glm::vec3 Mesh::GetWorldSpaceLocalOrigin() const
 	{
 		return (glm::vec3)(GetModelMatrix() * glm::vec4(0, 0, 0, 1));
 	}
 
-	glm::vec3 Object3D::GetWorldSpaceAxisX() const
+	glm::vec3 Mesh::GetWorldSpaceAxisX() const
 	{
 		return glm::normalize((glm::vec3)(ModelMatrix * glm::vec4(1, 0, 0, 1)));
 	}
 
-	glm::vec3 Object3D::GetWorldSpaceAxisY() const
+	glm::vec3 Mesh::GetWorldSpaceAxisY() const
 	{
 		return glm::normalize((glm::vec3)(ModelMatrix * glm::vec4(0, 1, 0, 1)));
 	}
 
-	glm::vec3 Object3D::GetWorldSpaceAxisZ() const
+	glm::vec3 Mesh::GetWorldSpaceAxisZ() const
 	{
 		return glm::normalize((glm::vec3)(ModelMatrix * glm::vec4(0, 0, 1, 1)));
 	}
 
-	void Object3D::RotateLocalSpace(const glm::vec3 &RotationAxisLocalSpace, float Degree) 
+	void Mesh::RotateLocalSpace(const glm::vec3 &RotationAxisLocalSpace, float Degree) 
 	{
 		auto RotationAxisWorldSpace = (glm::vec3)(ModelMatrix * glm::vec4(RotationAxisLocalSpace, 1)) - GetWorldSpaceLocalOrigin();
 		auto RotMatrix = glm::rotate(glm::mat4(1.0f), Degree, RotationAxisWorldSpace);
@@ -212,35 +199,12 @@ namespace cxc {
 		}
 	}
 
-	void Object3D ::SetObjectName(const std::string &name) noexcept
-	{
-		ObjectName = name;
-	}
-
-	bool Object3D ::CheckLoadingStatus() const noexcept
+	bool Mesh ::CheckLoadingStatus() const noexcept
 	{
 		return isLoaded;
 	}
 
-	glm::vec3 Object3D ::CalculateRotatedCoordinate(const glm::vec3 &original_vec, const glm::vec3 &start, const glm::vec3 &direction,float degree) const noexcept
-	{
-
-		auto Forward = glm::translate(glm::mat4(1.0f), -start);
-
-		auto RotMatrix = glm::rotate(glm::mat4(1.0f), degree, direction);
-
-		auto Backward= glm::translate(glm::mat4(1.0f), start);
-
-		auto TransMatrix = Backward * RotMatrix * Forward;
-
-		auto homo_original_vec = glm::vec4(original_vec.x, original_vec.y, original_vec.z, 1);
-
-		auto new_vec = TransMatrix * homo_original_vec;
-
-		return glm::vec3(new_vec.x / new_vec.w, new_vec.y / new_vec.w, new_vec.z / new_vec.w);
-	}
-
-	void Object3D::InitBuffers() noexcept
+	void Mesh::InitBuffers() noexcept
 	{
 		glGenVertexArrays(1, &m_VAO);
 		glBindVertexArray(m_VAO);
@@ -266,27 +230,27 @@ namespace cxc {
 			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_VertexNormals.size(), &m_VertexNormals.front(), GL_STATIC_DRAW);
 		}
 
-		for (auto pMesh : Meshes)
+		for (auto pSubMesh : SubMeshes)
 		{
-			if (pMesh)
+			if (pSubMesh)
 			{
-				pMesh->AllocateMeshEBO();
+				pSubMesh->AllocateSubMeshEBO();
 			}
 		}
 	}
 
-	void Object3D::ReleaseBuffers() noexcept
+	void Mesh::ReleaseBuffers() noexcept
 	{
 		if (glIsVertexArray(m_VAO))
 		{
 			glDeleteVertexArrays(1, &m_VAO);
 		}
 
-		for (auto pMesh : Meshes)
+		for (auto pSubMesh : SubMeshes)
 		{
-			if (pMesh)
+			if (pSubMesh)
 			{
-				pMesh->ReleaseMeshEBO();
+				pSubMesh->ReleaseSubMeshEBO();
 			}
 		}
 
@@ -309,7 +273,7 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::Tick(float DeltaSeconds)
+	void Mesh::Tick(float DeltaSeconds)
 	{
 		// Animating 
 		if (pAnimContext)
@@ -318,49 +282,7 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::PreRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
-	{
-		for (auto pMesh : Meshes)
-		{
-			auto pRenderMgr = RendererManager::GetInstance();
-			pRenderMgr->SetCurrentUsedRender(pMesh->GetMeshRender());
-			auto pMeshRender = pMesh->GetMeshRender();
-			if (pMeshRender)
-			{
-				pMeshRender->PreRender(pMesh, Lights);
-			}
-		}
-	}
-
-	void Object3D::Render(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
-	{
-		for (auto pMesh : Meshes)
-		{
-			auto pRenderMgr = RendererManager::GetInstance();
-			pRenderMgr->SetCurrentUsedRender(pMesh->GetMeshRender());
-			auto pMeshRender = pMesh->GetMeshRender();
-			if (pMeshRender)
-			{
-				pMeshRender->Render(pMesh, Lights);
-			}
-		}
-	}
-
-	void Object3D::PostRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept
-	{
-		for (auto pMesh : Meshes)
-		{
-			auto pRenderMgr = RendererManager::GetInstance();
-			pRenderMgr->SetCurrentUsedRender(pMesh->GetMeshRender());
-			auto pMeshRender = pMesh->GetMeshRender();
-			if (pMeshRender)
-			{
-				pMeshRender->PostRender(pMesh, Lights);
-			}
-		}
-	}
-
-	void Object3D::RotateWithArbitraryAxis(const glm::vec3 &Position, const glm::vec3 &RotationAxis, float Degree) 
+	void Mesh::RotateWithArbitraryAxis(const glm::vec3 &Position, const glm::vec3 &RotationAxis, float Degree) 
 	{
 		// In the global coordinate system, matrix multiplication sequence should be reversed
 		// while in the local coordinate system, matrix multiplication sequence should not be reversed
@@ -385,7 +307,7 @@ namespace cxc {
 		}
 	}
 
-	void Object3D::CreateAnimationContext()
+	void Mesh::CreateAnimationContext()
 	{
 		pAnimContext = NewObject<AnimContext>(shared_from_this());
 	}

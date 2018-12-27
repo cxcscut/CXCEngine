@@ -1,4 +1,4 @@
-#include "MeshRenderer.h"
+#include "SubMeshRenderer.h"
 #include "ShadowRenderPipeline.h"
 
 #ifndef CXC_SHADOWRENDER_H
@@ -6,11 +6,11 @@
 
 namespace cxc
 {
-	class Mesh;
+	class SubMesh;
 	class LightSource;
 
 	/* ShadowRenderer does not support casting shadows of multiple dynamic lights */
-	class ShadowRenderer : public MeshRenderer
+	class ShadowRenderer : public SubMeshRenderer
 	{
 		using CubeMapCameraPose = struct CubeMapCameraPose {
 			GLenum CubeMapFace;
@@ -27,7 +27,7 @@ namespace cxc
 
 	public:
 
-		virtual bool InitializeRender() override;
+		virtual bool InitializeRenderer() override;
 
 	public:
 
@@ -44,25 +44,13 @@ namespace cxc
 		void SetLightSpaceMatrix(const glm::mat4 &Projection, const glm::mat4 &View) noexcept;
 
 		bool InitShadowMapRender(const std::vector<std::shared_ptr<LightSource>>& Lights) noexcept;
+		void ClearShadowMapBuffer(const std::vector<std::shared_ptr<LightSource>>& Lights);
 
 	public:
 
-		virtual void PreRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-		virtual void Render(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-		virtual void PostRender(std::shared_ptr<Mesh> pMesh, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
-
-	public:
-
-		void SetBasePassPipeline(std::shared_ptr<ShadowRenderBasePassPipeline> BasePassPipeline);
-		void SetLightingPassPipeline(std::shared_ptr<ShadowRenderLightingPassPipeline> LightingPassPipeline);
+		virtual void Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
 
 	private:
-
-		/* Basepass pipeline */
-		std::shared_ptr<ShadowRenderBasePassPipeline> pBasePassPipeline;
-
-		/* Lightingpass Pipelines */
-		std::shared_ptr<ShadowRenderLightingPassPipeline> pLightingPassPipeline;
 
 		// Whether the shadow textures have been created
 		bool bIsShadowTextureCreate;

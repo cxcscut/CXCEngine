@@ -10,7 +10,9 @@ static const std::string ForwardRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\Forwar
 static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
 static const std::string HumanoidScene = "G:\\cxcengine\\Projects\\Models\\humanoid.fbx";
 
-std::shared_ptr<MeshRenderer> CreateForwardRender();
+std::shared_ptr<SubMeshRenderer> CreateForwardRender();
+void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CObject>>& Objects);
+std::vector<std::shared_ptr<CObject>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes);
 
 int main()
 {
@@ -29,27 +31,25 @@ int main()
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 	GEngine::InitializeEngine();
 
-	auto pRenderMgr = RendererManager::GetInstance();
+	auto pRendererMgr = RendererManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
-	auto pForwardRender = CreateForwardRender();
-	pRenderMgr->AddRender(pForwardRender);
+	auto pRenderer = CreateForwardRender();
+	pRendererMgr->AddRenderer(pRenderer);
 
 	pSceneManager->AddCamera("MainCamera", CameraPos, CameraOrigin, CameraUpVector, ProjectionMatrix);
 	pSceneManager->SetCameraActive("MainCamera");
 
-	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile);
+	std::vector<std::shared_ptr<Mesh>> OutMeshes;
+	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile, OutMeshes);
+	auto Objects = CreateObjects(OutMeshes);
 	if (bResult)
 	{
-		// Bind mesh render
-		auto ObjectMap = pSceneManager->GetObjectMap();
-		for (auto pObject : ObjectMap)
-		{
-			auto MeshCount = pObject.second->GetMeshCount();
-			for (size_t i = 0; i < MeshCount; ++i)
-			{
-				GEngine::BindMeshRender(pForwardRender, pObject.second, i);
-			}
-		}
+		BindSubMeshRenderer(pRenderer, Objects);
+	}
+
+	for (auto Object : Objects)
+	{
+		pSceneManager->AddObject(Object);
 	}
 
 	// Start engine
@@ -58,21 +58,56 @@ int main()
 	return 0;
 }
 
-std::shared_ptr<MeshRenderer> CreateForwardRender()
+std::vector<std::shared_ptr<CObject>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes)
 {
-	auto pRenderMgr = RendererManager::GetInstance();
+	auto pSceneManager = SceneManager::GetInstance();
+	std::vector<std::shared_ptr<CObject>> RetObjects;
+
+	for (auto pMesh : Meshes)
+	{
+		auto Object = NewObject<CObject>(pMesh->GetMeshName());
+		auto StaticMeshComponent = NewObject<CStaticMeshComponent>(pMesh);
+		Object->AttachComponent<CStaticMeshComponent>(StaticMeshComponent);
+		RetObjects.push_back(Object);
+	}
+
+	return RetObjects;
+}
+
+void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CObject>>& Objects)
+{
+	auto pRendererMgr = RendererManager::GetInstance();
+
+	for (auto Object : Objects)
+	{
+		auto StaticMeshComponent = Object->GetComponent<CStaticMeshComponent>();
+		if (StaticMeshComponent)
+		{
+			size_t SubMeshCount = StaticMeshComponent->GetStaticMesh()->GetSubMeshCount();
+			for (size_t Index = 0; Index < SubMeshCount; ++Index)
+			{
+				auto pSubMesh = StaticMeshComponent->GetStaticMesh()->GetSubMesh(Index);
+				pRendererMgr->BindSubMeshRenderer(pSubMesh, pRenderer);
+			}
+		}
+	}
+}
+
+std::shared_ptr<SubMeshRenderer> CreateForwardRender()
+{
+	auto pRendererMgr = RendererManager::GetInstance();
 
 	// Foward Phong render with no shadows
-	auto ForwardPhongVS = pRenderMgr->FactoryShader("ForwardVS", eShaderType::VERTEX_SHADER, ForwardRenderVSPath);
-	auto ForwardPhongFS = pRenderMgr->FactoryShader("ForwardFS", eShaderType::FRAGMENT_SHADER, ForwardRenderFSPath);
+	auto ForwardPhongVS = pRendererMgr->FactoryShader("ForwardVS", eShaderType::VERTEX_SHADER, ForwardRenderVSPath);
+	auto ForwardPhongFS = pRendererMgr->FactoryShader("ForwardFS", eShaderType::FRAGMENT_SHADER, ForwardRenderFSPath);
 
 	auto ForwardPhongPipeline = NewObject<ForwardRenderPipeline>("ForwardPhongPipeline");
 	ForwardPhongPipeline->AttachShader(ForwardPhongVS);
 	ForwardPhongPipeline->AttachShader(ForwardPhongFS);
 
 	auto PhongRender = NewObject<ForwardRenderer>("ForwardPhongRender");
-	PhongRender->SetForwardRenderPipeline(ForwardPhongPipeline);
-	PhongRender->InitializeRender();
+	PhongRender->AddPipeline(ForwardPhongPipeline);
+	PhongRender->InitializeRenderer();
 
 	return PhongRender;
 }
