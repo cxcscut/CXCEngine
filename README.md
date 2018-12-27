@@ -2,7 +2,7 @@
 
 ## Introduction
 
- **CxcEngine** is a easy-to-use cross-platform graphics engine based on C++ 11 and OpenGL. CXCEngine intends for a light-weight game engine.
+ **CxcEngine** is a easy-to-use cross-platform graphics engine based on C++ 11 and OpenGL. CXCEngine intends for a light-weight game engine. It has implemented ECS(Entity-Component-System), separated rendering layer and game logic layer.
 
 ## Features
 
