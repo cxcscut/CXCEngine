@@ -3,8 +3,7 @@
 
 namespace cxc
 {
-	CComponent::CComponent() :
-		RelativeTransformMatrix(glm::mat4(1.0f))
+	CComponent::CComponent()
 	{
 
 	}
@@ -17,5 +16,15 @@ namespace cxc
 	void CComponent::Tick(float DeltaSeconds)
 	{
 
+	}
+
+	void CComponent::SetParentNode(std::shared_ptr<CComponent> InComponent)
+	{
+		ParentComponent = InComponent;
+	}
+
+	void CComponent::SetOwnerObject(std::shared_ptr<CObject> InObject)
+	{
+		pOwnerObject = InObject;
 	}
 }

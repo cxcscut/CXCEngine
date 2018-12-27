@@ -14,7 +14,7 @@ namespace cxc
 	public:
 
 		CObject();
-		CObject(const std::string& Name, const std::string& Tag = "");
+		CObject(const std::string& Name);
 		virtual ~CObject();
 
 	public:
@@ -37,16 +37,16 @@ namespace cxc
 
 	public:
 
-		template<class ComponentTypeBaseClass>
-		bool AttachComponent(std::shared_ptr<ComponentTypeBaseClass> InComponent)
+		template<class ComponentClass>
+		bool AttachComponent(std::shared_ptr<ComponentClass> InComponent)
 		{
-			bool bExistThisTypeOfComponent = false;
+			bool bComponentClassTypeExist = false;
 			for (auto Component : AttachedComponents)
 			{
-				bExistThisTypeOfComponent |= std::dynamic_pointer_cast<ComponentTypeBaseClass>(Component) != nullptr;
+				bComponentClassTypeExist |= std::dynamic_pointer_cast<ComponentClass>(Component) != nullptr;
 			}
 
-			if (!bExistThisTypeOfComponent)
+			if (!bComponentClassTypeExist)
 			{
 				auto pComponent = std::dynamic_pointer_cast<CComponent>(InComponent);
 				if (pComponent != nullptr)
@@ -62,10 +62,6 @@ namespace cxc
 		template<class ComponentClass>
 		std::shared_ptr<ComponentClass> GetComponent()
 		{
-			auto RootCast = std::dynamic_pointer_cast<ComponentClass>(RootComponent);
-			if (RootCast != nullptr)
-				return RootCast;
-
 			for (auto Component : AttachedComponents)
 			{
 				auto RetComponent = std::dynamic_pointer_cast<ComponentClass>(Component);

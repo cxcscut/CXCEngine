@@ -7,6 +7,8 @@
 
 namespace cxc
 {
+	class CMovementCtrlSystem;
+
 	class LogicFramework final : public Singleton<LogicFramework>
 	{
 		friend class Singleton<LogicFramework>;
@@ -18,6 +20,10 @@ namespace cxc
 
 	public:
 
+		std::shared_ptr<CMovementCtrlSystem> GetMovementCtrlSystem() { return MovementCtrlSystem; }
+
+	public:
+
 		void SetLogicFrameRates(uint32_t NewFrameRates) { LogicFrameRates = NewFrameRates; }
 		uint32_t GetLogicFrameRates() const { return LogicFrameRates; }
 		void SetLogicEntry(std::function<void(void)> NewLogicEntry) { LogicEntryFunction = NewLogicEntry; }
@@ -25,6 +31,11 @@ namespace cxc
 	public:
 
 		void LogicTick(float DeltaSeconds);
+
+	private:
+
+		// Movement control system
+		std::shared_ptr<CMovementCtrlSystem> MovementCtrlSystem;
 
 	private:
 

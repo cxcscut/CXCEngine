@@ -1,5 +1,6 @@
 #include "World/LogicFramework.h"
 #include "Controller/InputManager.h"
+#include "Systems/CMovementCtrlSystem.h"
 #include "World/World.h"
 
 namespace cxc
@@ -8,6 +9,8 @@ namespace cxc
 		LogicFrameRates(30)
 	{
 		LogicEntryFunction = []() {};
+
+		MovementCtrlSystem = NewObject<CMovementCtrlSystem>();
 	}
 
 	LogicFramework::~LogicFramework()

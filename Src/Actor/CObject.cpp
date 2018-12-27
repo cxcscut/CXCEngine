@@ -9,11 +9,10 @@ namespace cxc
 
 	}
 
-	CObject::CObject(const std::string& NewName, const std::string& NewTag)
+	CObject::CObject(const std::string& NewName)
 	{
 		Name = NewName; 
 		bIsEnabled = true;
-		Tag = NewTag;
 	}
 
 	CObject::~CObject()
@@ -26,6 +25,7 @@ namespace cxc
 		if (Root)
 		{
 			RootComponent = Root;
+			RootComponent->SetOwnerObject(shared_from_this());
 			AttachedComponents.push_back(Root);
 		}
 	}

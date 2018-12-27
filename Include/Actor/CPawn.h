@@ -11,28 +11,17 @@ namespace cxc
 	{
 	public :
 		CPawn();
-		CPawn(const std::string& Name, const std::string& Tag = "");
+		CPawn(const std::string& Name);
 		virtual ~CPawn();
 
 	public:
-
-		virtual void Translate(const glm::vec3 &TranslationVector) override;
-		virtual void RotateWorldSpace(const glm::vec3 &RotationAxisWorldSpace, float Degree) override;
-		virtual void RotateLocalSpace(const glm::vec3 &RotationAxisLocalSpace, float Degree) override;
-		virtual void RotateWithArbitraryAxis(const glm::vec3 &Position, const glm::vec3 &RotationAxis, float Degree) override;
-		virtual void Scale(const glm::vec3& ScalingVector) override;
-
-		virtual glm::mat4 GetModelMatrix() const override;
 
 		virtual void Tick(float DeltaSeconds) override;
 
 	public:
 
-		virtual void PhysicalTick(float DeltaSeconds);
+		//virtual void PhysicsTick(float DeltaSeconds);
 
-	private:
-
-		void InitializeRigidBody();
 	};
 }
 

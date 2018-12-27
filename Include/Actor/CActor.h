@@ -11,19 +11,12 @@ namespace cxc
 	{
 	public:
 		CActor();
-		CActor(const std::string& Name, const std::string& Tag = "");
+		CActor(const std::string& Name);
 		virtual ~CActor();
 
 	public:
 
-		virtual void Translate(const glm::vec3 &TranslationVector);
-		virtual void RotateWorldSpace(const glm::vec3 &RotationAxisWorldSpace, float Degree);
-		virtual void RotateLocalSpace(const glm::vec3 &RotationAxisLocalSpace, float Degree);
-		virtual void RotateWithArbitraryAxis(const glm::vec3 &Position, const glm::vec3 &RotationAxis, float Degree);
-		virtual void Scale(const glm::vec3& ScalingVector);
-
-		virtual glm::mat4 GetModelMatrix() const;
-
+		virtual void Tick(float DeltaSeconds) override;
 	};
 }
 

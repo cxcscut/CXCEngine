@@ -8,35 +8,38 @@ namespace cxc
 	class CObject;
 
 	/* CComponent is the base class for all the component */
-	class CComponent
+	class CComponent : public std::enable_shared_from_this<CComponent>
 	{
 	public:
 		CComponent();
-		~CComponent();
+		virtual ~CComponent();
 
 	public:
 		
+		void SetParentNode(std::shared_ptr<CComponent> InComponent);
+		void SetOwnerObject(std::shared_ptr<CObject> InObject);
+
+		std::shared_ptr<CComponent> GetParentComponent() { return ParentComponent.lock(); }
+		std::shared_ptr<CObject> GetOwnerObject() { return pOwnerObject.lock(); }
+
+	public:
+
 		template<class ComponentTypeBaseClass>
 		bool AttachComponent(std::shared_ptr<ComponentTypeBaseClass> Component)
 		{
 			if (pOwnerObject.lock() && pOwnerObject.lock()->AttachComponent<ComponentTypeBaseClass>(Component))
 			{
+				Component->SetParentComponent(shared_from_this());
+				Component->SetOwnerObject(pOwnerObject.lock());
 				ChildComponents.push_back(Component);
 			}
 		}
 
 	public:
 
-		glm::mat4 EvaluateGlobalTransform();
-
-	public:
-
 		virtual void Tick(float DeltaSeconds);
 
-	private:
-
-		// The transform matrix relative to the parent component
-		glm::mat4 RelativeTransformMatrix;
+	protected:
 
 		// Weak pointer back to the CObject that the component being attached
 		std::weak_ptr<CObject> pOwnerObject;

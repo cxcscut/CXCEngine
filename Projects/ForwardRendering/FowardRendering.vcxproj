@@ -70,6 +70,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.15063.0\um;G:\CXCEngine\Include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -107,6 +110,7 @@
     <ClCompile Include="..\..\Src\Animation\AnimLayer.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimStack.cpp" />
     <ClCompile Include="..\..\Src\Components\CComponent.cpp" />
+    <ClCompile Include="..\..\Src\Components\CSceneComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CStaticMeshComponent.cpp" />
     <ClCompile Include="..\..\src\controller\InputManager.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
@@ -136,6 +140,8 @@
     <ClCompile Include="..\..\Src\Actor\CPawn.cpp" />
     <ClCompile Include="..\..\src\scene\SceneManager.cpp" />
     <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
+    <ClCompile Include="..\..\Src\Systems\CMovementCtrlSystem.cpp" />
+    <ClCompile Include="..\..\Src\Systems\CSystem.cpp" />
     <ClCompile Include="..\..\src\utilities\FBXSDKUtility.cpp" />
     <ClCompile Include="..\..\src\utilities\FileHelper.cpp" />
     <ClCompile Include="..\..\Src\Utilities\GeomtryUtil.cpp" />
@@ -151,6 +157,7 @@
     <ClInclude Include="..\..\Include\Animation\AnimLayer.h" />
     <ClInclude Include="..\..\Include\Animation\AnimStack.h" />
     <ClInclude Include="..\..\Include\Components\CComponent.h" />
+    <ClInclude Include="..\..\Include\Components\CSceneComponent.h" />
     <ClInclude Include="..\..\Include\Components\CStaticMeshComponent.h" />
     <ClInclude Include="..\..\include\controller\InputManager.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
@@ -182,6 +189,8 @@
     <ClInclude Include="..\..\Include\Actor\CPawn.h" />
     <ClInclude Include="..\..\include\scene\SceneManager.h" />
     <ClInclude Include="..\..\include\script\ScriptParser.h" />
+    <ClInclude Include="..\..\Include\Systems\CMovementCtrlSystem.h" />
+    <ClInclude Include="..\..\Include\Systems\CSystem.h" />
     <ClInclude Include="..\..\include\utilities\FBXSDKUtility.h" />
     <ClInclude Include="..\..\include\utilities\FileHelper.h" />
     <ClInclude Include="..\..\Include\Utilities\GeometryUtil.h" />

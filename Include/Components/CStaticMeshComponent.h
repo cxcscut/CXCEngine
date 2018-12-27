@@ -13,7 +13,7 @@ namespace cxc
 	public:
 		CStaticMeshComponent();
 		CStaticMeshComponent(std::shared_ptr<Mesh> pMesh);
-		~CStaticMeshComponent();
+		virtual ~CStaticMeshComponent();
 
 	public:
 
