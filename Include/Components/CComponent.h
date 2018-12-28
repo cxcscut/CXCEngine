@@ -41,7 +41,7 @@ namespace cxc
 
 	protected:
 
-		// Weak pointer back to the CObject that the component being attached
+		// Weak pointer back to the CObject that the component being attached to
 		std::weak_ptr<CObject> pOwnerObject;
 
 		// Weak pointer back to the parent component

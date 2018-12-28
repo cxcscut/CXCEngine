@@ -30,7 +30,6 @@ namespace cxc
 
 	public:
 
-		void AddAttachedComponent(std::shared_ptr<CComponent> Component);
 		size_t GetComponentCount() const { return AttachedComponents.size(); }
 		std::shared_ptr<CComponent> GetComponent(size_t Index);
 		std::shared_ptr<CComponent> GetRootComopnent() { return RootComponent; }

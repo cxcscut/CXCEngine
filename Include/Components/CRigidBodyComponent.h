@@ -15,6 +15,12 @@ namespace cxc
 
 	public:
 
+		virtual glm::mat4 EvaluateLocalTransform() const;
+
+		virtual void SetLocalTransform(const glm::mat4& Transform);
+
+	public:
+
 		void PhysicsTick(float DeltaSeconds);
 
 	public:

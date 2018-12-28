@@ -15,14 +15,14 @@ namespace cxc
 
 	glm::mat4 CSceneComponent::EvaluateGlobalTransform()
 	{
-		glm::mat4 GlobalTransform = LocalTransformMatrix;
+		glm::mat4 GlobalTransform = EvaluateLocalTransform();
 		auto pParentNode = ParentComponent.lock();
 		while (pParentNode != nullptr)
 		{
 			auto ParentSceneComponent = std::dynamic_pointer_cast<CSceneComponent>(pParentNode);
 			if (ParentSceneComponent)
 			{
-				GlobalTransform = LocalTransformMatrix * ParentSceneComponent->EvaluateLocalTransform();
+				GlobalTransform = GlobalTransform * ParentSceneComponent->EvaluateLocalTransform();
 			}
 
 			pParentNode = pParentNode->GetParentComponent();

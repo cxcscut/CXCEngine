@@ -21,4 +21,14 @@ namespace cxc
 	{
 
 	}
+
+	glm::mat4 CRigidBodyComponent::EvaluateLocalTransform() const
+	{
+		return glm::mat4(1.0f);
+	}
+
+	void CRigidBodyComponent::SetLocalTransform(const glm::mat4& Transform)
+	{
+
+	}
 }

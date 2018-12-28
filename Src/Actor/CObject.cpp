@@ -28,12 +28,6 @@ namespace cxc
 			return AttachedComponents[Index];
 	}
 
-	void CObject::AddAttachedComponent(std::shared_ptr<CComponent> Component)
-	{
-		if(Component)
-			AttachedComponents.push_back(Component);
-	}
-
 	void CObject::Tick(float DeltaSeconds)
 	{
 		// Tick all the components
