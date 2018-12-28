@@ -7,7 +7,7 @@ namespace cxc
 {
 	class DeferredRenderer;
 
-	class DeferredRenderPipeline : public SubMeshRenderPipeline
+	class CXC_ENGINECORE_API DeferredRenderPipeline : public SubMeshRenderPipeline
 	{
 	public:
 

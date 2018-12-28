@@ -18,7 +18,7 @@ namespace cxc
 		AnimContext is the instance that stores the runtime information of a AnimStack, 
 		such as current time of the animation, the current active AnimStack
 	*/
-	class AnimContext final
+	class CXC_ENGINECORE_API AnimContext final
 	{
 	public:
 		AnimContext(std::shared_ptr<Mesh> pObject);

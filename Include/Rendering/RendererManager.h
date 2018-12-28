@@ -16,7 +16,7 @@ namespace cxc {
 		WireframeMode = 1
 	};
 
-	class RendererManager final : public Singleton<RendererManager>
+	class CXC_ENGINECORE_API RendererManager final : public Singleton<RendererManager>
 	{
 	
 	public:

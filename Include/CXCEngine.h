@@ -35,7 +35,7 @@ namespace cxc
 		bool bIsDecorated;
 	};
 
-	class GEngine final
+	class CXC_ENGINECORE_API GEngine final
 	{
 
 	public:

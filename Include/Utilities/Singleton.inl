@@ -2,6 +2,7 @@
 #define CXC_SINGLETON_INL
 
 #include <memory>
+#include "General/EngineCore.h"
 
 namespace cxc {
 
@@ -12,7 +13,7 @@ namespace cxc {
 	// which will cause stack overflowing.
 	
 	template<class SingletonClass>
-	class Singleton
+	class CXC_ENGINECORE_API Singleton
 	{
 	public:
 		template<typename... Args>

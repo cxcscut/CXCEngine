@@ -15,7 +15,7 @@ namespace cxc
 	class RendererContext;
 
 	/* Base class for all renderer */
-	class SubMeshRenderer : public std::enable_shared_from_this<SubMeshRenderer>
+	class CXC_ENGINECORE_API SubMeshRenderer : public std::enable_shared_from_this<SubMeshRenderer>
 	{
 
 	public:
@@ -35,25 +35,28 @@ namespace cxc
 		std::string GetRendererName() const { return RendererName; }
 		void SetRendererName(const std::string& NewName) { RendererName = NewName; }
 		void UsePipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline);
-		void AddPipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline);
+		void PushPipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline);
+		void PopPipeline();
 		void BindCameraUniforms(GLuint ProgramID);
 
 	public:
 
-		virtual void Render(std::shared_ptr<RendererContext> Context,const std::vector<std::shared_ptr<LightSource>>& Lights) {};
+		virtual void Render(std::shared_ptr<RendererContext> Context,const std::vector<std::shared_ptr<LightSource>>& Lights) = 0;
 
 	protected:
 
+		// Currently active pipeline
 		std::shared_ptr<SubMeshRenderPipeline> CurrentUsedPipeline;
 
-		std::vector<std::shared_ptr<SubMeshRenderPipeline>> RenderPipelines;
+		// Rendering queue, which is rendered from the front to back
+		std::deque<std::shared_ptr<SubMeshRenderPipeline>> RenderingQueue;
 
 		// Name of the render
 		std::string RendererName;
 	};
 
 	/* Base class for all the render pipeline */
-	class SubMeshRenderPipeline
+	class CXC_ENGINECORE_API SubMeshRenderPipeline
 	{
 	public:
 

@@ -9,7 +9,7 @@ namespace cxc
 	class CComponent;
 
 	/* CMovementCtrlSystem is the class that manipulates the movement of an object */
-	class CMovementCtrlSystem : public CSystem
+	class CXC_ENGINECORE_API CMovementCtrlSystem : public CSystem
 	{
 	public:
 		CMovementCtrlSystem();

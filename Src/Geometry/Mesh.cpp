@@ -111,7 +111,7 @@ namespace cxc {
 		}
 	}
 
-	std::shared_ptr<SubMesh> Mesh::GetSubMesh(uint16_t Index)
+	std::shared_ptr<SubMesh> Mesh::GetSubMesh(size_t Index)
 	{
 		if (Index >= SubMeshes.size())
 			return nullptr;
@@ -223,7 +223,7 @@ namespace cxc {
 			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * m_TexCoords.size(), &m_TexCoords.front(), GL_STATIC_DRAW);
 		}
 
-		if (!m_VertexCoords.empty())
+		if (!m_VertexNormals.empty())
 		{
 			glGenBuffers(1, &m_VBO[2]);
 			glBindBuffer(GL_ARRAY_BUFFER, m_VBO[2]);

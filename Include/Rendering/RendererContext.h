@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include "General/EngineCore.h"
 
 namespace cxc
 {
@@ -10,7 +11,7 @@ namespace cxc
 	class SubMesh;
 
 	/* RendererContext is an instance that stores the runtime information of a renderer */ 
-	class RendererContext final
+	class CXC_ENGINECORE_API RendererContext
 	{
 	public:
 

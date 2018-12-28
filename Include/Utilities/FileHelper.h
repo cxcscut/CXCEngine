@@ -6,7 +6,7 @@
 
 namespace cxc {
 
-	class FileHelper final : public Singleton<FileHelper>
+	class CXC_ENGINECORE_API FileHelper final : public Singleton<FileHelper>
 	{
 
 	public:

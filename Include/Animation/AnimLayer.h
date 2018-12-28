@@ -9,7 +9,7 @@ namespace cxc
 	enum class eAnimPlayMode : uint16_t;
 
 	// Animation layer is a collection of animation curve nodes
-	class AnimLayer final
+	class CXC_ENGINECORE_API AnimLayer final
 	{
 	public:
 		AnimLayer();

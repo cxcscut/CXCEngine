@@ -9,7 +9,7 @@ namespace cxc
 	class LightSource;
 	class ShadowRenderer;
 
-	class ShadowRenderLightingPassPipeline : public SubMeshRenderPipeline
+	class CXC_ENGINECORE_API ShadowRenderLightingPassPipeline : public SubMeshRenderPipeline
 	{
 	public:
 

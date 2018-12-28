@@ -110,6 +110,7 @@
     <ClCompile Include="..\..\Src\Animation\AnimLayer.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimStack.cpp" />
     <ClCompile Include="..\..\Src\Components\CComponent.cpp" />
+    <ClCompile Include="..\..\Src\Components\CRigidBodyComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CSceneComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CStaticMeshComponent.cpp" />
     <ClCompile Include="..\..\src\controller\InputManager.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="..\..\Include\Animation\AnimLayer.h" />
     <ClInclude Include="..\..\Include\Animation\AnimStack.h" />
     <ClInclude Include="..\..\Include\Components\CComponent.h" />
+    <ClInclude Include="..\..\Include\Components\CRigidBodyComponent.h" />
     <ClInclude Include="..\..\Include\Components\CSceneComponent.h" />
     <ClInclude Include="..\..\Include\Components\CStaticMeshComponent.h" />
     <ClInclude Include="..\..\include\controller\InputManager.h" />

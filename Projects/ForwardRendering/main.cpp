@@ -80,14 +80,18 @@ void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::
 
 	for (auto Object : Objects)
 	{
-		auto StaticMeshComponent = Object->GetComponent<CStaticMeshComponent>();
-		if (StaticMeshComponent)
+		auto ComponentCount = Object->GetComponentCount();
+		for (size_t Index = 0; Index < ComponentCount; ++Index)
 		{
-			size_t SubMeshCount = StaticMeshComponent->GetStaticMesh()->GetSubMeshCount();
-			for (size_t Index = 0; Index < SubMeshCount; ++Index)
+			auto StaticMeshComponent = std::dynamic_pointer_cast<CStaticMeshComponent>(Object->GetComponent(Index));
+			if (StaticMeshComponent != nullptr)
 			{
-				auto pSubMesh = StaticMeshComponent->GetStaticMesh()->GetSubMesh(Index);
-				pRendererMgr->BindSubMeshRenderer(pSubMesh, pRenderer);
+				uint32_t SubMeshCount = StaticMeshComponent->GetStaticMesh()->GetSubMeshCount();
+				for (uint32_t Index = 0; Index < SubMeshCount; ++Index)
+				{
+					auto pSubMesh = StaticMeshComponent->GetStaticMesh()->GetSubMesh(Index);
+					pRendererMgr->BindSubMeshRenderer(pSubMesh, pRenderer);
+				}
 			}
 		}
 	}
@@ -106,7 +110,7 @@ std::shared_ptr<SubMeshRenderer> CreateForwardRender()
 	ForwardPhongPipeline->AttachShader(ForwardPhongFS);
 
 	auto PhongRender = NewObject<ForwardRenderer>("ForwardPhongRender");
-	PhongRender->AddPipeline(ForwardPhongPipeline);
+	PhongRender->PushPipeline(ForwardPhongPipeline);
 	PhongRender->InitializeRenderer();
 
 	return PhongRender;

@@ -8,7 +8,7 @@
 namespace cxc
 {
 
-	class TextureManager final : public Singleton<TextureManager>
+	class CXC_ENGINECORE_API TextureManager final : public Singleton<TextureManager>
 	{
 		friend class Singleton<TextureManager>;
 

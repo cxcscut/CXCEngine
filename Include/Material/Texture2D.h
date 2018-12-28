@@ -12,7 +12,7 @@ namespace cxc {
 		GLuint TextureID;
 	};
 
-	class Texture2D final
+	class CXC_ENGINECORE_API Texture2D
 	{
 
 	public:

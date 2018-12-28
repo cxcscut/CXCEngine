@@ -20,14 +20,12 @@ namespace cxc
 
 	}
 
-	void CObject::SetRootComponent(std::shared_ptr<CComponent> Root)
+	std::shared_ptr<CComponent> CObject::GetComponent(size_t Index)
 	{
-		if (Root)
-		{
-			RootComponent = Root;
-			RootComponent->SetOwnerObject(shared_from_this());
-			AttachedComponents.push_back(Root);
-		}
+		if (Index >= AttachedComponents.size())
+			return false;
+		else
+			return AttachedComponents[Index];
 	}
 
 	void CObject::AddAttachedComponent(std::shared_ptr<CComponent> Component)

@@ -47,6 +47,9 @@
 #include "Utilities/MultiTree.inl"
 #include "Utilities/EngineTemplate.inl"
 
+// Engine core
+#include "EngineCore.h"
+
 namespace cxc {
 
 	// pre-declaration of Shape

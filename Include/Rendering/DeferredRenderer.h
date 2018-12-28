@@ -9,7 +9,7 @@ namespace cxc
 	class SubMesh;
 	class LightSource;
 
-	class DeferredRenderer : public SubMeshRenderer
+	class CXC_ENGINECORE_API DeferredRenderer : public SubMeshRenderer
 	{
 	public:
 

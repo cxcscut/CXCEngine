@@ -18,7 +18,7 @@ namespace cxc
 		std::string NonTexturedSubroutineName;
 	};
 
-	class Material final
+	class CXC_ENGINECORE_API Material final
 	{
 
 	public:

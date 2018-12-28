@@ -51,7 +51,7 @@ namespace cxc
 	{
 		bool bSuccessful = true;
 
-		for (auto Pipeline : RenderPipelines)
+		for (auto Pipeline : RenderingQueue)
 		{
 			bSuccessful &= Pipeline->InitializePipeline();
 		}
@@ -130,7 +130,7 @@ namespace cxc
 		glBindFramebuffer(GL_FRAMEBUFFER, GeometryFrameBuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		for (auto Pipeline : RenderPipelines)
+		for (auto Pipeline : RenderingQueue)
 		{
 			UsePipeline(Pipeline);
 			BindCameraUniforms(Pipeline->GetPipelineProgramID());

@@ -9,7 +9,7 @@ namespace cxc
 	class SubMeshRenderer;
 
 	/* SubMesh is a collection of polygons that have the same material, an object can have many meshes */
-	class SubMesh
+	class CXC_ENGINECORE_API SubMesh
 	{
 		friend class FBXSDKUtil;
 

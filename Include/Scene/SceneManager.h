@@ -25,7 +25,7 @@
 
 namespace cxc {
 
-	class SceneManager final : public Singleton<SceneManager>
+	class CXC_ENGINECORE_API SceneManager final : public Singleton<SceneManager>
 	{
 
 	public:

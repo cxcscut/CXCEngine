@@ -6,7 +6,7 @@
 
 namespace cxc {
 
-	class Camera final
+	class CXC_ENGINECORE_API Camera final
 	{
 
 	public:

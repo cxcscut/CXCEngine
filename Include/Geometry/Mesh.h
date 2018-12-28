@@ -73,7 +73,7 @@ namespace cxc {
 		};
 	};
 
-	class Mesh : public std::enable_shared_from_this<Mesh>
+	class CXC_ENGINECORE_API Mesh : public std::enable_shared_from_this<Mesh>
 	{
 
 	public:
@@ -124,8 +124,8 @@ namespace cxc {
 
 		virtual void Tick(float DeltaSeconds);
 
-		void InitBuffers() noexcept;
-		void ReleaseBuffers() noexcept;
+		virtual void InitBuffers() noexcept;
+		virtual void ReleaseBuffers() noexcept;
 
 	public:
 
@@ -139,7 +139,7 @@ namespace cxc {
 		GLuint GetTexCoordsVBO() const { return m_VBO[1]; }
 		GLuint GetNormalsVBO() const { return m_VBO[2]; }
 		
-		std::shared_ptr<SubMesh> GetSubMesh(uint16_t Index);
+		std::shared_ptr<SubMesh> GetSubMesh(size_t Index);
 		void AddSubMesh(std::shared_ptr<SubMesh> pNewMesh);
 
 	public:

@@ -9,7 +9,7 @@ namespace cxc
 	}
 
 	CActor::CActor(const std::string& Name):
-		CObject(Nam)
+		CObject(Name)
 	{
 
 	}

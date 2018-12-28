@@ -9,7 +9,7 @@ namespace cxc
 {
 	class CMovementCtrlSystem;
 
-	class LogicFramework final : public Singleton<LogicFramework>
+	class CXC_LOGIC_API LogicFramework final : public Singleton<LogicFramework>
 	{
 		friend class Singleton<LogicFramework>;
 

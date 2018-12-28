@@ -8,10 +8,11 @@
 #include <vector>
 #include "ode/ode.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "General/EngineCore.h"
 
 namespace cxc {
 
-	class Collider3D
+	class CXC_ENGINECORE_API Collider3D
 	{
 
 	public:

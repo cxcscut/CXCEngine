@@ -20,10 +20,17 @@ namespace cxc
 
 	}
 
-	void SubMeshRenderer::AddPipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline)
+	void SubMeshRenderer::PopPipeline()
+	{
+		auto PipelineRemoved = RenderingQueue.back();
+		PipelineRemoved->SetOwnerRenderer(nullptr);
+		RenderingQueue.pop_back();
+	}
+
+	void SubMeshRenderer::PushPipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline)
 	{
 		Pipeline->SetOwnerRenderer(shared_from_this());
-		RenderPipelines.push_back(Pipeline);
+		RenderingQueue.push_back(Pipeline);
 	}
 
 	void SubMeshRenderer::UsePipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline)

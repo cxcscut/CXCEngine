@@ -46,7 +46,7 @@ namespace cxc
 	{
 		bool bSuccessful = true;
 
-		for (auto Pipeline : RenderPipelines)
+		for (auto Pipeline : RenderingQueue)
 		{
 			bSuccessful &= Pipeline->InitializePipeline();
 		}
@@ -216,7 +216,7 @@ namespace cxc
 		ClearShadowMapBuffer(Lights);
 
 		// Rendering passes
-		for (auto Pipeline : RenderPipelines)
+		for (auto Pipeline : RenderingQueue)
 		{
 			UsePipeline(Pipeline);
 			Pipeline->Render(Context, Lights);

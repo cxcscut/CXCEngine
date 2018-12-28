@@ -1,4 +1,10 @@
 #include "General/EngineCore.h"
+#include "Rendering/RendererManager.h"
+#include "Controller/InputManager.h"
+#include "Material/MaterialManager.h"
+#include "Scene/SceneManager.h"
+#include "Window/Window.h"
+#include "Script/ScriptParser.h"
 #include "General/DefineTypes.h"
 #include "Utilities/Singleton.inl"
 #include "World/LogicFramework.h"
@@ -41,7 +47,7 @@ namespace cxc {
 		}
 	} WindowDescriptor;
 
-	class World final : public Singleton<World>, public std::enable_shared_from_this<World>
+	class CXC_ENGINECORE_API World final : public Singleton<World>, public std::enable_shared_from_this<World>
 	{
 	public:
 

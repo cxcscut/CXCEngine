@@ -10,7 +10,7 @@ namespace cxc
 	class LightSource;
 
 	/* ShadowRenderer does not support casting shadows of multiple dynamic lights */
-	class ShadowRenderer : public SubMeshRenderer
+	class CXC_ENGINECORE_API ShadowRenderer : public SubMeshRenderer
 	{
 		using CubeMapCameraPose = struct CubeMapCameraPose {
 			GLenum CubeMapFace;
@@ -21,7 +21,7 @@ namespace cxc
 	public:
 
 		ShadowRenderer();
-		ShadowRenderer(const std::string& RenderName);
+		ShadowRenderer(const std::string& RendererName);
 
 		virtual ~ShadowRenderer();
 

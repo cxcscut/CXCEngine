@@ -21,7 +21,7 @@ namespace cxc {
 		Cubic = 3
 	};
 
-	class LightSource
+	class CXC_ENGINECORE_API LightSource
 	{
 
 		friend class FBXSDKUtil;

@@ -16,7 +16,7 @@ namespace cxc
 		SHADER_TYPESIZE = 3
 	};
 
-	class Shader : public std::enable_shared_from_this<Shader>
+	class CXC_ENGINECORE_API Shader : public std::enable_shared_from_this<Shader>
 	{
 
 		friend class RendererManager;

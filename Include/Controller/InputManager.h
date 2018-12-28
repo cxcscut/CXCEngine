@@ -15,7 +15,7 @@ namespace cxc {
 
 	using eMouseButtonStatus = eKeyStatus;
 
-	class InputManager final : public Singleton<InputManager>
+	class CXC_ENGINECORE_API InputManager final : public Singleton<InputManager>
 	{
 
 	public:

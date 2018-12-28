@@ -7,7 +7,7 @@ namespace cxc
 {
 	class ForwardRenderPipeline;
 
-	class ForwardRenderer : public SubMeshRenderer
+	class CXC_ENGINECORE_API ForwardRenderer : public SubMeshRenderer
 	{
 	public:
 

@@ -14,7 +14,7 @@ namespace cxc
 	};
 
 	// AnimKeyFrame is the class that encapsulates a frame of the skeleton animation
-	class AnimKeyFrame final
+	class CXC_ENGINECORE_API AnimKeyFrame final
 	{
 	public:
 		AnimKeyFrame(float Time, eBoneLinkingMode LinkMode,

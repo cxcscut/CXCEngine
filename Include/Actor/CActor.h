@@ -6,8 +6,8 @@
 
 namespace cxc
 {
-	/* CActor is the class of a plceable object in the world, which can be moved around or rotated and scaled */
-	class CActor : public CObject
+	/* CActor is the class of a placeable object in the world, which can be moved around or rotated and scaled */
+	class CXC_ENGINECORE_API CActor : public CObject
 	{
 	public:
 		CActor();

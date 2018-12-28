@@ -8,7 +8,7 @@ namespace cxc
 	class AnimKeyFrame;
 	enum class eAnimPlayMode : uint16_t;
 
-	class AnimCurve final
+	class CXC_ENGINECORE_API AnimCurve final
 	{
 	public:
 		AnimCurve(float Start, float End);

@@ -6,10 +6,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include <memory>
+#include "General/EngineCore.h"
 
 namespace cxc {
 
-	class RigidBody3D {
+	class CXC_ENGINECORE_API RigidBody3D {
 
 	public:
 

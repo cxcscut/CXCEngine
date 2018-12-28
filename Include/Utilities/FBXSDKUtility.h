@@ -13,7 +13,7 @@
 namespace cxc
 {
 
-	class FBXSDKUtil 
+	class CXC_ENGINECORE_API FBXSDKUtil
 	{
 
 	public:

@@ -3,11 +3,12 @@
 
 #include <memory>
 #include <vector>
+#include "General/EngineCore.h"
 
 namespace cxc
 {
 	template <class T>
-	class MultiTree
+	class CXC_ENGINECORE_API MultiTree
 	{
 	
 	public:

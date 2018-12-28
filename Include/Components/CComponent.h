@@ -8,7 +8,7 @@ namespace cxc
 	class CObject;
 
 	/* CComponent is the base class for all the component */
-	class CComponent : public std::enable_shared_from_this<CComponent>
+	class CXC_ENGINECORE_API CComponent : public std::enable_shared_from_this<CComponent>
 	{
 	public:
 		CComponent();

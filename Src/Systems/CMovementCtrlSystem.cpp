@@ -32,10 +32,10 @@ namespace cxc
 			auto RotationMatrix = glm::rotate(glm::mat4(1.0f), x, glm::vec3(1, 0, 0));
 
 			// Rotate around y-axis
-			auto RotationMatrix = glm::rotate(RotationMatrix, y, glm::vec3(0, 1, 0));
+			RotationMatrix = glm::rotate(RotationMatrix, y, glm::vec3(0, 1, 0));
 
 			// Rotate around z-axis
-			auto RotationMatrix = glm::rotate(RotationMatrix, z, glm::vec3(0, 1, 0));
+			RotationMatrix = glm::rotate(RotationMatrix, z, glm::vec3(0, 1, 0));
 
 			pSceneComponent->SetLocalTransform(pSceneComponent->EvaluateLocalTransform() * RotationMatrix);
 		}
@@ -50,10 +50,10 @@ namespace cxc
 			auto RotationMatrix = glm::rotate(glm::mat4(1.0f), x, glm::vec3(1, 0, 0));
 
 			// Rotate around y-axis
-			auto RotationMatrix = glm::rotate(RotationMatrix, y, glm::vec3(0, 1, 0));
+			RotationMatrix = glm::rotate(RotationMatrix, y, glm::vec3(0, 1, 0));
 
 			// Rotate around z-axis
-			auto RotationMatrix = glm::rotate(RotationMatrix, z, glm::vec3(0, 1, 0));
+			RotationMatrix = glm::rotate(RotationMatrix, z, glm::vec3(0, 1, 0));
 
 			pSceneComponent->SetLocalTransform(RotationMatrix * pSceneComponent->EvaluateLocalTransform());
 		}
@@ -72,10 +72,10 @@ namespace cxc
 			auto RotationMatrix = glm::rotate(glm::mat4(1.0f), x, glm::vec3(1, 0, 0));
 
 			// Rotate around y-axis
-			auto RotationMatrix = glm::rotate(RotationMatrix, y, glm::vec3(0, 1, 0));
+			RotationMatrix = glm::rotate(RotationMatrix, y, glm::vec3(0, 1, 0));
 
 			// Rotate around z-axis
-			auto RotationMatrix = glm::rotate(RotationMatrix, z, glm::vec3(0, 0, 1));
+			RotationMatrix = glm::rotate(RotationMatrix, z, glm::vec3(0, 0, 1));
 
 			// Translate back
 			auto TransBack = glm::translate(glm::mat4(1.0f), glm::vec3(pos_x, pos_y, pos_z));

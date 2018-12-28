@@ -26,7 +26,7 @@ namespace cxc
 		bool bSuccessful = true;
 
 		// Initialize all the pipelines
-		for (auto Pipeline : RenderPipelines)
+		for (auto Pipeline : RenderingQueue)
 		{
 			bSuccessful &= Pipeline->InitializePipeline();
 		}
@@ -37,7 +37,7 @@ namespace cxc
 	void ForwardRenderer::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
 	{
 		// Use pipeline before submit the uniforms to program
-		for (auto Pipeline : RenderPipelines)
+		for (auto Pipeline : RenderingQueue)
 		{
 			UsePipeline(Pipeline);
 			BindCameraUniforms(Pipeline->GetPipelineProgramID());

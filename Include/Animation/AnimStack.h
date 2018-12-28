@@ -11,7 +11,7 @@ namespace cxc
 	/*
 		AnimStack is a collection of AnimLayer, different AnimLayer can be blended
 	*/
-	class AnimStack final
+	class CXC_ENGINECORE_API AnimStack final
 	{
 	public:
 

@@ -10,7 +10,7 @@ namespace cxc
 
 	class World;
 
-	class PhysicalWorld final : public Singleton<PhysicalWorld>
+	class CXC_ENGINECORE_API PhysicalWorld final : public Singleton<PhysicalWorld>
 	{
 		friend class Singleton<PhysicalWorld>;
 		friend class World;

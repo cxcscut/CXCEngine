@@ -2,12 +2,13 @@
 #define CXC_PAWN_H
 
 #include "Actor/CActor.h"
-#include "Physics/RigidBody3D.h"
 
 namespace cxc
 {
+	class CRigidBodyComponent;
+
 	/* CPawn is an CActor that can simulate physics */
-	class CPawn : public CActor , public RigidBody3D
+	class CXC_ENGINECORE_API CPawn : public CActor
 	{
 	public :
 		CPawn();
@@ -20,7 +21,7 @@ namespace cxc
 
 	public:
 
-		//virtual void PhysicsTick(float DeltaSeconds);
+		virtual void PhysicsTick(float DeltaSeconds);
 
 	};
 }

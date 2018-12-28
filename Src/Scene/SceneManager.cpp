@@ -159,18 +159,22 @@ namespace cxc {
 		// Allocates buffers for rendering
 		for (auto pObject : m_ObjectMap)
 		{
-			auto StaticMeshComponent = pObject.second->GetComponent<CStaticMeshComponent>();
-			if (pObject.second->IsEnable() && StaticMeshComponent)
+			auto ComponentCount = pObject.second->GetComponentCount();
+			for (size_t Index = 0; Index < ComponentCount; ++Index)
 			{
-				// Allocate the buffers
-				StaticMeshComponent->AllocateBuffers();
-
-				// Add sub-meshes to the render context
-				size_t SubMeshCount = StaticMeshComponent->GetStaticMesh()->GetSubMeshCount();
-				for (size_t Index = 0; Index < SubMeshCount; ++Index)
+				auto StaticMeshComponent = std::dynamic_pointer_cast<CStaticMeshComponent>(pObject.second->GetComponent(Index));
+				if (pObject.second->IsEnable() && StaticMeshComponent)
 				{
-					auto pSubMesh = StaticMeshComponent->GetStaticMesh()->GetSubMesh(Index);
-					pRendererMgr->AddSubMeshToRendererContext(pSubMesh);
+					// Allocate the buffers
+					StaticMeshComponent->AllocateBuffers();
+
+					// Add sub-meshes to the render context
+					size_t SubMeshCount = StaticMeshComponent->GetStaticMesh()->GetSubMeshCount();
+					for (size_t Index = 0; Index < SubMeshCount; ++Index)
+					{
+						auto pSubMesh = StaticMeshComponent->GetStaticMesh()->GetSubMesh(Index);
+						pRendererMgr->AddSubMeshToRendererContext(pSubMesh);
+					}
 				}
 			}
 		}
@@ -189,11 +193,15 @@ namespace cxc {
 		// Release buffers
 		for (auto pObject : m_ObjectMap)
 		{
-			auto StaticMeshComponent = pObject.second->GetComponent<CStaticMeshComponent>();
-			if (pObject.second->IsEnable() && StaticMeshComponent)
+			auto ComponentCount = pObject.second->GetComponentCount();
+			for (size_t Index = 0; Index < ComponentCount; ++Index)
 			{
-				// Allocate the buffers
-				StaticMeshComponent->ReleaseBuffers();
+				auto StaticMeshComponent = std::dynamic_pointer_cast<CStaticMeshComponent>(pObject.second->GetComponent(Index));
+				if (pObject.second->IsEnable() && StaticMeshComponent)
+				{
+					// Allocate the buffers
+					StaticMeshComponent->ReleaseBuffers();
+				}
 			}
 		}
 	}

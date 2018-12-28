@@ -9,7 +9,7 @@ namespace cxc
 	class LightSource;
 
 	/* A CObject is the base class for all the placeable object in the world */
-	class CObject : public std::enable_shared_from_this<CObject>
+	class CXC_ENGINECORE_API CObject : public std::enable_shared_from_this<CObject>
 	{
 	public:
 
@@ -20,22 +20,36 @@ namespace cxc
 	public:
 
 		glm::mat4 GetTransformMatrix() const { return TransformMatrix; }
-		std::shared_ptr<CComponent> GetRootComopnent() { return RootComponent; }
 		std::string GetName() const { return Name; }
 		std::string CompareTag() const { return Tag; }
 		bool IsEnable() const { return bIsEnabled; }
 
-		void AddAttachedComponent(std::shared_ptr<CComponent> Component);
-		void SetRootComponent(std::shared_ptr<CComponent> Root);
 		void SetEnable(bool Status) { bIsEnabled = Status; }
 		void SetTag(const std::string& NewTag) { Tag = NewTag; }
 		void SetName(const std::string& NewName) { Name = NewName; }
 
 	public:
 
+		void AddAttachedComponent(std::shared_ptr<CComponent> Component);
+		size_t GetComponentCount() const { return AttachedComponents.size(); }
+		std::shared_ptr<CComponent> GetComponent(size_t Index);
+		std::shared_ptr<CComponent> GetRootComopnent() { return RootComponent; }
+
+	public:
+
 		virtual void Tick(float DeltaSeconds);
 
 	public:
+
+		template<class RootComponentClass>
+		void SetRootComponent(std::shared_ptr<RootComponentClass> Root)
+		{
+			if (Root && AttachComponent<RootComponentClass>(Root))
+			{
+				RootComponent = Root;
+				RootComponent->SetOwnerObject(shared_from_this());
+			}
+		}
 
 		template<class ComponentClass>
 		bool AttachComponent(std::shared_ptr<ComponentClass> InComponent)
@@ -59,21 +73,8 @@ namespace cxc
 			return false;
 		}
 
-		template<class ComponentClass>
-		std::shared_ptr<ComponentClass> GetComponent()
-		{
-			for (auto Component : AttachedComponents)
-			{
-				auto RetComponent = std::dynamic_pointer_cast<ComponentClass>(Component);
-				if (RetComponent != nullptr)
-					return RetComponent;
-			}
-
-			return nullptr;
-		}
-
 	protected:
-		
+
 		// Tranform matrix for the object
 		glm::mat4 TransformMatrix;
 

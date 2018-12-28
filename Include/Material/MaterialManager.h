@@ -14,7 +14,7 @@ namespace cxc {
 		ShadowTextureUnit
 	};
 
-	class MaterialManager final : public Singleton<MaterialManager>
+	class CXC_ENGINECORE_API MaterialManager final : public Singleton<MaterialManager>
 	{
 
 	public:

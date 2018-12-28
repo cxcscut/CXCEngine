@@ -7,7 +7,7 @@ namespace cxc
 {
 	class Mesh;
 
-	class GeometryUtil final
+	class CXC_ENGINECORE_API GeometryUtil final
 	{
 	public:
 		GeometryUtil();

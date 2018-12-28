@@ -8,7 +8,7 @@ namespace cxc
 	class CComponent;
 	class Mesh;
 
-	class CStaticMeshComponent : public CComponent
+	class CXC_ENGINECORE_API CStaticMeshComponent : public CComponent
 	{
 	public:
 		CStaticMeshComponent();

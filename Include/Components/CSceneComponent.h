@@ -7,7 +7,7 @@
 namespace cxc
 {
 	/* CSceneComponent is the component that enables the CObject able to be placed in the world */
-	class CSceneComponent : public CComponent
+	class CXC_ENGINECORE_API CSceneComponent : public CComponent
 	{
 	public :
 		CSceneComponent();
@@ -26,6 +26,7 @@ namespace cxc
 
 	protected:
 
+		// Relative transform matrix of the component
 		glm::mat4 LocalTransformMatrix;
 	};
 }

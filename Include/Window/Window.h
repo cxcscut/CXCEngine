@@ -6,7 +6,7 @@
 
 namespace cxc {
 
-	class WindowManager final : public Singleton<WindowManager>
+	class CXC_ENGINECORE_API WindowManager final : public Singleton<WindowManager>
 	{
 
 	public:

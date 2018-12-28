@@ -134,7 +134,7 @@ namespace cxc
 					auto pPawn = std::dynamic_pointer_cast<CPawn>(pObject.second);
 					if (pPawn)
 					{
-						pPawn->PhysicalTick(DeltaSeconds);
+						pPawn->PhysicsTick(DeltaSeconds);
 					}
 				}
 			}

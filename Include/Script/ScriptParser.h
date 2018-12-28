@@ -7,12 +7,10 @@
 
 namespace cxc{
 
-	class Parser final : public Singleton<Parser>
+	class CXC_ENGINECORE_API Parser final 
 	{
 
 	public:
-
-		friend Singleton<Parser>;
 
 		Parser();
 		~Parser();
