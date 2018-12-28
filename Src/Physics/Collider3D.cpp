@@ -1,75 +1,67 @@
 #include "Physics/Collider3D.h"
+#include "Physics/RigidBody3D.h"
+#include "Geometry/Mesh.h"
 #include <iostream>
+
 namespace cxc {
 
 	Collider3D::Collider3D():
-		m_GeomID(0),m_TriMeshDataID(0)
+		ColliderGeomID(0)
 	{
-
+		pOwnerRigidBody.reset();
 	}
 
 	Collider3D::~Collider3D()
 	{
-		if (m_TriMeshDataID)
-			destroyTriMeshGeom();
+		dGeomDestroy(ColliderGeomID);
+		pOwnerRigidBody.reset();
 	}
 
-	void Collider3D::createTriMeshGeom(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept
+	void Collider3D::SetColliderPosition(dReal x, dReal y, dReal z) noexcept
 	{
-		m_TriMeshDataID = dGeomTriMeshDataCreate();
-
-		// When using Double version of this function, nan occurs when dMassSetTrimesh invoked, but I don't know what's going on here
-		dGeomTriMeshDataBuildSingle(m_TriMeshDataID,
-									&vertices.front(), 3 * sizeof(float), vertices.size(), 
-									&indices.front(), indices.size(), 3 * sizeof(uint32_t));
-
-		m_GeomID = dCreateTriMesh(space, m_TriMeshDataID, nullptr, nullptr, nullptr);
-		
-		dMassSetTrimesh(&m, DESITY, m_GeomID);
-
-		dGeomSetPosition(m_GeomID,-m.c[0],-m.c[1],-m.c[2]);
-		dMassTranslate(&m,-m.c[0],-m.c[1],-m.c[2]);
-
+		dGeomSetPosition(ColliderGeomID, x, y, z);
 	}
 
-	void Collider3D::destroyTriMeshGeom() noexcept
+	void Collider3D::SetColliderRotation(const dMatrix3& RotMatrix)
 	{
-		dGeomTriMeshDataDestroy(m_TriMeshDataID);
+		dGeomSetRotation(ColliderGeomID, RotMatrix);
 	}
 
-	void Collider3D::setGeomPosition(dReal x, dReal y, dReal z) noexcept
+	std::shared_ptr<RigidBody3D> Collider3D::GetOwnerRigidBody()
 	{
-		dGeomSetPosition(m_GeomID, x, y, z);
+		if (pOwnerRigidBody.expired())
+			return nullptr;
+		else
+			return pOwnerRigidBody.lock();
 	}
 
-	void Collider3D::associateRigidBody(dBodyID body) noexcept
+	void Collider3D::BindRigidBody(std::shared_ptr<RigidBody3D> pRigidBody) noexcept
 	{
-		dGeomSetBody(m_GeomID,body);
+		if (pRigidBody)
+		{
+			pOwnerRigidBody = pRigidBody;
+			dGeomSetBody(ColliderGeomID, pRigidBody->GetBodyID());
+		}
 	}
 
-	dSpaceID Collider3D::getGeomSpace() const noexcept
+	dSpaceID Collider3D::GetGeomSpace() const noexcept
 	{
-		return dGeomGetSpace(m_GeomID);
+		return dGeomGetSpace(ColliderGeomID);
 	}
 
-	int Collider3D::getGeomClass() const noexcept
+	void Collider3D::EnableGeom() noexcept
 	{
-		return dGeomGetClass(m_GeomID);
+		dGeomEnable(ColliderGeomID);
 	}
 
-	void Collider3D::enableGeom() noexcept
+	void Collider3D::DisableGeom() noexcept
 	{
-		dGeomEnable(m_GeomID);
-	}
-
-	void Collider3D::disableGeom() noexcept
-	{
-		dGeomDisable(m_GeomID);
+		dGeomDisable(ColliderGeomID);
 	}
 
 	bool Collider3D::isGeomEnable() const noexcept
 	{
-		return dGeomIsEnabled(m_GeomID);
+		return dGeomIsEnabled(ColliderGeomID);
 	}
 
 }

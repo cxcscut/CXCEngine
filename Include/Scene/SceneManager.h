@@ -94,7 +94,7 @@ namespace cxc {
 
 	private:
 
-		void UpdateBoundary(const CXCRect3 &AABB) noexcept;
+		void UpdateBoundary(const CXCRect3D &AABB) noexcept;
 
 	private:
 
@@ -106,7 +106,7 @@ namespace cxc {
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<CObject>> m_ObjectMap;
 
-		CXCRect3 m_Boundary;
+		CXCRect3D m_Boundary;
 	};
 
 }

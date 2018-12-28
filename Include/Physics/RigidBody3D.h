@@ -10,7 +10,10 @@
 
 namespace cxc {
 
-	class CXC_ENGINECORE_API RigidBody3D {
+	class CXCRect;
+
+	class CXC_ENGINECORE_API RigidBody3D : public std::enable_shared_from_this<RigidBody3D>
+	{
 
 	public:
 
@@ -19,18 +22,15 @@ namespace cxc {
 
 	public:
 
-		void addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
+		void AttachCollider(dSpaceID space, std::shared_ptr<Collider3D> pCollider);
+		void DetachCollider(dSpaceID space, std::shared_ptr<Collider3D> pCollider);
 
-		glm::mat4 GetRigidBodyModelMatrix() const noexcept;
-
-		std::shared_ptr<Collider3D> getColliderPtr() noexcept;
-
-		void UpdateMeshTransform() noexcept;
+		std::shared_ptr<Collider3D> GetCollider3D(size_t Index);
+		size_t GetCollider3DCount() const { return Colliders.size(); }
 
 	public:
 
-		void createRigidBody(dWorldID world,void * user_data) noexcept;
-		void destroyRigidBody() noexcept;
+		void CreateRigidBody(dWorldID world,void * user_data) noexcept;
 
 		// Properties
 	public:
@@ -100,14 +100,19 @@ namespace cxc {
 		// Scaling factor of the object
 		glm::vec3 ScalingFactor;
 
+		// Whether the rigidbody is properly initialized
 		bool Initialized;
 
+		// World ID
 		dWorldID m_WorldID;
+
+		// Body ID
 		dBodyID m_BodyID;
 
 		// Pointer to collider
-		std::shared_ptr<Collider3D> m_pCollider;
+		std::vector<std::shared_ptr<Collider3D>> Colliders;
 
+		// Gravity mode, 0 - off, 1 - on
 		int m_GravityMode;
 
 		// Kinematics object has infinite mass such as walls and earth.

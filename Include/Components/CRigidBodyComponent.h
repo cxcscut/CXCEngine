@@ -11,11 +11,11 @@ namespace cxc
 	{
 	public:
 		CRigidBodyComponent();
-		~CRigidBodyComponent();
+		virtual ~CRigidBodyComponent();
 
 	public:
 
-		virtual glm::mat4 EvaluateLocalTransform() const;
+		glm::mat4 EvaluateLocalTransform() const;
 
 		virtual void SetLocalTransform(const glm::mat4& Transform);
 

@@ -22,7 +22,8 @@ namespace cxc {
 	class World;
 	class SubMesh;
 
-	enum class Location : GLuint {
+	enum class Location : GLuint 
+	{
 		VERTEX_LOCATION = 0,
 		TEXTURE_LOCATION = 1,
 		NORMAL_LOCATION = 2,
@@ -30,19 +31,20 @@ namespace cxc {
 		NUM_OF_LOCATION = 4
 	};
 
-	class CXCRect3 {
+	class CXC_ENGINECORE_API CXCRect3D
+	{
 		
 	public:
 
-		CXCRect3(const glm::vec3 &_max, const glm::vec3 &_min);
-		CXCRect3();
-		~CXCRect3();
+		CXCRect3D(const glm::vec3 &_max, const glm::vec3 &_min);
+		CXCRect3D();
+		~CXCRect3D();
 
-		CXCRect3(const CXCRect3 &other);
-		CXCRect3 &operator=(const CXCRect3 &other);
+		CXCRect3D(const CXCRect3D &other);
+		CXCRect3D &operator=(const CXCRect3D &other);
 		
-		bool isContain(const CXCRect3 &rhs) const noexcept;
-		bool isIntersected(const CXCRect3 &other) const noexcept;
+		bool isContain(const CXCRect3D &rhs) const noexcept;
+		bool isIntersected(const CXCRect3D &other) const noexcept;
 
 	public:
 		glm::vec3 max, min;
@@ -133,7 +135,7 @@ namespace cxc {
 		bool CheckLoaded() const noexcept { return isLoaded; }
 		void SetLoaded() noexcept;
 
-		CXCRect3 GetAABB() const noexcept { return AABB; };
+		CXCRect3D GetAABB() const noexcept { return AABB; };
 		GLuint GetVAO() const { return m_VAO; }
 		GLuint GetVertexCoordsVBO() const { return  m_VBO[0]; }
 		GLuint GetTexCoordsVBO() const { return m_VBO[1]; }
@@ -167,7 +169,7 @@ namespace cxc {
 		glm::vec3 Pivot;
 
 		// AABB bounding box
-		CXCRect3 AABB;
+		CXCRect3D AABB;
 
 	protected:
 

@@ -1,5 +1,7 @@
 #include "Physics/RigidBody3D.h"
+#include "Geometry/Mesh.h"
 #include <iostream>
+
 namespace cxc {
 
 	RigidBody3D::RigidBody3D():
@@ -9,30 +11,46 @@ namespace cxc {
 		isKinematics(false)
 	{
 
-		m_pCollider = std::make_shared<Collider3D>();
 	}
 
 	RigidBody3D::~RigidBody3D()
 	{
-		if(m_BodyID)
-			destroyRigidBody();
-
+		if (m_BodyID)
+		{	
+			Colliders.clear();
+			dBodyDestroy(m_BodyID);
+		}
 	}
 
-	void RigidBody3D::addCollider(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept
+	std::shared_ptr<Collider3D> RigidBody3D::GetCollider3D(size_t Index) 
 	{
-
-		m_pCollider->createTriMeshGeom(space, vertices, indices);
-
-		m_pCollider->associateRigidBody(m_BodyID);
+		if (Index >= Colliders.size())
+			return nullptr;
+		else
+			return Colliders[Index];
 	}
 
-	std::shared_ptr<Collider3D> RigidBody3D::getColliderPtr() noexcept
+	void RigidBody3D::AttachCollider(dSpaceID space, std::shared_ptr<Collider3D> pCollider)
 	{
-		return m_pCollider;
+		if (pCollider)
+		{
+			pCollider->BindRigidBody(shared_from_this());
+			Colliders.push_back(pCollider);
+		}
 	}
 
-	void RigidBody3D::createRigidBody(dWorldID world,void *user_data) noexcept
+	void RigidBody3D::DetachCollider(dSpaceID space, std::shared_ptr<Collider3D> pCollider)
+	{
+		for (auto Iter = Colliders.end() - 1; Iter >= Colliders.begin(); --Iter)
+		{
+			if (*Iter == pCollider)
+			{
+				Colliders.erase(Iter);
+			}
+		}
+	}
+
+	void RigidBody3D::CreateRigidBody(dWorldID world,void *user_data) noexcept
 	{
 		m_WorldID = world;
 
@@ -44,12 +62,6 @@ namespace cxc {
 
 		Initialized = true;
 
-	}
-
-	void RigidBody3D::destroyRigidBody() noexcept
-	{
-
-		dBodyDestroy(m_BodyID);
 	}
 
 	void RigidBody3D::SetScalingFactor(const glm::vec3& NewScalingFactor) noexcept
@@ -65,59 +77,27 @@ namespace cxc {
 	void RigidBody3D::setPosition(dReal x, dReal y, dReal z) noexcept
 	{
 		dBodySetPosition(m_BodyID, x, y, z);
-		m_pCollider->setGeomPosition(x, y, z);
-	}
 
-	void RigidBody3D::UpdateMeshTransform() noexcept
-	{
-		auto geom_id = m_pCollider->getGeomID();
-
-		if (dGeomGetClass(geom_id) == dTriMeshClass) {
-
-			const dReal* pos = dGeomGetPosition(geom_id);
-			const dReal* rot = dGeomGetRotation(geom_id);
-
-			const dReal trans_mat[16] = {
-				rot[0],rot[1],rot[2], 0,
-				rot[4],rot[5],rot[6], 0,
-				rot[8],rot[9],rot[10],0,
-				pos[0],pos[1],pos[2], 1
-			};
-
-			dGeomTriMeshSetLastTransform(geom_id, *(dMatrix4*)(&trans_mat));
+		// Set position for all the colliders
+		for (auto pCollider : Colliders)
+		{
+			pCollider->SetColliderPosition(x, y, z);
 		}
-	}
-
-	glm::mat4 RigidBody3D::GetRigidBodyModelMatrix() const noexcept
-	{
-		auto R = dGeomGetRotation(m_pCollider->getGeomID());
-		auto pos = dGeomGetPosition(m_pCollider->getGeomID());
-
-		auto TransMatrix = glm::transpose(glm::mat4({
-			R[0],R[1],R[2],pos[0],
-			R[4],R[5],R[6],pos[1],
-			R[8],R[9],R[10],pos[2],
-			0,0,0,1
-		}));
-
-		auto ScalingMatrix = glm::transpose(glm::mat4{
-			ScalingFactor[0], 0, 0, 0,
-			0, ScalingFactor[1], 0, 0,
-			0, 0, ScalingFactor[2], 0,
-			0, 0, 0, 1
-		});
-
-		return TransMatrix * ScalingMatrix;
 	}
 
 	void RigidBody3D::setRotation(const glm::mat3 rot) noexcept
 	{
-		dMatrix3 rot_mat = { rot[0][0],rot[1][0],rot[2][0],0,
+		dMatrix3 RotMatrix = { rot[0][0],rot[1][0],rot[2][0],0,
 							rot[0][1],rot[1][1],rot[2][1],0,
 							rot[0][2],rot[1][2],rot[2][2],0};
 
-		dBodySetRotation(m_BodyID, rot_mat);
-		dGeomSetRotation(m_pCollider->getGeomID(), rot_mat);
+		dBodySetRotation(m_BodyID, RotMatrix);
+
+		// Set rotation for all the colliders
+		for (auto pCollider : Colliders)
+		{
+			pCollider->SetColliderRotation(RotMatrix);
+		}
 	}
 
 	void RigidBody3D::setLinearVelocity(dReal x, dReal y, dReal z) noexcept

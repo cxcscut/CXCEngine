@@ -32,7 +32,7 @@ namespace cxc {
 		AddCamera(pNewCamera);
 	}
 
-	void SceneManager::UpdateBoundary(const CXCRect3 &AABB) noexcept
+	void SceneManager::UpdateBoundary(const CXCRect3D &AABB) noexcept
 	{
 		m_Boundary.max.x = std::fmax(m_Boundary.max.x, AABB.max.x);
 		m_Boundary.max.y = std::fmax(m_Boundary.max.y, AABB.max.y);

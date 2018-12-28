@@ -119,9 +119,11 @@
     <ClCompile Include="..\..\src\material\MaterialManager.cpp" />
     <ClCompile Include="..\..\src\material\Texture2D.cpp" />
     <ClCompile Include="..\..\src\material\TextureManager.cpp" />
+    <ClCompile Include="..\..\Src\Physics\BoxCollider.cpp" />
     <ClCompile Include="..\..\src\physics\Collider3D.cpp" />
     <ClCompile Include="..\..\src\physics\PhysicalWorld.cpp" />
     <ClCompile Include="..\..\src\physics\RigidBody3D.cpp" />
+    <ClCompile Include="..\..\Src\Physics\SphereCollider.cpp" />
     <ClCompile Include="..\..\Src\Rendering\DeferredRenderer.cpp" />
     <ClCompile Include="..\..\src\rendering\DeferredRenderPipeline.cpp" />
     <ClCompile Include="..\..\src\rendering\Font.cpp" />
@@ -169,9 +171,11 @@
     <ClInclude Include="..\..\include\material\MaterialManager.h" />
     <ClInclude Include="..\..\include\material\Texture2D.h" />
     <ClInclude Include="..\..\include\material\TextureManager.h" />
+    <ClInclude Include="..\..\Include\Physics\BoxCollider.h" />
     <ClInclude Include="..\..\include\physics\Collider3D.h" />
     <ClInclude Include="..\..\include\physics\PhysicalWorld.h" />
     <ClInclude Include="..\..\include\physics\RigidBody3D.h" />
+    <ClInclude Include="..\..\Include\Physics\SphereCollider.h" />
     <ClInclude Include="..\..\Include\Rendering\DeferredRenderer.h" />
     <ClInclude Include="..\..\include\rendering\DeferredRenderPipeline.h" />
     <ClInclude Include="..\..\include\rendering\Font.h" />

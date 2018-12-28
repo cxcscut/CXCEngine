@@ -6,12 +6,16 @@
 #define dDOUBLE
 
 #include <vector>
+#include <memory>
 #include "ode/ode.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "General/EngineCore.h"
 
 namespace cxc {
 
+	class RigidBody3D;
+
+	/* Collider3D is the base class for all the collider class */
 	class CXC_ENGINECORE_API Collider3D
 	{
 
@@ -20,36 +24,30 @@ namespace cxc {
 		Collider3D();
 		virtual ~Collider3D();
 
-		// Geometry
 	public:
 
-		void createTriMeshGeom(dSpaceID space, const std::vector<glm::vec3> &vertices, const std::vector<uint32_t> &indices) noexcept;
-		void destroyTriMeshGeom() noexcept;
-
-		void setGeomPosition(dReal x, dReal y, dReal z) noexcept;
-
-		dSpaceID getGeomSpace() const noexcept;
-		int getGeomClass() const noexcept;
-
-		void enableGeom() noexcept;
-		void disableGeom() noexcept;
+		void EnableGeom() noexcept;
+		void DisableGeom() noexcept;
 		bool isGeomEnable() const noexcept;
 
-		void associateRigidBody(dBodyID body) noexcept;
+		void BindRigidBody(std::shared_ptr<RigidBody3D> pRigidBody) noexcept;
 
-		dTriMeshDataID getTriMeshID() const noexcept { return m_TriMeshDataID; };
-		dGeomID getGeomID() const noexcept { return m_GeomID; };
+	public:
 
-		dMass GetMass() const noexcept { return m; };
+		void SetColliderRotation(const dMatrix3& RotMatrix);
+		void SetColliderPosition(dReal x, dReal y, dReal z) noexcept;
 
-	private:
+		std::shared_ptr<RigidBody3D> GetOwnerRigidBody();
+		dSpaceID GetGeomSpace() const noexcept;
+		dGeomID GetColliderGeomID() const noexcept { return ColliderGeomID; };
 
-		dTriMeshDataID m_TriMeshDataID;
-		// Only single geom supported for each RigidBody3D
-		dGeomID m_GeomID;
+	protected:
 
-		dMass m;
+		// Weak pointer back to the rigidbody that bind to it
+		std::weak_ptr<RigidBody3D> pOwnerRigidBody;
 
+		// Collider gemo id
+		dGeomID ColliderGeomID;
 	};
 }
 

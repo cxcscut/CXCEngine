@@ -312,23 +312,23 @@ namespace cxc {
 		pAnimContext = NewObject<AnimContext>(shared_from_this());
 	}
 
-	CXCRect3::CXCRect3(const glm::vec3 &_max, const glm::vec3 &_min) :max(_max), min(_min) {};
+	CXCRect3D::CXCRect3D(const glm::vec3 &_max, const glm::vec3 &_min) :max(_max), min(_min) {};
 
-	CXCRect3::CXCRect3() :
+	CXCRect3D::CXCRect3D() :
 		max(glm::vec3(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max())),
 		min(glm::vec3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()))
 	{}
 
-	CXCRect3::~CXCRect3()
+	CXCRect3D::~CXCRect3D()
 	{}
 
-	CXCRect3::CXCRect3(const CXCRect3 &other)
+	CXCRect3D::CXCRect3D(const CXCRect3D &other)
 	{
 		max = other.max;
 		min = other.min;
 	}
 
-	CXCRect3 &CXCRect3::operator=(const CXCRect3 &other)
+	CXCRect3D &CXCRect3D::operator=(const CXCRect3D &other)
 	{
 		max = other.max;
 		min = other.min;
@@ -336,14 +336,14 @@ namespace cxc {
 		return *this;
 	}
 
-	bool CXCRect3::isContain(const CXCRect3 &rhs) const noexcept
+	bool CXCRect3D::isContain(const CXCRect3D &rhs) const noexcept
 	{
 		return rhs.max.x <= max.x && rhs.min.x >= min.x &&
 			rhs.max.y <= max.y && rhs.min.y >= min.y &&
 			rhs.max.z <= max.z && rhs.min.z >= min.z;
 	}
 
-	bool CXCRect3::isIntersected(const CXCRect3 &other) const noexcept
+	bool CXCRect3D::isIntersected(const CXCRect3D &other) const noexcept
 	{
 		return ((min.x >= other.min.x && min.x <= other.max.x) || (other.min.x >= min.x && other.min.x <= max.x)) &&
 			((min.y >= other.min.y && min.y <= other.max.y) || (other.min.y >= min.y && other.min.y <= max.y)) &&

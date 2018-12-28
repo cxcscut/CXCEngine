@@ -20,7 +20,7 @@ namespace cxc
 	public:
 
 		glm::mat4 EvaluateGlobalTransform();
-		virtual glm::mat4 EvaluateLocalTransform() const { return LocalTransformMatrix; }
+		glm::mat4 EvaluateLocalTransform() const { return LocalTransformMatrix; }
 
 		virtual void SetLocalTransform(const glm::mat4& Transform) { LocalTransformMatrix = Transform; }
 
