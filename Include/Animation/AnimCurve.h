@@ -1,7 +1,7 @@
 #ifndef CXC_ANIMATIONCURVE_H
 #define CXC_ANIMATIONCURVE_H
 
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 namespace cxc
 {

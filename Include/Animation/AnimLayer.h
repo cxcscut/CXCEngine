@@ -1,7 +1,7 @@
 #ifndef CXC_ANIMATIONLAYER_H
 #define CXC_ANIMATIONLAYER_H
 
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 namespace cxc
 {

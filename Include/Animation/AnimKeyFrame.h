@@ -1,7 +1,7 @@
 #ifndef CXC_ANIMATIONKEYFRAME_H
 #define CXC_ANIMATIONKEYFRAME_H
 
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 namespace cxc
 {

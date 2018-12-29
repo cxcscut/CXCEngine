@@ -124,6 +124,7 @@
     <ClCompile Include="..\..\Src\Components\CSceneComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CStaticMeshComponent.cpp" />
     <ClCompile Include="..\..\src\controller\InputManager.cpp" />
+    <ClCompile Include="..\..\Src\Core\CObject.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
     <ClCompile Include="..\..\src\material\MaterialManager.cpp" />
@@ -144,9 +145,8 @@
     <ClCompile Include="..\..\src\rendering\Shader.cpp" />
     <ClCompile Include="..\..\Src\Rendering\ShadowRenderer.cpp" />
     <ClCompile Include="..\..\src\rendering\ShadowRenderPipeline.cpp" />
-    <ClCompile Include="..\..\Src\Actor\CActor.cpp" />
     <ClCompile Include="..\..\src\scene\Camera.cpp" />
-    <ClCompile Include="..\..\Src\Actor\CObject.cpp" />
+    <ClCompile Include="..\..\Src\Actor\CActor.cpp" />
     <ClCompile Include="..\..\src\scene\Lighting.cpp" />
     <ClCompile Include="..\..\src\Geometry\SubMesh.cpp" />
     <ClCompile Include="..\..\src\Geometry\Mesh.cpp" />
@@ -177,8 +177,9 @@
     <ClInclude Include="..\..\Include\Components\CSceneComponent.h" />
     <ClInclude Include="..\..\Include\Components\CStaticMeshComponent.h" />
     <ClInclude Include="..\..\include\controller\InputManager.h" />
+    <ClInclude Include="..\..\Include\Core\CObject.h" />
+    <ClInclude Include="..\..\Include\Core\EngineTypes.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
-    <ClInclude Include="..\..\include\general\DefineTypes.h" />
     <ClInclude Include="..\..\include\general\EngineCore.h" />
     <ClInclude Include="..\..\include\material\Material.h" />
     <ClInclude Include="..\..\include\material\MaterialManager.h" />
@@ -199,9 +200,8 @@
     <ClInclude Include="..\..\include\rendering\Shader.h" />
     <ClInclude Include="..\..\Include\Rendering\ShadowRenderer.h" />
     <ClInclude Include="..\..\include\rendering\ShadowRenderPipeline.h" />
-    <ClInclude Include="..\..\Include\Actor\CActor.h" />
     <ClInclude Include="..\..\include\scene\Camera.h" />
-    <ClInclude Include="..\..\Include\Actor\CObject.h" />
+    <ClInclude Include="..\..\Include\Actor\CActor.h" />
     <ClInclude Include="..\..\include\scene\Lighting.h" />
     <ClInclude Include="..\..\include\Geometry\SubMesh.h" />
     <ClInclude Include="..\..\include\Geometry\Mesh.h" />

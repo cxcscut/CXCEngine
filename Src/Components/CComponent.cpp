@@ -1,5 +1,5 @@
 #include "Components/CComponent.h"
-#include "Actor/CObject.h"
+#include "Actor/CActor.h"
 
 namespace cxc
 {
@@ -23,7 +23,7 @@ namespace cxc
 		ParentComponent = InComponent;
 	}
 
-	void CComponent::SetOwnerObject(std::shared_ptr<CObject> InObject)
+	void CComponent::SetOwnerObject(std::shared_ptr<CActor> InObject)
 	{
 		pOwnerObject = InObject;
 	}

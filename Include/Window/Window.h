@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 #include "Utilities/Singleton.inl"
 
 #ifndef CXC_WINDOW_H

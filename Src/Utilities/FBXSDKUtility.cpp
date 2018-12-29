@@ -1,5 +1,5 @@
 #include "Utilities/FBXSDKUtility.h"
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 #include "Material/MaterialManager.h"
 #include "Geometry/SubMesh.h"
 #include "Geometry/Mesh.h"

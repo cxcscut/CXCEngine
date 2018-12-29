@@ -1,7 +1,7 @@
 #ifndef CXC_CSYSTEM_H
 #define CXC_CSYSTEM_H
 
-#include "General/EngineCore.h"
+#include "Core/EngineCore.h"
 
 namespace cxc
 {

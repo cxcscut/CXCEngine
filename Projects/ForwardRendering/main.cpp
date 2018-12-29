@@ -11,8 +11,8 @@ static const std::string SceneFBXFile = "G:\\CXCEngine\\Projects\\Models\\EN_Bui
 static const std::string HumanoidScene = "G:\\CXCEngine\\Projects\\Models\\humanoid.fbx";
 
 std::shared_ptr<SubMeshRenderer> CreateForwardRender();
-void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CObject>>& Objects);
-std::vector<std::shared_ptr<CObject>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes);
+void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CActor>>& Objects);
+std::vector<std::shared_ptr<CActor>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes);
 
 int main()
 {
@@ -58,14 +58,14 @@ int main()
 	return 0;
 }
 
-std::vector<std::shared_ptr<CObject>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes)
+std::vector<std::shared_ptr<CActor>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes)
 {
 	auto pSceneManager = SceneManager::GetInstance();
-	std::vector<std::shared_ptr<CObject>> RetObjects;
+	std::vector<std::shared_ptr<CActor>> RetObjects;
 
 	for (auto pMesh : Meshes)
 	{
-		auto Object = NewObject<CObject>(pMesh->GetMeshName());
+		auto Object = NewObject<CActor>(pMesh->GetMeshName());
 		auto StaticMeshComponent = NewObject<CStaticMeshComponent>(pMesh);
 		Object->AttachComponent<CStaticMeshComponent>(StaticMeshComponent);
 		RetObjects.push_back(Object);
@@ -74,7 +74,7 @@ std::vector<std::shared_ptr<CObject>> CreateObjects(const std::vector<std::share
 	return RetObjects;
 }
 
-void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CObject>>& Objects)
+void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CActor>>& Objects)
 {
 	auto pRendererMgr = RendererManager::GetInstance();
 

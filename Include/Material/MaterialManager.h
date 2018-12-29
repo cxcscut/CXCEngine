@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 #include "Material/Texture2D.h"
 #include "Utilities/Singleton.inl"
 #include "Material/Material.h"

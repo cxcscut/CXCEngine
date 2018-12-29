@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 #include "ode/ode.h"
 #include "Physics/RigidBody3D.h"
@@ -85,7 +85,7 @@ namespace cxc {
 		friend class FBXSDKUtil;
 		friend class SubMesh;
 		friend class AnimContext;
-		friend class CObject;
+		friend class CActor;
 		friend class CActor;
 		friend class CPawn;
 

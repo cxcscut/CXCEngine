@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 #ifndef CXC_GEOMETRYUTIL_H
 #define CXC_GEOMETRYUTIL_H

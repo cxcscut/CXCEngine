@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 #include "Scene/Lighting.h"
 
 #ifndef CXC_RENDER_H

@@ -43,7 +43,7 @@ namespace cxc {
 		m_Boundary.min.z = std::fmin(m_Boundary.min.z, AABB.min.z);
 	}
 
-	void SceneManager::AddObject(const std::shared_ptr<CObject> &ObjectPtr) noexcept
+	void SceneManager::AddObject(const std::shared_ptr<CActor> &ObjectPtr) noexcept
 	{
 		if(ObjectPtr != nullptr)
 			m_ObjectMap.insert(std::make_pair(ObjectPtr->GetName(), ObjectPtr));
@@ -310,17 +310,17 @@ namespace cxc {
 			m_ObjectMap.erase(it);
 	}
 
-	std::shared_ptr<CObject> SceneManager::GetObject(const std::string &ObjectName) const noexcept
+	std::shared_ptr<CActor> SceneManager::GetObject(const std::string &ObjectName) const noexcept
 	{
 		auto it = m_ObjectMap.find(ObjectName);
 
 		if (it != m_ObjectMap.end())
 			return it->second;
 		else
-			return std::shared_ptr<CObject>(nullptr);
+			return std::shared_ptr<CActor>(nullptr);
 	}
 
-	const std::unordered_map<std::string, std::shared_ptr<CObject>> &SceneManager::GetObjectMap() const noexcept
+	const std::unordered_map<std::string, std::shared_ptr<CActor>> &SceneManager::GetObjectMap() const noexcept
 	{
 		return m_ObjectMap;
 	}

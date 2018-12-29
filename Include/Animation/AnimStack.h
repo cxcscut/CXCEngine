@@ -1,7 +1,7 @@
 #ifndef CXC_ANIMATION_H
 #define CXC_ANIMATION_H
 
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 namespace cxc
 {

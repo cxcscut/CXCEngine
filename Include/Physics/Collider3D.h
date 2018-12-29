@@ -9,7 +9,7 @@
 #include <memory>
 #include "ode/ode.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include "General/EngineCore.h"
+#include "Core/EngineCore.h"
 
 namespace cxc {
 

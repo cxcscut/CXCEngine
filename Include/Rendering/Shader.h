@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 #include "Utilities/FileHelper.h"
 
 #ifndef CXC_SHADER_H

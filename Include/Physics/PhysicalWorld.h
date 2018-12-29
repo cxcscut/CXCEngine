@@ -1,5 +1,5 @@
 #include "Utilities/Singleton.inl"
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 #include "ode/ode.h"
 
 #ifndef CXC_PHYSICALWORLD_H

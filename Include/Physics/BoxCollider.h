@@ -2,7 +2,7 @@
 #define CXC_BOXCOLLDER_H
 
 #include "Physics/Collider3D.h"
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 namespace cxc
 {

@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include <memory>
-#include "General/EngineCore.h"
+#include "Core/EngineCore.h"
 
 namespace cxc {
 

@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 #ifndef CXC_LIGHTING_H
 #define CXC_LIGHTING_H

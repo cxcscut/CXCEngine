@@ -1,7 +1,7 @@
 #ifndef CXC_MATERIAL_H
 #define CXC_MATERIAL_H
 
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 namespace cxc
 {

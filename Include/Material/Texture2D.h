@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 
 #ifndef CXC_TEXTURE2D_H
 #define CXC_TEXTURE2D_H

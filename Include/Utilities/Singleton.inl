@@ -2,7 +2,7 @@
 #define CXC_SINGLETON_INL
 
 #include <memory>
-#include "General/EngineCore.h"
+#include "Core/EngineCore.h"
 
 namespace cxc {
 

@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 #include "Utilities/Singleton.inl"
 #include "Geometry/Mesh.h"
 #include "Geometry/SubMesh.h"
@@ -6,7 +6,7 @@
 #include "Scene/Camera.h"
 #include "Utilities/FBXSDKUtility.h"
 #include "Rendering/RendererManager.h"
-#include "Actor/CObject.h"
+#include "Actor/CActor.h"
 #include "Components/CStaticMeshComponent.h"
 
 #ifndef CXC_SCENEMANAGER_H
@@ -58,8 +58,8 @@ namespace cxc {
 		std::unordered_map<std::string, std::shared_ptr<Camera>> pCameras;
 		std::shared_ptr<RendererManager> pRendererMgr;
 
-		std::shared_ptr<CObject> GetObject (const std::string &ObjectName) const noexcept;
-		const std::unordered_map<std::string, std::shared_ptr<CObject>> &GetObjectMap() const noexcept;
+		std::shared_ptr<CActor> GetObject (const std::string &ObjectName) const noexcept;
+		const std::unordered_map<std::string, std::shared_ptr<CActor>> &GetObjectMap() const noexcept;
 
 		// Lights
 	public:
@@ -84,7 +84,7 @@ namespace cxc {
 		void SetCameraActive(const std::string& CameraName);
 
 		// Add object to object map
-		void AddObject(const std::shared_ptr<CObject> &ObjectPtr) noexcept;
+		void AddObject(const std::shared_ptr<CActor> &ObjectPtr) noexcept;
 
 	public:
 
@@ -104,7 +104,7 @@ namespace cxc {
 		std::vector<std::shared_ptr<LightSource>> Lights;
 
 		// <Object Name , Pointer to object>
-		std::unordered_map<std::string, std::shared_ptr<CObject>> m_ObjectMap;
+		std::unordered_map<std::string, std::shared_ptr<CActor>> m_ObjectMap;
 
 		CXCRect3D m_Boundary;
 	};

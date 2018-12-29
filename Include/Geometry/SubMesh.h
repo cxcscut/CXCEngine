@@ -1,4 +1,4 @@
-#include "General/DefineTypes.h"
+#include "Core/EngineTypes.h"
 #include "Material/MaterialManager.h"
 
 #ifndef CXC_SUBMESH_H
