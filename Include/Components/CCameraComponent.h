@@ -8,6 +8,7 @@ namespace cxc
 {
 	class Camera;
 
+	/* CCameraComponent is the component that represents a camera, which can be attached to an actor and placed in the level */
 	class CXC_ENGINECORE_API CCameraComponent : public CSceneComponent
 	{
 		

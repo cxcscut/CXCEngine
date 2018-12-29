@@ -38,8 +38,11 @@ namespace cxc
 		ReleaseSceenQuardBuffers();
 	}
 	
-	void DeferredRenderPipeline::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void DeferredRenderPipeline::Render(std::shared_ptr<RendererContext> Context)
 	{
+		auto pSceneManager = SceneManager::GetInstance();
+		auto Lights = pSceneManager->GetLightsArray();
+
 		// Geometry pass
 		GeometryPass(Context, Lights);
 

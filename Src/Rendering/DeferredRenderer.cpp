@@ -121,7 +121,7 @@ namespace cxc
 		}
 	}
 
-	void DeferredRenderer::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void DeferredRenderer::Render(std::shared_ptr<RendererContext> Context)
 	{
 		// Create the G-Buffer and textures if needed;
 		CreateGBufferTextures();
@@ -134,7 +134,7 @@ namespace cxc
 		{
 			UsePipeline(Pipeline);
 			BindCameraUniforms(Pipeline->GetPipelineProgramID());
-			Pipeline->Render(Context, Lights);
+			Pipeline->Render(Context);
 		}
 	}
 }

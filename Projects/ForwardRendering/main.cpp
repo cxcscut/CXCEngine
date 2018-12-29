@@ -31,13 +31,14 @@ int main()
 	GEngine::ConfigureEngineDisplaySettings(DisplayConf);
 	GEngine::InitializeEngine();
 
+	auto pWorld = World::GetInstance();
 	auto pRendererMgr = RendererManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
 	auto pRenderer = CreateForwardRender();
 	pRendererMgr->AddRenderer(pRenderer);
 
 	pSceneManager->AddCamera("MainCamera", CameraPos, CameraOrigin, CameraUpVector, ProjectionMatrix);
-	pSceneManager->SetCameraActive("MainCamera");
+	pSceneManager->SetCameraActive(pSceneManager->GetCamera(0));
 
 	std::vector<std::shared_ptr<Mesh>> OutMeshes;
 	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile, OutMeshes);
@@ -49,7 +50,7 @@ int main()
 
 	for (auto Object : Objects)
 	{
-		pSceneManager->AddObject(Object);
+		pWorld->AddActor(Object);
 	}
 
 	// Start engine

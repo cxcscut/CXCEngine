@@ -17,7 +17,8 @@ namespace cxc
 
 	CActor::~CActor()
 	{
-
+		AttachedComponents.clear();
+		RootComponent = nullptr;
 	}
 
 	std::shared_ptr<CComponent> CActor::GetComponent(size_t Index)

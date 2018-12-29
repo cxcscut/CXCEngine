@@ -126,7 +126,7 @@ namespace cxc {
 
 		virtual void Tick(float DeltaSeconds);
 
-		virtual void InitBuffers() noexcept;
+		virtual void AllocateBuffers() noexcept;
 		virtual void ReleaseBuffers() noexcept;
 
 	public:

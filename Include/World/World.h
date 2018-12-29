@@ -95,10 +95,15 @@ namespace cxc {
 
 		void Tick();
 
+	public:
+
+		void AddActor(std::shared_ptr<CActor> Actor);
+		void RemoveActor(std::shared_ptr<CActor> Actor);
+
 	private:
 
 		void RenderingTick();
-		void LogicFrameworkTick();
+		void LogicTick();
 		void PhysicsTick();
 		void ProcessInput();
 
@@ -128,15 +133,22 @@ namespace cxc {
 
 	private:
 
+		// Rendering frame rates
 		uint32_t RenderingFrameRates;
 
 		SystemClock WorldStartSeconds;
 
+		// Tick seconds
 		float LastLogicWorldTickSeconds, LastPhysicalWorldTickSeconds;
 
+		// Logic framework
 		std::shared_ptr<LogicFramework> m_LogicFramework;
 
+		// Physical world
 		std::shared_ptr<PhysicalWorld> m_PhysicalWorld;
+
+		// Actors that in the world
+		std::unordered_map<std::string, std::shared_ptr<CActor>> ActorMap;
 	};
 }
 

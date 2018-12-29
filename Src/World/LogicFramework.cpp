@@ -8,8 +8,6 @@ namespace cxc
 	LogicFramework::LogicFramework():
 		LogicFrameRates(30)
 	{
-		LogicEntryFunction = []() {};
-
 		MovementCtrlSystem = NewObject<CMovementCtrlSystem>();
 	}
 
@@ -18,9 +16,8 @@ namespace cxc
 
 	}
 
-	void LogicFramework::LogicTick(float DeltaSeconds)
+	void LogicFramework::Tick(float DeltaSeconds)
 	{
-		// Tick the game logic entry
-		LogicEntryFunction();
+		
 	}
 }

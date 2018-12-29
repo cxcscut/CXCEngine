@@ -41,7 +41,7 @@ namespace cxc
 
 	public:
 
-		virtual void Render(std::shared_ptr<RendererContext> Context,const std::vector<std::shared_ptr<LightSource>>& Lights) = 0;
+		virtual void Render(std::shared_ptr<RendererContext> Context) = 0;
 
 	protected:
 
@@ -91,7 +91,7 @@ namespace cxc
 
 	public:
 
-		virtual void Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights) {};
+		virtual void Render(std::shared_ptr<RendererContext> Context) {};
 
 	protected:
 

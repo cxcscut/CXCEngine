@@ -17,9 +17,6 @@ namespace cxc
 
 	public:
 
-		void AllocateBuffers();
-		void ReleaseBuffers();
-
 		virtual void Tick(float DeltaSeconds) override;
 
 	public:

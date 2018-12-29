@@ -91,13 +91,15 @@ namespace cxc
 		glUniform1f(LightIntensityLoc, pLight->GetIntensity());
 	}
 
-	void ShadowRenderLightingPassPipeline::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void ShadowRenderLightingPassPipeline::Render(std::shared_ptr<RendererContext> Context)
 	{
 		GLint depthBiasMVP_loc;
 		GLint ShadowMapSampler_loc, Eyepos_loc, M_MatrixID;
 		GLint shadowmapCube_loc;
 		GLint LightPowerLoc;
 
+		auto pSceneManager = SceneManager::GetInstance();
+		auto Lights = pSceneManager->GetLightsArray();
 		if (Lights.empty())
 			return;
 
@@ -292,8 +294,11 @@ namespace cxc
 		}
 	}
 
-	void ShadowRenderBasePassPipeline::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void ShadowRenderBasePassPipeline::Render(std::shared_ptr<RendererContext> Context)
 	{
+		auto pSceneManager = SceneManager::GetInstance();
+		auto Lights = pSceneManager->GetLightsArray();
+
 		// Cook shadow depth texture
 		CookShadowMapDepthTexture(Context, Lights);
 	}

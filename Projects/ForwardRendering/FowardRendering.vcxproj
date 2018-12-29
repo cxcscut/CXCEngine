@@ -111,6 +111,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Src\Actor\CCameraActor.cpp" />
+    <ClCompile Include="..\..\Src\Actor\CLightActor.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimKeyFrame.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimContext.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimCurve.cpp" />
@@ -164,6 +166,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\Actor\CCameraActor.h" />
+    <ClInclude Include="..\..\Include\Actor\CLightActor.h" />
     <ClInclude Include="..\..\Include\Animation\AnimContext.h" />
     <ClInclude Include="..\..\Include\Animation\AnimCurve.h" />
     <ClInclude Include="..\..\Include\Animation\AnimKeyFrame.h" />

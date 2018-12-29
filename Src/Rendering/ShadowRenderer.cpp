@@ -1,5 +1,6 @@
 #include "Rendering/ShadowRenderer.h"
 #include "Rendering/RendererManager.h"
+#include "Scene/SceneManager.h"
 #include "Geometry/SubMesh.h"
 
 namespace cxc
@@ -207,8 +208,11 @@ namespace cxc
 		}
 	}
 
-	void ShadowRenderer::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void ShadowRenderer::Render(std::shared_ptr<RendererContext> Context)
 	{
+		auto pSceneManager = SceneManager::GetInstance();
+		auto Lights = pSceneManager->GetLightsArray();
+
 		// Create shadow map buffers if needed
 		InitShadowMapRender(Lights);
 
@@ -219,7 +223,7 @@ namespace cxc
 		for (auto Pipeline : RenderingQueue)
 		{
 			UsePipeline(Pipeline);
-			Pipeline->Render(Context, Lights);
+			Pipeline->Render(Context);
 		}
 	}
 }

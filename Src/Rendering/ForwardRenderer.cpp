@@ -34,14 +34,14 @@ namespace cxc
 		return bSuccessful;
 	}
 
-	void ForwardRenderer::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void ForwardRenderer::Render(std::shared_ptr<RendererContext> Context)
 	{
 		// Use pipeline before submit the uniforms to program
 		for (auto Pipeline : RenderingQueue)
 		{
 			UsePipeline(Pipeline);
 			BindCameraUniforms(Pipeline->GetPipelineProgramID());
-			Pipeline->Render(Context, Lights);
+			Pipeline->Render(Context);
 		}
 	}
 
@@ -62,14 +62,15 @@ namespace cxc
 
 	}
 
-	void ForwardRenderPipeline::Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights)
+	void ForwardRenderPipeline::Render(std::shared_ptr<RendererContext> Context)
 	{
+		auto pWorld = World::GetInstance();
+		auto pSceneManager = SceneManager::GetInstance();
+		auto& Lights = pSceneManager->GetLightsArray();
 		if (Lights.empty())
 			return;
 
 		GLuint Eyepos_loc, M_MatrixID;
-
-		auto pWorld = World::GetInstance();
 		auto BindedSubMeshes = Context->GetBindedSubMeshes();
 		for (auto pSubMesh : BindedSubMeshes)
 		{

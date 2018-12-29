@@ -1,11 +1,12 @@
 #include "Scene/SceneManager.h"
+#include "Geometry/Mesh.h"
 #include "World/World.h"
 #include <iostream>
 
 namespace cxc {
 
 	SceneManager::SceneManager()
-		: m_ObjectMap(),
+		: MeshMap(),
 		m_Boundary()
 	{
 		pMaterialMgr = MaterialManager::GetInstance();
@@ -14,7 +15,7 @@ namespace cxc {
 
 	SceneManager::~SceneManager()
 	{
-		m_ObjectMap.clear();
+		MeshMap.clear();
 	}
 
 	void SceneManager::AddCamera(const std::string& CameraName, 
@@ -43,10 +44,46 @@ namespace cxc {
 		m_Boundary.min.z = std::fmin(m_Boundary.min.z, AABB.min.z);
 	}
 
-	void SceneManager::AddObject(const std::shared_ptr<CActor> &ObjectPtr) noexcept
+	void SceneManager::RemoveMesh(const std::shared_ptr<Mesh> pMesh)
 	{
-		if(ObjectPtr != nullptr)
-			m_ObjectMap.insert(std::make_pair(ObjectPtr->GetName(), ObjectPtr));
+		auto Iter = MeshMap.find(pMesh->GetMeshName());
+		if (Iter != MeshMap.end())
+		{
+			MeshMap.erase(Iter);
+		}
+	}
+
+	std::shared_ptr<Camera> SceneManager::GetCamera(size_t Index)
+	{
+		if (Index < Cameras.size())
+			return Cameras[Index];
+		else
+			return nullptr;
+	}
+
+	void SceneManager::AddCamera(std::shared_ptr<Camera> Camera)
+	{
+		if (Camera)
+		{
+			Cameras.push_back(Camera);
+		}
+	}
+
+	void SceneManager::AddMesh(const std::vector<std::shared_ptr<Mesh>> Meshes)
+	{
+		for (auto Mesh : Meshes)
+		{
+			if (Mesh)
+			{
+				MeshMap.insert(std::make_pair(Mesh->GetMeshName(), Mesh->shared_from_this()));
+			}
+		}
+	}
+
+	void SceneManager::AddMesh(const std::shared_ptr<Mesh> pMesh) noexcept
+	{
+		if(pMesh != nullptr)
+			MeshMap.insert(std::make_pair(pMesh->GetMeshName(), pMesh));
 	}
 
 	void SceneManager::Tick(float DeltaSeconds) noexcept
@@ -54,7 +91,7 @@ namespace cxc {
 		// Draw the scene
 		RenderScene();
 
-		for (auto pObject : m_ObjectMap)
+		for (auto pObject : MeshMap)
 		{
 			// Tick
 			pObject.second->Tick(DeltaSeconds);
@@ -157,25 +194,16 @@ namespace cxc {
 		pRendererMgr->ClearRendererContext();
 
 		// Allocates buffers for rendering
-		for (auto pObject : m_ObjectMap)
+		for (auto pMesh : MeshMap)
 		{
-			auto ComponentCount = pObject.second->GetComponentCount();
-			for (size_t Index = 0; Index < ComponentCount; ++Index)
-			{
-				auto StaticMeshComponent = std::dynamic_pointer_cast<CStaticMeshComponent>(pObject.second->GetComponent(Index));
-				if (pObject.second->IsEnable() && StaticMeshComponent)
-				{
-					// Allocate the buffers
-					StaticMeshComponent->AllocateBuffers();
+			pMesh.second->AllocateBuffers();
 
-					// Add sub-meshes to the render context
-					size_t SubMeshCount = StaticMeshComponent->GetStaticMesh()->GetSubMeshCount();
-					for (size_t Index = 0; Index < SubMeshCount; ++Index)
-					{
-						auto pSubMesh = StaticMeshComponent->GetStaticMesh()->GetSubMesh(Index);
-						pRendererMgr->AddSubMeshToRendererContext(pSubMesh);
-					}
-				}
+			// Add sub-meshes to the render context
+			size_t SubMeshCount = pMesh.second->GetSubMeshCount();
+			for (size_t Index = 0; Index < SubMeshCount; ++Index)
+			{
+				auto pSubMesh = pMesh.second->GetSubMesh(Index);
+				pRendererMgr->AddSubMeshToRendererContext(pSubMesh);
 			}
 		}
 
@@ -186,23 +214,14 @@ namespace cxc {
 			if (RendererContextIter != pRendererMgr->RendererContextsMap.end())
 			{
 				pRendererMgr->UseRenderer(pRendererIter.second);
-				pRendererIter.second->Render(RendererContextIter->second, Lights);
+				pRendererIter.second->Render(RendererContextIter->second);
 			}
 		}
 
 		// Release buffers
-		for (auto pObject : m_ObjectMap)
+		for (auto pMesh : MeshMap)
 		{
-			auto ComponentCount = pObject.second->GetComponentCount();
-			for (size_t Index = 0; Index < ComponentCount; ++Index)
-			{
-				auto StaticMeshComponent = std::dynamic_pointer_cast<CStaticMeshComponent>(pObject.second->GetComponent(Index));
-				if (pObject.second->IsEnable() && StaticMeshComponent)
-				{
-					// Allocate the buffers
-					StaticMeshComponent->ReleaseBuffers();
-				}
-			}
+			pMesh.second->ReleaseBuffers();
 		}
 	}
 
@@ -259,34 +278,9 @@ namespace cxc {
 		}
 	}
 
-	void SceneManager::AddCamera(std::shared_ptr<Camera> pNewCamera)
-	{
-		pCameras.insert(std::make_pair(pNewCamera->CameraName, pNewCamera));
-	}
-
-	std::shared_ptr<Camera> SceneManager::GetCamera(const std::string& CameraName)
-	{
-		auto CameraIter = pCameras.find(CameraName);
-		if (CameraIter != pCameras.end())
-		{
-			return CameraIter->second;
-		}
-		else
-			return nullptr;
-	}
-
 	std::shared_ptr<Camera> SceneManager::GetCurrentActiveCamera()
 	{
 		return CurrentActiveCamera;
-	}
-
-	void SceneManager::SetCameraActive(const std::string& CameraName)
-	{
-		auto pCamera = GetCamera(CameraName);
-		if (pCamera)
-		{
-			CurrentActiveCamera = pCamera;
-		}
 	}
 
 	void SceneManager::SetCameraActive(std::shared_ptr<Camera> pCamera)
@@ -305,23 +299,23 @@ namespace cxc {
 
 	void SceneManager::DeleteObject(const std::string &sprite_name) noexcept
 	{
-		auto it = m_ObjectMap.find(sprite_name);
-		if (it != m_ObjectMap.end())
-			m_ObjectMap.erase(it);
+		auto it = MeshMap.find(sprite_name);
+		if (it != MeshMap.end())
+			MeshMap.erase(it);
 	}
 
-	std::shared_ptr<CActor> SceneManager::GetObject(const std::string &ObjectName) const noexcept
+	std::shared_ptr<Mesh> SceneManager::GetMesh(const std::string &MeshName) const noexcept
 	{
-		auto it = m_ObjectMap.find(ObjectName);
+		auto it = MeshMap.find(MeshName);
 
-		if (it != m_ObjectMap.end())
+		if (it != MeshMap.end())
 			return it->second;
 		else
-			return std::shared_ptr<CActor>(nullptr);
+			return nullptr;
 	}
 
-	const std::unordered_map<std::string, std::shared_ptr<CActor>> &SceneManager::GetObjectMap() const noexcept
+	const std::unordered_map<std::string, std::shared_ptr<Mesh>> &SceneManager::GetMeshMap() const noexcept
 	{
-		return m_ObjectMap;
+		return MeshMap;
 	}
 }

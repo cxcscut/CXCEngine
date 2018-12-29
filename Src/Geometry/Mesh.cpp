@@ -204,7 +204,7 @@ namespace cxc {
 		return isLoaded;
 	}
 
-	void Mesh::InitBuffers() noexcept
+	void Mesh::AllocateBuffers() noexcept
 	{
 		glGenVertexArrays(1, &m_VAO);
 		glBindVertexArray(m_VAO);

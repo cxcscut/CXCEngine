@@ -27,20 +27,4 @@ namespace cxc
 		if (pAnimContext)
 			pAnimContext->Tick(DeltaSeconds);
 	}
-
-	void CStaticMeshComponent::AllocateBuffers()
-	{
-		if (pStaticMesh)
-		{
-			pStaticMesh->InitBuffers();
-		}
-	}
-
-	void CStaticMeshComponent::ReleaseBuffers()
-	{
-		if (pStaticMesh)
-		{
-			pStaticMesh->ReleaseBuffers();
-		}
-	}
 }

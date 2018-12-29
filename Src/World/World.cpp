@@ -1,5 +1,8 @@
 #include "World/World.h"
 #include "Scene/SceneManager.h"
+#include "Components/CStaticMeshComponent.h"
+#include "Components/CLightComponent.h"
+#include "Components/CCameraComponent.h"
 
 namespace cxc {
 
@@ -158,7 +161,7 @@ namespace cxc {
 		InputManager::GetInstance()->Tick(FixedRenderingDeltaSeconds);
 	}
 
-	void World::LogicFrameworkTick()
+	void World::LogicTick()
 	{
 		assert(m_LogicFramework != nullptr);
 
@@ -169,7 +172,14 @@ namespace cxc {
 		{
 			LastLogicWorldTickSeconds = CurrentWorldSeconds - SecondsBetweenFrames + FixedLogicDeltaSeconds;
 
-			m_LogicFramework->LogicTick(FixedLogicDeltaSeconds);
+			m_LogicFramework->Tick(FixedLogicDeltaSeconds);
+
+			// Tick all the actor
+			for (auto ActorPair : ActorMap)
+			{
+				if (ActorPair.second)
+					ActorPair.second->Tick(FixedLogicDeltaSeconds);
+			}
 		}
 	}
 
@@ -189,6 +199,55 @@ namespace cxc {
 		}
 	}
 
+	void World::AddActor(std::shared_ptr<CActor> Actor)
+	{
+		if (Actor)
+		{
+			auto Iter = ActorMap.find(Actor->GetName());
+			if (Iter == ActorMap.end())
+			{
+				ActorMap.insert(std::make_pair(Actor->GetName(), Actor->shared_from_this()));
+			}
+
+			// Check the Component
+			size_t ComponentCount = Actor->GetComponentCount();
+			for (size_t Index = 0; Index < ComponentCount; ++Index)
+			{
+				// If the actor has CStatisMeshComponent, we add mesh to the scene for rendering
+				auto StaticMeshComponent = std::dynamic_pointer_cast<CStaticMeshComponent>(Actor->GetComponent(Index));
+				auto LightComponent = std::dynamic_pointer_cast<CLightComponent>(Actor->GetComponent(Index));
+				auto CameraComponent = std::dynamic_pointer_cast<CCameraComponent>(Actor->GetComponent(Index));
+				if (StaticMeshComponent)
+				{
+					// Add mesh to the scene 
+					pSceneMgr->AddMesh(StaticMeshComponent->GetStaticMesh());
+				}
+				else if(LightComponent)
+				{
+					// If the actor has CLightComponent, we add the light to the scene
+					pSceneMgr->AddLight(LightComponent->GetLight());
+				}
+				else if (CameraComponent)
+				{
+					// If the actor has CCameraComponent, we add the camera to the scene
+					pSceneMgr->AddCamera(CameraComponent->GetCamera());
+				}
+			}
+		}
+	}
+
+	void World::RemoveActor(std::shared_ptr<CActor> Actor)
+	{
+		if (Actor)
+		{
+			auto Iter = ActorMap.find(Actor->GetName());
+			if (Iter != ActorMap.end())
+			{
+				ActorMap.erase(Iter);
+			}
+		}
+	}
+
 	void World::Tick()
 	{
 		// Rendering tick
@@ -198,7 +257,7 @@ namespace cxc {
 		PhysicsTick();
 
 		// Logic tick
-		LogicFrameworkTick();
+		LogicTick();
 
 		// Processing the input
 		ProcessInput();

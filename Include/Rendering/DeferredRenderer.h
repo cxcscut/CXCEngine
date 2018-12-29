@@ -23,7 +23,7 @@ namespace cxc
 
 	public:
 
-		virtual void Render(std::shared_ptr<RendererContext> Context, const std::vector<std::shared_ptr<LightSource>>& Lights) override;
+		virtual void Render(std::shared_ptr<RendererContext> Context) override;
 
 	private:
 

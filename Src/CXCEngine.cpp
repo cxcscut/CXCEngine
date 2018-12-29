@@ -27,17 +27,6 @@ namespace cxc
 		}
 	}
 
-	void GEngine::SetLogicEntry(std::function<void(void)> LogicEntry)
-	{
-		auto pWorld = World::GetInstance();
-		auto pLogicWorld = pWorld->GetLogicWorld();
-		assert(pLogicWorld);
-		if (pLogicWorld)
-		{
-			pLogicWorld->SetLogicEntry(LogicEntry);
-		}
-	}
-
 	void GEngine::UnBindSubMeshRender(std::shared_ptr<SubMeshRenderer> pSubMeshRender, std::shared_ptr<Mesh> pMesh, uint32_t SubMeshIndex)
 	{
 		auto pSubMesh = pMesh->GetSubMesh(SubMeshIndex);
