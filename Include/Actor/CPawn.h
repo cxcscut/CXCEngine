@@ -18,11 +18,6 @@ namespace cxc
 	public:
 
 		virtual void Tick(float DeltaSeconds) override;
-
-	public:
-
-		virtual void PhysicsTick(float DeltaSeconds);
-
 	};
 }
 

@@ -1,4 +1,6 @@
 #include "Physics/PhysicalWorld.h"
+#include "Physics/Collider3D.h"
+#include "Components/CColliderComponent.h"
 #include "World/World.h"
 #include "Actor/CPawn.h"
 
@@ -15,20 +17,19 @@ namespace cxc
 		dBodyID b2 = dGeomGetBody(o2);
 		if (b1 && b2 && dAreConnectedExcluding(b1, b2, dJointTypeContact)) return;
 
-		CObject *rgbd3d_ptr1 = nullptr, *rgbd3d_ptr2 = nullptr;
+		Collider3D* Collider1 = nullptr, *Collider2 = nullptr;
 
-		// Only trimesh user data can be cast into Shape*
-		if (b1 && dGeomGetClass(o1) == dTriMeshClass)
-			rgbd3d_ptr1 = reinterpret_cast<CObject*>(dBodyGetData(b1));
-		if (b2 && dGeomGetClass(o2) == dTriMeshClass)
-			rgbd3d_ptr2 = reinterpret_cast<CObject*>(dBodyGetData(b2));
+		if (o1)
+			Collider1 = reinterpret_cast<Collider3D*>(dGeomGetData(o1));
+		if (o2)
+			Collider2 = reinterpret_cast<Collider3D*>(dGeomGetData(o2));
 
-		if ((rgbd3d_ptr1 && rgbd3d_ptr1->CompareTag() == "collision_free") ||
-			(rgbd3d_ptr2 && rgbd3d_ptr2->CompareTag() == "collision_free"))
+		if ((Collider1 && Collider1->GetCollisionChannel() == eCollisionChannel::CollisionFree) ||
+			(Collider2 && Collider1->GetCollisionChannel() == eCollisionChannel::CollisionFree))
 			return;
 
-		// Do not check collision if tags are the same
-		if (rgbd3d_ptr1->CompareTag() == rgbd3d_ptr2->CompareTag())
+		// Do not check collision if channels are not match
+		if (Collider1->GetCollisionChannel() != Collider2->GetCollisionChannel())
 			return;
 
 		for (num = 0; num < MAX_CONTACT_NUM; ++num)
@@ -49,12 +50,9 @@ namespace cxc
 			{
 				auto pPhysicalWorld = reinterpret_cast<PhysicalWorld*>(data);
 
-				assert(rgbd3d_ptr1);
-				assert(rgbd3d_ptr2);
-
-				pPhysicalWorld->Collision = true;
-
-				//std::cout << rgbd3d_ptr1->GetModelName() << " AND " << rgbd3d_ptr2->GetModelName() << " COLLIDES" << std::endl;
+				// Invoke the collision callback to notify the collider
+				Collider1->CollisionCallback(Collider2->shared_from_this());
+				Collider2->CollisionCallback(Collider1->shared_from_this());
 
 				dJointID joint = dJointCreateContact(pPhysicalWorld->PhysicalWorldID, pPhysicalWorld->ContactJoints, contacts + i);
 				dJointAttach(joint, dGeomGetBody(o1), dGeomGetBody(o2));
@@ -64,7 +62,7 @@ namespace cxc
 
 	PhysicalWorld::PhysicalWorld() :
 		bODEInitialized(false), PhysicalWorldID(nullptr), ContactJoints(nullptr),
-		bPhysicsPaused(false), TopLevelSpace(nullptr), Collision(false),
+		bPhysicsPaused(false), TopLevelSpace(nullptr),
 		Gravity(glm::vec3({ 0,-9.81f,0 }))
 	{
 
@@ -125,21 +123,7 @@ namespace cxc
 	{
 		if (!bPhysicsPaused)
 		{
-			auto pWorld = World::GetInstance();
-			if (pWorld)
-			{
-				auto ObjectMap = pWorld->pSceneMgr->GetObjectMap();
-				for (auto pObject : ObjectMap)
-				{
-					auto pPawn = std::dynamic_pointer_cast<CPawn>(pObject.second);
-					if (pPawn)
-					{
-						pPawn->PhysicsTick(DeltaSeconds);
-					}
-				}
-			}
-
-			dSpaceCollide(TopLevelSpace, reinterpret_cast<void *>(this), &PhysicalWorld::nearCallback);
+			dSpaceCollide(TopLevelSpace, reinterpret_cast<void*>(this), &PhysicalWorld::nearCallback);
 
 			dWorldStep(PhysicalWorldID, WOLRD_QUICK_STEPSIZE);
 

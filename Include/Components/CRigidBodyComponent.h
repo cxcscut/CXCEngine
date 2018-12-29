@@ -2,12 +2,14 @@
 #define CXC_RIGIDBODYCOMPONENT_H
 
 #include "CSceneComponent.h"
-#include "Physics/RigidBody3D.h"
+#include <memory>
 
 namespace cxc
 {
+	class RigidBody3D;
+
 	/* CRigidBodyComponent is the component that enables the Object simulate physics */
-	class CXC_ENGINECORE_API CRigidBodyComponent : public CSceneComponent, public RigidBody3D
+	class CXC_ENGINECORE_API CRigidBodyComponent : public CSceneComponent
 	{
 	public:
 		CRigidBodyComponent();
@@ -21,11 +23,12 @@ namespace cxc
 
 	public:
 
-		void PhysicsTick(float DeltaSeconds);
-
-	public:
-
 		void InitializeRigidBody();
+		std::shared_ptr<RigidBody3D> GetRigidBody() { return pRigidBody; }
+
+	protected:
+
+		std::shared_ptr<RigidBody3D> pRigidBody;
 	};
 
 }

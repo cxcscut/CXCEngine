@@ -2,7 +2,6 @@
 #define CXC_PHYSICS_RIGIDBODY_H
 
 #include "ode/ode.h"
-#include "Collider3D.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include <memory>
@@ -22,15 +21,7 @@ namespace cxc {
 
 	public:
 
-		void AttachCollider(dSpaceID space, std::shared_ptr<Collider3D> pCollider);
-		void DetachCollider(dSpaceID space, std::shared_ptr<Collider3D> pCollider);
-
-		std::shared_ptr<Collider3D> GetCollider3D(size_t Index);
-		size_t GetCollider3DCount() const { return Colliders.size(); }
-
-	public:
-
-		void CreateRigidBody(dWorldID world,void * user_data) noexcept;
+		void CreateRigidBody(dWorldID world) noexcept;
 
 		// Properties
 	public:
@@ -43,6 +34,7 @@ namespace cxc {
 
 		bool IsInitialize() const { return Initialized; }
 		glm::vec3 GetScalingFactor() const;
+		glm::mat4 GetModelMatrix() const;
 		glm::vec3 getPosition() const;
 		glm::mat3 getRotation() const;
 		glm::vec3 getLinearVelocity() const;
@@ -85,7 +77,6 @@ namespace cxc {
 		void setGravityMode(int mode) noexcept;
 		int getGravityMode() const;
 
-		// Joints and joint group
 	public:
 
 		int getJointNum() const;
@@ -108,9 +99,6 @@ namespace cxc {
 
 		// Body ID
 		dBodyID m_BodyID;
-
-		// Pointer to collider
-		std::vector<std::shared_ptr<Collider3D>> Colliders;
 
 		// Gravity mode, 0 - off, 1 - on
 		int m_GravityMode;

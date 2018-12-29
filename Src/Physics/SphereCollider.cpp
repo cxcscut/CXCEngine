@@ -23,6 +23,7 @@ namespace cxc
 	void SphereCollider::CreateSphereColliderGeom(dSpaceID SpaceID, float Radius)
 	{
 		ColliderGeomID = dCreateSphere(SpaceID, Radius);
+		dGeomSetData(ColliderGeomID, reinterpret_cast<void*>(this));
 	}
 
 	float SphereCollider::GetSphereColliderRadius() const

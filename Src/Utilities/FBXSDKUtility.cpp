@@ -324,7 +324,7 @@ namespace cxc {
 			std::vector<glm::vec3> Normals;
 			std::vector<glm::vec2> UVs;
 			std::vector<uint32_t> Indices;
-			std::map<VertexIndexPacket, uint32_t> VertexIndexingMap;
+			std::map<VertexIndexPacket, size_t> VertexIndexingMap;
 
 			FbxStringList UVNames;
 			pMesh->GetUVSetNames(UVNames);

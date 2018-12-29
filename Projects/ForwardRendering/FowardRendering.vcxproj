@@ -22,6 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{3949E5B0-69C9-4865-B282-3EEC9BAA1CF0}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -65,13 +66,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)..\..\Externals\FBX-SDK\include;$(ProjectDir)..\..\Externals\;$(ProjectDir)..\..\Externals\OpenGL\Include;$(ProjectDir)..\..\Include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)..\..\Externals\FBX-SDK\lib\vs2015\x86\debug;$(ProjectDir)..\..\Externals\ode;$(ProjectDir)..\..\Externals\OpenGL\Lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\lib\vs2017\x86\debug;$(ProjectDir)..\..\Externals\FBX-SDK\lib\vs2015\x86\debug;$(ProjectDir)..\..\Externals\ode;$(ProjectDir)..\..\Externals\OpenGL\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.15063.0\um;G:\CXCEngine\Include;$(IncludePath)</IncludePath>
+    <IncludePath>G:\CXCEngine\Externals\FBX-SDK\include;G:\CXCEngine\Externals;C:\Program Files %28x86%29\Windows Kits\10\Include\10.0.15063.0\um;G:\CXCEngine\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>G:\CXCEngine\Externals\ode;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.15063.0\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -85,7 +87,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>libfbxsdk-md.lib; glfw3.lib; glew32.lib; oded.lib; kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;glfw3.lib;glew32.lib;oded.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -103,13 +105,21 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <AdditionalDependencies>glfw3.lib;glew32.lib;oded.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Src\Animation\AnimKeyFrame.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimContext.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimCurve.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimLayer.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimStack.cpp" />
+    <ClCompile Include="..\..\Src\Components\CCameraComponent.cpp" />
+    <ClCompile Include="..\..\Src\Components\CColliderComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CComponent.cpp" />
+    <ClCompile Include="..\..\Src\Components\CLightComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CRigidBodyComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CSceneComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CStaticMeshComponent.cpp" />
@@ -159,7 +169,10 @@
     <ClInclude Include="..\..\Include\Animation\AnimKeyFrame.h" />
     <ClInclude Include="..\..\Include\Animation\AnimLayer.h" />
     <ClInclude Include="..\..\Include\Animation\AnimStack.h" />
+    <ClInclude Include="..\..\Include\Components\CCameraComponent.h" />
+    <ClInclude Include="..\..\Include\Components\CColliderComponent.h" />
     <ClInclude Include="..\..\Include\Components\CComponent.h" />
+    <ClInclude Include="..\..\Include\Components\CLightComponent.h" />
     <ClInclude Include="..\..\Include\Components\CRigidBodyComponent.h" />
     <ClInclude Include="..\..\Include\Components\CSceneComponent.h" />
     <ClInclude Include="..\..\Include\Components\CStaticMeshComponent.h" />

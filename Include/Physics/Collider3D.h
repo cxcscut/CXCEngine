@@ -15,8 +15,15 @@ namespace cxc {
 
 	class RigidBody3D;
 
+	enum class eCollisionChannel : uint16_t
+	{
+		CollisionFree = 0,
+		WorldStatic = 1,
+		WorldDynamic = 2
+	};
+
 	/* Collider3D is the base class for all the collider class */
-	class CXC_ENGINECORE_API Collider3D
+	class CXC_ENGINECORE_API Collider3D : public std::enable_shared_from_this<Collider3D>
 	{
 
 	public:
@@ -25,7 +32,7 @@ namespace cxc {
 		virtual ~Collider3D();
 
 	public:
-
+		
 		void EnableGeom() noexcept;
 		void DisableGeom() noexcept;
 		bool isGeomEnable() const noexcept;
@@ -41,7 +48,17 @@ namespace cxc {
 		dSpaceID GetGeomSpace() const noexcept;
 		dGeomID GetColliderGeomID() const noexcept { return ColliderGeomID; };
 
+	public:
+
+		eCollisionChannel GetCollisionChannel() const { return CollisionChannel; }
+		void SetCollisionChannel(eCollisionChannel Channel) { CollisionChannel = Channel; }
+
+		virtual void CollisionCallback(std::shared_ptr<Collider3D> TargetCollider) {};
+
 	protected:
+
+		// Collision channel of the Collider
+		eCollisionChannel CollisionChannel;
 
 		// Weak pointer back to the rigidbody that bind to it
 		std::weak_ptr<RigidBody3D> pOwnerRigidBody;

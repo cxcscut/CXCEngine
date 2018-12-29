@@ -4,11 +4,11 @@
 using namespace cxc;
 
 // Forward render shaders
-static const std::string ForwardRenderVSPath = "G:\\cxcengine\\Src\\GLSL\\ForwardRendering\\ForwardRenderVS.glsl";
-static const std::string ForwardRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\ForwardRendering\\ForwardRenderFS.glsl";
+static const std::string ForwardRenderVSPath = "G:\\CXCEngine\\Src\\GLSL\\ForwardRendering\\ForwardRenderVS.glsl";
+static const std::string ForwardRenderFSPath = "G:\\CXCEngine\\Src\\GLSL\\ForwardRendering\\ForwardRenderFS.glsl";
 
-static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
-static const std::string HumanoidScene = "G:\\cxcengine\\Projects\\Models\\humanoid.fbx";
+static const std::string SceneFBXFile = "G:\\CXCEngine\\Projects\\Models\\EN_Building_H_03.FBX";
+static const std::string HumanoidScene = "G:\\CXCEngine\\Projects\\Models\\humanoid.fbx";
 
 std::shared_ptr<SubMeshRenderer> CreateForwardRender();
 void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CObject>>& Objects);
@@ -18,7 +18,7 @@ int main()
 {
 	glm::vec3 CameraPos = glm::vec3(50, 50, 50);
 	glm::vec3 CameraOrigin = glm::vec3(0, 0, 0);
-	glm::vec3 CameraUpVector = glm::vec3(0, 0, 1);
+	glm::vec3 CameraUpVector = glm::vec3(0, 0, 1); 
 	glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 10000.0f);
 
 	DisplayParameters DisplayConf;

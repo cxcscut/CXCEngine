@@ -27,17 +27,4 @@ namespace cxc
 	{
 		CActor::Tick(DeltaSeconds);
 	}
-
-	void CPawn::PhysicsTick(float DeltaSeconds)
-	{
-		// Tick the RigidBodyComponent
-		for (auto Component : AttachedComponents)
-		{
-			auto RigidBodyComponent = std::dynamic_pointer_cast<CRigidBodyComponent>(Component);
-			if (RigidBodyComponent)
-			{
-				RigidBodyComponent->PhysicsTick(DeltaSeconds);
-			}
-		}
-	}
 }

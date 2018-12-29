@@ -17,51 +17,19 @@ namespace cxc {
 	{
 		if (m_BodyID)
 		{	
-			Colliders.clear();
 			dBodyDestroy(m_BodyID);
 		}
 	}
 
-	std::shared_ptr<Collider3D> RigidBody3D::GetCollider3D(size_t Index) 
-	{
-		if (Index >= Colliders.size())
-			return nullptr;
-		else
-			return Colliders[Index];
-	}
-
-	void RigidBody3D::AttachCollider(dSpaceID space, std::shared_ptr<Collider3D> pCollider)
-	{
-		if (pCollider)
-		{
-			pCollider->BindRigidBody(shared_from_this());
-			Colliders.push_back(pCollider);
-		}
-	}
-
-	void RigidBody3D::DetachCollider(dSpaceID space, std::shared_ptr<Collider3D> pCollider)
-	{
-		for (auto Iter = Colliders.end() - 1; Iter >= Colliders.begin(); --Iter)
-		{
-			if (*Iter == pCollider)
-			{
-				Colliders.erase(Iter);
-			}
-		}
-	}
-
-	void RigidBody3D::CreateRigidBody(dWorldID world,void *user_data) noexcept
+	void RigidBody3D::CreateRigidBody(dWorldID world) noexcept
 	{
 		m_WorldID = world;
 
 		m_BodyID = dBodyCreate(m_WorldID);
 		
-		dBodySetData(m_BodyID, user_data);
-
 		dBodySetGravityMode(m_BodyID, m_GravityMode);
 
 		Initialized = true;
-
 	}
 
 	void RigidBody3D::SetScalingFactor(const glm::vec3& NewScalingFactor) noexcept
@@ -77,12 +45,6 @@ namespace cxc {
 	void RigidBody3D::setPosition(dReal x, dReal y, dReal z) noexcept
 	{
 		dBodySetPosition(m_BodyID, x, y, z);
-
-		// Set position for all the colliders
-		for (auto pCollider : Colliders)
-		{
-			pCollider->SetColliderPosition(x, y, z);
-		}
 	}
 
 	void RigidBody3D::setRotation(const glm::mat3 rot) noexcept
@@ -92,12 +54,6 @@ namespace cxc {
 							rot[0][2],rot[1][2],rot[2][2],0};
 
 		dBodySetRotation(m_BodyID, RotMatrix);
-
-		// Set rotation for all the colliders
-		for (auto pCollider : Colliders)
-		{
-			pCollider->SetColliderRotation(RotMatrix);
-		}
 	}
 
 	void RigidBody3D::setLinearVelocity(dReal x, dReal y, dReal z) noexcept
@@ -110,6 +66,19 @@ namespace cxc {
 	{
 
 		dBodySetAngularVel(m_BodyID,x,y,z);
+	}
+
+	glm::mat4 RigidBody3D::GetModelMatrix() const
+	{
+		glm::mat4 ModelMatrix = getRotation();
+		glm::vec3 Pos = getPosition();
+
+		ModelMatrix[3][3] = 1;
+		ModelMatrix[3][0] = Pos.x;
+		ModelMatrix[3][1] = Pos.y;
+		ModelMatrix[3][2] = Pos.z;
+
+		return ModelMatrix;
 	}
 
 	glm::vec3 RigidBody3D::getPosition() const

@@ -63,5 +63,4 @@ namespace cxc {
 	{
 		return dGeomIsEnabled(ColliderGeomID);
 	}
-
 }

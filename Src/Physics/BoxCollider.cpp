@@ -15,6 +15,7 @@ namespace cxc
 	void BoxCollider::CreateBoxColliderGeom(dSpaceID SpaceID, const glm::vec3& Extents)
 	{
 		ColliderGeomID = dCreateBox(SpaceID, Extents.x * 2, Extents.y * 2, Extents.z * 2);
+		dGeomSetData(ColliderGeomID, reinterpret_cast<void*>(this));
 	}
 
 	void BoxCollider::ModifyBoxColliderExtents(const glm::vec3& NewExtents)

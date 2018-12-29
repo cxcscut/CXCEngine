@@ -62,8 +62,6 @@ namespace cxc
 
 		// Gravity vector
 		glm::vec3 Gravity;
-		
-		bool Collision;
 
 	};
 }
