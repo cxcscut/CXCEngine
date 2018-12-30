@@ -8,6 +8,7 @@ namespace cxc
 {
 	class CComponent;
 	class LightSource;
+	class LightActor;
 
 	/* A CActor is the base class for all the placeable object in the world */
 	class CXC_ENGINECORE_API CActor : public CObject, public std::enable_shared_from_this<CActor>
@@ -41,37 +42,8 @@ namespace cxc
 
 	public:
 
-		template<class RootComponentClass>
-		void SetRootComponent(std::shared_ptr<RootComponentClass> Root)
-		{
-			if (Root && AttachComponent<RootComponentClass>(Root))
-			{
-				RootComponent = Root;
-				RootComponent->SetOwnerObject(shared_from_this());
-			}
-		}
-
-		template<class ComponentClass>
-		bool AttachComponent(std::shared_ptr<ComponentClass> InComponent)
-		{
-			bool bComponentClassTypeExist = false;
-			for (auto Component : AttachedComponents)
-			{
-				bComponentClassTypeExist |= std::dynamic_pointer_cast<ComponentClass>(Component) != nullptr;
-			}
-
-			if (!bComponentClassTypeExist)
-			{
-				auto pComponent = std::dynamic_pointer_cast<CComponent>(InComponent);
-				if (pComponent != nullptr)
-				{
-					AttachedComponents.push_back(InComponent);
-					return true;
-				}
-			}
-
-			return false;
-		}
+		void SetRootComponent(std::shared_ptr<CComponent> Root);
+		bool AttachComponent(std::shared_ptr<CComponent> InComponent);
 
 	protected:
 

@@ -1,5 +1,8 @@
 #include "CXCEngine.h"
 #include "Rendering/ForwardRenderer.h"
+#include "Scene/SceneContext.h"
+#include "Actor/CLightActor.h"
+#include "Actor/CCameraActor.h"
 
 using namespace cxc;
 
@@ -12,7 +15,7 @@ static const std::string HumanoidScene = "G:\\CXCEngine\\Projects\\Models\\human
 
 std::shared_ptr<SubMeshRenderer> CreateForwardRender();
 void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CActor>>& Objects);
-std::vector<std::shared_ptr<CActor>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes);
+std::vector<std::shared_ptr<CActor>> CreateActors(std::shared_ptr<SceneContext> Context);
 
 int main()
 {
@@ -37,20 +40,31 @@ int main()
 	auto pRenderer = CreateForwardRender();
 	pRendererMgr->AddRenderer(pRenderer);
 
-	pSceneManager->AddCamera("MainCamera", CameraPos, CameraOrigin, CameraUpVector, ProjectionMatrix);
+	auto pCamera = NewObject<Camera>();
+	pCamera->CameraName = "MainCamera";
+	pCamera->EyePosition = CameraPos;
+	pCamera->CameraOrigin = CameraOrigin;
+	pCamera->UpVector = CameraUpVector;
+	pCamera->SetAllMatrix(glm::lookAt(CameraPos, CameraOrigin, CameraUpVector), ProjectionMatrix);
+	pCamera->ComputeAngles();
+	pCamera->ComputeViewMatrix();
+	auto pCameraActor = NewObject<CCameraActor>();
+	pCameraActor->SetCamera(pCamera);
+	pWorld->AddActor(pCameraActor);
+
 	pSceneManager->SetCameraActive(pSceneManager->GetCamera(0));
 
-	std::vector<std::shared_ptr<Mesh>> OutMeshes;
-	bool bResult = pSceneManager->LoadSceneFromFBX(SceneFBXFile, OutMeshes);
-	auto Objects = CreateObjects(OutMeshes);
+	auto SceneContextCache = NewObject<SceneContext>();
+	bool bResult = pWorld->LoadSceneFromFBX(SceneFBXFile, SceneContextCache);
+	auto Actors = CreateActors(SceneContextCache);
 	if (bResult)
 	{
-		BindSubMeshRenderer(pRenderer, Objects);
+		BindSubMeshRenderer(pRenderer, Actors);
 	}
 
-	for (auto Object : Objects)
+	for (auto Actor : Actors)
 	{
-		pWorld->AddActor(Object);
+		pWorld->AddActor(Actor);
 	}
 
 	// Start engine
@@ -59,20 +73,46 @@ int main()
 	return 0;
 }
 
-std::vector<std::shared_ptr<CActor>> CreateObjects(const std::vector<std::shared_ptr<Mesh>>& Meshes)
+std::vector<std::shared_ptr<CActor>> CreateActors(std::shared_ptr<SceneContext> Context)
 {
 	auto pSceneManager = SceneManager::GetInstance();
-	std::vector<std::shared_ptr<CActor>> RetObjects;
+	std::vector<std::shared_ptr<CActor>> RetActors;
 
-	for (auto pMesh : Meshes)
+	// Create actor
+	for (auto pMesh : Context->Meshes)
 	{
-		auto Object = NewObject<CActor>(pMesh->GetMeshName());
-		auto StaticMeshComponent = NewObject<CStaticMeshComponent>(pMesh);
-		Object->AttachComponent<CStaticMeshComponent>(StaticMeshComponent);
-		RetObjects.push_back(Object);
+		if (pMesh)
+		{
+			auto Actor = NewObject<CActor>(pMesh->GetMeshName());
+			auto StaticMeshComponent = NewObject<CStaticMeshComponent>(pMesh);
+			Actor->AttachComponent(StaticMeshComponent);
+			RetActors.push_back(Actor);
+		}
 	}
 
-	return RetObjects;
+	// Create light actor
+	for (auto pLight : Context->Lights)
+	{
+		if (pLight)
+		{
+			auto LightActor = NewObject<CLightActor>(pLight->GetLightName());
+			LightActor->SetLight(pLight);
+			RetActors.push_back(LightActor);
+		}
+	}
+
+	// Create camera actor
+	for (auto pCamera : Context->Cameras)
+	{
+		if (pCamera)
+		{
+			auto CameraActor = NewObject<CCameraActor>(pCamera->CameraName);
+			CameraActor->SetCamera(pCamera);
+			RetActors.push_back(CameraActor);
+		}
+	}
+
+	return RetActors;
 }
 
 void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CActor>>& Objects)

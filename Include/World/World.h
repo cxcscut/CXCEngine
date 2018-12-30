@@ -22,6 +22,8 @@
 
 namespace cxc {
 
+	class SceneContext;
+
 	const float FixedDeltaSeconds_30FPS = 0.3333f;
 	const float FixedDeltaSeconds_60FPS = 0.1667f;
 
@@ -89,9 +91,6 @@ namespace cxc {
 		void WorldLooping() noexcept;
 
 		void run() noexcept;
-		
-		// Tick manager
-	public:
 
 		void Tick();
 
@@ -99,6 +98,11 @@ namespace cxc {
 
 		void AddActor(std::shared_ptr<CActor> Actor);
 		void RemoveActor(std::shared_ptr<CActor> Actor);
+
+	public:
+
+		bool LoadSceneFromFBX(const std::string& filepath, std::shared_ptr<SceneContext> OutSceneContext) noexcept;
+		void ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept;
 
 	private:
 

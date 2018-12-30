@@ -5,7 +5,7 @@ namespace cxc
 {
 	CComponent::CComponent()
 	{
-
+		pOwnerObject.reset();
 	}
 
 	CComponent::~CComponent()

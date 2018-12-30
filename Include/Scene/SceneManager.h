@@ -41,12 +41,6 @@ namespace cxc {
 		SceneManager& operator=(const SceneManager&) = delete;
 		SceneManager& operator=(const SceneManager&&) = delete;
 
-	// Scene loading from fbx file via FBX SDKs
-	public :
-
-		bool LoadSceneFromFBX(const std::string& filepath, std::vector<std::shared_ptr<Mesh>>& OutMeshes) noexcept;
-		void ProcessSceneNode(FbxNode* pNode, std::vector<std::shared_ptr<Mesh>>& OutMeshes) noexcept;
-
 	public:
 
 		// Delete object
@@ -65,7 +59,8 @@ namespace cxc {
 
 		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& TargetPos, float LightIntensity, eLightType Type);
 		void AddLight(std::shared_ptr<LightSource> pNewLight);
-		void RemoveLight(const std::string& LightName);
+		void RemoveLight(std::shared_ptr<LightSource> pLight);
+		void RemoveCamera(std::shared_ptr<Camera> pCamera);
 		const std::vector<std::shared_ptr<LightSource>>& GetLightsArray() const { return Lights; }
 		std::shared_ptr<LightSource> GetLight(uint32_t LightIndex);
 		std::shared_ptr<LightSource> GetLight(const std::string& LightName);

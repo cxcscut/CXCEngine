@@ -52,12 +52,8 @@
 
 namespace cxc {
 
-	// pre-declaration of Shape
-	class Shape;
-
 	typedef GLint KeyType;
 
-	using ObjectTree = MultiTree<std::shared_ptr<Shape>>;
 	using TokenTree = MultiTree<std::string>;
 
 	typedef struct Color {

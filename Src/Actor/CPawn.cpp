@@ -9,7 +9,7 @@ namespace cxc
 	{
 		// Create RigidBodyComponent and attach it to the pawn
 		auto RigidBodyComponent = NewObject<CRigidBodyComponent>();
-		SetRootComponent<CRigidBodyComponent>(RigidBodyComponent);
+		SetRootComponent(std::dynamic_pointer_cast<CComponent>(RigidBodyComponent));
 	}
 
 	CPawn::~CPawn()

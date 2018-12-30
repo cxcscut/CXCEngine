@@ -1,5 +1,6 @@
 #include "World/World.h"
 #include "Scene/SceneManager.h"
+#include "Scene/SceneContext.h"
 #include "Components/CStaticMeshComponent.h"
 #include "Components/CLightComponent.h"
 #include "Components/CCameraComponent.h"
@@ -102,10 +103,6 @@ namespace cxc {
 
 	void World::run() noexcept
 	{
-
-		// Contruct octree
-		// pSceneMgr->BuildOctree();
-
 		// Initialize the start time of the world
 		WorldStartSeconds = std::chrono::system_clock::now();
 		auto CurrentWorldSeconds = GetWorldSeconds();
@@ -234,6 +231,99 @@ namespace cxc {
 		}
 	}
 
+	void World::ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept
+	{
+		if (!pRootNode || !OutSceneContext)
+			return;
+
+		if (pRootNode->GetNodeAttribute() != nullptr)
+		{
+			auto pPhysicalWorld = PhysicalWorld::GetInstance();
+			FbxNodeAttribute::EType AttributeType;
+			AttributeType = pRootNode->GetNodeAttribute()->GetAttributeType();
+
+			switch (AttributeType)
+			{
+			default:
+				break;
+
+			case FbxNodeAttribute::eMesh:
+			{
+				std::vector<std::shared_ptr<Mesh>> LoadedMeshes;
+				FbxAMatrix lGlobalPosition;
+				bool bMeshLoadingRes = FBXSDKUtil::GetMeshFromNode(pRootNode, LoadedMeshes, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalPosition);
+				if (!bMeshLoadingRes)
+				{
+					std::cout << "SceneManager::ProcessSceneNode, Failed to load the mesh" << std::endl;
+				}
+				else
+				{
+					for (auto pMeshes : LoadedMeshes)
+					{
+						OutSceneContext->Meshes.push_back(pMeshes);
+					}
+				}
+				break;
+			}
+
+			case FbxNodeAttribute::eLight:
+			{
+				std::vector<std::shared_ptr<LightSource>> LoadedLights;
+				FbxAMatrix lGlobalPosition;
+				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
+				if (!bLightLoadingRes)
+				{
+					std::cout << "SceneManager::ProcessSceneNode, Failed to load the lights" << std::endl;
+				}
+				else
+				{
+					for (auto pNewLight : LoadedLights)
+					{
+						OutSceneContext->Lights.push_back(pNewLight);
+					}
+				}
+
+				break;
+			}
+
+			}
+		}
+
+		// Process the child node
+		int ChildNodeCount = pRootNode->GetChildCount();
+		for (int i = 0; i < ChildNodeCount; ++i)
+		{
+			ProcessSceneNode(pRootNode->GetChild(i), OutSceneContext);
+		}
+	}
+
+	bool World::LoadSceneFromFBX(const std::string& filepath, std::shared_ptr<SceneContext> OutSceneContext) noexcept
+	{
+		FbxManager* pSdkManager = nullptr;
+		FbxScene* pScene = nullptr;
+		bool bSuccessfullyLoadedScene = false;
+
+		// Initialize the FBX SDK
+		FBXSDKUtil::InitializeSDKObjects(pSdkManager, pScene);
+		bSuccessfullyLoadedScene = FBXSDKUtil::LoadScene(pSdkManager, pScene, filepath.c_str());
+		if (!bSuccessfullyLoadedScene)
+		{
+			FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
+			return false;
+		}
+
+		// Clear cache of the context
+		OutSceneContext->ClearCache();
+
+		// Process node from the root node of the scene
+		ProcessSceneNode(pScene->GetRootNode(), OutSceneContext);
+
+		// Destroy all the objects created by the FBX SDK
+		FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
+
+		return true;
+	}
+
 	void World::RemoveActor(std::shared_ptr<CActor> Actor)
 	{
 		if (Actor)
@@ -242,6 +332,23 @@ namespace cxc {
 			if (Iter != ActorMap.end())
 			{
 				ActorMap.erase(Iter);
+			}
+
+			size_t ComponentCount = Actor->GetComponentCount();
+			for (size_t Index = 0; Index < ComponentCount; ++Index)
+			{
+				auto CameraComponent = std::dynamic_pointer_cast<CCameraComponent>(Actor->GetComponent(Index));
+				auto LightComponent = std::dynamic_pointer_cast<CLightComponent>(Actor->GetComponent(Index));
+				if (CameraComponent)
+				{
+					// Remove the camera if it has the CameraComponent
+					pSceneMgr->RemoveCamera(CameraComponent->GetCamera());
+				}
+				else if (LightComponent)
+				{
+					// Remove the light if it has the LightComponent
+					pSceneMgr->RemoveLight(LightComponent->GetLight());
+				}
 			}
 		}
 	}

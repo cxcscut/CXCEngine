@@ -12,8 +12,7 @@
 
 namespace cxc
 {
-
-	class CXC_ENGINECORE_API FBXSDKUtil
+	class CXC_ENGINECORE_API FBXSDKUtil final
 	{
 
 	public:
@@ -47,7 +46,7 @@ namespace cxc
 			const char * pFactorPropertyName,
 			GLuint& pTextureName);
 
-		static bool GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Mesh>>& OutObjects, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode = nullptr);
+		static bool GetMeshFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Mesh>>& OutMeshes, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode = nullptr);
 		static void GetTexturesFromMaterial(FbxSurfaceMaterial* pSurfaceMaterial, std::vector<std::shared_ptr<Texture2D>>& OutTextures);
 
 	private:

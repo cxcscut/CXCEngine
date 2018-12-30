@@ -12,7 +12,12 @@ namespace cxc
 	{
 	public:
 		CLightActor();
+		CLightActor(const std::string& Name);
 		virtual ~CLightActor();
+
+	public:
+
+		virtual void Tick(float DeltaSeconds) override;
 
 	public:
 

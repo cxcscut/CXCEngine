@@ -15,7 +15,6 @@ namespace cxc {
 	class ShadowRenderer;
 	class MaterialManager;
 	class TextureManager;
-	class Shape;
 	class Material;
 	class RendringPipeline;
 	class World;

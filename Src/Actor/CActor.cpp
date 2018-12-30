@@ -38,4 +38,24 @@ namespace cxc
 				Component->Tick(DeltaSeconds);
 		}
 	}
+
+	void CActor::SetRootComponent(std::shared_ptr<CComponent> Root)
+	{
+		if (Root != nullptr && AttachComponent(Root))
+		{
+			RootComponent = Root;
+			RootComponent->SetOwnerObject(shared_from_this());
+		}
+	}
+
+	bool CActor::AttachComponent(std::shared_ptr<CComponent> InComponent)
+	{
+		if (InComponent != nullptr)
+		{
+			AttachedComponents.push_back(InComponent);
+			return true;
+		}
+
+		return false;
+	}
 }

@@ -29,6 +29,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -154,6 +155,7 @@
     <ClCompile Include="..\..\src\Geometry\SubMesh.cpp" />
     <ClCompile Include="..\..\src\Geometry\Mesh.cpp" />
     <ClCompile Include="..\..\Src\Actor\CPawn.cpp" />
+    <ClCompile Include="..\..\Src\Scene\SceneContext.cpp" />
     <ClCompile Include="..\..\src\scene\SceneManager.cpp" />
     <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
     <ClCompile Include="..\..\Src\Systems\CMovementCtrlSystem.cpp" />
@@ -167,6 +169,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\Actor\CActor.h" />
     <ClInclude Include="..\..\Include\Actor\CCameraActor.h" />
     <ClInclude Include="..\..\Include\Actor\CLightActor.h" />
     <ClInclude Include="..\..\Include\Animation\AnimContext.h" />
@@ -207,11 +210,11 @@
     <ClInclude Include="..\..\Include\Rendering\ShadowRenderer.h" />
     <ClInclude Include="..\..\include\rendering\ShadowRenderPipeline.h" />
     <ClInclude Include="..\..\include\scene\Camera.h" />
-    <ClInclude Include="..\..\Include\Actor\CActor.h" />
     <ClInclude Include="..\..\include\scene\Lighting.h" />
     <ClInclude Include="..\..\include\Geometry\SubMesh.h" />
     <ClInclude Include="..\..\include\Geometry\Mesh.h" />
     <ClInclude Include="..\..\Include\Actor\CPawn.h" />
+    <ClInclude Include="..\..\Include\Scene\SceneContext.h" />
     <ClInclude Include="..\..\include\scene\SceneManager.h" />
     <ClInclude Include="..\..\include\script\ScriptParser.h" />
     <ClInclude Include="..\..\Include\Systems\CMovementCtrlSystem.h" />

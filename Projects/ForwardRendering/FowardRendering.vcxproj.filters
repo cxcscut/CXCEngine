@@ -177,6 +177,9 @@
     <ClCompile Include="..\..\Src\Components\CAnimComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Src\Scene\SceneContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\CXCEngine.h">
@@ -326,9 +329,6 @@
     <ClInclude Include="..\..\Include\Components\CColliderComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\Actor\CActor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Include\Core\EngineTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -342,6 +342,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\Components\CAnimComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Scene\SceneContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Actor\CActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

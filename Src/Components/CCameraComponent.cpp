@@ -11,6 +11,6 @@ namespace cxc
 
 	CCameraComponent::~CCameraComponent()
 	{
-
+		pCamera = nullptr;
 	}
 }

@@ -12,7 +12,12 @@ namespace cxc
 	{
 	public :
 		CCameraActor();
+		CCameraActor(const std::string& Name);
 		virtual ~CCameraActor();
+
+	public:
+
+		virtual void Tick(float DeltaSeconds) override;
 
 	public:
 		

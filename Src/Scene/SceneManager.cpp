@@ -86,96 +86,6 @@ namespace cxc {
 			MeshMap.insert(std::make_pair(pMesh->GetMeshName(), pMesh));
 	}
 
-	void SceneManager::ProcessSceneNode(FbxNode* pRootNode, std::vector<std::shared_ptr<Mesh>>& OutMeshes)  noexcept
-	{
-		if (!pRootNode)
-			return;
-
-		if (pRootNode->GetNodeAttribute() != nullptr)
-		{
-			auto pPhysicalWorld = PhysicalWorld::GetInstance();
-			FbxNodeAttribute::EType AttributeType;
-			AttributeType = pRootNode->GetNodeAttribute()->GetAttributeType();
-
-			switch (AttributeType)
-			{
-			default:
-				break;
-
-			case FbxNodeAttribute::eMesh:
-			{
-				std::vector<std::shared_ptr<Mesh>> LoadedMeshes;
-				FbxAMatrix lGlobalPosition;
-				bool bMeshLoadingRes = FBXSDKUtil::GetObjectFromNode(pRootNode, LoadedMeshes, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalPosition);
-				if (!bMeshLoadingRes)
-				{
-					std::cout << "SceneManager::ProcessSceneNode, Failed to load the mesh" << std::endl;
-				}
-				else
-				{
-					for (auto pMeshes : LoadedMeshes)
-					{
-						OutMeshes.emplace_back(pMeshes);
-					}
-				}
-				break;
-			}
-
-			case FbxNodeAttribute::eLight:
-			{
-				std::vector<std::shared_ptr<LightSource>> LoadedLights;
-				FbxAMatrix lGlobalPosition;
-				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
-				if (!bLightLoadingRes)
-				{
-					std::cout << "SceneManager::ProcessSceneNode, Failed to load the lights" << std::endl;
-				}
-				else
-				{
-					for (auto pNewLight : LoadedLights)
-					{
-						AddLight(pNewLight);
-					}
-				}
-
-				break;
-			}
-
-			}
-		}
-
-		// Process the child node
-		int ChildNodeCount = pRootNode->GetChildCount();
-		for (int i = 0; i < ChildNodeCount; ++i)
-		{
-			ProcessSceneNode(pRootNode->GetChild(i), OutMeshes);
-		}
-	}
-
-	bool SceneManager::LoadSceneFromFBX(const std::string& filepath, std::vector<std::shared_ptr<Mesh>>& OutMeshes) noexcept
-	{
-		FbxManager* pSdkManager = nullptr;
-		FbxScene* pScene = nullptr;
-		bool bSuccessfullyLoadedScene = false;
-
-		// Initialize the FBX SDK
-		FBXSDKUtil::InitializeSDKObjects(pSdkManager, pScene);
-		bSuccessfullyLoadedScene = FBXSDKUtil::LoadScene(pSdkManager, pScene, filepath.c_str());
-		if (!bSuccessfullyLoadedScene)
-		{
-			FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
-			return false;
-		}
-		
-		// Process node from the root node of the scene
-		ProcessSceneNode(pScene->GetRootNode(), OutMeshes);
-
-		// Destroy all the objects created by the FBX SDK
-		FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
-
-		return true;
-	}
-
 	void SceneManager::RenderScene() noexcept
 	{
 		// Clear the renderer context for the current rendering
@@ -213,16 +123,30 @@ namespace cxc {
 		}
 	}
 
-	void SceneManager::RemoveLight(const std::string& LightName)
+	void SceneManager::RemoveCamera(std::shared_ptr<Camera> pCamera)
 	{
-		for (auto iter = Lights.begin(); iter != Lights.end(); ++iter)
+		for (auto Iter = Cameras.end() - 1; Iter >= Cameras.begin(); --Iter)
 		{
-			if ((*iter)->GetLightName() == LightName)
+			if ((*Iter) == pCamera)
 			{
-				Lights.erase(iter);
-				Lights.shrink_to_fit();
+				Cameras.erase(Iter);
 			}
 		}
+
+		Cameras.shrink_to_fit();
+	}
+
+	void SceneManager::RemoveLight(std::shared_ptr<LightSource> pLight)
+	{
+		for (auto iter = Lights.end() - 1; iter >= Lights.begin(); --iter)
+		{
+			if ((*iter) == pLight)
+			{
+				Lights.erase(iter);
+			}
+		}
+
+		Lights.shrink_to_fit();
 	}
 
 	std::shared_ptr<LightSource> SceneManager::GetLight(uint32_t LightIndex)
@@ -250,6 +174,9 @@ namespace cxc {
 
 	void SceneManager::AddLight(std::shared_ptr<LightSource> pNewLight)
 	{
+		if (!pNewLight)
+			return;
+
 		bool bIsLightExist = false;
 		for (auto pLight : Lights)
 		{

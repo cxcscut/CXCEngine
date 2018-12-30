@@ -169,12 +169,12 @@ namespace cxc {
 		}
 	}
 
-	bool FBXSDKUtil::GetObjectFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Mesh>>& OutObjects, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode)
+	bool FBXSDKUtil::GetMeshFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Mesh>>& OutMeshes, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode)
 	{
 		if (!pNode)
 			return false;
 
-		bool bHasFoundAnyObject = false;
+		bool bHasFoundAnyMesh = false;
 		std::shared_ptr<Mesh> pNewMesh = nullptr;
 		FbxAMatrix lGlobalOffPosition;
 
@@ -182,7 +182,7 @@ namespace cxc {
 		if (pMesh)
 		{
 			const int lPolygonCount = pMesh->GetPolygonCount();
-			bHasFoundAnyObject = true;
+			bHasFoundAnyMesh = true;
 
 			// Load the material for the object
 			auto pMaterialMgr = MaterialManager::GetInstance();
@@ -530,17 +530,17 @@ namespace cxc {
 			// Set sacling
 			pNewMesh->Scale(glm::vec3(glm::vec3(lGlobalPosition.GetS()[0], lGlobalPosition.GetS()[1], lGlobalPosition.GetS()[2])));
 
-			OutObjects.push_back(pNewMesh);
+			OutMeshes.push_back(pNewMesh);
 		}
 
 		// Recursively traverse each node in the scene
 		int i, lCount = pNode->GetChildCount();
 		for (i = 0; i < lCount; i++)
 		{
-			bHasFoundAnyObject |= GetObjectFromNode(pNode->GetChild(i), OutObjects, WorldID, SpaceID, lGlobalOffPosition, pNewMesh);
+			bHasFoundAnyMesh |= GetMeshFromNode(pNode->GetChild(i), OutMeshes, WorldID, SpaceID, lGlobalOffPosition, pNewMesh);
 		}
 
-		return bHasFoundAnyObject;
+		return bHasFoundAnyMesh;
 	}
 
 	FbxAMatrix FBXSDKUtil::GetGlobalPosition(FbxNode* pNode, const FbxTime& pTime, FbxPose* pPose, FbxAMatrix* pParentGlobalPosition)

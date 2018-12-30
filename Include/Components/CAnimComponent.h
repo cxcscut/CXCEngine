@@ -8,7 +8,7 @@ namespace cxc
 {
 	class AnimContext;
 
-	class CAnimComponent : public CComponent
+	class CXC_ENGINECORE_API CAnimComponent : public CComponent
 	{
 	public:
 		CAnimComponent();
