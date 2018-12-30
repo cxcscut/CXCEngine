@@ -7,6 +7,7 @@ namespace cxc
 {
 	class Mesh;
 	class AnimStack;
+	class CAnimComponent;
 
 	enum class eAnimPlayMode : uint16_t
 	{
@@ -21,17 +22,16 @@ namespace cxc
 	class CXC_ENGINECORE_API AnimContext final
 	{
 	public:
-		AnimContext(std::shared_ptr<Mesh> pObject);
+		AnimContext(std::shared_ptr<CAnimComponent> pAnimComponent);
 		~AnimContext();
 
 	public:
 
 		void SetCurrentActiveAnimStack(std::shared_ptr<AnimStack> pAnimStack) { pCurrentActiveAnimStack = pAnimStack; }
-		void SetOwnerObject(std::shared_ptr<Mesh> pObject);
 		void SetPlayMode(eAnimPlayMode Mode) { PlayMode = Mode; }
 
 		eAnimPlayMode GetPlayMode() const { return PlayMode; }
-		std::shared_ptr<Mesh> GetOwnerCActor();
+		std::shared_ptr<CAnimComponent> GetOwnerComponent();
 		std::shared_ptr<AnimStack> GetCurrentActiveAnimStack() { return pCurrentActiveAnimStack; }
 		std::vector<glm::vec3>&  GetDeformedVertices() { return DeformedVertices; }
 
@@ -50,7 +50,7 @@ namespace cxc
 		float CurrentTime;
 
 		// Weak pointer back to the Mesh that owns the context
-		std::weak_ptr<Mesh> pOwnerMesh;
+		std::weak_ptr<CAnimComponent> pOwnerComponent;
 
 		// Current active animation stack
 		std::shared_ptr<AnimStack> pCurrentActiveAnimStack;

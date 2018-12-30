@@ -9,8 +9,8 @@ namespace cxc
 {
 	class CMovementCtrlSystem;
 
-	/* The LogicFramework is the clas that manipulates all the logic systems */
-	class CXC_LOGIC_API LogicFramework final : public Singleton<LogicFramework>
+	/* The LogicFramework is the base class that manipulates all the logic systems */
+	class CXC_LOGIC_API LogicFramework : public Singleton<LogicFramework>
 	{
 		friend class Singleton<LogicFramework>;
 
@@ -32,12 +32,10 @@ namespace cxc
 
 		void Tick(float DeltaSeconds);
 
-	private:
+	protected:
 
 		// Movement control system
 		std::shared_ptr<CMovementCtrlSystem> MovementCtrlSystem;
-
-	private:
 
 		// Logic frame rates
 		uint32_t LogicFrameRates;

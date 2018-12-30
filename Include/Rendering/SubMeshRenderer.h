@@ -27,7 +27,7 @@ namespace cxc
 
 	public:
 
-		virtual bool InitializeRenderer() = 0;
+		virtual bool InitializeRenderer();
 
 	public:
 
@@ -41,7 +41,9 @@ namespace cxc
 
 	public:
 
-		virtual void Render(std::shared_ptr<RendererContext> Context) = 0;
+		virtual void PreRender(std::shared_ptr<RendererContext> Context) {};
+		virtual void Render(std::shared_ptr<RendererContext> Context) {};
+		virtual void PostRender(std::shared_ptr<RendererContext> Context) {};
 
 	protected:
 
@@ -91,7 +93,7 @@ namespace cxc
 
 	public:
 
-		virtual void Render(std::shared_ptr<RendererContext> Context) {};
+		virtual void Render(std::shared_ptr<RendererContext> Context) {}
 
 	protected:
 

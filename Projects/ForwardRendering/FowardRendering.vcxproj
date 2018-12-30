@@ -118,6 +118,7 @@
     <ClCompile Include="..\..\Src\Animation\AnimCurve.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimLayer.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimStack.cpp" />
+    <ClCompile Include="..\..\Src\Components\CAnimComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CCameraComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CColliderComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CComponent.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="..\..\Include\Animation\AnimKeyFrame.h" />
     <ClInclude Include="..\..\Include\Animation\AnimLayer.h" />
     <ClInclude Include="..\..\Include\Animation\AnimStack.h" />
+    <ClInclude Include="..\..\Include\Components\CAnimComponent.h" />
     <ClInclude Include="..\..\Include\Components\CCameraComponent.h" />
     <ClInclude Include="..\..\Include\Components\CColliderComponent.h" />
     <ClInclude Include="..\..\Include\Components\CComponent.h" />

@@ -47,18 +47,6 @@ namespace cxc
 		}
 	}
 
-	bool DeferredRenderer::InitializeRenderer()
-	{
-		bool bSuccessful = true;
-
-		for (auto Pipeline : RenderingQueue)
-		{
-			bSuccessful &= Pipeline->InitializePipeline();
-		}
-
-		return bSuccessful;
-	}
-
 	void DeferredRenderer::CreateGBufferTextures()
 	{
 		auto pWindowMgr = WindowManager::GetInstance();

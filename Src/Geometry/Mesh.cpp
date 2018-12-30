@@ -273,15 +273,6 @@ namespace cxc {
 		}
 	}
 
-	void Mesh::Tick(float DeltaSeconds)
-	{
-		// Animating 
-		if (pAnimContext)
-		{
-			pAnimContext->Tick(DeltaSeconds);
-		}
-	}
-
 	void Mesh::RotateWithArbitraryAxis(const glm::vec3 &Position, const glm::vec3 &RotationAxis, float Degree) 
 	{
 		// In the global coordinate system, matrix multiplication sequence should be reversed
@@ -305,11 +296,6 @@ namespace cxc {
 				pNode->RotateWithArbitraryAxis(Position, RotationAxis, Degree);
 			}
 		}
-	}
-
-	void Mesh::CreateAnimationContext()
-	{
-		pAnimContext = NewObject<AnimContext>(shared_from_this());
 	}
 
 	CXCRect3D::CXCRect3D(const glm::vec3 &_max, const glm::vec3 &_min) :max(_max), min(_min) {};

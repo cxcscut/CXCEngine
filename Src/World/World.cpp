@@ -146,9 +146,7 @@ namespace cxc {
 
 	void World::RenderingTick()
 	{
-		assert(pSceneMgr != nullptr);
-		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
-		pSceneMgr->Tick(FixedRenderingDeltaSeconds);
+		pSceneMgr->RenderScene();
 	}
 
 	void World::ProcessInput()

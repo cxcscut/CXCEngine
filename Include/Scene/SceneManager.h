@@ -91,8 +91,6 @@ namespace cxc {
 
 	public:
 
-		void Tick(float DeltaSeconds) noexcept;
-
 		void RenderScene() noexcept;
 
 	private:

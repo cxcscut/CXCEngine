@@ -43,18 +43,6 @@ namespace cxc
 		}
 	}
 
-	bool ShadowRenderer::InitializeRenderer()
-	{
-		bool bSuccessful = true;
-
-		for (auto Pipeline : RenderingQueue)
-		{
-			bSuccessful &= Pipeline->InitializePipeline();
-		}
-
-		return bSuccessful;
-	}
-
 	void ShadowRenderer::SetShadowMapResolution(GLuint Size)
 	{
 		DepthMapSize = Size;

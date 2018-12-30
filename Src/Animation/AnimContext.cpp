@@ -2,14 +2,17 @@
 #include "Animation/AnimStack.h"
 #include "Animation/AnimLayer.h"
 #include "Geometry/Mesh.h"
+#include "Components/CAnimComponent.h"
+#include "Components/CStaticMeshComponent.h"
+#include "Actor/CActor.h"
 
 namespace cxc
 {
-	AnimContext::AnimContext(std::shared_ptr<Mesh> pObject):
+	AnimContext::AnimContext(std::shared_ptr<CAnimComponent> pAnimComponent):
 		pCurrentActiveAnimStack(nullptr), CurrentTime(0.0f)
 	{
-		pOwnerMesh.reset();
-		pOwnerMesh = pObject;
+		pOwnerComponent.reset();
+		pOwnerComponent = pAnimComponent;
 	}
 
 	AnimContext::~AnimContext()
@@ -19,25 +22,33 @@ namespace cxc
 
 	void AnimContext::Tick(float DeltaSeconds)
 	{
-		if (pOwnerMesh.expired())
+		CurrentTime += DeltaSeconds;
+
+		if (pOwnerComponent.expired())
 			return;
 
-		if (pCurrentActiveAnimStack && pOwnerMesh.lock())
+		if (pCurrentActiveAnimStack && pOwnerComponent.lock())
 		{
-			CurrentTime += DeltaSeconds;
+			auto OwnerActor = pOwnerComponent.lock()->GetOwnerObject();
+			assert(OwnerActor != nullptr);
 
-			auto SrcVertices = pOwnerMesh.lock()->m_VertexCoords;
-			pCurrentActiveAnimStack->Evaluate(CurrentTime, PlayMode, SrcVertices, DeformedVertices);
+			// Animating static mesh
+			size_t ComponentCount = OwnerActor->GetComponentCount();
+			for (size_t Index = 0; Index < ComponentCount; ++Index)
+			{
+				auto StaticMeshComponent = std::dynamic_pointer_cast<CStaticMeshComponent>(OwnerActor->GetComponent(Index));
+				if (StaticMeshComponent)
+				{
+					auto pStaticMesh = StaticMeshComponent->GetStaticMesh();
+					auto SrcVertices = pStaticMesh->m_VertexCoords;
+					pCurrentActiveAnimStack->Evaluate(CurrentTime, PlayMode, SrcVertices, DeformedVertices);
+				}
+			}
 		}
 	}
 
-	void AnimContext::SetOwnerObject(std::shared_ptr<Mesh> pObject)
+	std::shared_ptr<CAnimComponent> AnimContext::GetOwnerComponent()
 	{
-		pOwnerMesh = pObject;
-	}
-
-	std::shared_ptr<Mesh> AnimContext::GetOwnerCActor()
-	{
-		return pOwnerMesh.lock();
+		return pOwnerComponent.lock();
 	}
 }

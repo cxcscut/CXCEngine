@@ -13,18 +13,16 @@ namespace cxc
 	CStaticMeshComponent::CStaticMeshComponent(std::shared_ptr<Mesh> pMesh)
 		: pStaticMesh(pMesh)
 	{
+
 	}
 
 	CStaticMeshComponent::~CStaticMeshComponent()
 	{
-
+		pStaticMesh = nullptr;
 	}
 
 	void CStaticMeshComponent::Tick(float DeltaSeconds)
 	{
-		// Animating
-		auto pAnimContext = pStaticMesh->GetAnimationContext();
-		if (pAnimContext)
-			pAnimContext->Tick(DeltaSeconds);
+	
 	}
 }

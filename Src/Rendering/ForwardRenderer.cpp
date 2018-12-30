@@ -21,19 +21,6 @@ namespace cxc
 
 	}
 
-	bool ForwardRenderer::InitializeRenderer()
-	{
-		bool bSuccessful = true;
-
-		// Initialize all the pipelines
-		for (auto Pipeline : RenderingQueue)
-		{
-			bSuccessful &= Pipeline->InitializePipeline();
-		}
-
-		return bSuccessful;
-	}
-
 	void ForwardRenderer::Render(std::shared_ptr<RendererContext> Context)
 	{
 		// Use pipeline before submit the uniforms to program

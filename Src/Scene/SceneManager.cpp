@@ -86,18 +86,6 @@ namespace cxc {
 			MeshMap.insert(std::make_pair(pMesh->GetMeshName(), pMesh));
 	}
 
-	void SceneManager::Tick(float DeltaSeconds) noexcept
-	{
-		// Draw the scene
-		RenderScene();
-
-		for (auto pObject : MeshMap)
-		{
-			// Tick
-			pObject.second->Tick(DeltaSeconds);
-		}
-	}
-
 	void SceneManager::ProcessSceneNode(FbxNode* pRootNode, std::vector<std::shared_ptr<Mesh>>& OutMeshes)  noexcept
 	{
 		if (!pRootNode)

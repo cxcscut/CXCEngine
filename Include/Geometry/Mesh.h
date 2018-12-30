@@ -18,7 +18,6 @@ namespace cxc {
 	class Shape;
 	class Material;
 	class RendringPipeline;
-	class AnimContext;
 	class World;
 	class SubMesh;
 
@@ -124,8 +123,6 @@ namespace cxc {
 
 	public:
 
-		virtual void Tick(float DeltaSeconds);
-
 		virtual void AllocateBuffers() noexcept;
 		virtual void ReleaseBuffers() noexcept;
 
@@ -143,11 +140,6 @@ namespace cxc {
 		
 		std::shared_ptr<SubMesh> GetSubMesh(size_t Index);
 		void AddSubMesh(std::shared_ptr<SubMesh> pNewMesh);
-
-	public:
-
-		std::shared_ptr<AnimContext> GetAnimationContext() { return pAnimContext; }
-		void CreateAnimationContext();
 
 	protected:
 
@@ -204,11 +196,6 @@ namespace cxc {
 
 		// ID of VBO, EBO and VAO
 		GLuint  m_VBO[3], m_VAO;
-
-	protected:
-
-		// Animation context
-		std::shared_ptr<AnimContext> pAnimContext;
 	};
 
 }

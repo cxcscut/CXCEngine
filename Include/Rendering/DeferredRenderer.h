@@ -19,10 +19,6 @@ namespace cxc
 
 	public:
 
-		virtual bool InitializeRenderer() override;
-
-	public:
-
 		virtual void Render(std::shared_ptr<RendererContext> Context) override;
 
 	private:

@@ -17,15 +17,11 @@ namespace cxc
 
 	public:
 
-		virtual bool InitializeRenderer() override;
-
-	public:
-
 		virtual void Render(std::shared_ptr<RendererContext> Context) override;
 
 	};
 
-	class ForwardRenderPipeline : public SubMeshRenderPipeline
+	class CXC_ENGINECORE_API ForwardRenderPipeline : public SubMeshRenderPipeline
 	{
 	public:
 

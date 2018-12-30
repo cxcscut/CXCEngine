@@ -1,4 +1,5 @@
 #include "Rendering/SubMeshRenderer.h"
+#include "Rendering/RendererContext.h"
 #include "Scene/SceneManager.h"
 #include "World/World.h"
 
@@ -31,6 +32,18 @@ namespace cxc
 	{
 		Pipeline->SetOwnerRenderer(shared_from_this());
 		RenderingQueue.push_back(Pipeline);
+	}
+
+	bool SubMeshRenderer::InitializeRenderer()
+	{
+		bool bSuccessful = true;
+
+		for (auto Pipeline : RenderingQueue)
+		{
+			bSuccessful &= Pipeline->InitializePipeline();
+		}
+
+		return bSuccessful;
 	}
 
 	void SubMeshRenderer::UsePipeline(std::shared_ptr<SubMeshRenderPipeline> Pipeline)

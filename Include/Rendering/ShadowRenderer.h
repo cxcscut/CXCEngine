@@ -27,10 +27,6 @@ namespace cxc
 
 	public:
 
-		virtual bool InitializeRenderer() override;
-
-	public:
-
 		const CubeMapCameraPose* GetCubeMapPose() const { return CubeMapIterator; }
 		GLuint GetShadowMapFBO() const noexcept;
 		GLuint GetShadowMapSize() const noexcept;
