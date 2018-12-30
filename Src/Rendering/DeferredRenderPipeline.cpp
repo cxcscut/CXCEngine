@@ -41,7 +41,7 @@ namespace cxc
 	void DeferredRenderPipeline::Render(std::shared_ptr<RendererContext> Context)
 	{
 		auto pSceneManager = SceneManager::GetInstance();
-		auto Lights = pSceneManager->GetLightsArray();
+		auto Lights = Context->GetLightsArray();
 
 		// Geometry pass
 		GeometryPass(Context, Lights);

@@ -53,7 +53,7 @@ namespace cxc
 	{
 		auto pWorld = World::GetInstance();
 		auto pSceneManager = SceneManager::GetInstance();
-		auto& Lights = pSceneManager->GetLightsArray();
+		auto& Lights = Context->GetLightsArray();
 		if (Lights.empty())
 			return;
 

@@ -21,17 +21,18 @@ namespace cxc
 
 	public:
 
-		void SetShadingLights(const std::vector<LightSource> Lights) { ShadingLights = Lights; }
+		void SetShadingLights(const std::vector<std::shared_ptr<LightSource>>& Lights) { ShadingLights = Lights; }
 		void AddBindedSubMesh(std::shared_ptr<SubMesh> pSubMesh);
 		void RemoveBindedSubMesh(std::shared_ptr<SubMesh> pSubMesh);
 		
 		std::shared_ptr<SubMeshRenderer> GetRenderer();
 		const std::vector<std::shared_ptr<SubMesh>>& GetBindedSubMeshes() const { return SubMeshes; }
+		const std::vector<std::shared_ptr<LightSource>>& GetLightsArray() const { return ShadingLights; }
 
 	private:
 
 		// Lights need to be shaded
-		std::vector<LightSource> ShadingLights;
+		std::vector<std::shared_ptr<LightSource>> ShadingLights;
 
 		// SubMeshes that binded to the renderer
 		std::vector<std::shared_ptr<SubMesh>> SubMeshes;

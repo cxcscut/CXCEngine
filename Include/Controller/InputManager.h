@@ -31,7 +31,7 @@ namespace cxc {
 
 	public:
 
-		void Tick(float DeltaSeconds);
+		void HandleInput();
 		void ProcessingMouseInput();
 		void ProcessingKeyboardInput();
 

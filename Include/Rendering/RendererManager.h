@@ -53,6 +53,7 @@ namespace cxc {
 
 	private:
 
+		void AddLightToRendererContext(std::vector<std::shared_ptr<LightSource>>, std::shared_ptr<SubMesh> pSubMesh);
 		void AddSubMeshToRendererContext(std::shared_ptr<SubMesh> pSubMesh);
 		void ClearRendererContext();
 

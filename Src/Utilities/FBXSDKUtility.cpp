@@ -665,7 +665,7 @@ namespace cxc {
 
 			// Light intensity
 			pNewLight->LightIntensity = lLight->Intensity.Get();
-			
+
 			// Whether to cast light
 			pNewLight->bCastLight = lLight->CastLight.Get();
 

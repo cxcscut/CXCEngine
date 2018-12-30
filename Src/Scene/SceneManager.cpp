@@ -102,6 +102,7 @@ namespace cxc {
 			{
 				auto pSubMesh = pMesh.second->GetSubMesh(Index);
 				pRendererMgr->AddSubMeshToRendererContext(pSubMesh);
+				pRendererMgr->AddLightToRendererContext(Lights, pSubMesh);
 			}
 		}
 

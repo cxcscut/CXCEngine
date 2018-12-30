@@ -43,7 +43,7 @@ namespace cxc {
 
 	}
 
-	void InputManager::Tick(float DeltaSeconds)
+	void InputManager::HandleInput()
 	{
 		// Processing keyboard input
 		ProcessingKeyboardInput();

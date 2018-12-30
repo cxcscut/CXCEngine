@@ -121,6 +121,8 @@ namespace cxc
 
 	void PhysicalWorld::PhysicsTick(float DeltaSeconds)
 	{
+		std::cout << DeltaSeconds << std::endl;
+
 		if (!bPhysicsPaused)
 		{
 			dSpaceCollide(TopLevelSpace, reinterpret_cast<void*>(this), &PhysicalWorld::nearCallback);

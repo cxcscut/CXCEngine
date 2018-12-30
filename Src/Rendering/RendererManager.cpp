@@ -92,6 +92,20 @@ namespace cxc {
 			RenderersMap.erase(it);
 	}
 
+	void RendererManager::AddLightToRendererContext(std::vector<std::shared_ptr<LightSource>> Lights, std::shared_ptr<SubMesh> pSubMesh)
+	{
+		auto RendererIter = SubMeshRendererBindings.find(pSubMesh);
+		if (RendererIter != SubMeshRendererBindings.end())
+		{
+			auto pRenderer = RendererIter->second;
+			auto ContextIter = RendererContextsMap.find(pRenderer->GetRendererName());
+			if (ContextIter != RendererContextsMap.end())
+			{
+				ContextIter->second->SetShadingLights(Lights);
+			}
+		}
+	}
+
 	void RendererManager::AddSubMeshToRendererContext(std::shared_ptr<SubMesh> pSubMesh)
 	{
 		auto RendererBindingIter = SubMeshRendererBindings.find(pSubMesh);

@@ -7,6 +7,14 @@
 
 namespace cxc {
 
+	auto LogicThreadFunc = [](bool GameOver, std::shared_ptr<World> pWorld)
+	{
+		while (!GameOver && pWorld)
+		{
+			pWorld->LogicTick();
+		}
+	};
+
 	World::World()
 		:
 		GameOver(GL_FALSE),
@@ -107,7 +115,7 @@ namespace cxc {
 		WorldStartSeconds = std::chrono::system_clock::now();
 		auto CurrentWorldSeconds = GetWorldSeconds();
 		LastLogicWorldTickSeconds = CurrentWorldSeconds;
-		LastPhysicalWorldTickSeconds = CurrentWorldSeconds;
+		LastRenderingTickSeconds = CurrentWorldSeconds;
 
 		// Begin event looping
 		WorldLooping();
@@ -143,17 +151,16 @@ namespace cxc {
 
 	void World::RenderingTick()
 	{
+		// clean frame buffer for rendering
+		CleanFrameBuffer();
+
 		pSceneMgr->RenderScene();
 	}
 
 	void World::ProcessInput()
 	{
-		// Input ticking for every rendering frame
-		assert(pSceneMgr != nullptr);
-		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
-
 		// Tick the InputManager
-		InputManager::GetInstance()->Tick(FixedRenderingDeltaSeconds);
+		InputManager::GetInstance()->HandleInput();
 	}
 
 	void World::LogicTick()
@@ -163,18 +170,30 @@ namespace cxc {
 		auto CurrentWorldSeconds = GetWorldSeconds();
 		auto SecondsBetweenFrames = CurrentWorldSeconds - LastLogicWorldTickSeconds;
 		auto FixedLogicDeltaSeconds = 1 / static_cast<float>(m_LogicFramework->GetLogicFrameRates());
+
 		if (SecondsBetweenFrames >= FixedLogicDeltaSeconds)
 		{
-			LastLogicWorldTickSeconds = CurrentWorldSeconds - SecondsBetweenFrames + FixedLogicDeltaSeconds;
+			LastLogicWorldTickSeconds = CurrentWorldSeconds;
 
-			m_LogicFramework->Tick(FixedLogicDeltaSeconds);
+			m_LogicFramework->Tick(SecondsBetweenFrames);
 
 			// Tick all the actor
 			for (auto ActorPair : ActorMap)
 			{
 				if (ActorPair.second)
-					ActorPair.second->Tick(FixedLogicDeltaSeconds);
+					ActorPair.second->Tick(SecondsBetweenFrames);
 			}
+		}
+		else
+		{
+			auto SleepMilliSeconds = static_cast<int>((FixedLogicDeltaSeconds - SecondsBetweenFrames) * 1000);
+
+			// Waiting
+			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
+
+			m_LogicFramework->Tick(GetWorldSeconds() - LastLogicWorldTickSeconds);
+
+			LastLogicWorldTickSeconds = GetWorldSeconds();
 		}
 	}
 
@@ -184,13 +203,24 @@ namespace cxc {
 
 		// The frame rates of the physical world equals to logic world
 		auto CurrentWorldSeconds = GetWorldSeconds();
-		auto SecondsBetweenFrames = CurrentWorldSeconds - LastPhysicalWorldTickSeconds;
-		auto FixedLogicDeltaSeconds = 1 / static_cast<float>(m_LogicFramework->GetLogicFrameRates());
-		if (SecondsBetweenFrames < FixedLogicDeltaSeconds)
-		{
-			LastPhysicalWorldTickSeconds = CurrentWorldSeconds - SecondsBetweenFrames + FixedLogicDeltaSeconds;
+		auto SecondsBetweenFrames = CurrentWorldSeconds - LastRenderingTickSeconds;
+		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
 
-			m_PhysicalWorld->PhysicsTick(FixedLogicDeltaSeconds);
+		if (SecondsBetweenFrames >= FixedRenderingDeltaSeconds)
+		{
+			m_PhysicalWorld->PhysicsTick(SecondsBetweenFrames);
+			LastRenderingTickSeconds = GetWorldSeconds();
+		}
+		else
+		{
+			auto SleepMilliSeconds = static_cast<int>((FixedRenderingDeltaSeconds - SecondsBetweenFrames) * 1000);
+
+			// Waiting
+			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
+
+			m_PhysicalWorld->PhysicsTick(GetWorldSeconds() - LastRenderingTickSeconds);
+
+			LastRenderingTickSeconds = GetWorldSeconds();
 		}
 	}
 
@@ -361,21 +391,17 @@ namespace cxc {
 		// Physics tick
 		PhysicsTick();
 
-		// Logic tick
-		LogicTick();
-
 		// Processing the input
 		ProcessInput();
 	}
 
 	void World::WorldLooping() noexcept
 	{
+		// Begin logic layer thread
+		std::thread LogicThread(LogicThreadFunc, GameOver, shared_from_this());
+
 		auto WindowHandler = pWindowMgr->GetWindowHandle();
 		do {
-
-			// clean frame buffer for rendering
-			CleanFrameBuffer();
-
 			// World tick
 			Tick();
 
@@ -388,6 +414,7 @@ namespace cxc {
 
 		GameOver = true;
 
+		LogicThread.join();
 	}
 }
 

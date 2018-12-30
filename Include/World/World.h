@@ -1,4 +1,6 @@
 #include "Core/EngineCore.h"
+#include "Actor/CCameraActor.h"
+#include "Actor/CLightActor.h"
 #include "Rendering/RendererManager.h"
 #include "Controller/InputManager.h"
 #include "Material/MaterialManager.h"
@@ -92,8 +94,6 @@ namespace cxc {
 
 		void run() noexcept;
 
-		void Tick();
-
 	public:
 
 		void AddActor(std::shared_ptr<CActor> Actor);
@@ -104,8 +104,9 @@ namespace cxc {
 		bool LoadSceneFromFBX(const std::string& filepath, std::shared_ptr<SceneContext> OutSceneContext) noexcept;
 		void ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept;
 
-	private:
+	public:
 
+		void Tick();
 		void RenderingTick();
 		void LogicTick();
 		void PhysicsTick();
@@ -142,8 +143,7 @@ namespace cxc {
 
 		SystemClock WorldStartSeconds;
 
-		// Tick seconds
-		float LastLogicWorldTickSeconds, LastPhysicalWorldTickSeconds;
+		float LastLogicWorldTickSeconds, LastRenderingTickSeconds;
 
 		// Logic framework
 		std::shared_ptr<LogicFramework> m_LogicFramework;
