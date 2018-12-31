@@ -144,6 +144,7 @@ namespace cxc {
 		SystemClock WorldStartSeconds;
 
 		float LastLogicWorldTickSeconds, LastRenderingTickSeconds;
+		float LastPhysicalWorldTickSeconds;
 
 		// Logic framework
 		std::shared_ptr<LogicFramework> m_LogicFramework;

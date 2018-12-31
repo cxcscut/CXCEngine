@@ -97,7 +97,7 @@ namespace cxc {
 		InitInputMode();
 
 		// Turn on the vsync
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 
 		m_PhysicalWorld->InitializePhysicalWorld();
 	}
@@ -116,6 +116,7 @@ namespace cxc {
 		auto CurrentWorldSeconds = GetWorldSeconds();
 		LastLogicWorldTickSeconds = CurrentWorldSeconds;
 		LastRenderingTickSeconds = CurrentWorldSeconds;
+		LastPhysicalWorldTickSeconds = CurrentWorldSeconds;
 
 		// Begin event looping
 		WorldLooping();
@@ -151,10 +152,28 @@ namespace cxc {
 
 	void World::RenderingTick()
 	{
-		// clean frame buffer for rendering
-		CleanFrameBuffer();
+		auto CurrentWorldSeconds = GetWorldSeconds();
+		auto SecondsBetweenFrames = CurrentWorldSeconds - LastPhysicalWorldTickSeconds;
+		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
 
-		pSceneMgr->RenderScene();
+		if (SecondsBetweenFrames >= FixedRenderingDeltaSeconds)
+		{
+			// clean frame buffer for rendering
+			CleanFrameBuffer();
+
+			pSceneMgr->RenderScene();
+		}
+		else
+		{
+			auto SleepMilliSeconds = static_cast<int>((FixedRenderingDeltaSeconds - SecondsBetweenFrames) * 1000);
+
+			// Waiting
+			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
+
+			m_LogicFramework->Tick(GetWorldSeconds() - LastPhysicalWorldTickSeconds);
+
+			LastPhysicalWorldTickSeconds = GetWorldSeconds();
+		}
 	}
 
 	void World::ProcessInput()
@@ -201,7 +220,6 @@ namespace cxc {
 	{
 		assert(m_PhysicalWorld != nullptr);
 
-		// The frame rates of the physical world equals to logic world
 		auto CurrentWorldSeconds = GetWorldSeconds();
 		auto SecondsBetweenFrames = CurrentWorldSeconds - LastRenderingTickSeconds;
 		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);

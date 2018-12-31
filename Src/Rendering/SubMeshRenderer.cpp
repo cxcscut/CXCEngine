@@ -107,7 +107,7 @@ namespace cxc
 				case eLightType::OmniDirectional:
 					{
 						LightUniformNamePrefix = "OmniLights[" + std::to_string(OmniLightsCount) + "]";
-						LightAttenuationSubroutineName = "OmniLightAtteunations[" + std::to_string(OmniLightsCount) + "]";
+						LightAttenuationSubroutineName = "OmniLightAttenuations[" + std::to_string(OmniLightsCount) + "]";
 						
 						OmniLightsCount++;
 						break;
