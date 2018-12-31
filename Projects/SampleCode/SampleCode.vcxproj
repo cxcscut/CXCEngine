@@ -161,6 +161,7 @@
     <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
     <ClCompile Include="..\..\Src\Systems\CMovementCtrlSystem.cpp" />
     <ClCompile Include="..\..\Src\Systems\CSystem.cpp" />
+    <ClCompile Include="..\..\Src\Utilities\DebugLogger.cpp" />
     <ClCompile Include="..\..\src\utilities\FBXSDKUtility.cpp" />
     <ClCompile Include="..\..\src\utilities\FileHelper.cpp" />
     <ClCompile Include="..\..\Src\Utilities\GeomtryUtil.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="..\..\include\script\ScriptParser.h" />
     <ClInclude Include="..\..\Include\Systems\CMovementCtrlSystem.h" />
     <ClInclude Include="..\..\Include\Systems\CSystem.h" />
+    <ClInclude Include="..\..\Include\Utilities\DebugLogger.h" />
     <ClInclude Include="..\..\include\utilities\FBXSDKUtility.h" />
     <ClInclude Include="..\..\include\utilities\FileHelper.h" />
     <ClInclude Include="..\..\Include\Utilities\GeometryUtil.h" />

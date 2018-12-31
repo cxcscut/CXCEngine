@@ -1,5 +1,6 @@
 #include "Rendering/Shader.h"
 #include "Rendering/SubMeshRenderer.h"
+#include "Utilities/DebugLogger.h"
 
 namespace cxc
 {
@@ -39,7 +40,7 @@ namespace cxc
 		}
 		else
 		{
-			std::cerr << "Invalid shader type of the shader : " << ShaderName << std::endl;
+			DEBUG_LOG(eLogType::Error, "Invalid shader type of the shader :" + ShaderName);
 			return false;
 		}
 
@@ -51,7 +52,7 @@ namespace cxc
 		bSuccessful &= ReadShaderSourceCode(ShaderFileName, ShaderSourceCode);
 		if (!bSuccessful)
 		{
-			std::cout << "Shader load failed, Path : " << ShaderFileName << std::endl;
+			DEBUG_LOG(eLogType::Error, "Shader load failed, Path : " + ShaderFileName);
 			return false;
 		}
 
@@ -59,8 +60,8 @@ namespace cxc
 		bSuccessful &= CompileShader(ShaderID, ShaderSourceCode, OutResultLog);
 		if (!bSuccessful)
 		{
-			std::cout << "Shader compile failed, Path : " << ShaderFileName << std::endl;
-			std::cout << OutResultLog << std::endl;
+			DEBUG_LOG(eLogType::Error, "Shader load compile, Path : " + ShaderFileName);
+			DEBUG_LOG(eLogType::Error, "Shader Compiler Log : " + OutResultLog);
 			return false;
 		}
 

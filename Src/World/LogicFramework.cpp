@@ -5,7 +5,7 @@
 
 namespace cxc
 {
-	LogicFramework::LogicFramework():
+	LogicFramework::LogicFramework() :
 		LogicFrameRates(30)
 	{
 		MovementCtrlSystem = NewObject<CMovementCtrlSystem>();
@@ -18,6 +18,6 @@ namespace cxc
 
 	void LogicFramework::Tick(float DeltaSeconds)
 	{
-		
+
 	}
 }

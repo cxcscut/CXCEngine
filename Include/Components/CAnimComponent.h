@@ -16,6 +16,10 @@ namespace cxc
 
 	public:
 
+		virtual void Tick(float DeltaSeconds) override;
+
+	public:
+
 		void CreateAnimContext();
 		std::shared_ptr<AnimContext> GetAnimContext() { return pAnimContext; }
 

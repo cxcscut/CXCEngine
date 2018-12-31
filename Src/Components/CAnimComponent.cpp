@@ -17,4 +17,12 @@ namespace cxc
 	{
 		pAnimContext = NewObject<AnimContext>(std::dynamic_pointer_cast<CAnimComponent>(shared_from_this()));
 	}
+
+	void CAnimComponent::Tick(float DeltaSeconds)
+	{
+		if (pAnimContext)
+		{
+			pAnimContext->Tick(DeltaSeconds);
+		}
+	}
 }

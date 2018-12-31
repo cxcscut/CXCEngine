@@ -3,6 +3,7 @@
 #include "Material/MaterialManager.h"
 #include "Geometry/SubMesh.h"
 #include "Geometry/Mesh.h"
+#include "Utilities/DebugLogger.h"
 
 #ifdef IOS_REF
 	#undef IOS_REF
@@ -159,7 +160,7 @@ namespace cxc {
 									if (pTexture2D)
 										OutTextures.push_back(pTexture2D);
 									else
-										std::cerr << "Can't load the texture : " << lFileTexture->GetFileName() << std::endl;
+										DEBUG_LOG(eLogType::Error, "FBXSDKUtil::GetTexturesFromMaterial, Can't load the texture : " + (std::string)lFileTexture->GetFileName());
 								}
 							}
 						}
@@ -822,12 +823,12 @@ namespace cxc {
 		pManager = FbxManager::Create();
 		if (!pManager)
 		{
-			std::cerr << "FBXSDKHelper::InitializeSDKObjects, Unable to create FBX Manager" << std::endl;
+			DEBUG_LOG(eLogType::Error, "FBXSDKHelper::InitializeSDKObjects, Unable to create FBX Manager");
 			return;
 		}
 		else
 		{
-			std::cout << "Autodesk FBX SDK version " << pManager->GetVersion() << std::endl;
+			DEBUG_LOG(eLogType::Verbose, "Autodesk FBX SDK version");
 		}
 
 		// Create an IOSettings object. This object holds all import/export settings
@@ -842,7 +843,7 @@ namespace cxc {
 		pScene = FbxScene::Create(pManager, "MyScene");
 		if (!pScene)
 		{
-			std::cerr << "FBXSDKHelper::InitializeSDKObjects, Unable to create FBX scene" << std::endl;
+			DEBUG_LOG(eLogType::Error, "FBXSDKHelper::InitializeSDKObjects, Unable to create FBX scene");
 			return;
 		}
 	}
@@ -851,7 +852,7 @@ namespace cxc {
 	{
 		// Delete the FBX Manager. All the objects that have been allocated using the FBx Manager and that haven't been explicitly destroyed are also automatically destroyed.
 		if (pManager) pManager->Destroy();
-		if (pExitStatus) std::cout << "Autodesk FBX SDK has been run successfully" << std::endl;
+		if (pExitStatus) DEBUG_LOG(eLogType::Verbose, "Autodesk FBX SDK has been run successfully");
 	}
 
 	bool FBXSDKUtil::SaveScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName, int pFileFormat, bool pEmbedMedia)
@@ -899,15 +900,16 @@ namespace cxc {
 		// Initialize the exporter by providing a filename
 		if (lExporter->Initialize(pFileName, pFileFormat, pManager->GetIOSettings()) == false)
 		{
-			std::cerr << "FBXSDKHelper::SaveScene, failed to initialize the FbxExporter " 
-				<<  "with the errors returned : " << lExporter->GetStatus().GetErrorString()
-				<<	std::endl;
+			std::string ErrorMsg = "FBXSDKHelper::SaveScene, failed to initialize the FbxExporter, with the errors returned : ";
+			ErrorMsg += lExporter->GetStatus().GetErrorString();
+			DEBUG_LOG(eLogType::Error, ErrorMsg);
 			return false;
 		}
 
 		FbxManager::GetFileFormatVersion(lMajor, lMinor, lRevision);
-		std::cout << "the FBX file format version is "
-			<< lMajor << "." << lMinor << "." << lRevision << std::endl;
+		std::string VersionString = "The FBX file format version is " + 
+			std::to_string(lMajor) + "." + std::to_string(lMinor) + "." + std::to_string(lRevision);
+		DEBUG_LOG(eLogType::Verbose, VersionString);
 
 		// Export the scene
 		lStatus = lExporter->Export(pScene);
@@ -937,56 +939,58 @@ namespace cxc {
 
 		if (!lImportStatus)
 		{
-			FbxString error = lImporter->GetStatus().GetErrorString();
-			std::cerr << "FBXSDKHelper::LoadScene, failed to initializer the FbxImporter " 
-				<< "with the errors returned " << error.Buffer()
-				<< std::endl;
+			std::string ErrorString = "FBXSDKHelper::LoadScene, failed to initializer the FbxImporter, with the errors returned ";
+			ErrorString += lImporter->GetStatus().GetErrorString();
+			DEBUG_LOG(eLogType::Error, ErrorString);
 
 			if(lImporter->GetStatus().GetCode() == FbxStatus::eInvalidFileVersion)
 			{
-				std::cerr << "FBX file format version for this FBX SDK is" 
-					<< lSDKMajor << "." << lSDKMinor << "." << lSDKRevision
-					<< std::endl;
-				std::cerr << "While the FBX file format version for file: " 
-					<< pFileName << " is" << lFileMajor << "." << lFileMinor << "." << lFileRevision 
-					<< std::endl;
+				ErrorString = "FBXSDKHelper::LoadScene, FBX file format version for this FBX SDK is ";
+				ErrorString += std::to_string(lSDKMajor) + "." + std::to_string(lSDKMinor) + "." + std::to_string(lSDKRevision);
+				DEBUG_LOG(eLogType::Error, ErrorString);
+				
+				ErrorString = "FBXSDKHelper::LoadScene, While the FBX file format version for file: ";
+				ErrorString += pFileName;
+				ErrorString += " is " + std::to_string(lFileMajor) + "." + std::to_string(lFileMinor) + "." + std::to_string(lFileRevision);
+				DEBUG_LOG(eLogType::Error, ErrorString);
 			}
 
 			return false;
 		}
 
-		std::cout << "FBX file format version for this FBX SDK is"
-			<< lSDKMajor << "." << lSDKMinor << "." << lSDKRevision
-			<< std::endl;
+		std::string VerboseString = "FBXSDKHelper::LoadScene, FBX file format version for this FBX SDK is ";
+		VerboseString += std::to_string(lSDKMajor) + "." + std::to_string(lSDKMinor) + "." + std::to_string(lSDKRevision);
+		DEBUG_LOG(eLogType::Verbose, VerboseString);
 
 		if (lImporter->IsFBX())
 		{
-			std::cout << "FBX file format version for file: "
-				<< pFileName << " is" << lFileMajor << "." << lFileMinor << "." << lFileRevision
-				<< std::endl;
+			VerboseString = "FBXSDKHelper::LoadScene, FBX file format version for file: ";
+			VerboseString += std::string(pFileName) + " is " + 
+				std::to_string(lFileMajor) + "." + std::to_string(lFileMinor) + "." + std::to_string(lFileRevision);
+			DEBUG_LOG(eLogType::Verbose, VerboseString);
 
 			// From this point, it is possible to access animation stack information without
 			// the expense of loading the entire file.
 			
-			std::cout << "Animation Stack Information" << std::endl;
+			DEBUG_LOG(eLogType::Verbose, "Animation Stack Information");
 
 			lAnimStackCount = lImporter->GetAnimStackCount();
 
-			std::cout << "Number of Animation Stacks: " << lAnimStackCount << std::endl;
-			std::cout << "Current Animation Stack: " << lImporter->GetActiveAnimStackName().Buffer() << std::endl;
+			DEBUG_LOG(eLogType::Verbose, "Number of Animation Stacks: " + std::to_string(lAnimStackCount));
+			DEBUG_LOG(eLogType::Verbose, "Current Animation Stack: " + (std::string)lImporter->GetActiveAnimStackName());
 
 			for (i = 0; i < lAnimStackCount; ++i)
 			{
 				FbxTakeInfo* lTakeInfo = lImporter->GetTakeInfo(i);
 
-				std::cout << "Animation Stack: " << i << std::endl;
-				std::cout << "Name : " << lTakeInfo->mName.Buffer() << std::endl;
-				std::cout << "Description : " << lTakeInfo->mDescription.Buffer() << std::endl;
+				DEBUG_LOG(eLogType::Verbose, "Animation Stack:" + std::to_string(i));
+				DEBUG_LOG(eLogType::Verbose, "Name : " + (std::string)lTakeInfo->mName.Buffer());
+				DEBUG_LOG(eLogType::Verbose, "Animation Stack:" + (std::string)lTakeInfo->mDescription.Buffer());
 
 				// Change the value of the import name if the animation stack should be imported 
 				// under a different name.
-				std::cout << "Import Name : " << lTakeInfo->mImportName.Buffer() << std::endl;
-				std::cout << "Import State : " << (lTakeInfo->mSelect ? "true" : "false") << std::endl;
+				DEBUG_LOG(eLogType::Verbose, "Import Name : " + (std::string)lTakeInfo->mImportName.Buffer());
+				DEBUG_LOG(eLogType::Verbose, "Import State : " + (std::string)(lTakeInfo->mSelect ? "true" : "false"));
 			}
 
 			// Set the import states. By default, the import states are always set to 
@@ -1005,7 +1009,7 @@ namespace cxc {
 
 		if (lStatus == false && lImporter->GetStatus().GetCode() == FbxStatus::ePasswordError)
 		{
-			std::cerr << "Failed to import the scene since it is password protected!" << std::endl;
+			DEBUG_LOG(eLogType::Error, "FBXSDKHelper::SaveScene, Failed to import the scene since it is password protected!");
 		}
 
 		// Destroy the importer

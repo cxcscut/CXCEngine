@@ -1,5 +1,6 @@
 #include "Geometry/SubMesh.h"
 #include "Geometry/Mesh.h"
+#include "Utilities/DebugLogger.h"
 
 namespace cxc {
 
@@ -61,7 +62,7 @@ namespace cxc {
 				}
 				else
 				{
-					std::cerr << "Failed to find the subroutine uniform : " << DiffuseModelInfo.SubroutineUniformName << std::endl;
+					DEBUG_LOG(eLogType::Error, "SubMesh::BindMaterial, Failed to find the subroutine uniform : " + DiffuseModelInfo.SubroutineUniformName);
 				}
 
 				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::UserTextureUnit);
@@ -90,7 +91,7 @@ namespace cxc {
 			}
 			else
 			{
-				std::cerr << "Failed to find the subroutine uniform : " << DiffuseModelInfo.SubroutineUniformName << std::endl;
+				DEBUG_LOG(eLogType::Error, "SubMesh::BindMaterial, Failed to find the subroutine uniform : " + DiffuseModelInfo.SubroutineUniformName);
 			}
 		}
 	}

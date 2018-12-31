@@ -4,6 +4,7 @@
 #include "Components/CStaticMeshComponent.h"
 #include "Components/CLightComponent.h"
 #include "Components/CCameraComponent.h"
+#include "Utilities/DebugLogger.h"
 
 namespace cxc {
 
@@ -53,7 +54,7 @@ namespace cxc {
 		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK)
 		{
-			std::cerr << "GLEW initialization failed" << std::endl;
+			DEBUG_LOG(eLogType::Error, "GLEW initialization failed");
 			return GL_FALSE;
 		}
 
@@ -86,7 +87,7 @@ namespace cxc {
 		// Create window
 		if (!CreateAndDisplayWindow(pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), pWindowMgr->GetWindowTitle()))
 		{
-			std::cerr << "Failed to create display window" << std::endl;
+			DEBUG_LOG(eLogType::Error, "World::Initialize, Failed to create display window");
 
 			// shutdown and clean
 			glfwTerminate();
@@ -302,7 +303,7 @@ namespace cxc {
 				bool bMeshLoadingRes = FBXSDKUtil::GetMeshFromNode(pRootNode, LoadedMeshes, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalPosition);
 				if (!bMeshLoadingRes)
 				{
-					std::cout << "SceneManager::ProcessSceneNode, Failed to load the mesh" << std::endl;
+					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the mesh");
 				}
 				else
 				{
@@ -321,7 +322,7 @@ namespace cxc {
 				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
 				if (!bLightLoadingRes)
 				{
-					std::cout << "SceneManager::ProcessSceneNode, Failed to load the lights" << std::endl;
+					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the lights");
 				}
 				else
 				{

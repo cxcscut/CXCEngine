@@ -1,5 +1,6 @@
 #include "Rendering/SubMeshRenderer.h"
 #include "Rendering/RendererContext.h"
+#include "Utilities/DebugLogger.h"
 #include "Scene/SceneManager.h"
 #include "World/World.h"
 
@@ -250,8 +251,8 @@ namespace cxc
 		bool bResult = CheckLinkingStatus(OutDebugLog);
 		if (!bResult)
 		{
-			std::cerr << "Failed to link the program" << std::endl;
-			std::cerr << OutDebugLog << std::endl;
+			DEBUG_LOG(eLogType::Error, "SubMeshRenderPipeline::LinkShaders, Failed to link the program");
+			DEBUG_LOG(eLogType::Error, "The Program Linking Log : " + OutDebugLog);
 		}
 
 		return bResult;
