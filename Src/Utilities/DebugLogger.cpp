@@ -50,6 +50,13 @@ namespace cxc
 	{
 #ifdef _DEBUG
 
+#ifdef WIN32
+
+		// Reset the color output debug message string
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
+
+#endif
+
 		std::string OutPutLogMsg;
 		std::string CurrentSystemTime = GetSystemTime();
 		switch (Type)
@@ -61,7 +68,7 @@ namespace cxc
 			OutPutLogMsg = CurrentSystemTime + "; Error: " + LogMsg;
 
 #endif
-			std::cerr << OutPutLogMsg << std::endl;
+			std::cerr << OutPutLogMsg;
 			break;
 		case cxc::eLogType::Warning:
 #ifdef WIN32
@@ -69,14 +76,14 @@ namespace cxc
 			OutPutLogMsg = CurrentSystemTime + "; Warning: " + LogMsg;
 
 #endif
-			std::clog << OutPutLogMsg << std::endl;
+			std::clog << OutPutLogMsg;
 			break;
 		case cxc::eLogType::Verbose:
 			if (!Verbosity)
 				return;
 
 			OutPutLogMsg = CurrentSystemTime + "; Verbose: " + LogMsg;
-			std::cout << OutPutLogMsg << std::endl;
+			std::cout << OutPutLogMsg;
 			break;
 		default:
 			break;
@@ -101,7 +108,7 @@ namespace cxc
 				LogFile << std::endl;
 			}
 
-			LogFile << LogMsg << std::endl;	
+			LogFile << LogMsg;
 		}
 	}
 }

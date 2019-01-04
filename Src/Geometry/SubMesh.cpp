@@ -5,7 +5,8 @@
 namespace cxc {
 
 	SubMesh::SubMesh():
-		SubMeshEBO(0)
+		SubMeshEBO(0),
+		ShadingMode(eShadingMode::FillMode)
 	{
 		pOwnerMesh.reset();
 	}
@@ -62,7 +63,7 @@ namespace cxc {
 				}
 				else
 				{
-					DEBUG_LOG(eLogType::Error, "SubMesh::BindMaterial, Failed to find the subroutine uniform : " + DiffuseModelInfo.SubroutineUniformName);
+					DEBUG_LOG(eLogType::Error, "SubMesh::BindMaterial, Failed to find the subroutine uniform : " + DiffuseModelInfo.SubroutineUniformName + '\n');
 				}
 
 				glActiveTexture(GL_TEXTURE0 + (GLuint)TextureUnit::UserTextureUnit);
@@ -91,7 +92,7 @@ namespace cxc {
 			}
 			else
 			{
-				DEBUG_LOG(eLogType::Error, "SubMesh::BindMaterial, Failed to find the subroutine uniform : " + DiffuseModelInfo.SubroutineUniformName);
+				DEBUG_LOG(eLogType::Error, "SubMesh::BindMaterial, Failed to find the subroutine uniform : " + DiffuseModelInfo.SubroutineUniformName + '\n');
 			}
 		}
 	}
@@ -139,6 +140,24 @@ namespace cxc {
 			glBindBuffer(GL_ARRAY_BUFFER, pOwner->GetNormalsVBO());
 			glEnableVertexAttribArray(static_cast<GLuint>(Location::NORMAL_LOCATION));
 			glVertexAttribPointer(static_cast<GLuint>(Location::NORMAL_LOCATION), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0)); // Normal
+		}
+
+		// Set the shading mode the submesh
+		// Wanring : OpenGL 3.1 and plus only receives GL_FRONT_AND_BACK
+		switch (ShadingMode)
+		{
+		case eShadingMode::PointMode:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			break;
+		case eShadingMode::FillMode:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			break;
+		case eShadingMode::WireframeMode:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_CULL_FACE);
+			break;
+		default:
+			break;
 		}
 
 		// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices

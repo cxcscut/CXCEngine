@@ -1,17 +1,82 @@
 #include "Rendering/RendererManager.h"
+#include "Rendering/ForwardRenderer.h"
+#include "Rendering/DebugMeshRenderPipeline.h"
 #include "Rendering/RendererContext.h"
+#include "Geometry/Mesh.h"
+#include "Utilities/DebugLogger.h"
 #include "Geometry/SubMesh.h"
 
-namespace cxc {
+const std::string DebugMeshVSSourceCode = "#version 430 core \n" \
+"layout(location = 0) in vec3 vertexPosition_modelspace;\n " \
+"uniform mat4 P;\n" \
+"uniform mat4 V;\n" \
+"uniform mat4 M;\n" \
+"mat4 MVP = P * V * M;\n"\
+"void main()\n" \
+"{\n" \
+"gl_Position = MVP * vec4(vertexPosition_modelspace, 1);\n" \
+"}\n";
 
+const std::string DebugMeshFSSourceCode = "#version 430 core\n" \
+"out vec3 OutColor;\n"\
+"uniform vec3 VertexColor;\n" \
+"void main()\n" \
+"{\n" \
+"OutColor = VertexColor;\n"\
+"}\n";
+
+namespace cxc 
+{
+	
 	RendererManager::RendererManager()
 	{
-		
 	}
 
 	RendererManager::~RendererManager()
 	{
 		
+	}
+
+	void RendererManager::BindDebugMesh(std::shared_ptr<Mesh> pMesh)
+	{
+		if (pMesh)
+		{
+			auto DebugRendererIter = RenderersMap.find("DebugMeshRenderer");
+			if (DebugRendererIter != RenderersMap.end())
+			{
+				BindMeshRenderer(pMesh, DebugRendererIter->second);
+			}
+		}
+	}
+
+	void RendererManager::CreateEngineDefaultRenderer()
+	{
+		// Create engine defalut renderer
+		// Create debug mesh renderer and pipeline
+		auto DebugMeshVS = NewObject<Shader>();
+		auto DebugMeshFS = NewObject<Shader>();
+
+		DebugMeshVS->ShaderName = "DebugMeshVS"; DebugMeshVS->ShaderType = eShaderType::VERTEX_SHADER;
+		DebugMeshFS->ShaderName = "DebugMeshFS"; DebugMeshFS->ShaderType = eShaderType::FRAGMENT_SHADER;
+
+		std::string CompileLog;
+		bool bResult = DebugMeshVS->CompileShader(DebugMeshVSSourceCode, CompileLog);
+		if (!bResult)
+			DEBUG_LOG(eLogType::Error, "RendererManager::CreateEngineDefaultRenderer, Failed to compile debug mesh vertex shader, OutLog : " + CompileLog + '\n');
+
+		bResult = DebugMeshFS->CompileShader(DebugMeshFSSourceCode, CompileLog);
+		if (!bResult)
+			DEBUG_LOG(eLogType::Error, "RendererManager::CreateEngineDefaultRenderer, Failed to compile debug mesh fragment shader, OutLog : " + CompileLog + '\n');
+
+		auto DebugMeshPipeline = NewObject<DebugMeshRenderPipeline>();
+		DebugMeshPipeline->AttachShader(DebugMeshVS);
+		DebugMeshPipeline->AttachShader(DebugMeshFS);
+
+		auto DebugMeshRenderer = NewObject<ForwardRenderer>("DebugMeshRenderer");
+		DebugMeshRenderer->PushPipeline(DebugMeshPipeline);
+		DebugMeshRenderer->InitializeRenderer();
+
+		AddRenderer(DebugMeshRenderer);
 	}
 
 	void RendererManager::SetCurrentUsedRenderer(std::shared_ptr<SubMeshRenderer> pRenderer)
@@ -132,9 +197,25 @@ namespace cxc {
 		RendererContextsMap.clear();
 	}
 
+	void RendererManager::BindMeshRenderer(std::shared_ptr<Mesh> pMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer)
+	{
+		if (pMesh)
+		{
+			size_t SubMeshCount = pMesh->GetSubMeshCount();
+			for (size_t Index = 0; Index < SubMeshCount; ++Index)
+			{
+				auto pSubMesh = pMesh->GetSubMesh(Index);
+				BindSubMeshRenderer(pSubMesh, pSubMeshRenderer);
+			}
+		}
+	}
+
 	void RendererManager::BindSubMeshRenderer(std::shared_ptr<SubMesh> pSubMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer)
 	{
-		SubMeshRendererBindings.insert(std::make_pair(pSubMesh, pSubMeshRenderer));
+		if (pSubMesh)
+		{
+			SubMeshRendererBindings.insert(std::make_pair(pSubMesh, pSubMeshRenderer));
+		}
 	}
 
 	void RendererManager::UnBindSubMeshRenderer(std::shared_ptr<SubMesh> pSubMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer)

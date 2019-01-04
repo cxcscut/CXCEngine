@@ -30,20 +30,6 @@ namespace cxc
 
 	bool Shader::CompileShader()
 	{
-		if (ShaderType == eShaderType::VERTEX_SHADER)
-		{
-			ShaderID = glCreateShader(GL_VERTEX_SHADER);
-		}
-		else if (ShaderType == eShaderType::FRAGMENT_SHADER)
-		{
-			ShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-		}
-		else
-		{
-			DEBUG_LOG(eLogType::Error, "Invalid shader type of the shader :" + ShaderName);
-			return false;
-		}
-
 		std::string ShaderSourceCode;
 		std::string OutResultLog;
 
@@ -52,20 +38,18 @@ namespace cxc
 		bSuccessful &= ReadShaderSourceCode(ShaderFileName, ShaderSourceCode);
 		if (!bSuccessful)
 		{
-			DEBUG_LOG(eLogType::Error, "Shader load failed, Path : " + ShaderFileName);
+			DEBUG_LOG(eLogType::Error, "Shader load failed, Path : " + ShaderFileName + '\n');
 			return false;
 		}
 
 		// Compile the shader
-		bSuccessful &= CompileShader(ShaderID, ShaderSourceCode, OutResultLog);
+		bSuccessful &= CompileShader(ShaderSourceCode, OutResultLog);
 		if (!bSuccessful)
 		{
-			DEBUG_LOG(eLogType::Error, "Shader load compile, Path : " + ShaderFileName);
-			DEBUG_LOG(eLogType::Error, "Shader Compiler Log : " + OutResultLog);
+			DEBUG_LOG(eLogType::Error, "Shader load compile, Path : " + ShaderFileName + '\n');
+			DEBUG_LOG(eLogType::Error, "Shader Compiler Log : " + OutResultLog + '\n');
 			return false;
-		}
-
-		bIsCompiled = true;
+		} 
 
 		return true;
 	}
@@ -92,8 +76,22 @@ namespace cxc
 		return true;
 	}
 
-	bool Shader::CompileShader(GLuint ShaderID, const std::string& SourceCode, std::string& OutResultLog)
+	bool Shader::CompileShader(const std::string& SourceCode, std::string& OutResultLog)
 	{
+		if (ShaderType == eShaderType::VERTEX_SHADER)
+		{
+			ShaderID = glCreateShader(GL_VERTEX_SHADER);
+		}
+		else if (ShaderType == eShaderType::FRAGMENT_SHADER)
+		{
+			ShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+		}
+		else
+		{
+			DEBUG_LOG(eLogType::Error, "Invalid shader type of the shader :" + ShaderName + '\n');
+			return false;
+		}
+
 		const char* SourceCodeStr = SourceCode.c_str();
 		glShaderSource(ShaderID, 1, &SourceCodeStr, nullptr);
 		glCompileShader(ShaderID);
@@ -108,7 +106,10 @@ namespace cxc
 			return false;
 		}
 		else
+		{
+			bIsCompiled = true;
 			return true;
+		}
 	}
 
 	bool Shader::CheckCompilingStatus(GLuint ShaderID) const

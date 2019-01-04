@@ -117,7 +117,6 @@ namespace cxc
 					{
 						LightUniformNamePrefix = "DirectionalLights[" + std::to_string(DirectionalLightsCount) + "]";
 						LightAttenuationSubroutineName = "DirectionalLightAttenuations[" + std::to_string(DirectionalLightsCount) + "]";
-						
 						DirectionalLightsCount++;
 						break;
 					}
@@ -251,8 +250,8 @@ namespace cxc
 		bool bResult = CheckLinkingStatus(OutDebugLog);
 		if (!bResult)
 		{
-			DEBUG_LOG(eLogType::Error, "SubMeshRenderPipeline::LinkShaders, Failed to link the program");
-			DEBUG_LOG(eLogType::Error, "The Program Linking Log : " + OutDebugLog);
+			DEBUG_LOG(eLogType::Error, "SubMeshRenderPipeline::LinkShaders, Failed to link the program\n");
+			DEBUG_LOG(eLogType::Error, "The Program Linking Log : " + OutDebugLog + '\n');
 		}
 
 		return bResult;

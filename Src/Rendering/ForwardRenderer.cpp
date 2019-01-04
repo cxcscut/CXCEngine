@@ -57,6 +57,9 @@ namespace cxc
 		if (Lights.empty())
 			return;
 
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
 		GLuint Eyepos_loc, M_MatrixID;
 		auto BindedSubMeshes = Context->GetBindedSubMeshes();
 		for (auto pSubMesh : BindedSubMeshes)

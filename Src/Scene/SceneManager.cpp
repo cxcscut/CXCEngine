@@ -86,6 +86,48 @@ namespace cxc {
 			MeshMap.insert(std::make_pair(pMesh->GetMeshName(), pMesh));
 	}
 
+	void SceneManager::RenderDebugMeshes()
+	{
+		// Clear the renderer context for current rendering
+		pRendererMgr->ClearRendererContext();
+
+		// Allocate buffers for rendering the debug meshes
+		for (auto pDebugMesh : DebugMeshes)
+		{
+			pDebugMesh->AllocateBuffers();
+
+			// Add debug submesh to the renderer context
+			size_t SubmeshCount = pDebugMesh->GetSubMeshCount();
+			for (size_t Index = 0; Index < SubmeshCount; ++Index)
+			{
+				auto pDebugSubMesh = pDebugMesh->GetSubMesh(Index);
+				pRendererMgr->AddSubMeshToRendererContext(pDebugSubMesh);
+			}
+		}
+
+		// Rendering debug meshes
+		for (auto pRendererIter : pRendererMgr->RenderersMap)
+		{
+			auto RendererContextIter = pRendererMgr->RendererContextsMap.find(pRendererIter.second->GetRendererName());
+			if (RendererContextIter != pRendererMgr->RendererContextsMap.end())
+			{
+				pRendererMgr->UseRenderer(pRendererIter.second);
+				pRendererIter.second->Render(RendererContextIter->second);
+			}
+		}
+		
+		// Release buffers of the debug meshes
+		for (auto pDebugMesh : DebugMeshes)
+		{
+			pDebugMesh->ReleaseBuffers();
+		}
+	}
+
+	void SceneManager::FlushDebugMeshes()
+	{
+		DebugMeshes.clear();
+	}
+
 	void SceneManager::RenderScene() noexcept
 	{
 		// Clear the renderer context for the current rendering

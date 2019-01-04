@@ -4,8 +4,9 @@
 #include <string>
 #include <fstream>
 #include "Singleton.inl"
+#include "Core/EngineCore.h"
 
-#define DEBUG_LOG(Type, LogMsg) cxc::DebugLogger::GetInstance()->DebugLog(Type, LogMsg)
+#define DEBUG_LOG(Type, LogMsg) (cxc::DebugLogger::GetInstance()->DebugLog(Type, LogMsg))
 
 namespace cxc
 {
@@ -18,7 +19,7 @@ namespace cxc
 	};
 
 	/* The DebugLogger is the class that helps to output debug message */
-	class DebugLogger : public Singleton<DebugLogger>
+	class CXC_ENGINECORE_API DebugLogger final : public Singleton<DebugLogger>
 	{
 	public:
 		friend class Singleton<DebugLogger>;

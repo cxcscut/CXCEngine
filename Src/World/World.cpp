@@ -54,7 +54,7 @@ namespace cxc {
 		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK)
 		{
-			DEBUG_LOG(eLogType::Error, "GLEW initialization failed");
+			DEBUG_LOG(eLogType::Error, "GLEW initialization failed\n");
 			return GL_FALSE;
 		}
 
@@ -87,7 +87,7 @@ namespace cxc {
 		// Create window
 		if (!CreateAndDisplayWindow(pWindowMgr->GetWindowWidth(), pWindowMgr->GetWindowHeight(), pWindowMgr->GetWindowTitle()))
 		{
-			DEBUG_LOG(eLogType::Error, "World::Initialize, Failed to create display window");
+			DEBUG_LOG(eLogType::Error, "World::Initialize, Failed to create display window \n");
 
 			// shutdown and clean
 			glfwTerminate();
@@ -100,7 +100,11 @@ namespace cxc {
 		// Turn on the vsync
 		glfwSwapInterval(0);
 
+		// Initialize physics engine
 		m_PhysicalWorld->InitializePhysicalWorld();
+
+		// Initialize RendererManager
+		pSceneMgr->pRendererMgr->CreateEngineDefaultRenderer();
 	}
  
 	float World::GetWorldSeconds() const
@@ -133,7 +137,6 @@ namespace cxc {
 
 	void World::InitInputMode() noexcept
 	{
-		glEnable(GL_CULL_FACE);
 		pInputMgr->InitializeInput(pWindowMgr->GetWindowHandle());
 	}
 
@@ -162,7 +165,11 @@ namespace cxc {
 			// clean frame buffer for rendering
 			CleanFrameBuffer();
 
+			// Rendering the scene
 			pSceneMgr->RenderScene();
+
+			// Rendering the debug meshes
+			pSceneMgr->RenderDebugMeshes();
 		}
 		else
 		{
@@ -303,7 +310,7 @@ namespace cxc {
 				bool bMeshLoadingRes = FBXSDKUtil::GetMeshFromNode(pRootNode, LoadedMeshes, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalPosition);
 				if (!bMeshLoadingRes)
 				{
-					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the mesh");
+					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the mesh \n");
 				}
 				else
 				{
@@ -322,7 +329,7 @@ namespace cxc {
 				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
 				if (!bLightLoadingRes)
 				{
-					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the lights");
+					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the lights \n");
 				}
 				else
 				{

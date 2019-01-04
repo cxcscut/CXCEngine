@@ -67,7 +67,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\..\Externals\FBX-SDK\include;$(ProjectDir)..\..\Externals\;$(ProjectDir)..\..\Externals\OpenGL\Include;$(ProjectDir)..\..\Include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\;$(ProjectDir)..\..\Externals\FBX-SDK\include;$(ProjectDir)..\..\Externals\;$(ProjectDir)..\..\Externals\OpenGL\Include;$(ProjectDir)..\..\Include\;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\lib\vs2017\x86\debug;$(ProjectDir)..\..\Externals\FBX-SDK\lib\vs2015\x86\debug;$(ProjectDir)..\..\Externals\ode;$(ProjectDir)..\..\Externals\OpenGL\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -89,7 +89,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;glfw3.lib;glew32.lib;oded.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk-md.lib;glfw3.lib;glew32.lib;oded.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -131,6 +131,7 @@
     <ClCompile Include="..\..\src\controller\InputManager.cpp" />
     <ClCompile Include="..\..\Src\Core\CObject.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
+    <ClCompile Include="..\..\Src\Geometry\DebugMesh.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
     <ClCompile Include="..\..\src\material\MaterialManager.cpp" />
     <ClCompile Include="..\..\src\material\Texture2D.cpp" />
@@ -140,6 +141,7 @@
     <ClCompile Include="..\..\src\physics\PhysicalWorld.cpp" />
     <ClCompile Include="..\..\src\physics\RigidBody3D.cpp" />
     <ClCompile Include="..\..\Src\Physics\SphereCollider.cpp" />
+    <ClCompile Include="..\..\Src\Rendering\DebugMeshRenderPipeline.cpp" />
     <ClCompile Include="..\..\Src\Rendering\DeferredRenderer.cpp" />
     <ClCompile Include="..\..\src\rendering\DeferredRenderPipeline.cpp" />
     <ClCompile Include="..\..\src\rendering\Font.cpp" />
@@ -161,6 +163,7 @@
     <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
     <ClCompile Include="..\..\Src\Systems\CMovementCtrlSystem.cpp" />
     <ClCompile Include="..\..\Src\Systems\CSystem.cpp" />
+    <ClCompile Include="..\..\Src\Utilities\DebugDrawHelper.cpp" />
     <ClCompile Include="..\..\Src\Utilities\DebugLogger.cpp" />
     <ClCompile Include="..\..\src\utilities\FBXSDKUtility.cpp" />
     <ClCompile Include="..\..\src\utilities\FileHelper.cpp" />
@@ -192,6 +195,7 @@
     <ClInclude Include="..\..\Include\Core\EngineTypes.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
     <ClInclude Include="..\..\include\general\EngineCore.h" />
+    <ClInclude Include="..\..\Include\Geometry\DebugMesh.h" />
     <ClInclude Include="..\..\include\material\Material.h" />
     <ClInclude Include="..\..\include\material\MaterialManager.h" />
     <ClInclude Include="..\..\include\material\Texture2D.h" />
@@ -201,6 +205,7 @@
     <ClInclude Include="..\..\include\physics\PhysicalWorld.h" />
     <ClInclude Include="..\..\include\physics\RigidBody3D.h" />
     <ClInclude Include="..\..\Include\Physics\SphereCollider.h" />
+    <ClInclude Include="..\..\Include\Rendering\DebugMeshRenderPipeline.h" />
     <ClInclude Include="..\..\Include\Rendering\DeferredRenderer.h" />
     <ClInclude Include="..\..\include\rendering\DeferredRenderPipeline.h" />
     <ClInclude Include="..\..\include\rendering\Font.h" />
@@ -221,6 +226,7 @@
     <ClInclude Include="..\..\include\script\ScriptParser.h" />
     <ClInclude Include="..\..\Include\Systems\CMovementCtrlSystem.h" />
     <ClInclude Include="..\..\Include\Systems\CSystem.h" />
+    <ClInclude Include="..\..\Include\Utilities\DebugDrawHelper.h" />
     <ClInclude Include="..\..\Include\Utilities\DebugLogger.h" />
     <ClInclude Include="..\..\include\utilities\FBXSDKUtility.h" />
     <ClInclude Include="..\..\include\utilities\FileHelper.h" />

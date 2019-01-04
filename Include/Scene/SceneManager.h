@@ -88,6 +88,9 @@ namespace cxc {
 
 		void RenderScene() noexcept;
 
+		void RenderDebugMeshes();
+		void FlushDebugMeshes();
+
 	private:
 
 		void UpdateBoundary(const CXCRect3D &AABB) noexcept;
@@ -104,6 +107,9 @@ namespace cxc {
 
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> MeshMap;
+
+		// DebugMeshes
+		std::vector<std::shared_ptr<Mesh>> DebugMeshes;
 
 		// Boundary of the scene
 		CXCRect3D m_Boundary;

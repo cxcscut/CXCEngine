@@ -4,6 +4,8 @@
 #include "Rendering/ForwardRenderer.h"
 #include "Rendering/ShadowRenderer.h"
 #include "Rendering/ShadowRenderPipeline.h"
+#include "Utilities/DebugLogger.h"
+#include "Utilities/DebugDrawHelper.h"
 #include "Scene/SceneContext.h"
 #include "Actor/CLightActor.h"
 #include "Actor/CCameraActor.h"
@@ -11,21 +13,21 @@
 using namespace cxc;
 
 // Forward render shaders
-static const std::string ForwardRenderVSPath = "G:\\CXCEngine\\Src\\GLSL\\ForwardRendering\\ForwardRenderVS.glsl";
-static const std::string ForwardRenderFSPath = "G:\\CXCEngine\\Src\\GLSL\\ForwardRendering\\ForwardRenderFS.glsl";
-static const std::string DeferredRenderVSPath = "G:\\cxcengine\\Src\\GLSL\\DeferredRendering\\DeferredRenderVS.glsl";
-static const std::string DeferredRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\DeferredRendering\\DeferredRenderFS.glsl";
-static const std::string ShadowRenderDepthVSPath = "G:\\cxcengine\\Src\\GLSL\\ShadowRendering\\depthTextureVS.glsl";
-static const std::string ShadowRenderDepthFSPath = "G:\\cxcengine\\Src\\GLSL\\ShadowRendering\\depthTextureFS.glsl";
-static const std::string ShadowRenderVSPath = "G:\\cxcengine\\Src\\GLSL\\ShadowRendering\\ShadowVS.glsl";
-static const std::string ShadowRenderFSPath = "G:\\cxcengine\\Src\\GLSL\\ShadowRendering\\ShadowFS.glsl";
+static const std::string ForwardRenderVSPath = "G:\\cxcengine\\Shader\\ForwardRendering\\ForwardRenderVS.glsl";
+static const std::string ForwardRenderFSPath = "G:\\cxcengine\\Shader\\ForwardRendering\\ForwardRenderFS.glsl";
+static const std::string DeferredRenderVSPath = "G:\\cxcengine\\Shader\\DeferredRendering\\DeferredRenderVS.glsl";
+static const std::string DeferredRenderFSPath = "G:\\cxcengine\\ShaderDeferredRendering\\DeferredRenderFS.glsl";
+static const std::string ShadowRenderDepthVSPath = "G:\\cxcengine\\Shader\\ShadowRendering\\depthTextureVS.glsl";
+static const std::string ShadowRenderDepthFSPath = "G:\\cxcengine\\Shader\\ShadowRendering\\depthTextureFS.glsl";
+static const std::string ShadowRenderVSPath = "G:\\cxcengine\\Shader\\ShadowRendering\\ShadowVS.glsl";
+static const std::string ShadowRenderFSPath = "G:\\cxcengine\\Shader\\ShadowRendering\\ShadowFS.glsl";
 
-static const std::string SceneFBXFile = "G:\\CXCEngine\\Projects\\Models\\EN_Building_H_03.FBX";
-static const std::string HumanoidScene = "G:\\CXCEngine\\Projects\\Models\\humanoid.fbx";
+static const std::string SceneFBXFile = "G:\\cxcengine\\Projects\\Models\\EN_Building_H_03.FBX";
+static const std::string HumanoidScene = "G:\\cxcengine\\Projects\\Models\\humanoid.fbx";
 
-std::shared_ptr<SubMeshRenderer> CreateDeferredRender();
-std::shared_ptr<SubMeshRenderer> CreateForwardRender();
-std::shared_ptr<SubMeshRenderer> CreateShadowRender();
+std::shared_ptr<SubMeshRenderer> CreateDeferredRenderer();
+std::shared_ptr<SubMeshRenderer> CreateForwardRenderer();
+std::shared_ptr<SubMeshRenderer> CreateShadowRenderer();
 void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CActor>>& Objects);
 std::vector<std::shared_ptr<CActor>> CreateActors(std::shared_ptr<SceneContext> Context);
 
@@ -49,7 +51,7 @@ int main()
 	auto pWorld = World::GetInstance();
 	auto pRendererMgr = RendererManager::GetInstance();
 	auto pSceneManager = SceneManager::GetInstance();
-	auto pRenderer = CreateForwardRender();
+	auto pRenderer = CreateForwardRenderer();
 	pRendererMgr->AddRenderer(pRenderer);
 
 	auto pCamera = NewObject<Camera>();
@@ -73,11 +75,17 @@ int main()
 	{
 		BindSubMeshRenderer(pRenderer, Actors);
 	}
+	else
+	{
+		DEBUG_LOG(eLogType::Error, "Failed to load scene : " + SceneFBXFile + '\n');
+	}
 
 	for (auto Actor : Actors)
 	{
 		pWorld->AddActor(Actor);
 	}
+
+	DrawDebugCube(glm::vec3(0,0,50), glm::vec3(5,5,5), glm::vec3(1,0,0));
 
 	// Start engine
 	GEngine::StartEngine();
@@ -150,7 +158,7 @@ void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::
 	}
 }
 
-std::shared_ptr<SubMeshRenderer> CreateForwardRender()
+std::shared_ptr<SubMeshRenderer> CreateForwardRenderer()
 {
 	auto pRendererMgr = RendererManager::GetInstance();
 
@@ -169,7 +177,7 @@ std::shared_ptr<SubMeshRenderer> CreateForwardRender()
 	return PhongRender;
 }
 
-std::shared_ptr<SubMeshRenderer> CreateDeferredRender()
+std::shared_ptr<SubMeshRenderer> CreateDeferredRenderer()
 {
 	auto pRendererMgr = RendererManager::GetInstance();
 
@@ -187,7 +195,7 @@ std::shared_ptr<SubMeshRenderer> CreateDeferredRender()
 	return pDeferredRenderer;
 }
 
-std::shared_ptr<SubMeshRenderer> CreateShadowRender()
+std::shared_ptr<SubMeshRenderer> CreateShadowRenderer()
 {
 	auto pRendererMgr = RendererManager::GetInstance();
 

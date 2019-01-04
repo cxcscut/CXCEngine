@@ -29,7 +29,7 @@ namespace cxc
 	public:
 
 		bool ReadShaderSourceCode(const std::string& ShaderPath, std::string& SourceCode);
-		bool CompileShader(GLuint ShaderID, const std::string& SourceCode, std::string& OutResultLog);
+		bool CompileShader(const std::string& SourceCode, std::string& OutResultLog);
 		bool CheckCompilingStatus(GLuint ShaderID) const;
 
 	public:

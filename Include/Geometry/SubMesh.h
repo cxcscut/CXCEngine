@@ -7,6 +7,7 @@
 namespace cxc
 {
 	class SubMeshRenderer;
+	enum class eShadingMode : uint16_t;
 
 	/* SubMesh is a collection of polygons that have the same material, an object can have many meshes */
 	class CXC_ENGINECORE_API SubMesh
@@ -16,29 +17,31 @@ namespace cxc
 	public:
 		SubMesh();
 		SubMesh(const std::vector<uint32_t>& Indices);
-		~SubMesh();
+		virtual ~SubMesh();
 
 	public:
 
-		void BindMaterial(GLuint ProgramID, const MaterialDiffuseSubroutineInfo& DiffuseModelInfo ,std::vector<GLuint>& SubroutinesIndicesFS);
+		virtual void BindMaterial(GLuint ProgramID, const MaterialDiffuseSubroutineInfo& DiffuseModelInfo ,std::vector<GLuint>& SubroutinesIndicesFS);
 	
 	public:
 
-		void DrawSubMesh();
+		virtual void DrawSubMesh();
 		void AllocateSubMeshEBO();
 		void ReleaseSubMeshEBO();
 
 	public:
 
+		void SetShadingMode(eShadingMode Mode) { ShadingMode = Mode; }
 		void SetSubMeshMaterial(std::shared_ptr<Material> pNewMaterial) { pMaterial = pNewMaterial; }
 		void SetOwnerObject(std::shared_ptr<Mesh> OwnerObject);
 
+		eShadingMode GetShadingMode() const { return ShadingMode; }
 		GLuint GetSubMeshEBO() const { return SubMeshEBO; }
 		std::shared_ptr<Mesh> GetOwnerMesh();
 		std::shared_ptr<Material> GetSubMeshMaterial() { return pMaterial; }
 		const std::vector<uint32_t>& GetSubMeshVertexIndices() const { return Indices; }
 
-	private:
+	protected:
 
 		// EBO of the mesh
 		GLuint SubMeshEBO;
@@ -51,6 +54,9 @@ namespace cxc
 
 		// Material of the mesh
 		std::shared_ptr<Material> pMaterial;
+
+		// Shading mode of the submesh
+		eShadingMode ShadingMode;
 	};
 }
 

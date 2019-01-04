@@ -10,10 +10,11 @@ namespace cxc {
 
 	class RendererContext;
 
-	enum class eShadingMode : uint32_t 
+	enum class eShadingMode : uint16_t 
 	{
-		SurfaceMode = 0,
-		WireframeMode = 1
+		FillMode = 0,
+		WireframeMode = 1,
+		PointMode = 2
 	};
 
 	class CXC_ENGINECORE_API RendererManager final : public Singleton<RendererManager>
@@ -34,7 +35,13 @@ namespace cxc {
 
 	public:
 
+		void CreateEngineDefaultRenderer();
+		void BindDebugMesh(std::shared_ptr<Mesh> pMesh);
+
+	public:
+
 		void BindSubMeshRenderer(std::shared_ptr<SubMesh> pSubMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer);
+		void BindMeshRenderer(std::shared_ptr<Mesh> pMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer);
 		void UnBindSubMeshRenderer(std::shared_ptr<SubMesh> pSubMesh, std::shared_ptr<SubMeshRenderer> pSubMeshRenderer);
 		void AddRenderer( std::shared_ptr<SubMeshRenderer> pRenderer) noexcept;
 		void DeleteRenderer(const std::string &name) noexcept;
