@@ -5,9 +5,9 @@
 #include "Core/EngineCore.h"
 #include "Core/EngineTypes.h"
 
-#define DrawDebugSphere(Pos, Radius, Segment, MeshColor) (DebugDrawHelper::GetInstance()->AddDebugSphereMesh(Pos, Radius, Segment, MeshColor))
-#define DrawDebugCube(Pos, Extents, MeshColor) (DebugDrawHelper::GetInstance()->AddDebugCubeMesh(Pos, Extents, MeshColor))
-#define FlushDebugMeshse() (DebugDrawHelper::GetInstance()->RemoveDebugMeshes())
+#define DrawDebugSphere(Pos, Radius, Segment, MeshColor, Persistence) (DebugDrawHelper::GetInstance()->AddDebugSphereShape(Pos, Radius, Segment, MeshColor, Persistence))
+#define DrawDebugCube(Pos, Extents, MeshColor, Persistence) (DebugDrawHelper::GetInstance()->AddDebugCubeShape(Pos, Extents, MeshColor, Persistence))
+#define FlushDebugMeshse() (DebugDrawHelper::GetInstance()->RemoveDebugShapes())
 
 namespace cxc
 {
@@ -23,12 +23,12 @@ namespace cxc
 
 	public:
 	
-		void RemoveDebugMeshes();
+		void RemoveDebugShapes();
 
 	public:
 
-		void AddDebugSphereMesh(const glm::vec3& Pos, float Radius, uint32_t Segment, const glm::vec3& Color);
-		void AddDebugCubeMesh(const glm::vec3 &Pos, const glm::vec3 Extents, const glm::vec3& Color);
+		void AddDebugSphereShape(const glm::vec3& Pos, float Radius, uint32_t Segment, const glm::vec3& Color, float Persistence);
+		void AddDebugCubeShape(const glm::vec3 &Pos, const glm::vec3 Extents, const glm::vec3& Color, float Persistence);
 
 	};
 }

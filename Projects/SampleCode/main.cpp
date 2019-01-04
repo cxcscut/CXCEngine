@@ -85,7 +85,7 @@ int main()
 		pWorld->AddActor(Actor);
 	}
 
-	DrawDebugCube(glm::vec3(0,0,50), glm::vec3(5,5,5), glm::vec3(1,0,0));
+	DrawDebugCube(glm::vec3(0,0,50), glm::vec3(5,5,5), glm::vec3(1,0,0), 5.0f);
 
 	// Start engine
 	GEngine::StartEngine();

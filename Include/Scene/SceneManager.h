@@ -25,6 +25,8 @@
 
 namespace cxc {
 
+	class DebugMesh;
+
 	class CXC_ENGINECORE_API SceneManager final : public Singleton<SceneManager>
 	{
 
@@ -79,6 +81,7 @@ namespace cxc {
 		void RemoveMesh(const std::shared_ptr<Mesh> pMesh);
 		void AddMesh(const std::shared_ptr<Mesh> pMesh) noexcept;
 		void AddMesh(const std::vector<std::shared_ptr<Mesh>> Meshes);
+		void AddDebugMesh(std::shared_ptr<DebugMesh> pDebugMesh);
 
 		size_t GetCameraCount() const { return Cameras.size(); }
 		std::shared_ptr<Camera> GetCamera(size_t Index);
@@ -86,9 +89,8 @@ namespace cxc {
 
 	public:
 
-		void RenderScene() noexcept;
+		void RenderingTick(float DeltaSeconds) noexcept;
 
-		void RenderDebugMeshes();
 		void FlushDebugMeshes();
 
 	private:
@@ -109,7 +111,7 @@ namespace cxc {
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> MeshMap;
 
 		// DebugMeshes
-		std::vector<std::shared_ptr<Mesh>> DebugMeshes;
+		std::vector<std::shared_ptr<DebugMesh>> DebugMeshes;
 
 		// Boundary of the scene
 		CXCRect3D m_Boundary;

@@ -20,10 +20,16 @@ namespace cxc
 
 	public:
 
+		void SetPersistance(float Time) { Persistence = Time; }
 		void SetDebugMeshColor(const glm::vec3& Color) { DebugMeshColor = Color; }
+
+		float GetPersistence() const { return Persistence; }
 		glm::vec3 GetDebugMeshColor() const { return DebugMeshColor; }
 
 	protected:
+
+		// The time of the persistence
+		float Persistence;
 
 		// Color of the debug mesh
 		glm::vec3 DebugMeshColor;

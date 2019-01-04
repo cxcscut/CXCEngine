@@ -9,6 +9,7 @@
 namespace cxc {
 
 	class RendererContext;
+	class DebugMesh;
 
 	enum class eShadingMode : uint16_t 
 	{
@@ -36,7 +37,7 @@ namespace cxc {
 	public:
 
 		void CreateEngineDefaultRenderer();
-		void BindDebugMesh(std::shared_ptr<Mesh> pMesh);
+		void BindDebugMesh(std::shared_ptr<DebugMesh> pMesh);
 
 	public:
 

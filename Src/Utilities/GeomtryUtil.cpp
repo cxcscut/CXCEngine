@@ -16,7 +16,7 @@ namespace cxc
 
 	}
 
-	std::shared_ptr<Mesh> GeometryUtil::MakeSphere(float Radius, const glm::vec3& Center, uint32_t Segment, const glm::vec3& Color)
+	std::shared_ptr<DebugMesh> GeometryUtil::MakeSphere(float Radius, const glm::vec3& Center, uint32_t Segment, const glm::vec3& Color)
 	{
 		std::vector<glm::vec3> Vertices;
 		std::vector<uint32_t> Indices;
@@ -71,7 +71,7 @@ namespace cxc
 		return pSphere;
 	}
 
-	std::shared_ptr<Mesh> GeometryUtil::MakeBox(const glm::vec3& Center, const glm::vec3& Extent, const glm::vec3& Color)
+	std::shared_ptr<DebugMesh> GeometryUtil::MakeBox(const glm::vec3& Center, const glm::vec3& Extent, const glm::vec3& Color)
 	{
 		// Create the vertices of the box
 		std::vector<glm::vec3> Vertices = 

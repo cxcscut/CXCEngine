@@ -1,4 +1,5 @@
 #include "Scene/SceneManager.h"
+#include "Geometry/DebugMesh.h"
 #include "Geometry/Mesh.h"
 #include "World/World.h"
 #include <iostream>
@@ -80,47 +81,18 @@ namespace cxc {
 		}
 	}
 
+	void SceneManager::AddDebugMesh(std::shared_ptr<DebugMesh> pDebugMesh)
+	{
+		if (pDebugMesh)
+		{
+			DebugMeshes.push_back(pDebugMesh);
+		}
+	}
+
 	void SceneManager::AddMesh(const std::shared_ptr<Mesh> pMesh) noexcept
 	{
 		if(pMesh != nullptr)
 			MeshMap.insert(std::make_pair(pMesh->GetMeshName(), pMesh));
-	}
-
-	void SceneManager::RenderDebugMeshes()
-	{
-		// Clear the renderer context for current rendering
-		pRendererMgr->ClearRendererContext();
-
-		// Allocate buffers for rendering the debug meshes
-		for (auto pDebugMesh : DebugMeshes)
-		{
-			pDebugMesh->AllocateBuffers();
-
-			// Add debug submesh to the renderer context
-			size_t SubmeshCount = pDebugMesh->GetSubMeshCount();
-			for (size_t Index = 0; Index < SubmeshCount; ++Index)
-			{
-				auto pDebugSubMesh = pDebugMesh->GetSubMesh(Index);
-				pRendererMgr->AddSubMeshToRendererContext(pDebugSubMesh);
-			}
-		}
-
-		// Rendering debug meshes
-		for (auto pRendererIter : pRendererMgr->RenderersMap)
-		{
-			auto RendererContextIter = pRendererMgr->RendererContextsMap.find(pRendererIter.second->GetRendererName());
-			if (RendererContextIter != pRendererMgr->RendererContextsMap.end())
-			{
-				pRendererMgr->UseRenderer(pRendererIter.second);
-				pRendererIter.second->Render(RendererContextIter->second);
-			}
-		}
-		
-		// Release buffers of the debug meshes
-		for (auto pDebugMesh : DebugMeshes)
-		{
-			pDebugMesh->ReleaseBuffers();
-		}
 	}
 
 	void SceneManager::FlushDebugMeshes()
@@ -128,8 +100,9 @@ namespace cxc {
 		DebugMeshes.clear();
 	}
 
-	void SceneManager::RenderScene() noexcept
+	void SceneManager::RenderingTick(float DeltaSeconds) noexcept
 	{
+		std::cout << DeltaSeconds << std::endl;
 		// Clear the renderer context for the current rendering
 		pRendererMgr->ClearRendererContext();
 
@@ -148,6 +121,38 @@ namespace cxc {
 			}
 		}
 
+		// Allocate buffers for rendering the debug meshes
+		if (!DebugMeshes.empty())
+		{
+			auto DebugMeshIter = DebugMeshes.end() - 1;
+			while (DebugMeshIter >= DebugMeshes.begin())
+			{
+				auto TimeLeft = (*DebugMeshIter)->GetPersistence() - DeltaSeconds;
+				(*DebugMeshIter)->SetPersistance(TimeLeft);
+				if (TimeLeft > 0)
+				{
+					(*DebugMeshIter)->AllocateBuffers();
+
+					// Add debug submesh to the renderer context
+					size_t SubmeshCount = (*DebugMeshIter)->GetSubMeshCount();
+					for (size_t Index = 0; Index < SubmeshCount; ++Index)
+					{
+						auto pDebugSubMesh = (*DebugMeshIter)->GetSubMesh(Index);
+						pRendererMgr->AddSubMeshToRendererContext(pDebugSubMesh);
+					}
+				}
+				else
+				{
+					DebugMeshes.erase(DebugMeshIter);
+				}
+
+				if (!DebugMeshes.empty() && DebugMeshIter > DebugMeshes.begin())
+					--DebugMeshIter;
+				else
+					break;
+			}
+		}
+
 		// Rendering scene
 		for (auto pRendererIter : pRendererMgr->RenderersMap)
 		{
@@ -163,6 +168,12 @@ namespace cxc {
 		for (auto pMesh : MeshMap)
 		{
 			pMesh.second->ReleaseBuffers();
+		}
+
+		// Release buffers of the debug meshes
+		for (auto pDebugMesh : DebugMeshes)
+		{
+			pDebugMesh->ReleaseBuffers();
 		}
 	}
 

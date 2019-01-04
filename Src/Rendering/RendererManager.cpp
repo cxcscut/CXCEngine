@@ -3,6 +3,7 @@
 #include "Rendering/DebugMeshRenderPipeline.h"
 #include "Rendering/RendererContext.h"
 #include "Geometry/Mesh.h"
+#include "Geometry/DebugMesh.h"
 #include "Utilities/DebugLogger.h"
 #include "Geometry/SubMesh.h"
 
@@ -37,7 +38,7 @@ namespace cxc
 		
 	}
 
-	void RendererManager::BindDebugMesh(std::shared_ptr<Mesh> pMesh)
+	void RendererManager::BindDebugMesh(std::shared_ptr<DebugMesh> pMesh)
 	{
 		if (pMesh)
 		{

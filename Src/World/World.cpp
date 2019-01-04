@@ -157,19 +157,18 @@ namespace cxc {
 	void World::RenderingTick()
 	{
 		auto CurrentWorldSeconds = GetWorldSeconds();
-		auto SecondsBetweenFrames = CurrentWorldSeconds - LastPhysicalWorldTickSeconds;
+		auto SecondsBetweenFrames = CurrentWorldSeconds - LastRenderingTickSeconds;
 		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
+
+		// clean frame buffer for rendering
+		CleanFrameBuffer();
 
 		if (SecondsBetweenFrames >= FixedRenderingDeltaSeconds)
 		{
-			// clean frame buffer for rendering
-			CleanFrameBuffer();
+			LastRenderingTickSeconds = CurrentWorldSeconds;
 
 			// Rendering the scene
-			pSceneMgr->RenderScene();
-
-			// Rendering the debug meshes
-			pSceneMgr->RenderDebugMeshes();
+			pSceneMgr->RenderingTick(SecondsBetweenFrames);
 		}
 		else
 		{
@@ -178,9 +177,11 @@ namespace cxc {
 			// Waiting
 			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
 
-			m_LogicFramework->Tick(GetWorldSeconds() - LastPhysicalWorldTickSeconds);
+			CurrentWorldSeconds = GetWorldSeconds();
 
-			LastPhysicalWorldTickSeconds = GetWorldSeconds();
+			pSceneMgr->RenderingTick(GetWorldSeconds() - LastRenderingTickSeconds);
+
+			LastRenderingTickSeconds = CurrentWorldSeconds;
 		}
 	}
 
@@ -229,13 +230,12 @@ namespace cxc {
 		assert(m_PhysicalWorld != nullptr);
 
 		auto CurrentWorldSeconds = GetWorldSeconds();
-		auto SecondsBetweenFrames = CurrentWorldSeconds - LastRenderingTickSeconds;
+		auto SecondsBetweenFrames = CurrentWorldSeconds - LastPhysicalWorldTickSeconds;
 		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
 
 		if (SecondsBetweenFrames >= FixedRenderingDeltaSeconds)
 		{
 			m_PhysicalWorld->PhysicsTick(SecondsBetweenFrames);
-			LastRenderingTickSeconds = GetWorldSeconds();
 		}
 		else
 		{
@@ -244,10 +244,10 @@ namespace cxc {
 			// Waiting
 			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
 
-			m_PhysicalWorld->PhysicsTick(GetWorldSeconds() - LastRenderingTickSeconds);
-
-			LastRenderingTickSeconds = GetWorldSeconds();
+			m_PhysicalWorld->PhysicsTick(GetWorldSeconds() - LastPhysicalWorldTickSeconds);
 		}
+
+		LastPhysicalWorldTickSeconds = GetWorldSeconds();
 	}
 
 	void World::AddActor(std::shared_ptr<CActor> Actor)
@@ -411,14 +411,14 @@ namespace cxc {
 
 	void World::Tick()
 	{
-		// Rendering tick
-		RenderingTick();
-
 		// Physics tick
 		PhysicsTick();
 
 		// Processing the input
 		ProcessInput();
+
+		// Rendering tick
+		RenderingTick();
 	}
 
 	void World::WorldLooping() noexcept
