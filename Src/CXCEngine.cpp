@@ -56,8 +56,8 @@ namespace cxc
 		auto World = World::GetInstance();
 		if (World)
 		{
-			// Start to run
-			World->run();
+			// Start to StartToRun
+			World->StartToRun();
 		}
 	}
 }

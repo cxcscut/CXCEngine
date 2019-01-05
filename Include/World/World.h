@@ -70,7 +70,6 @@ namespace cxc {
 
 		GLboolean CreateAndDisplayWindow(GLint Height,GLint Width,const std::string Title);
 
-	// Configuration
 	public:
 
 		void SetRenderingFrameRates(uint32_t NewFrameRates) { RenderingFrameRates = NewFrameRates; }
@@ -92,7 +91,7 @@ namespace cxc {
 
 		void WorldLooping() noexcept;
 
-		void run() noexcept;
+		void StartToRun() noexcept;
 
 	public:
 
@@ -107,9 +106,10 @@ namespace cxc {
 	public:
 
 		void Tick();
-		void RenderingTick();
+		void RenderingTick(float DeltaSeconds);
+
 		void LogicTick();
-		void PhysicsTick();
+		void PhysicsTick(float DeltaSeconds);
 		void ProcessInput();
 
 		// Time
@@ -141,19 +141,18 @@ namespace cxc {
 		// Rendering frame rates
 		uint32_t RenderingFrameRates;
 
+		// Start time of the engine
 		SystemClock WorldStartSeconds;
 
-		float LastLogicWorldTickSeconds, LastRenderingTickSeconds;
-		float LastPhysicalWorldTickSeconds;
+		float LastLogicWorldTickSeconds;
+			
+		float LastRenderingTickSeconds;
 
 		// Logic framework
 		std::shared_ptr<LogicFramework> m_LogicFramework;
 
 		// Physical world
 		std::shared_ptr<PhysicalWorld> m_PhysicalWorld;
-
-		// Actors that in the world
-		std::unordered_map<std::string, std::shared_ptr<CActor>> ActorMap;
 	};
 }
 

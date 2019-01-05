@@ -4,10 +4,12 @@
 #define CXC_LOGICFRAMEWORK_H
 
 #include <functional>
+#include <unordered_map>
 
 namespace cxc
 {
 	class CMovementCtrlSystem;
+	class CActor;
 
 	/* The LogicFramework is the base class that manipulates all the logic systems */
 	class CXC_LOGIC_API LogicFramework : public Singleton<LogicFramework>
@@ -18,6 +20,13 @@ namespace cxc
 
 		LogicFramework();
 		~LogicFramework();
+
+	public:
+
+		void AddActor(std::shared_ptr<CActor> Actor);
+		void RemoveActor(std::shared_ptr<CActor> Actor);
+
+		std::shared_ptr<CActor> GetActor(const std::string& ActorName);
 
 	public:
 
@@ -39,6 +48,9 @@ namespace cxc
 
 		// Logic frame rates
 		uint32_t LogicFrameRates;
+
+		// Actors that in the logic world
+		std::unordered_map<std::string, std::shared_ptr<CActor>> LogicActors;
 	};
 }
 

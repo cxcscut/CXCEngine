@@ -97,15 +97,18 @@ namespace cxc {
 
 	void SceneManager::FlushDebugMeshes()
 	{
-		DebugMeshes.clear();
+		// Mark all the debug meshes as pending kill
+		for (auto pDebugMesh : DebugMeshes)
+		{
+			if (pDebugMesh)
+			{
+				pDebugMesh->MarkPendingKill();
+			}
+		}
 	}
 
-	void SceneManager::RenderingTick(float DeltaSeconds) noexcept
+	void SceneManager::AllocateMeshBuffers()
 	{
-		std::cout << DeltaSeconds << std::endl;
-		// Clear the renderer context for the current rendering
-		pRendererMgr->ClearRendererContext();
-
 		// Allocates buffers for rendering
 		for (auto pMesh : MeshMap)
 		{
@@ -122,29 +125,54 @@ namespace cxc {
 		}
 
 		// Allocate buffers for rendering the debug meshes
+		for (auto pDebugMesh : DebugMeshes)
+		{
+			if (pDebugMesh)
+			{
+				pDebugMesh->AllocateBuffers();
+
+				// Add debug submesh to the renderer context
+				size_t SubmeshCount = pDebugMesh->GetSubMeshCount();
+				for (size_t Index = 0; Index < SubmeshCount; ++Index)
+				{
+					auto pDebugSubMesh = pDebugMesh->GetSubMesh(Index);
+					pRendererMgr->AddSubMeshToRendererContext(pDebugSubMesh);
+				}
+			}
+		}
+	}
+
+	void SceneManager::ReleaseMeshBuffers()
+	{
+		// Release buffers
+		for (auto pMesh : MeshMap)
+		{
+			pMesh.second->ReleaseBuffers();
+		}
+
+		// Release buffers of the debug meshes
+		for (auto pDebugMesh : DebugMeshes)
+		{
+			pDebugMesh->ReleaseBuffers();
+		}
+	}
+
+	void SceneManager::UpdateDebugMeshesStatus(float DeltaSeconds)
+	{
 		if (!DebugMeshes.empty())
 		{
+			bool bShouldDebugMeshRemoved = false;
 			auto DebugMeshIter = DebugMeshes.end() - 1;
 			while (DebugMeshIter >= DebugMeshes.begin())
 			{
 				auto TimeLeft = (*DebugMeshIter)->GetPersistence() - DeltaSeconds;
 				(*DebugMeshIter)->SetPersistance(TimeLeft);
-				if (TimeLeft > 0)
-				{
-					(*DebugMeshIter)->AllocateBuffers();
 
-					// Add debug submesh to the renderer context
-					size_t SubmeshCount = (*DebugMeshIter)->GetSubMeshCount();
-					for (size_t Index = 0; Index < SubmeshCount; ++Index)
-					{
-						auto pDebugSubMesh = (*DebugMeshIter)->GetSubMesh(Index);
-						pRendererMgr->AddSubMeshToRendererContext(pDebugSubMesh);
-					}
-				}
-				else
-				{
+				bShouldDebugMeshRemoved |= TimeLeft <= 0;
+				bShouldDebugMeshRemoved |= (*DebugMeshIter)->IsPendingKill();
+
+				if (bShouldDebugMeshRemoved)
 					DebugMeshes.erase(DebugMeshIter);
-				}
 
 				if (!DebugMeshes.empty() && DebugMeshIter > DebugMeshes.begin())
 					--DebugMeshIter;
@@ -152,6 +180,18 @@ namespace cxc {
 					break;
 			}
 		}
+	}
+
+	void SceneManager::RenderingTick(float DeltaSeconds) noexcept
+	{
+		// Clear the renderer context for the current rendering
+		pRendererMgr->ClearRendererContext();
+
+		// Remove the timeout debug meshes
+		UpdateDebugMeshesStatus(DeltaSeconds);
+
+		// Allocated mesh buffers
+		AllocateMeshBuffers();
 
 		// Rendering scene
 		for (auto pRendererIter : pRendererMgr->RenderersMap)
@@ -164,17 +204,8 @@ namespace cxc {
 			}
 		}
 
-		// Release buffers
-		for (auto pMesh : MeshMap)
-		{
-			pMesh.second->ReleaseBuffers();
-		}
-
-		// Release buffers of the debug meshes
-		for (auto pDebugMesh : DebugMeshes)
-		{
-			pDebugMesh->ReleaseBuffers();
-		}
+		// Release buffer after rendering the meshes
+		ReleaseMeshBuffers();
 	}
 
 	void SceneManager::RemoveCamera(std::shared_ptr<Camera> pCamera)
@@ -264,13 +295,6 @@ namespace cxc {
 		{
 			Lights.push_back(pNewLight);
 		}
-	}
-
-	void SceneManager::DeleteObject(const std::string &sprite_name) noexcept
-	{
-		auto it = MeshMap.find(sprite_name);
-		if (it != MeshMap.end())
-			MeshMap.erase(it);
 	}
 
 	std::shared_ptr<Mesh> SceneManager::GetMesh(const std::string &MeshName) const noexcept

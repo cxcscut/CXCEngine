@@ -45,8 +45,10 @@ namespace cxc {
 
 	public:
 
-		// Delete object
-		void DeleteObject(const std::string &sprite_name) noexcept;
+		void AllocateMeshBuffers();
+		void ReleaseMeshBuffers();
+		
+		void UpdateDebugMeshesStatus(float DeltaSeconds);
 
 	public:
 

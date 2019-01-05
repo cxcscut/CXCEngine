@@ -1,9 +1,9 @@
 #include "World/World.h"
-#include "Scene/SceneManager.h"
-#include "Scene/SceneContext.h"
 #include "Components/CStaticMeshComponent.h"
 #include "Components/CLightComponent.h"
 #include "Components/CCameraComponent.h"
+#include "Scene/SceneManager.h"
+#include "Scene/SceneContext.h"
 #include "Utilities/DebugLogger.h"
 
 namespace cxc {
@@ -114,14 +114,13 @@ namespace cxc {
 		return  float(Duration.count()) * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den;
 	}
 
-	void World::run() noexcept
+	void World::StartToRun() noexcept
 	{
 		// Initialize the start time of the world
 		WorldStartSeconds = std::chrono::system_clock::now();
 		auto CurrentWorldSeconds = GetWorldSeconds();
 		LastLogicWorldTickSeconds = CurrentWorldSeconds;
 		LastRenderingTickSeconds = CurrentWorldSeconds;
-		LastPhysicalWorldTickSeconds = CurrentWorldSeconds;
 
 		// Begin event looping
 		WorldLooping();
@@ -154,35 +153,13 @@ namespace cxc {
 		pWindowMgr->SetBackGroundColor(red,green,blue,alpha);
 	}
 
-	void World::RenderingTick()
+	void World::RenderingTick(float DeltaSeconds)
 	{
-		auto CurrentWorldSeconds = GetWorldSeconds();
-		auto SecondsBetweenFrames = CurrentWorldSeconds - LastRenderingTickSeconds;
-		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
-
-		// clean frame buffer for rendering
+		// Clear the frame buffer
 		CleanFrameBuffer();
 
-		if (SecondsBetweenFrames >= FixedRenderingDeltaSeconds)
-		{
-			LastRenderingTickSeconds = CurrentWorldSeconds;
-
-			// Rendering the scene
-			pSceneMgr->RenderingTick(SecondsBetweenFrames);
-		}
-		else
-		{
-			auto SleepMilliSeconds = static_cast<int>((FixedRenderingDeltaSeconds - SecondsBetweenFrames) * 1000);
-
-			// Waiting
-			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
-
-			CurrentWorldSeconds = GetWorldSeconds();
-
-			pSceneMgr->RenderingTick(GetWorldSeconds() - LastRenderingTickSeconds);
-
-			LastRenderingTickSeconds = CurrentWorldSeconds;
-		}
+		// Rendering the scene
+		pSceneMgr->RenderingTick(DeltaSeconds);
 	}
 
 	void World::ProcessInput()
@@ -201,16 +178,9 @@ namespace cxc {
 
 		if (SecondsBetweenFrames >= FixedLogicDeltaSeconds)
 		{
-			LastLogicWorldTickSeconds = CurrentWorldSeconds;
+			auto TickTimes = static_cast<uint32_t>(SecondsBetweenFrames / FixedLogicDeltaSeconds);
 
-			m_LogicFramework->Tick(SecondsBetweenFrames);
-
-			// Tick all the actor
-			for (auto ActorPair : ActorMap)
-			{
-				if (ActorPair.second)
-					ActorPair.second->Tick(SecondsBetweenFrames);
-			}
+			m_LogicFramework->Tick(TickTimes * FixedLogicDeltaSeconds);
 		}
 		else
 		{
@@ -219,48 +189,27 @@ namespace cxc {
 			// Waiting
 			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
 
-			m_LogicFramework->Tick(GetWorldSeconds() - LastLogicWorldTickSeconds);
+			m_LogicFramework->Tick(FixedLogicDeltaSeconds);
 
-			LastLogicWorldTickSeconds = GetWorldSeconds();
+			CurrentWorldSeconds = GetWorldSeconds();
 		}
+
+		LastLogicWorldTickSeconds = CurrentWorldSeconds;
 	}
 
-	void World::PhysicsTick()
+	void World::PhysicsTick(float DeltaSeconds)
 	{
-		assert(m_PhysicalWorld != nullptr);
-
-		auto CurrentWorldSeconds = GetWorldSeconds();
-		auto SecondsBetweenFrames = CurrentWorldSeconds - LastPhysicalWorldTickSeconds;
-		auto FixedRenderingDeltaSeconds = 1 / static_cast<float>(RenderingFrameRates);
-
-		if (SecondsBetweenFrames >= FixedRenderingDeltaSeconds)
-		{
-			m_PhysicalWorld->PhysicsTick(SecondsBetweenFrames);
-		}
-		else
-		{
-			auto SleepMilliSeconds = static_cast<int>((FixedRenderingDeltaSeconds - SecondsBetweenFrames) * 1000);
-
-			// Waiting
-			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
-
-			m_PhysicalWorld->PhysicsTick(GetWorldSeconds() - LastPhysicalWorldTickSeconds);
-		}
-
-		LastPhysicalWorldTickSeconds = GetWorldSeconds();
+		m_PhysicalWorld->PhysicsTick(DeltaSeconds);
 	}
 
 	void World::AddActor(std::shared_ptr<CActor> Actor)
 	{
 		if (Actor)
 		{
-			auto Iter = ActorMap.find(Actor->GetName());
-			if (Iter == ActorMap.end())
-			{
-				ActorMap.insert(std::make_pair(Actor->GetName(), Actor->shared_from_this()));
-			}
+			// Add actor to the logic world
+			m_LogicFramework->AddActor(Actor);
 
-			// Check the Component
+			// Add camera or light to the scene if has the component
 			size_t ComponentCount = Actor->GetComponentCount();
 			for (size_t Index = 0; Index < ComponentCount; ++Index)
 			{
@@ -273,7 +222,7 @@ namespace cxc {
 					// Add mesh to the scene 
 					pSceneMgr->AddMesh(StaticMeshComponent->GetStaticMesh());
 				}
-				else if(LightComponent)
+				else if (LightComponent)
 				{
 					// If the actor has CLightComponent, we add the light to the scene
 					pSceneMgr->AddLight(LightComponent->GetLight());
@@ -382,14 +331,9 @@ namespace cxc {
 
 	void World::RemoveActor(std::shared_ptr<CActor> Actor)
 	{
-		if (Actor)
+		if (Actor && m_LogicFramework->GetActor(Actor->GetName()) != nullptr)
 		{
-			auto Iter = ActorMap.find(Actor->GetName());
-			if (Iter != ActorMap.end())
-			{
-				ActorMap.erase(Iter);
-			}
-
+			// Remove the camera of light from the scene if has the components
 			size_t ComponentCount = Actor->GetComponentCount();
 			for (size_t Index = 0; Index < ComponentCount; ++Index)
 			{
@@ -406,19 +350,44 @@ namespace cxc {
 					pSceneMgr->RemoveLight(LightComponent->GetLight());
 				}
 			}
+
+			// Remove actor from the logic world
+			m_LogicFramework->RemoveActor(Actor);
 		}
 	}
 
 	void World::Tick()
 	{
-		// Physics tick
-		PhysicsTick();
+		auto CurrentSeconds = GetWorldSeconds();
+		auto RenderingTickDeltaSeconds = CurrentSeconds - LastRenderingTickSeconds;
+		auto RenderingTickInterval = 1 / static_cast<float>(RenderingFrameRates);
+		
+		if (RenderingTickDeltaSeconds >= RenderingTickInterval)
+		{
+			auto TickTimes = static_cast<uint32_t>(RenderingTickDeltaSeconds / RenderingTickInterval);
 
-		// Processing the input
-		ProcessInput();
+			// Physics tick
+			PhysicsTick(TickTimes * RenderingTickInterval);
 
-		// Rendering tick
-		RenderingTick();
+			// Rendering tick
+			RenderingTick(TickTimes * RenderingTickInterval);
+		}
+		else
+		{
+			// Sleep the thread
+			auto SleepMilliSeconds = static_cast<uint32_t>((RenderingTickInterval - RenderingTickDeltaSeconds) * 1000);
+			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
+
+			CurrentSeconds = GetWorldSeconds();
+
+			// Physics tick
+			PhysicsTick(RenderingTickInterval);
+
+			// Rendering tick
+			RenderingTick(RenderingTickInterval);
+		}
+
+		LastRenderingTickSeconds = CurrentSeconds;
 	}
 
 	void World::WorldLooping() noexcept
@@ -428,6 +397,9 @@ namespace cxc {
 
 		auto WindowHandler = pWindowMgr->GetWindowHandle();
 		do {
+			// Processing the input
+			ProcessInput();
+
 			// World tick
 			Tick();
 

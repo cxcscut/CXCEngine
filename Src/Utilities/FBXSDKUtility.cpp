@@ -855,7 +855,7 @@ namespace cxc {
 	{
 		// Delete the FBX Manager. All the objects that have been allocated using the FBx Manager and that haven't been explicitly destroyed are also automatically destroyed.
 		if (pManager) pManager->Destroy();
-		if (pExitStatus) DEBUG_LOG(eLogType::Verbose, "Autodesk FBX SDK has been run successfully \n");
+		if (pExitStatus) DEBUG_LOG(eLogType::Verbose, "Autodesk FBX SDK has been StartToRun successfully \n");
 	}
 
 	bool FBXSDKUtil::SaveScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName, int pFileFormat, bool pEmbedMedia)

@@ -20,13 +20,19 @@ namespace cxc
 
 	public:
 
+		void MarkPendingKill() { bPendingKill = true; }
 		void SetPersistance(float Time) { Persistence = Time; }
 		void SetDebugMeshColor(const glm::vec3& Color) { DebugMeshColor = Color; }
 
+		bool IsPendingKill() const { return bPendingKill; }
 		float GetPersistence() const { return Persistence; }
 		glm::vec3 GetDebugMeshColor() const { return DebugMeshColor; }
 
 	protected:
+
+		// Whether to release the mesh on next rendering tick
+		// When flushing the debug meshes buffer, it will be set true
+		bool bPendingKill;
 
 		// The time of the persistence
 		float Persistence;

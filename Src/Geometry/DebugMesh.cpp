@@ -6,12 +6,14 @@ namespace cxc
 	DebugMesh::DebugMesh():
 		Mesh()
 	{
+		bPendingKill = false;
 		MeshName = "DebugMesh";
 	}
 
 	DebugMesh::DebugMesh(std::vector<glm::vec3>& Vertices)
 		:Mesh()
 	{
+		bPendingKill = false;
 		MeshName = "DebugMesh";
 		m_VertexCoords = Vertices;
 	}
