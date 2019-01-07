@@ -74,6 +74,12 @@ namespace cxc {
 		}
 	} Color;
 
+	enum class eBlendMode : uint16_t
+	{
+		Additive = 0,
+		Normalized = 1,
+		TotalOne = 2
+	};
 };
 
 #endif // CXC_DEFINETYPES_H

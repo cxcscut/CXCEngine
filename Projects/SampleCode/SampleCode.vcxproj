@@ -120,6 +120,10 @@
     <ClCompile Include="..\..\Src\Animation\AnimCurve.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimLayer.cpp" />
     <ClCompile Include="..\..\Src\Animation\AnimStack.cpp" />
+    <ClCompile Include="..\..\Src\Animation\LinkBone.cpp" />
+    <ClCompile Include="..\..\Src\Animation\Cluster.cpp" />
+    <ClCompile Include="..\..\Src\Animation\Skeleton.cpp" />
+    <ClCompile Include="..\..\Src\Animation\Skin.cpp" />
     <ClCompile Include="..\..\Src\Components\CAnimComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CCameraComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CColliderComponent.cpp" />
@@ -183,6 +187,10 @@
     <ClInclude Include="..\..\Include\Animation\AnimKeyFrame.h" />
     <ClInclude Include="..\..\Include\Animation\AnimLayer.h" />
     <ClInclude Include="..\..\Include\Animation\AnimStack.h" />
+    <ClInclude Include="..\..\Include\Animation\LinkBone.h" />
+    <ClInclude Include="..\..\Include\Animation\Cluster.h" />
+    <ClInclude Include="..\..\Include\Animation\Skeleton.h" />
+    <ClInclude Include="..\..\Include\Animation\Skin.h" />
     <ClInclude Include="..\..\Include\Components\CAnimComponent.h" />
     <ClInclude Include="..\..\Include\Components\CCameraComponent.h" />
     <ClInclude Include="..\..\Include\Components\CColliderComponent.h" />

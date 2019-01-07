@@ -7,6 +7,7 @@ namespace cxc
 {
 	class Mesh;
 	class AnimStack;
+	class Skeleton;
 	class CAnimComponent;
 
 	enum class eAnimPlayMode : uint16_t
@@ -54,6 +55,9 @@ namespace cxc
 
 		// Current active animation stack
 		std::shared_ptr<AnimStack> pCurrentActiveAnimStack;
+
+		// Skin-meshes skeleton that the animation is currently using
+		std::shared_ptr<Skeleton> pSkeleton;
 
 		// Vertices deformed during the animation
 		std::vector<glm::vec3> DeformedVertices;
