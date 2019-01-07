@@ -13,7 +13,8 @@ namespace cxc {
 
 	Mesh::Mesh() :
 		MeshName(""),
-		isLoaded(false)
+		isLoaded(false),
+		bPendingKill(false)
 	{
 
 		pParentNode.reset();

@@ -2,6 +2,7 @@
 #include "Geometry/DebugMesh.h"
 #include "Geometry/Mesh.h"
 #include "World/World.h"
+#include "Utilities/DebugLogger.h"
 #include <iostream>
 
 namespace cxc {
@@ -47,11 +48,7 @@ namespace cxc {
 
 	void SceneManager::RemoveMesh(const std::shared_ptr<Mesh> pMesh)
 	{
-		auto Iter = MeshMap.find(pMesh->GetMeshName());
-		if (Iter != MeshMap.end())
-		{
-			MeshMap.erase(Iter);
-		}
+		pMesh->MarkPendingKill();
 	}
 
 	std::shared_ptr<Camera> SceneManager::GetCamera(size_t Index)
@@ -157,8 +154,26 @@ namespace cxc {
 		}
 	}
 
-	void SceneManager::UpdateDebugMeshesStatus(float DeltaSeconds)
+	void SceneManager::CleanPendingKillMeshes(float DeltaSeconds)
 	{
+		// Remove pending kill meshes
+		std::vector<std::string> RemovingMeshesName;
+		for (auto MeshPair : MeshMap)
+		{
+			if (MeshPair.second->IsPendingKill())
+				RemovingMeshesName.emplace_back(MeshPair.second->GetMeshName());
+		}
+
+		for (auto MeshName : RemovingMeshesName)
+		{
+			auto MeshIter = MeshMap.find(MeshName);
+			if (MeshIter != MeshMap.end())
+			{
+				MeshMap.erase(MeshIter);
+			}
+		}
+
+		// Remove pending kill debug meshes
 		if (!DebugMeshes.empty())
 		{
 			bool bShouldDebugMeshRemoved = false;
@@ -188,7 +203,7 @@ namespace cxc {
 		pRendererMgr->ClearRendererContext();
 
 		// Remove the timeout debug meshes
-		UpdateDebugMeshesStatus(DeltaSeconds);
+		CleanPendingKillMeshes(DeltaSeconds);
 
 		// Allocated mesh buffers
 		AllocateMeshBuffers();

@@ -329,6 +329,20 @@ namespace cxc {
 		return true;
 	}
 
+	void World::RemoveActor(uint32_t GUID)
+	{
+		auto RemovingActor = m_LogicFramework->GetActor(GUID);
+		if (RemovingActor)
+			RemoveActor(RemovingActor);
+	}
+
+	void World::RemoveActor(const std::string& ActorName)
+	{
+		auto RemovingActor = m_LogicFramework->GetActor(ActorName);
+		if (RemovingActor)
+			RemoveActor(RemovingActor);
+	}
+
 	void World::RemoveActor(std::shared_ptr<CActor> Actor)
 	{
 		if (Actor && m_LogicFramework->GetActor(Actor->GetName()) != nullptr)
@@ -339,6 +353,7 @@ namespace cxc {
 			{
 				auto CameraComponent = std::dynamic_pointer_cast<CCameraComponent>(Actor->GetComponent(Index));
 				auto LightComponent = std::dynamic_pointer_cast<CLightComponent>(Actor->GetComponent(Index));
+				auto StaticMeshComponent = std::dynamic_pointer_cast<CStaticMeshComponent>(Actor->GetComponent(Index));
 				if (CameraComponent)
 				{
 					// Remove the camera if it has the CameraComponent
@@ -348,6 +363,11 @@ namespace cxc {
 				{
 					// Remove the light if it has the LightComponent
 					pSceneMgr->RemoveLight(LightComponent->GetLight());
+				}
+				else if (StaticMeshComponent)
+				{
+					// Remove the meshes if hast the StaticMeshComponent
+					pSceneMgr->RemoveMesh(StaticMeshComponent->GetStaticMesh());
 				}
 			}
 

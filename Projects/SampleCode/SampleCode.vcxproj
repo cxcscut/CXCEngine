@@ -130,6 +130,7 @@
     <ClCompile Include="..\..\Src\Components\CStaticMeshComponent.cpp" />
     <ClCompile Include="..\..\src\controller\InputManager.cpp" />
     <ClCompile Include="..\..\Src\Core\CObject.cpp" />
+    <ClCompile Include="..\..\Src\Core\GUIDGenerator.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
     <ClCompile Include="..\..\Src\Geometry\DebugMesh.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
@@ -193,6 +194,7 @@
     <ClInclude Include="..\..\include\controller\InputManager.h" />
     <ClInclude Include="..\..\Include\Core\CObject.h" />
     <ClInclude Include="..\..\Include\Core\EngineTypes.h" />
+    <ClInclude Include="..\..\Include\Core\GUIDGenerator.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
     <ClInclude Include="..\..\include\general\EngineCore.h" />
     <ClInclude Include="..\..\Include\Geometry\DebugMesh.h" />

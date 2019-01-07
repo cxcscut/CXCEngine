@@ -48,7 +48,8 @@ namespace cxc
 
 	void DebugLogger::DebugLog(eLogType Type, const std::string& LogMsg)
 	{
-#ifdef _DEBUG
+		// Locking
+		std::lock_guard<std::mutex> lk(LogLock);
 
 #ifdef WIN32
 
@@ -90,8 +91,6 @@ namespace cxc
 		}
 
 		WriteLogFile(OutPutLogMsg);
-
-#endif
 	}
 
 	void DebugLogger::WriteLogFile(const std::string LogMsg)

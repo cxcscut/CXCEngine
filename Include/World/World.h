@@ -97,6 +97,8 @@ namespace cxc {
 
 		void AddActor(std::shared_ptr<CActor> Actor);
 		void RemoveActor(std::shared_ptr<CActor> Actor);
+		void RemoveActor(uint32_t GUID);
+		void RemoveActor(const std::string& ActorName);
 
 	public:
 

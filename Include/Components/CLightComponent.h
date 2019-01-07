@@ -16,6 +16,10 @@ namespace cxc
 
 	public:
 
+		virtual void Tick(float DeltaSeconds) override;
+
+	public:
+
 		void SetLight(std::shared_ptr<LightSource> Light) { pLight = Light; }
 		std::shared_ptr<LightSource> GetLight() { return pLight; }
 

@@ -130,7 +130,9 @@ namespace cxc {
 		bool CheckLoadingStatus() const noexcept;
 		bool CheckLoaded() const noexcept { return isLoaded; }
 		void SetLoaded() noexcept;
+		void MarkPendingKill() { bPendingKill = true; }
 
+		bool IsPendingKill() const { return bPendingKill; }
 		CXCRect3D GetAABB() const noexcept { return AABB; };
 		GLuint GetVAO() const { return m_VAO; }
 		GLuint GetVertexCoordsVBO() const { return  m_VBO[0]; }
@@ -141,6 +143,9 @@ namespace cxc {
 		void AddSubMesh(std::shared_ptr<SubMesh> pNewMesh);
 
 	protected:
+
+		// Whether to release the mesh on next rendering tick
+		bool bPendingKill;
 
 		// Mesh Name
 		std::string MeshName;

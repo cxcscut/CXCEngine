@@ -48,7 +48,7 @@ namespace cxc {
 		void AllocateMeshBuffers();
 		void ReleaseMeshBuffers();
 		
-		void UpdateDebugMeshesStatus(float DeltaSeconds);
+		void CleanPendingKillMeshes(float DeltaSeconds);
 
 	public:
 
@@ -58,7 +58,6 @@ namespace cxc {
 		std::shared_ptr<Mesh> GetMesh (const std::string &MeshName) const noexcept;
 		const std::unordered_map<std::string, std::shared_ptr<Mesh>> &GetMeshMap() const noexcept;
 
-		// Lights
 	public:
 
 		void AddLight(const std::string& Name, const glm::vec3& LightPosition, const glm::vec3& TargetPos, float LightIntensity, eLightType Type);
@@ -79,7 +78,6 @@ namespace cxc {
 		std::shared_ptr<Camera> GetCurrentActiveCamera();
 		void SetCameraActive(std::shared_ptr<Camera> pCamera);
 
-		// Add object to object map
 		void RemoveMesh(const std::shared_ptr<Mesh> pMesh);
 		void AddMesh(const std::shared_ptr<Mesh> pMesh) noexcept;
 		void AddMesh(const std::vector<std::shared_ptr<Mesh>> Meshes);

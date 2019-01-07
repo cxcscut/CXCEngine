@@ -192,6 +192,9 @@
     <ClCompile Include="..\..\Src\Rendering\DebugMeshRenderPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Src\Core\GUIDGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\CXCEngine.h">
@@ -372,6 +375,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\Rendering\DebugMeshRenderPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Core\GUIDGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

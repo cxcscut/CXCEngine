@@ -3,10 +3,19 @@
 
 #include <string>
 #include <fstream>
+#include <mutex>
 #include "Singleton.inl"
 #include "Core/EngineCore.h"
 
+#ifdef _DEBUG
+
 #define DEBUG_LOG(Type, LogMsg) (cxc::DebugLogger::GetInstance()->DebugLog(Type, LogMsg))
+
+#else
+
+#define DEBUG_LOG(Type, LogMsg)
+
+#endif
 
 namespace cxc
 {
@@ -48,6 +57,9 @@ namespace cxc
 		void WriteLogFile(const std::string LogMsg);
 
 	private:
+
+		// Log file write lock
+		std::mutex LogLock;
 
 		// Whether to output verbose log
 		bool Verbosity;
