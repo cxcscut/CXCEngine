@@ -103,6 +103,9 @@ namespace cxc {
 		// Initialize physics engine
 		m_PhysicalWorld->InitializePhysicalWorld();
 
+		// Intialize logic world
+		m_LogicFramework->IntializeLogicWorld();
+
 		// Initialize RendererManager
 		pSceneMgr->pRendererMgr->CreateEngineDefaultRenderer();
 	}

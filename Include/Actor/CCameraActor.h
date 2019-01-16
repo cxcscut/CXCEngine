@@ -12,8 +12,12 @@ namespace cxc
 	{
 	public :
 		CCameraActor();
-		CCameraActor(const std::string& Name);
+		CCameraActor(std::shared_ptr<Camera> pCamera);
 		virtual ~CCameraActor();
+
+	public:
+
+		virtual void Initialize() override;
 
 	public:
 

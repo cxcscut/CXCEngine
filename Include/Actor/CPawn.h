@@ -17,6 +17,10 @@ namespace cxc
 
 	public:
 
+		virtual void Initialize() override;
+
+	public:
+
 		virtual void Tick(float DeltaSeconds) override;
 	};
 }

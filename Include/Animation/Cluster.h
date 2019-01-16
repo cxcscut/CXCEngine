@@ -9,14 +9,6 @@ namespace cxc
 	// Cluster mode
 	using eClusterMode = eBlendMode;
 
-	// Interpolation type
-	enum class eInterpolationType : uint16_t
-	{
-		Lerp = 0, /* Linear interpolation */
-		sLerp = 1  /* Spherical linear interpolation */,
-		sQuard = 2  /* Spherical cubic spline interpolation */
-	};
-
 	class LinkBone;
 	class Skin;
 
@@ -30,25 +22,27 @@ namespace cxc
 
 	public:
 
-		glm::mat4 ComputeClusterDeformationMatrix();
+		glm::mat4 ComputeClusterDeformation(const glm::mat4& CurrentModelMatrix);
 
 	public:
 
 		eClusterMode GetClusterMode() const { return ClusterMode; }
 		std::shared_ptr<Skin> GetSkin();
 		std::shared_ptr<LinkBone> GetLinkBone();
-		glm::mat4 GetClusterModelMatrix() { return ClusterModelMatrix; }
+		glm::mat4 GetClusterInitialModelMatrix() { return ClusterInitialModelMatrix; }
 
 	private:
-
-		// ClusterMode
-		eClusterMode ClusterMode;
 
 		// AssociateModelMatrix, used when cluster model is Additive
 		glm::mat4 AssociateModelMatrix;
 
 		// Model matrix of the cluster
-		glm::mat4 ClusterModelMatrix;
+		glm::mat4 ClusterInitialModelMatrix;
+
+	private:
+
+		// ClusterMode
+		eClusterMode ClusterMode;
 
 		// Indices of the control points
 		std::vector<uint32_t> Indices;

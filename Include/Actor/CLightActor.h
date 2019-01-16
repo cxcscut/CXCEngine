@@ -12,8 +12,12 @@ namespace cxc
 	{
 	public:
 		CLightActor();
-		CLightActor(const std::string& Name);
+		CLightActor(std::shared_ptr<LightSource> pLight);
 		virtual ~CLightActor();
+
+	public:
+
+		virtual void Initialize() override;
 
 	public:
 

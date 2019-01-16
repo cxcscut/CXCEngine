@@ -1,5 +1,6 @@
 #include "Actor/CCameraActor.h"
 #include "Components/CCameraComponent.h"
+#include "Scene/Camera.h"
 
 namespace cxc
 {
@@ -11,10 +12,20 @@ namespace cxc
 		AttachComponent(pCameraComponent);
 	}
 
-	CCameraActor::CCameraActor(const std::string& Name):
-		CActor(Name)
+	CCameraActor::CCameraActor(std::shared_ptr<Camera> pCamera):
+		CActor(pCamera->CameraName)
 	{
-		
+		auto pCameraComponent = NewObject<CCameraComponent>();
+		pCameraComponent->SetCamera(pCamera);
+		RootComponent = pCameraComponent;
+		AttachComponent(pCameraComponent);
+	}
+
+	void CCameraActor::Initialize()
+	{
+		CActor::Initialize();
+
+		RootComponent->SetOwnerObject(shared_from_this());
 	}
 
 	void CCameraActor::Tick(float DeltaSeconds)
@@ -44,7 +55,7 @@ namespace cxc
 		if (CameraComponent)
 		{
 			CameraComponent->SetCamera(Camera);
-			CameraComponent->SetOwnerObject(shared_from_this());
+			Name = Camera->CameraName;
 		}
 	}
 }

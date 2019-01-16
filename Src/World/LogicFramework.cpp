@@ -17,6 +17,15 @@ namespace cxc
 
 	}
 
+	void LogicFramework::IntializeLogicWorld()
+	{
+		for (auto ActorPair : LogicActors)
+		{
+			if (ActorPair.second)
+				ActorPair.second->Initialize();
+		}
+	}
+
 	void LogicFramework::Tick(float DeltaSeconds)
 	{
 		// Tick all the logic actor

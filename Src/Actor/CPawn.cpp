@@ -23,6 +23,13 @@ namespace cxc
 
 	}
 
+	void CPawn::Initialize()
+	{
+		CActor::Initialize();
+
+
+	}
+
 	void CPawn::Tick(float DeltaSeconds)
 	{
 		CActor::Tick(DeltaSeconds);

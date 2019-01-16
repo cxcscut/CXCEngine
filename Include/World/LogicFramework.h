@@ -31,6 +31,10 @@ namespace cxc
 
 	public:
 
+		virtual void IntializeLogicWorld();
+
+	public:
+
 		std::shared_ptr<CActor> GetActor(uint32_t GUID);
 		std::shared_ptr<CActor> GetActor(const std::string& ActorName);
 		uint32_t GetActorCount() const { return LogicActors.size(); }

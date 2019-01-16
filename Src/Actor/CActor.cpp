@@ -21,6 +21,19 @@ namespace cxc
 		RootComponent = nullptr;
 	}
 
+	void CActor::Initialize()
+	{
+		// Initialize CObject
+		CObject::Initialize();
+
+		// Initialize components attached to the object
+		for (auto Component : AttachedComponents)
+		{
+			if (Component)
+				Component->Initialize();
+		}
+	}
+
 	std::shared_ptr<CComponent> CActor::GetComponent(size_t Index)
 	{
 		if (Index >= AttachedComponents.size())

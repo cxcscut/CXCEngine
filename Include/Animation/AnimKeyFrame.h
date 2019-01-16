@@ -13,7 +13,6 @@ namespace cxc
 		TotalOne = 2
 	};
 
-	// AnimKeyFrame is the class that encapsulates a frame of the skeleton animation
 	class CXC_ENGINECORE_API AnimKeyFrame final
 	{
 	public:
@@ -26,8 +25,7 @@ namespace cxc
 
 	public:
 
-		float GetStartTime() const { return StartTime; }
-		eBoneLinkingMode GetLinkingMode() const { return LinkingMode; }
+		float GetFrameTime() const { return FrameTime; }
 
 	public:
 
@@ -40,19 +38,11 @@ namespace cxc
 	private:
 
 		// Start time of the key frame
-		float StartTime;
+		float FrameTime;
 		
-		// Linking mode of the bones
-		eBoneLinkingMode LinkingMode;
+		// Value of the keyframe
+		float Value;
 
-		// Weights of each bone
-		std::vector<float> BoneWeights;
-
-		// Deformation matrix of each bone
-		std::vector<glm::mat4> BoneDeformationMatrices;
-
-		// Vertex indices that each bone has influence on
-		std::vector<std::vector<uint32_t>> BoneInfluencedVertexIndices;
 	};
 }
 

@@ -51,7 +51,7 @@ namespace cxc
 		std::sort(KeyFrames.begin(), KeyFrames.end(),
 			[](std::shared_ptr<AnimKeyFrame> lhs, std::shared_ptr<AnimKeyFrame> rhs) 
 			{
-				return lhs->GetStartTime() < rhs->GetStartTime();
+				return lhs->GetFrameTime() < rhs->GetFrameTime();
 			}
 		);
 	}
@@ -62,13 +62,13 @@ namespace cxc
 			return nullptr;
 
 		if (KeyFrames.size() == 1)
-			return KeyFrames[0]->GetStartTime() <= CurrentTime ? KeyFrames[0] : nullptr;
+			return KeyFrames[0]->GetFrameTime() <= CurrentTime ? KeyFrames[0] : nullptr;
 
 		size_t KeyFrameCount = KeyFrames.size();
 		for (size_t KeyFrameIndex = 1; KeyFrameIndex < KeyFrameCount; ++KeyFrameIndex)
 		{
-			if (KeyFrames[KeyFrameIndex - 1]->GetStartTime() <= CurrentTime
-				&& KeyFrames[KeyFrameIndex]->GetStartTime() > CurrentTime)
+			if (KeyFrames[KeyFrameIndex - 1]->GetFrameTime() <= CurrentTime
+				&& KeyFrames[KeyFrameIndex]->GetFrameTime() > CurrentTime)
 			{
 				return KeyFrames[KeyFrameIndex - 1];
 			}

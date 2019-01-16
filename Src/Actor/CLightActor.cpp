@@ -12,10 +12,11 @@ namespace cxc
 		AttachComponent(LightComponent);
 	}
 
-	CLightActor::CLightActor(const std::string& LightName):
-		CActor(LightName)
+	CLightActor::CLightActor(std::shared_ptr<LightSource> pLight):
+		CActor(pLight->GetLightName())
 	{
 		auto LightComponent = NewObject<CLightComponent>();
+		LightComponent->SetLight(pLight);
 		RootComponent = LightComponent;
 		AttachComponent(LightComponent);
 	}
@@ -23,6 +24,13 @@ namespace cxc
 	CLightActor::~CLightActor()
 	{
 
+	}
+
+	void CLightActor::Initialize()
+	{
+		CActor::Initialize();
+
+		RootComponent->SetOwnerObject(shared_from_this());
 	}
 
 	void CLightActor::Tick(float DeltaSeconds)
@@ -47,7 +55,6 @@ namespace cxc
 		if (LightComponent)
 		{
 			LightComponent->SetLight(Light);
-			LightComponent->SetOwnerObject(shared_from_this());
 		}
 	}
 }

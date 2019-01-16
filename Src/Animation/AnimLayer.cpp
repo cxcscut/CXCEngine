@@ -16,9 +16,9 @@ namespace cxc
 
 	std::shared_ptr<AnimCurve> AnimLayer::GetAnimCurveNode(size_t Index)
 	{
-		if (Index < AnimationCurveNodes.size())
+		if (Index < AnimCurves.size())
 		{
-			return AnimationCurveNodes[Index];
+			return AnimCurves[Index];
 		}
 		else
 			return nullptr;
@@ -26,23 +26,23 @@ namespace cxc
 
 	void AnimLayer::AddAnimationCurve(std::shared_ptr<AnimCurve> pAnimCurve)
 	{
-		AnimationCurveNodes.push_back(pAnimCurve);
+		AnimCurves.push_back(pAnimCurve);
 	}
 
 	void AnimLayer::RemoveAnimationCurve(size_t Index)
 	{
-		if (Index < AnimationCurveNodes.size())
+		if (Index < AnimCurves.size())
 		{
-			AnimationCurveNodes.erase(AnimationCurveNodes.begin() + Index);
+			AnimCurves.erase(AnimCurves.begin() + Index);
 		}
 
 		// Shink to avoid holes
-		AnimationCurveNodes.shrink_to_fit();
+		AnimCurves.shrink_to_fit();
 	}
 
 	void AnimLayer::Evaluate(float CurrentTime, eAnimPlayMode PlayMode, const std::vector<glm::vec3>& SrcVertices, std::vector<glm::vec3>& DstVertices)
 	{
-		for (auto pCurveNode : AnimationCurveNodes)
+		for (auto pCurveNode : AnimCurves)
 		{
 			if (pCurveNode)
 				pCurveNode->Evaluate(CurrentTime, PlayMode, SrcVertices, DstVertices);

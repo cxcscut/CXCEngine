@@ -20,6 +20,10 @@ namespace cxc
 
 	public:
 
+		virtual void Initialize() {};
+
+	public:
+
 		virtual void Tick(float DeltaSeconds);
 
 	public:

@@ -29,7 +29,7 @@ namespace cxc
 			return nullptr;
 	}
 
-	glm::mat4 Cluster::ComputeClusterDeformationMatrix()
+	glm::mat4 Cluster::ComputeClusterDeformation(const glm::mat4& CurrentModelMatrix)
 	{
 		if (ClusterMode == eClusterMode::Additive)
 		{
@@ -37,7 +37,11 @@ namespace cxc
 		}
 		else
 		{
+			auto LinkBone = GetLinkBone();
+			auto BoneModelMatrix = LinkBone->GetBoneModelMatrix();
 
 		}
+
+		return glm::mat4(1.0f);
 	}
 }

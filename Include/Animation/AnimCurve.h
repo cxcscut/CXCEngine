@@ -8,6 +8,14 @@ namespace cxc
 	class AnimKeyFrame;
 	enum class eAnimPlayMode : uint16_t;
 
+	// Interpolation type
+	enum class eInterpolationType : uint16_t
+	{
+		Lerp = 0, /* Linear interpolation */
+		sLerp = 1  /* Spherical linear interpolation */,
+		sQuard = 2  /* Spherical cubic spline interpolation */
+	};
+
 	class CXC_ENGINECORE_API AnimCurve final
 	{
 	public:
@@ -32,9 +40,6 @@ namespace cxc
 
 		std::shared_ptr<AnimKeyFrame> FindCurrentKeyFrame(float CurrentTime);
 		void SortKeyFramesByStartTime();
-
-		void ComputeShapeDeformation();
-		void ComputeSkinDeformation();
 
 	private:
 

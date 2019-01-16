@@ -34,7 +34,7 @@ namespace cxc
 		float Weight;
 
 		// Animation curve nodes
-		std::vector<std::shared_ptr<AnimCurve>> AnimationCurveNodes;
+		std::vector<std::shared_ptr<AnimCurve>> AnimCurves;
 
 	};
 }

@@ -62,8 +62,7 @@ int main()
 	pCamera->SetAllMatrix(glm::lookAt(CameraPos, CameraOrigin, CameraUpVector), ProjectionMatrix);
 	pCamera->ComputeAngles();
 	pCamera->ComputeViewMatrix();
-	auto pCameraActor = NewObject<CCameraActor>();
-	pCameraActor->SetCamera(pCamera);
+	auto pCameraActor = NewObject<CCameraActor>(pCamera);
 	pWorld->AddActor(pCameraActor);
 
 	pSceneManager->SetCameraActive(pSceneManager->GetCamera(0));
@@ -115,8 +114,7 @@ std::vector<std::shared_ptr<CActor>> CreateActors(std::shared_ptr<SceneContext> 
 	{
 		if (pLight)
 		{
-			auto LightActor = NewObject<CLightActor>(pLight->GetLightName());
-			LightActor->SetLight(pLight);
+			auto LightActor = NewObject<CLightActor>(pLight);
 			RetActors.push_back(LightActor);
 		}
 	}
@@ -126,8 +124,7 @@ std::vector<std::shared_ptr<CActor>> CreateActors(std::shared_ptr<SceneContext> 
 	{
 		if (pCamera)
 		{
-			auto CameraActor = NewObject<CCameraActor>(pCamera->CameraName);
-			CameraActor->SetCamera(pCamera);
+			auto CameraActor = NewObject<CCameraActor>(pCamera);
 			RetActors.push_back(CameraActor);
 		}
 	}

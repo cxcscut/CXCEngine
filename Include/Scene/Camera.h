@@ -15,6 +15,7 @@ namespace cxc {
 		friend class SceneManager;
 
 		explicit Camera();
+		explicit Camera(const std::string& CameraName);
 		~Camera();
 
 		Camera(const Camera &) = delete;

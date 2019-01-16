@@ -14,6 +14,12 @@ namespace cxc {
 		ComputeAngles();
 	}
 
+	Camera::Camera(const std::string& Name)
+		: Camera()
+	{
+		CameraName = Name;
+	}
+
 	Camera::~Camera()
 	{
 

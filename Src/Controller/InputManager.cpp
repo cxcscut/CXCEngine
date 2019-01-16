@@ -138,10 +138,6 @@ namespace cxc {
 			pCurrentActiveCamera->EyePosition -= MovingVector;
 			pCurrentActiveCamera->CameraOrigin -= MovingVector;
 		}
-		if (GetKeyStatus(GLFW_KEY_SPACE) == eKeyStatus::PRESSED)
-		{
-			World::GetInstance()->RemoveActor("EN_Building_H_012");
-		}
 
 		pCurrentActiveCamera->ComputeViewMatrix();
 		pCurrentActiveCamera->BindViewMatrix(ProgramID);

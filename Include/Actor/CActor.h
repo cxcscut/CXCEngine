@@ -21,6 +21,10 @@ namespace cxc
 
 	public:
 
+		virtual void Initialize() override;
+
+	public:
+
 		glm::mat4 GetTransformMatrix() const { return TransformMatrix; }
 		std::string GetName() const { return Name; }
 		std::string CompareTag() const { return Tag; }
