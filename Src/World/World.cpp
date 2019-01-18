@@ -5,16 +5,9 @@
 #include "Scene/SceneManager.h"
 #include "Scene/SceneContext.h"
 #include "Utilities/DebugLogger.h"
+#include "GameLogic/LogicThread.h"
 
 namespace cxc {
-
-	auto LogicThreadFunc = [](bool GameOver, std::shared_ptr<World> pWorld)
-	{
-		while (!GameOver && pWorld)
-		{
-			pWorld->LogicTick();
-		}
-	};
 
 	World::World()
 		:
@@ -117,6 +110,28 @@ namespace cxc {
 		return  float(Duration.count()) * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den;
 	}
 
+	void World::BeginLogicThread()
+	{
+		// If the thread class has not been assigned, create the default one
+		if (GameLogicThread == nullptr)
+			GameLogicThread = NewObject<CGameLogicThread>();
+		
+		// Set the world pointer
+		GameLogicThread->SetOwnerWorld(shared_from_this());
+
+		// Set the LogicFramework
+		GameLogicThread->SetLogicFramework(m_LogicFramework);
+
+		// Begin thread
+		GameLogicThread->BeginThread();
+	}
+
+	void World::ReleaseLogicThread()
+	{
+		if (GameLogicThread)
+			GameLogicThread->ReleaseThread();
+	}
+
 	void World::StartToRun() noexcept
 	{
 		// Initialize the start time of the world
@@ -125,8 +140,14 @@ namespace cxc {
 		LastLogicWorldTickSeconds = CurrentWorldSeconds;
 		LastRenderingTickSeconds = CurrentWorldSeconds;
 
+		// Start game logic thread
+		BeginLogicThread();
+
 		// Begin event looping
 		WorldLooping();
+
+		// Release game logic thread
+		ReleaseLogicThread();
 
 		// Shutdown GL context
 		CleanGL();
@@ -169,35 +190,6 @@ namespace cxc {
 	{
 		// Tick the InputManager
 		InputManager::GetInstance()->HandleInput();
-	}
-
-	void World::LogicTick()
-	{
-		assert(m_LogicFramework != nullptr);
-
-		auto CurrentWorldSeconds = GetWorldSeconds();
-		auto SecondsBetweenFrames = CurrentWorldSeconds - LastLogicWorldTickSeconds;
-		auto FixedLogicDeltaSeconds = 1 / static_cast<float>(m_LogicFramework->GetLogicFrameRates());
-
-		if (SecondsBetweenFrames >= FixedLogicDeltaSeconds)
-		{
-			auto TickTimes = static_cast<uint32_t>(SecondsBetweenFrames / FixedLogicDeltaSeconds);
-
-			m_LogicFramework->Tick(TickTimes * FixedLogicDeltaSeconds);
-		}
-		else
-		{
-			auto SleepMilliSeconds = static_cast<int>((FixedLogicDeltaSeconds - SecondsBetweenFrames) * 1000);
-
-			// Waiting
-			std::this_thread::sleep_for(std::chrono::milliseconds(SleepMilliSeconds));
-
-			m_LogicFramework->Tick(FixedLogicDeltaSeconds);
-
-			CurrentWorldSeconds = GetWorldSeconds();
-		}
-
-		LastLogicWorldTickSeconds = CurrentWorldSeconds;
 	}
 
 	void World::PhysicsTick(float DeltaSeconds)
@@ -379,7 +371,7 @@ namespace cxc {
 		}
 	}
 
-	void World::Tick()
+	void World::MainThreadTick()
 	{
 		auto CurrentSeconds = GetWorldSeconds();
 		auto RenderingTickDeltaSeconds = CurrentSeconds - LastRenderingTickSeconds;
@@ -415,16 +407,13 @@ namespace cxc {
 
 	void World::WorldLooping() noexcept
 	{
-		// Begin logic layer thread
-		std::thread LogicThread(LogicThreadFunc, GameOver, shared_from_this());
-
 		auto WindowHandler = pWindowMgr->GetWindowHandle();
 		do {
 			// Processing the input
 			ProcessInput();
 
-			// World tick
-			Tick();
+			// Main thread tick
+			MainThreadTick();
 
 			// Swap front and back buffer
 			glfwSwapBuffers(WindowHandler);
@@ -434,8 +423,6 @@ namespace cxc {
 		} while (!GameOver && glfwWindowShouldClose(WindowHandler) == 0);
 
 		GameOver = true;
-
-		LogicThread.join();
 	}
 }
 

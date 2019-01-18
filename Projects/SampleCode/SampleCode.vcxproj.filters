@@ -78,9 +78,6 @@
     <ClCompile Include="..\..\src\window\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\world\LogicFramework.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\world\World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -207,6 +204,12 @@
     <ClCompile Include="..\..\Src\Animation\LinkBone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Src\GameLogic\LogicThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\GameLogic\LogicFramework.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\CXCEngine.h">
@@ -264,9 +267,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\window\Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\world\LogicFramework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\world\World.h">
@@ -402,6 +402,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\Animation\LinkBone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\GameLogic\LogicThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\GameLogic\LogicFramework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

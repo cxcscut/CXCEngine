@@ -136,6 +136,8 @@
     <ClCompile Include="..\..\Src\Core\CObject.cpp" />
     <ClCompile Include="..\..\Src\Core\GUIDGenerator.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
+    <ClCompile Include="..\..\Src\GameLogic\LogicFramework.cpp" />
+    <ClCompile Include="..\..\Src\GameLogic\LogicThread.cpp" />
     <ClCompile Include="..\..\Src\Geometry\DebugMesh.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
     <ClCompile Include="..\..\src\material\MaterialManager.cpp" />
@@ -174,7 +176,6 @@
     <ClCompile Include="..\..\src\utilities\FileHelper.cpp" />
     <ClCompile Include="..\..\Src\Utilities\GeomtryUtil.cpp" />
     <ClCompile Include="..\..\src\window\Window.cpp" />
-    <ClCompile Include="..\..\src\world\LogicFramework.cpp" />
     <ClCompile Include="..\..\src\world\World.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -204,6 +205,8 @@
     <ClInclude Include="..\..\Include\Core\EngineTypes.h" />
     <ClInclude Include="..\..\Include\Core\GUIDGenerator.h" />
     <ClInclude Include="..\..\include\CXCEngine.h" />
+    <ClInclude Include="..\..\Include\GameLogic\LogicFramework.h" />
+    <ClInclude Include="..\..\Include\GameLogic\LogicThread.h" />
     <ClInclude Include="..\..\include\general\EngineCore.h" />
     <ClInclude Include="..\..\Include\Geometry\DebugMesh.h" />
     <ClInclude Include="..\..\include\material\Material.h" />
@@ -242,7 +245,6 @@
     <ClInclude Include="..\..\include\utilities\FileHelper.h" />
     <ClInclude Include="..\..\Include\Utilities\GeometryUtil.h" />
     <ClInclude Include="..\..\include\window\Window.h" />
-    <ClInclude Include="..\..\include\world\LogicFramework.h" />
     <ClInclude Include="..\..\include\world\World.h" />
   </ItemGroup>
   <ItemGroup>

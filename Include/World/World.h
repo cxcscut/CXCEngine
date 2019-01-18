@@ -9,7 +9,7 @@
 #include "Script/ScriptParser.h"
 #include "Core/EngineTypes.h"
 #include "Utilities/Singleton.inl"
-#include "World/LogicFramework.h"
+#include "GameLogic/LogicFramework.h"
 #include "Physics/PhysicalWorld.h"
 
 #define _CRT_SECURE_NO_WARINGS
@@ -25,6 +25,7 @@
 namespace cxc {
 
 	class SceneContext;
+	class CGameLogicThread;
 
 	const float FixedDeltaSeconds_30FPS = 0.3333f;
 	const float FixedDeltaSeconds_60FPS = 0.1667f;
@@ -93,6 +94,14 @@ namespace cxc {
 
 		void StartToRun() noexcept;
 
+		// Game logic threading
+	public:
+
+		void SetGameLogicThread(std::shared_ptr<CGameLogicThread> LogicThread) { GameLogicThread = LogicThread; }
+
+		void BeginLogicThread();
+		void ReleaseLogicThread();
+		
 	public:
 
 		void AddActor(std::shared_ptr<CActor> Actor);
@@ -107,10 +116,9 @@ namespace cxc {
 
 	public:
 
-		void Tick();
+		void MainThreadTick();
 		void RenderingTick(float DeltaSeconds);
 
-		void LogicTick();
 		void PhysicsTick(float DeltaSeconds);
 		void ProcessInput();
 
@@ -146,9 +154,11 @@ namespace cxc {
 		// Start time of the engine
 		SystemClock WorldStartSeconds;
 
-		float LastLogicWorldTickSeconds;
-			
-		float LastRenderingTickSeconds;
+		// Last ticking time
+		float LastLogicWorldTickSeconds, LastRenderingTickSeconds;
+
+		// Logic thread
+		std::shared_ptr<CGameLogicThread> GameLogicThread;
 
 		// Logic framework
 		std::shared_ptr<LogicFramework> m_LogicFramework;

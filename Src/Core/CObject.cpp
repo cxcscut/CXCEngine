@@ -1,7 +1,7 @@
 #include "Core/CObject.h"
 #include "Core/GUIDGenerator.h"
 #include "World/World.h"
-#include "World/LogicFramework.h"
+#include "GameLogic/LogicFramework.h"
 
 namespace cxc
 {
