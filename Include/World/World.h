@@ -2,7 +2,7 @@
 #include "Actor/CCameraActor.h"
 #include "Actor/CLightActor.h"
 #include "Rendering/RendererManager.h"
-#include "Controller/InputManager.h"
+#include "Input/InputManager.h"
 #include "Material/MaterialManager.h"
 #include "Scene/SceneManager.h"
 #include "Window/Window.h"

@@ -1,5 +1,5 @@
 #include "GameLogic/LogicFramework.h"
-#include "Controller/InputManager.h"
+#include "Input/InputManager.h"
 #include "Systems/CMovementCtrlSystem.h"
 #include "World/World.h"
 #include "Utilities/DebugLogger.h"

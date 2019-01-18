@@ -132,13 +132,13 @@
     <ClCompile Include="..\..\Src\Components\CRigidBodyComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CSceneComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CStaticMeshComponent.cpp" />
-    <ClCompile Include="..\..\src\controller\InputManager.cpp" />
     <ClCompile Include="..\..\Src\Core\CObject.cpp" />
     <ClCompile Include="..\..\Src\Core\GUIDGenerator.cpp" />
     <ClCompile Include="..\..\src\CXCEngine.cpp" />
     <ClCompile Include="..\..\Src\GameLogic\LogicFramework.cpp" />
     <ClCompile Include="..\..\Src\GameLogic\LogicThread.cpp" />
     <ClCompile Include="..\..\Src\Geometry\DebugMesh.cpp" />
+    <ClCompile Include="..\..\Src\Input\InputManager.cpp" />
     <ClCompile Include="..\..\src\material\Material.cpp" />
     <ClCompile Include="..\..\src\material\MaterialManager.cpp" />
     <ClCompile Include="..\..\src\material\Texture2D.cpp" />
@@ -200,7 +200,6 @@
     <ClInclude Include="..\..\Include\Components\CRigidBodyComponent.h" />
     <ClInclude Include="..\..\Include\Components\CSceneComponent.h" />
     <ClInclude Include="..\..\Include\Components\CStaticMeshComponent.h" />
-    <ClInclude Include="..\..\include\controller\InputManager.h" />
     <ClInclude Include="..\..\Include\Core\CObject.h" />
     <ClInclude Include="..\..\Include\Core\EngineTypes.h" />
     <ClInclude Include="..\..\Include\Core\GUIDGenerator.h" />
@@ -209,6 +208,7 @@
     <ClInclude Include="..\..\Include\GameLogic\LogicThread.h" />
     <ClInclude Include="..\..\include\general\EngineCore.h" />
     <ClInclude Include="..\..\Include\Geometry\DebugMesh.h" />
+    <ClInclude Include="..\..\Include\Input\InputManager.h" />
     <ClInclude Include="..\..\include\material\Material.h" />
     <ClInclude Include="..\..\include\material\MaterialManager.h" />
     <ClInclude Include="..\..\include\material\Texture2D.h" />

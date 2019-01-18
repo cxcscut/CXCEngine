@@ -1,4 +1,4 @@
-#include "Controller/InputManager.h"
+#include "Input/InputManager.h"
 #include "World/World.h"
 
 namespace cxc {
