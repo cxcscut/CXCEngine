@@ -6,23 +6,27 @@
 
 namespace cxc
 {
-	class LinkBone;
+	class CLinkBone;
 
 	/* The Skeleton class represents a skin-meshed skeleton */
-	class CXC_ENGINECORE_API Skeleton
+	class CXC_ENGINECORE_API CSkeleton
 	{
 	public:
-		Skeleton();
-		~Skeleton();
+		CSkeleton(const std::string& Name);
+		~CSkeleton();
 
 	public:
 
+		void SetRootBone(std::shared_ptr<CLinkBone> pRoot) { RootBone = pRoot; }
+		std::string GetSkeletonName() const { return SkeletonName; }
 
 	private:
 
-		// LinkeBones of the skeleton
-		std::vector<LinkBone> LinkBones;
+		// Name of the skeleton
+		std::string SkeletonName;
 
+		// Root bone
+		std::shared_ptr<CLinkBone> RootBone;
 	};
 }
 

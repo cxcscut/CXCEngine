@@ -115,7 +115,6 @@ namespace cxc {
 	public:
 
 		bool LoadSceneFromFBX(const std::string& filepath, std::shared_ptr<SceneContext> OutSceneContext) noexcept;
-		void ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept;
 
 	public:
 

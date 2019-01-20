@@ -6,29 +6,29 @@
 
 namespace cxc
 {
-	class Cluster;
-	class LinkBone;
+	class CCluster;
+	class CLinkBone;
 
-	/* The Skin is a class that contains a collection of CClusters */
-	class CXC_ENGINECORE_API Skin
+	/* The CSkin is a class that contains a collection of CClusters */
+	class CXC_ENGINECORE_API CSkin
 	{
 	public:
-		Skin();
-		~Skin();
+		CSkin();
+		~CSkin();
 
 	public:
 
 		uint32_t GetClusterCount() const { return Clusters.size(); }
-		std::shared_ptr<Cluster> GetCluster(uint32_t Index);
-		std::shared_ptr<LinkBone> GetLinkBone();
+		std::shared_ptr<CCluster> GetCluster(uint32_t Index);
+		std::shared_ptr<CLinkBone> GetLinkBone();
 
 	private:
 
 		// Clusters
-		std::vector<std::shared_ptr<Cluster>> Clusters;
+		std::vector<std::shared_ptr<CCluster>> Clusters;
 
 		// Weak pointer back to the bone that the skin attached to
-		std::weak_ptr<LinkBone> LinkBone;
+		std::weak_ptr<CLinkBone> CLinkBone;
 	};
 }
 

@@ -56,7 +56,7 @@ namespace cxc
 		// Current active animation stack
 		std::shared_ptr<AnimStack> pCurrentActiveAnimStack;
 
-		// Skin-meshes skeleton that the animation is currently using
+		// CSkin-meshes skeleton that the animation is currently using
 		std::shared_ptr<Skeleton> pSkeleton;
 
 		// Vertices deformed during the animation

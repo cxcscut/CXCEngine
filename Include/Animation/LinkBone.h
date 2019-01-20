@@ -6,19 +6,24 @@
 
 namespace cxc
 {
-	class Skin;
+	class CSkin;
+	class CSkeleton;
 
-	/* LinkBone is the bone of a skeleton, which contain a collection of CSkins attached to it */
-	class CXC_ENGINECORE_API LinkBone
+	/* CLinkBone is the bone of a skeleton, which contain a collection of CSkins attached to it */
+	class CXC_ENGINECORE_API CLinkBone
 	{
 	public:
-		LinkBone();
-		~LinkBone();
+		CLinkBone(const glm::vec3& StartPos, const glm::vec3& EndPos);
+		~CLinkBone();
+
+	public:
+
+		void SetOwnerSkeleton(std::shared_ptr<CSkeleton> OwnerSkeleton) { pOwnerSkeleton = OwnerSkeleton; }
+		std::shared_ptr<CSkeleton> GetOwnerSkeleton();
 
 	public:
 
 		std::string GetName() const { return Name; }
-		glm::mat4 GetBoneModelMatrix() const { return BoneModelMatrix; }
 
 	private:
 
@@ -26,10 +31,22 @@ namespace cxc
 		std::string Name;
 
 		// Skins being attached to the bone
-		std::vector<std::shared_ptr<Skin>> Skins;
+		std::vector<std::shared_ptr<CSkin>> Skins;
 
-		// Model matrix of the bone
-		glm::mat4 BoneModelMatrix;
+		// Start position of the bone
+		glm::vec3 StartPosition;
+
+		// End position of the bone
+		glm::vec3 EndPosition;
+
+		// Owner skeleton
+		std::weak_ptr<CSkeleton> pOwnerSkeleton;
+
+		// Parent bone
+		std::weak_ptr<CLinkBone> ParentBone;
+
+		// Child bones
+		std::vector<std::shared_ptr<CLinkBone>> ChildBones;
 	};
 }
 

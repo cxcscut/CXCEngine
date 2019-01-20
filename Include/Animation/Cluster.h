@@ -6,19 +6,19 @@
 
 namespace cxc
 {
-	// Cluster mode
+	// CCluster mode
 	using eClusterMode = eBlendMode;
 
-	class LinkBone;
-	class Skin;
+	class CLinkBone;
+	class CSkin;
 
-	/* Cluster which is a part of a Skin containsss a collection of vertices, the cluster contains the weights for each control point */
-	class CXC_ENGINECORE_API Cluster
+	/* CCluster which is a part of a CSkin containsss a collection of vertices, the cluster contains the weights for each control point */
+	class CXC_ENGINECORE_API CCluster
 	{
 	public:
 
-		Cluster();
-		~Cluster();
+		CCluster();
+		~CCluster();
 
 	public:
 
@@ -27,8 +27,8 @@ namespace cxc
 	public:
 
 		eClusterMode GetClusterMode() const { return ClusterMode; }
-		std::shared_ptr<Skin> GetSkin();
-		std::shared_ptr<LinkBone> GetLinkBone();
+		std::shared_ptr<CSkin> GetSkin();
+		std::shared_ptr<CLinkBone> GetLinkBone();
 		glm::mat4 GetClusterInitialModelMatrix() { return ClusterInitialModelMatrix; }
 
 	private:
@@ -60,10 +60,10 @@ namespace cxc
 		std::vector<float> ControlPointsWeight;
 
 		// Weak pointer to the CBone that the cluster is attached to
-		std::weak_ptr<LinkBone> LinkBone;
+		std::weak_ptr<CLinkBone> CLinkBone;
 
-		// Weak pointer back to the Skin that the cluster belongs to
-		std::weak_ptr<Skin> OwnerSkin;
+		// Weak pointer back to the CSkin that the cluster belongs to
+		std::weak_ptr<CSkin> OwnerSkin;
 	};
 }
 

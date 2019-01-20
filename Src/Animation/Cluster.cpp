@@ -1,27 +1,27 @@
-#include "Animation/Cluster.h"
-#include "Animation/LinkBone.h"
+#include "Animation/CCluster.h"
+#include "Animation/CLinkBone.h"
 
 namespace cxc
 {
-	Cluster::Cluster()
+	CCluster::CCluster()
 	{
 
 	}
 
-	Cluster::~Cluster()
+	CCluster::~CCluster()
 	{
 
 	}
 
-	std::shared_ptr<LinkBone> Cluster::GetLinkBone()
+	std::shared_ptr<CLinkBone> CCluster::GetLinkBone()
 	{
-		if (!LinkBone.expired())
-			return LinkBone.lock();
+		if (!CLinkBone.expired())
+			return CLinkBone.lock();
 		else
 			return nullptr;
 	}
 
-	std::shared_ptr<Skin> Cluster::GetSkin()
+	std::shared_ptr<CSkin> CCluster::GetSkin()
 	{
 		if (!OwnerSkin.expired())
 			return OwnerSkin.lock();
@@ -29,7 +29,7 @@ namespace cxc
 			return nullptr;
 	}
 
-	glm::mat4 Cluster::ComputeClusterDeformation(const glm::mat4& CurrentModelMatrix)
+	glm::mat4 CCluster::ComputeClusterDeformation(const glm::mat4& CurrentModelMatrix)
 	{
 		if (ClusterMode == eClusterMode::Additive)
 		{
@@ -37,8 +37,8 @@ namespace cxc
 		}
 		else
 		{
-			auto LinkBone = GetLinkBone();
-			auto BoneModelMatrix = LinkBone->GetBoneModelMatrix();
+			auto CLinkBone = GetLinkBone();
+			auto BoneModelMatrix = CLinkBone->GetBoneModelMatrix();
 
 		}
 

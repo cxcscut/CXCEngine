@@ -16,6 +16,8 @@ namespace cxc
 	class AnimLayer;
 	class AnimCurve;
 	class SceneContext;
+	class CSkeleton;
+	class CPose;
 
 	class CXC_ENGINECORE_API FBXSDKUtil final
 	{
@@ -24,6 +26,12 @@ namespace cxc
 
 		explicit FBXSDKUtil();
 		~FBXSDKUtil();
+
+	// Skeleton
+	public:
+
+		static bool LoadSkeletons(FbxNode* pNode, FbxAMatrix& GlobalParentPosition, FbxAMatrix& GlobalPosition, std::vector<std::shared_ptr<CSkeleton>>& OutSkeletons);
+		static void LoadPoses(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext);
 
 	// Animation
 	public:
@@ -83,6 +91,7 @@ namespace cxc
 
 		static bool SaveScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName, int pFileFormat = -1, bool pEmbedMedia = false);
 		static bool LoadScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName);
+		static void ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept;
 	};
 }
 

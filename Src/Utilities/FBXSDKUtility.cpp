@@ -1,14 +1,16 @@
-#include "Utilities/FBXSDKUtility.h"
 #include "Core/EngineTypes.h"
 #include "Material/MaterialManager.h"
 #include "Geometry/SubMesh.h"
 #include "Geometry/Mesh.h"
 #include "Utilities/DebugLogger.h"
+#include "Utilities/FBXSDKUtility.h"
+#include "World/World.h"
 #include "Scene/SceneContext.h"
 #include "Animation/AnimStack.h"
 #include "Animation/AnimLayer.h"
 #include "Animation/AnimCurve.h"
 #include "Animation/AnimKeyFrame.h"
+#include "Animation/Pose.h"
 
 #ifdef IOS_REF
 	#undef IOS_REF
@@ -1409,5 +1411,119 @@ namespace cxc {
 		lImporter->Destroy();
 
 		return lStatus;
+	}
+
+	void FBXSDKUtil::ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept
+	{
+		if (!pRootNode || !OutSceneContext)
+			return;
+
+		if (pRootNode->GetNodeAttribute() != nullptr)
+		{
+			auto pWorld = World::GetInstance();
+			auto pPhysicalWorld = pWorld->GetPhysicalWorld();
+			FbxNodeAttribute::EType AttributeType;
+			AttributeType = pRootNode->GetNodeAttribute()->GetAttributeType();
+
+			switch (AttributeType)
+			{
+			default:
+				break;
+
+			case FbxNodeAttribute::eMesh:
+			{
+				std::vector<std::shared_ptr<Mesh>> LoadedMeshes;
+				FbxAMatrix lGlobalPosition;
+				bool bMeshLoadingRes = FBXSDKUtil::GetMeshFromNode(pRootNode, LoadedMeshes, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalPosition);
+				if (!bMeshLoadingRes)
+				{
+					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the mesh \n");
+				}
+				else
+				{
+					for (auto pMeshes : LoadedMeshes)
+					{
+						OutSceneContext->Meshes.push_back(pMeshes);
+					}
+				}
+				break;
+			}
+
+			case FbxNodeAttribute::eLight:
+			{
+				std::vector<std::shared_ptr<LightSource>> LoadedLights;
+				FbxAMatrix lGlobalPosition;
+				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
+				if (!bLightLoadingRes)
+				{
+					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the lights \n");
+				}
+				else
+				{
+					for (auto pNewLight : LoadedLights)
+					{
+						if (pNewLight)
+							OutSceneContext->Lights.push_back(pNewLight);
+					}
+				}
+
+				break;
+			}
+
+			case FbxNodeAttribute::eSkeleton:
+			{
+				std::vector<std::shared_ptr<CSkeleton>> LoadedSkeletons;
+				FbxAMatrix lGloablParentPosition;
+				
+				// Geometry offset.
+				// it is not inherited by the children.
+				FbxAMatrix lGlobalPosition = GetGlobalPosition(pRootNode, pTime, pPose, &lGloablParentPosition);
+				FbxAMatrix lGeometryOffset = GetGeometry(pRootNode);
+				FbxAMatrix lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
+
+				bool bSkeletonLoadingRes = FBXSDKUtil::LoadSkeletons(pRootNode, lGloablParentPosition, lGlobalOffPosition, LoadedSkeletons);
+				if (!bSkeletonLoadingRes)
+					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the skeletons \n");
+				else
+				{
+					for (auto pSkeleton : LoadedSkeletons)
+					{
+						if (pSkeleton)
+							OutSceneContext->Skeletons.push_back(pSkeleton);
+					}
+				}
+
+				break;
+			}
+
+			case FbxNodeAttribute::eCamera:
+			{
+				break;
+			}
+
+			}
+		}
+	}
+
+	bool FBXSDKUtil::LoadSkeletons(FbxNode* pNode, FbxAMatrix& GlobalParentPosition, FbxAMatrix& GlobalPosition, std::vector<std::shared_ptr<CSkeleton>>& OutSkeletons)
+	{
+		return true;
+	}
+
+	void FBXSDKUtil::LoadPoses(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext)
+	{
+		OutSceneContext->Poses.clear();
+		if (pScene)
+		{
+			const int PoseCount = pScene->GetPoseCount();
+			for (int i = 0; i < PoseCount; ++i)
+			{
+				auto NewPose = NewObject<CPose>();
+				auto FbxPose = pScene->GetPose(i);
+
+
+				OutSceneContext->Poses.push_back(NewPose);
+			}
+		}
 	}
 }

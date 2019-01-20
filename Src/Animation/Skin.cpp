@@ -1,26 +1,26 @@
-#include "Animation/Skin.h"
+#include "Animation/CSkin.h"
 
 namespace cxc
 {
-	Skin::Skin()
+	CSkin::CSkin()
 	{
 
 	}
 
-	Skin::~Skin()
+	CSkin::~CSkin()
 	{
 
 	}
 
-	std::shared_ptr<LinkBone> Skin::GetLinkBone()
+	std::shared_ptr<CLinkBone> CSkin::GetLinkBone()
 	{
-		if (!LinkBone.expired())
-			return LinkBone.lock();
+		if (!CLinkBone.expired())
+			return CLinkBone.lock();
 		else
 			return nullptr;
 	}
 
-	std::shared_ptr<Cluster> Skin::GetCluster(uint32_t Index)
+	std::shared_ptr<CCluster> CSkin::GetCluster(uint32_t Index)
 	{
 		if (Index >= Clusters.size())
 			return nullptr;

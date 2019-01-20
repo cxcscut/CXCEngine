@@ -11,6 +11,8 @@ namespace cxc
 	class LightSource;
 	class Camera;
 	class AnimStack;
+	class CSkeleton;
+	class CPose;
 
 	/* SceneContext is the class that stores the information of loaded scene */
 	class CXC_ENGINECORE_API SceneContext final
@@ -34,8 +36,14 @@ namespace cxc
 		// Cameras
 		std::vector<std::shared_ptr<Camera>> Cameras;
 
+		// Poses
+		std::vector<std::shared_ptr<CPose>> Poses;
+
 		// Animation stacks
 		std::vector<std::shared_ptr<AnimStack>> AnimationStacks;
+
+		// Skeletons
+		std::vector<std::shared_ptr<CSkeleton>> Skeletons;
 
 	};
 }

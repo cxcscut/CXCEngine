@@ -189,16 +189,16 @@
     <ClCompile Include="..\..\Src\Core\GUIDGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Src\Animation\Skin.cpp">
+    <ClCompile Include="..\..\Src\Animation\CSkin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Src\Animation\Skeleton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Src\Animation\Cluster.cpp">
+    <ClCompile Include="..\..\Src\Animation\CCluster.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Src\Animation\LinkBone.cpp">
+    <ClCompile Include="..\..\Src\Animation\CLinkBone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Src\GameLogic\LogicThread.cpp">
@@ -208,6 +208,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Src\Input\InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\Animation\Pose.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -392,13 +395,13 @@
     <ClInclude Include="..\..\Include\Animation\Skeleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\Animation\Skin.h">
+    <ClInclude Include="..\..\Include\Animation\CSkin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\Animation\Cluster.h">
+    <ClInclude Include="..\..\Include\Animation\CCluster.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Include\Animation\LinkBone.h">
+    <ClInclude Include="..\..\Include\Animation\CLinkBone.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\GameLogic\LogicThread.h">
@@ -408,6 +411,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Include\Input\InputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Include\Animation\Pose.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

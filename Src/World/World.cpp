@@ -8,6 +8,8 @@
 #include "GameLogic/LogicThread.h"
 #include "Animation/AnimStack.h"
 #include "Animation/AnimLayer.h"
+#include "Animation/Skeleton.h"
+#include "Animation/CLinkBone.h"
 
 namespace cxc {
 
@@ -232,72 +234,6 @@ namespace cxc {
 		}
 	}
 
-	void World::ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept
-	{
-		if (!pRootNode || !OutSceneContext)
-			return;
-
-		if (pRootNode->GetNodeAttribute() != nullptr)
-		{
-			auto pPhysicalWorld = PhysicalWorld::GetInstance();
-			FbxNodeAttribute::EType AttributeType;
-			AttributeType = pRootNode->GetNodeAttribute()->GetAttributeType();
-
-			switch (AttributeType)
-			{
-			default:
-				break;
-
-			case FbxNodeAttribute::eMesh:
-			{
-				std::vector<std::shared_ptr<Mesh>> LoadedMeshes;
-				FbxAMatrix lGlobalPosition;
-				bool bMeshLoadingRes = FBXSDKUtil::GetMeshFromNode(pRootNode, LoadedMeshes, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalPosition);
-				if (!bMeshLoadingRes)
-				{
-					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the mesh \n");
-				}
-				else
-				{
-					for (auto pMeshes : LoadedMeshes)
-					{
-						OutSceneContext->Meshes.push_back(pMeshes);
-					}
-				}
-				break;
-			}
-
-			case FbxNodeAttribute::eLight:
-			{
-				std::vector<std::shared_ptr<LightSource>> LoadedLights;
-				FbxAMatrix lGlobalPosition;
-				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
-				if (!bLightLoadingRes)
-				{
-					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the lights \n");
-				}
-				else
-				{
-					for (auto pNewLight : LoadedLights)
-					{
-						OutSceneContext->Lights.push_back(pNewLight);
-					}
-				}
-
-				break;
-			}
-
-			}
-		}
-
-		// Process the child node
-		int ChildNodeCount = pRootNode->GetChildCount();
-		for (int i = 0; i < ChildNodeCount; ++i)
-		{
-			ProcessSceneNode(pRootNode->GetChild(i), OutSceneContext);
-		}
-	}
-
 	bool World::LoadSceneFromFBX(const std::string& filepath, std::shared_ptr<SceneContext> OutSceneContext) noexcept
 	{
 		FbxManager* pSdkManager = nullptr;
@@ -320,7 +256,7 @@ namespace cxc {
 		FBXSDKUtil::LoadAnimationStacks(pScene, OutSceneContext);
 
 		// Process node from the root node of the scene
-		ProcessSceneNode(pScene->GetRootNode(), OutSceneContext);
+		FBXSDKUtil::ProcessSceneNode(pScene->GetRootNode(), OutSceneContext);
 
 		// Destroy all the objects created by the FBX SDK
 		FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
