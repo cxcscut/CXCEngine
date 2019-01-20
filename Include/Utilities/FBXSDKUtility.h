@@ -12,6 +12,11 @@
 
 namespace cxc
 {
+	class AnimStack;
+	class AnimLayer;
+	class AnimCurve;
+	class SceneContext;
+
 	class CXC_ENGINECORE_API FBXSDKUtil final
 	{
 
@@ -22,6 +27,17 @@ namespace cxc
 
 	// Animation
 	public:
+
+		static void LoadAnimationStacks(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext);
+		static void ExtractAnimLayers(FbxAnimStack* pAnimStack, FbxNode* pNode, std::shared_ptr<AnimStack> OutAnimStack);
+		static void ExtractAnimCurves(FbxAnimLayer* pAnimLayer, FbxNode* pNode, std::shared_ptr<AnimLayer> OutAnimLayer, bool bIsSwitcher);
+		static std::shared_ptr<AnimCurve> ExtractAnimKeyFrames(FbxAnimCurve* pCurve);
+
+		static int InterpolationFlagToIndex(int flags);
+		static int ConstantmodeFlagToIndex(int flags);
+		static int TangentmodeFlagToIndex(int flags);
+		static int TangentweightFlagToIndex(int flags);
+		static int TangentVelocityFlagToIndex(int flags);
 
 	// Light
 	public:

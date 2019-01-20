@@ -13,14 +13,48 @@ namespace cxc
 		TotalOne = 2
 	};
 
+	// How the keyframes are interpolated
+	enum class eKeyInterpolationType : uint16_t
+	{
+		Invalid = 0,
+		Constant = 1,
+		Linear = 2,
+		Cubic = 3
+	};
+
+	// Constant mode
+	enum class eConstantMode : uint16_t
+	{
+		Invalid = 0,
+		Standard = 1,
+		Next = 2,
+	};
+
+	// Cubic mode
+	enum class eCubicMode : uint16_t
+	{
+		Invalid = 0,
+		Auto = 1,
+		AutoBreak = 2,
+		TCB = 3,
+		User = 4,
+		Break = 5,
+		UserBreak = 6,
+	};
+
+	// TangentWVMode 
+	enum class eTangentWVMode : uint16_t
+	{
+		Invalid = 0,
+		None = 1,
+		Right = 2,
+		NextLeft = 3,
+	};
+
 	class CXC_ENGINECORE_API AnimKeyFrame final
 	{
 	public:
-		AnimKeyFrame(float Time, eBoneLinkingMode LinkMode,
-			const std::vector<float>& Weights,
-			const std::vector<glm::mat4>& DeformationMatrices,
-			const std::vector<std::vector<uint32_t>>& InfluencedIndices);
-
+		AnimKeyFrame(float KeyTime, float Value);
 		~AnimKeyFrame();
 
 	public:
@@ -37,11 +71,23 @@ namespace cxc
 
 	private:
 
+		// Interpolation type
+		eKeyInterpolationType InterpolationType;
+
+		// Constant mode
+		eConstantMode ConstantMode;
+
+		// Cubic mode
+		eCubicMode CubicMode;
+
+		// TangentWVMode
+		eTangentWVMode TangentWVMode;
+
 		// Start time of the key frame
 		float FrameTime;
 		
 		// Value of the keyframe
-		float Value;
+		float KeyValue;
 
 	};
 }

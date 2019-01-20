@@ -4,8 +4,7 @@
 
 namespace cxc
 {
-	AnimCurve::AnimCurve(float Start, float End):
-		StartTime(Start), EndTime(End)
+	AnimCurve::AnimCurve()
 	{
 
 	}
@@ -17,10 +16,13 @@ namespace cxc
 
 	void AnimCurve::AddKeyFrame(std::shared_ptr<AnimKeyFrame> pKeyFrame)
 	{
-		KeyFrames.push_back(pKeyFrame);
+		if (pKeyFrame != nullptr)
+		{
+			KeyFrames.push_back(pKeyFrame);
 
-		// Re-sorting the key frames after inserting
-		SortKeyFramesByStartTime();
+			// Re-sorting the key frames after inserting
+			SortKeyFramesByStartTime();
+		}
 	}
 
 	void AnimCurve::DeleteKeyFrame(std::shared_ptr<AnimKeyFrame> pKeyFrame)
@@ -35,6 +37,22 @@ namespace cxc
 
 		// Shrink to avoid holes 
 		KeyFrames.shrink_to_fit();
+	}
+
+	float AnimCurve::GetStartTime() const
+	{
+		if (!KeyFrames.empty())
+			return KeyFrames.front()->GetFrameTime();
+		else
+			return 0.0f;
+	}
+
+	float AnimCurve::GetEndTime() const
+	{
+		if (!KeyFrames.empty())
+			return KeyFrames.back()->GetFrameTime();
+		else
+			return 0.0f;
 	}
 
 	std::shared_ptr<AnimKeyFrame> AnimCurve::GetKeyFrameByIndex(size_t Index)

@@ -6,6 +6,8 @@
 #include "Scene/SceneContext.h"
 #include "Utilities/DebugLogger.h"
 #include "GameLogic/LogicThread.h"
+#include "Animation/AnimStack.h"
+#include "Animation/AnimLayer.h"
 
 namespace cxc {
 
@@ -137,7 +139,6 @@ namespace cxc {
 		// Initialize the start time of the world
 		WorldStartSeconds = std::chrono::system_clock::now();
 		auto CurrentWorldSeconds = GetWorldSeconds();
-		LastLogicWorldTickSeconds = CurrentWorldSeconds;
 		LastRenderingTickSeconds = CurrentWorldSeconds;
 
 		// Start game logic thread
@@ -315,6 +316,9 @@ namespace cxc {
 		// Clear cache of the context
 		OutSceneContext->ClearCache();
 
+		// Load animation stacks
+		FBXSDKUtil::LoadAnimationStacks(pScene, OutSceneContext);
+
 		// Process node from the root node of the scene
 		ProcessSceneNode(pScene->GetRootNode(), OutSceneContext);
 
@@ -425,5 +429,3 @@ namespace cxc {
 		GameOver = true;
 	}
 }
-
-

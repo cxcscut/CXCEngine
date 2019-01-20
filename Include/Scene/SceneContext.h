@@ -10,6 +10,7 @@ namespace cxc
 	class Mesh;
 	class LightSource;
 	class Camera;
+	class AnimStack;
 
 	/* SceneContext is the class that stores the information of loaded scene */
 	class CXC_ENGINECORE_API SceneContext final
@@ -32,6 +33,9 @@ namespace cxc
 
 		// Cameras
 		std::vector<std::shared_ptr<Camera>> Cameras;
+
+		// Animation stacks
+		std::vector<std::shared_ptr<AnimStack>> AnimationStacks;
 
 	};
 }

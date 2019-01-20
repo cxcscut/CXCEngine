@@ -26,6 +26,9 @@ namespace cxc {
 
 	class SceneContext;
 	class CGameLogicThread;
+	class AnimLayer;
+	class AnimCurve;
+	class AnimKeyFrame;
 
 	const float FixedDeltaSeconds_30FPS = 0.3333f;
 	const float FixedDeltaSeconds_60FPS = 0.1667f;
@@ -155,7 +158,7 @@ namespace cxc {
 		SystemClock WorldStartSeconds;
 
 		// Last ticking time
-		float LastLogicWorldTickSeconds, LastRenderingTickSeconds;
+		float LastRenderingTickSeconds;
 
 		// Logic thread
 		std::shared_ptr<CGameLogicThread> GameLogicThread;

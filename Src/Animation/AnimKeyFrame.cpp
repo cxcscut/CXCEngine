@@ -2,12 +2,9 @@
 
 namespace cxc
 {
-	AnimKeyFrame::AnimKeyFrame(float Time, eBoneLinkingMode LinkMode,
-		const std::vector<float>& Weights,
-		const std::vector<glm::mat4>& DeformationMatrices,
-		const std::vector<std::vector<uint32_t>>& InfluencedIndices)
+	AnimKeyFrame::AnimKeyFrame(float KeyTime, float Value)
+		: FrameTime(KeyTime), KeyValue(Value)
 	{
-		FrameTime = Time;
 	}
 
 	AnimKeyFrame::~AnimKeyFrame()

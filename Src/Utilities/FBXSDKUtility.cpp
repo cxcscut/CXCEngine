@@ -4,18 +4,26 @@
 #include "Geometry/SubMesh.h"
 #include "Geometry/Mesh.h"
 #include "Utilities/DebugLogger.h"
+#include "Scene/SceneContext.h"
+#include "Animation/AnimStack.h"
+#include "Animation/AnimLayer.h"
+#include "Animation/AnimCurve.h"
+#include "Animation/AnimKeyFrame.h"
 
 #ifdef IOS_REF
 	#undef IOS_REF
 	#define IOS_REF (*(pManager->GetIOSettings()))
 #endif
 
+// Polygon stride for the triangle
 const int TRIANGLE_VERTEX_COUNT = 3;
 
 // Four floats for every position.
 const int VERTEX_STRIDE = 4;
+
 // Three floats for every normal.
 const int NORMAL_STRIDE = 3;
+
 // Two floats for every UV.
 const int UV_STRIDE = 2;
 
@@ -625,6 +633,381 @@ namespace cxc {
 		const FbxVector4 lS = pNode->GetGeometricScaling(FbxNode::eSourcePivot);
 
 		return FbxAMatrix(lT, lR, lS);
+	}
+
+	void FBXSDKUtil::LoadAnimationStacks(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext)
+	{
+		int StackCount = pScene->GetSrcObjectCount<FbxAnimStack>();
+		for (int i = 0; i < StackCount; ++i)
+		{
+			FbxAnimStack* FbxAnimationStack = pScene->GetSrcObject<FbxAnimStack>(i);
+			auto ExtractedAnimStack = NewObject<AnimStack>(FbxAnimationStack->GetName());
+
+			// Extract animation layers
+			ExtractAnimLayers(FbxAnimationStack, pScene->GetRootNode(), ExtractedAnimStack);
+
+			OutSceneContext->AnimationStacks.push_back(ExtractedAnimStack);
+		}
+	}
+
+	int FBXSDKUtil::InterpolationFlagToIndex(int flags)
+	{
+		if ((flags & FbxAnimCurveDef::eInterpolationConstant) == FbxAnimCurveDef::eInterpolationConstant) return 1;
+		if ((flags & FbxAnimCurveDef::eInterpolationLinear) == FbxAnimCurveDef::eInterpolationLinear) return 2;
+		if ((flags & FbxAnimCurveDef::eInterpolationCubic) == FbxAnimCurveDef::eInterpolationCubic) return 3;
+		return 0;
+	}
+
+	int FBXSDKUtil::ConstantmodeFlagToIndex(int flags)
+	{
+		if ((flags & FbxAnimCurveDef::eConstantStandard) == FbxAnimCurveDef::eConstantStandard) return 1;
+		if ((flags & FbxAnimCurveDef::eConstantNext) == FbxAnimCurveDef::eConstantNext) return 2;
+		return 0;
+	}
+
+	int FBXSDKUtil::TangentmodeFlagToIndex(int flags)
+	{
+		if ((flags & FbxAnimCurveDef::eTangentAuto) == FbxAnimCurveDef::eTangentAuto) return 1;
+		if ((flags & FbxAnimCurveDef::eTangentAutoBreak) == FbxAnimCurveDef::eTangentAutoBreak) return 2;
+		if ((flags & FbxAnimCurveDef::eTangentTCB) == FbxAnimCurveDef::eTangentTCB) return 3;
+		if ((flags & FbxAnimCurveDef::eTangentUser) == FbxAnimCurveDef::eTangentUser) return 4;
+		if ((flags & FbxAnimCurveDef::eTangentGenericBreak) == FbxAnimCurveDef::eTangentGenericBreak) return 5;
+		if ((flags & FbxAnimCurveDef::eTangentBreak) == FbxAnimCurveDef::eTangentBreak) return 6;
+		return 0;
+	}
+
+	int FBXSDKUtil::TangentweightFlagToIndex(int flags)
+	{
+		if ((flags & FbxAnimCurveDef::eWeightedNone) == FbxAnimCurveDef::eWeightedNone) return 1;
+		if ((flags & FbxAnimCurveDef::eWeightedRight) == FbxAnimCurveDef::eWeightedRight) return 2;
+		if ((flags & FbxAnimCurveDef::eWeightedNextLeft) == FbxAnimCurveDef::eWeightedNextLeft) return 3;
+		return 0;
+	}
+
+	int FBXSDKUtil::TangentVelocityFlagToIndex(int flags)
+	{
+		if ((flags & FbxAnimCurveDef::eVelocityNone) == FbxAnimCurveDef::eVelocityNone) return 1;
+		if ((flags & FbxAnimCurveDef::eVelocityRight) == FbxAnimCurveDef::eVelocityRight) return 2;
+		if ((flags & FbxAnimCurveDef::eVelocityNextLeft) == FbxAnimCurveDef::eVelocityNextLeft) return 3;
+		return 0;
+	}
+
+	std::shared_ptr<AnimCurve> FBXSDKUtil::ExtractAnimKeyFrames(FbxAnimCurve* pCurve)
+	{
+		if (pCurve == nullptr)
+			return nullptr;
+
+		auto OutCurve = NewObject<AnimCurve>();
+
+		float KeyTime;
+		float KeyValue;
+		int KeyCount = pCurve->KeyGetCount();
+		for (int i = 0; i < KeyCount; ++i)
+		{
+			KeyValue = static_cast<float>(pCurve->KeyGetValue(i));
+			KeyTime = pCurve->KeyGetTime(i).GetMilliSeconds();
+
+			// Get the interpolation type
+			auto InterpolationType = InterpolationFlagToIndex(pCurve->KeyGetInterpolation(i));
+
+			if ((pCurve->KeyGetInterpolation(i)&FbxAnimCurveDef::eInterpolationConstant) == FbxAnimCurveDef::eInterpolationConstant)
+			{
+				// Constant mode
+				auto ConstantMode = ConstantmodeFlagToIndex(pCurve->KeyGetConstantMode(i));
+			}
+			else if ((pCurve->KeyGetInterpolation(i)&FbxAnimCurveDef::eInterpolationCubic) == FbxAnimCurveDef::eInterpolationCubic)
+			{
+				// Cubic mode
+				auto CubicMode = TangentmodeFlagToIndex(pCurve->KeyGetTangentMode(i));
+
+				// Tangent weight mode
+				auto TangentWeightMode = TangentweightFlagToIndex(pCurve->KeyGet(i).GetTangentWeightMode());
+
+				// tangent velocity mode
+				auto TangentVelocityMode = TangentVelocityFlagToIndex(pCurve->KeyGet(i).GetTangentVelocityMode());
+			}
+
+			auto ExtractedKeyFrame = NewObject<AnimKeyFrame>(KeyTime, KeyValue);
+			OutCurve->AddKeyFrame(ExtractedKeyFrame);
+		}
+
+		return OutCurve;
+	}
+
+	void FBXSDKUtil::ExtractAnimCurves(FbxAnimLayer* pAnimLayer, FbxNode* pNode, std::shared_ptr<AnimLayer> OutAnimLayer, bool bIsSwitcher)
+	{
+		FbxAnimCurve* lAnimCurve = nullptr;
+
+		// General curves
+		if (bIsSwitcher)
+		{
+			// Translation of the x axis
+			lAnimCurve = pNode->LclTranslation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Translation of the y axis
+			lAnimCurve = pNode->LclTranslation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Translation of the z axis
+			lAnimCurve = pNode->LclTranslation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Rotation of the x axis
+			lAnimCurve = pNode->LclRotation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Rotation of the y axis
+			lAnimCurve = pNode->LclRotation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Rotation of the z axis
+			lAnimCurve = pNode->LclRotation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Scaling of the x axis
+			lAnimCurve = pNode->LclScaling.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Scaling of the y axis
+			lAnimCurve = pNode->LclScaling.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Scaling of the z axis
+			lAnimCurve = pNode->LclScaling.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+		}
+
+		// Curve specific to a light or marker
+		FbxNodeAttribute* lNodeAttribute = pNode->GetNodeAttribute();
+		if (lNodeAttribute)
+		{
+			// RGB curve
+			lAnimCurve = lNodeAttribute->Color.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COLOR_RED);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			lAnimCurve = lNodeAttribute->Color.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COLOR_GREEN);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			lAnimCurve = lNodeAttribute->Color.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COLOR_BLUE);
+			if (lAnimCurve)
+			{
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+			}
+
+			// Curve specific to a light
+			FbxLight* pLight = pNode->GetLight();
+			if (pLight)
+			{
+				// Light attributes
+				lAnimCurve = pLight->Intensity.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+
+				lAnimCurve = pLight->Fog.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+
+				lAnimCurve = pLight->OuterAngle.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+			}
+
+			// Curve specific to a camera
+			FbxCamera* pCamera = pNode->GetCamera();
+			if (pCamera)
+			{
+				// Camera attribute
+				lAnimCurve = pCamera->FieldOfView.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+
+				lAnimCurve = pCamera->FieldOfViewX.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+
+				lAnimCurve = pCamera->FieldOfViewY.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+
+				lAnimCurve = pCamera->OpticalCenterX.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+
+				lAnimCurve = pCamera->OpticalCenterY.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+
+				lAnimCurve = pCamera->Roll.GetCurve(pAnimLayer);
+				if (lAnimCurve)
+				{
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				}
+			}
+
+			// Curves specific to a geometry
+			if (lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh ||
+				lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eNurbs ||
+				lNodeAttribute->GetAttributeType() == FbxNodeAttribute::ePatch)
+			{
+				FbxGeometry* lGeometry = (FbxGeometry*)lNodeAttribute;
+
+				int lBlendShapeDeformerCount = lGeometry->GetDeformerCount(FbxDeformer::eBlendShape);
+				for (int lBlendShapeIndex = 0; lBlendShapeIndex<lBlendShapeDeformerCount; ++lBlendShapeIndex)
+				{
+					FbxBlendShape* lBlendShape = (FbxBlendShape*)lGeometry->GetDeformer(lBlendShapeIndex, FbxDeformer::eBlendShape);
+
+					int lBlendShapeChannelCount = lBlendShape->GetBlendShapeChannelCount();
+					for (int lChannelIndex = 0; lChannelIndex<lBlendShapeChannelCount; ++lChannelIndex)
+					{
+						FbxBlendShapeChannel* lChannel = lBlendShape->GetBlendShapeChannel(lChannelIndex);
+						const char* lChannelName = lChannel->GetName();
+
+						lAnimCurve = lGeometry->GetShapeChannel(lBlendShapeIndex, lChannelIndex, pAnimLayer, true);
+						if (lAnimCurve)
+							OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					}
+				}
+			}
+
+			// Curves specific to properties
+			FbxProperty lProperty = pNode->GetFirstProperty();
+			while (lProperty.IsValid())
+			{
+				if (lProperty.GetFlag(FbxPropertyFlags::eUserDefined))
+				{
+					FbxString lFbxFCurveNodeName = lProperty.GetName();
+					FbxAnimCurveNode* lCurveNode = lProperty.GetCurveNode(pAnimLayer);
+
+					if (!lCurveNode) {
+						lProperty = pNode->GetNextProperty(lProperty);
+						continue;
+					}
+
+					FbxDataType lDataType = lProperty.GetPropertyDataType();
+					if (lDataType.GetType() == eFbxBool || lDataType.GetType() == eFbxDouble || lDataType.GetType() == eFbxFloat || lDataType.GetType() == eFbxInt)
+					{
+						for (int c = 0; c < lCurveNode->GetCurveCount(0U); c++)
+						{
+							lAnimCurve = lCurveNode->GetCurve(0U, c);
+							if (lAnimCurve)
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+						}
+					}
+					else if (lDataType.GetType() == eFbxDouble3 || lDataType.GetType() == eFbxDouble4 || lDataType.Is(FbxColor3DT) || lDataType.Is(FbxColor4DT))
+					{
+						for (int c = 0; c < lCurveNode->GetCurveCount(0U); c++)
+						{
+							lAnimCurve = lCurveNode->GetCurve(0U, c);
+							if (lAnimCurve)
+							{
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+							}
+						}
+
+						for (int c = 0; c < lCurveNode->GetCurveCount(1U); c++)
+						{
+							lAnimCurve = lCurveNode->GetCurve(1U, c);
+							if (lAnimCurve)
+							{
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+							}
+						}
+
+						for (int c = 0; c < lCurveNode->GetCurveCount(2U); c++)
+						{
+							lAnimCurve = lCurveNode->GetCurve(2U, c);
+							if (lAnimCurve)
+							{
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+							}
+						}
+					}
+					else if (lDataType.GetType() == eFbxEnum)
+					{
+						for (int c = 0; c < lCurveNode->GetCurveCount(0U); c++)
+						{
+							lAnimCurve = lCurveNode->GetCurve(0U, c);
+							if (lAnimCurve)
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+						}
+					}
+				}
+
+				lProperty = pNode->GetNextProperty(lProperty);
+			}
+		}
+
+		// Extract animation curves from child node
+		auto ChildNodeCount = pNode->GetChildCount();
+		for (auto i = 0; i < ChildNodeCount; ++i)
+		{
+			ExtractAnimCurves(pAnimLayer, pNode->GetChild(i), OutAnimLayer, bIsSwitcher);
+		}
+	}
+
+	void FBXSDKUtil::ExtractAnimLayers(FbxAnimStack* pAnimStack, FbxNode* pNode, std::shared_ptr<AnimStack> OutAnimStack)
+	{
+		auto AnimationLayerCount = pAnimStack->GetMemberCount<FbxAnimLayer>();
+		for (auto i = 0; i < AnimationLayerCount; ++i)
+		{
+			FbxAnimLayer* FbxAnimationLayer = pAnimStack->GetMember<FbxAnimLayer>(i);
+			auto ExtractedAnimLayer = NewObject<AnimLayer>(FbxAnimationLayer->GetName());
+
+			// Extract animation curves of the layer
+			ExtractAnimCurves(FbxAnimationLayer, pNode, ExtractedAnimLayer, false);
+
+			OutAnimStack->AddAnimationLayer(ExtractedAnimLayer);
+		}
 	}
 
 	bool FBXSDKUtil::GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<LightSource>>& OutLights, FbxAMatrix& pParentGlobalPosition)

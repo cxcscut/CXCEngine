@@ -26,6 +26,7 @@
 namespace cxc {
 
 	class DebugMesh;
+	class AnimStack;
 
 	class CXC_ENGINECORE_API SceneManager final : public Singleton<SceneManager>
 	{
@@ -89,6 +90,13 @@ namespace cxc {
 
 	public:
 
+		void AddAnimationStack(std::shared_ptr<AnimStack> pAnimStack);
+		void RemoveAnimationStack(std::shared_ptr<AnimStack> pAnimStack);
+
+		std::shared_ptr<AnimStack> GetAnimationStack(const std::string& AnimStackName);
+
+	public:
+
 		void RenderingTick(float DeltaSeconds) noexcept;
 
 		void FlushDebugMeshes();
@@ -99,6 +107,7 @@ namespace cxc {
 
 	private:
 
+		// Current active camera
 		std::shared_ptr<Camera> CurrentActiveCamera;
 
 		// Cameras in the scene
@@ -106,6 +115,9 @@ namespace cxc {
 
 		// Lights
 		std::vector<std::shared_ptr<LightSource>> Lights;
+
+		// Animation stacks
+		std::unordered_map<std::string, std::shared_ptr<AnimStack>> AnimationStacks;
 
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> MeshMap;

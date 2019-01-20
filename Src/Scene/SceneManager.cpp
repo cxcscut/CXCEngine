@@ -3,6 +3,7 @@
 #include "Geometry/Mesh.h"
 #include "World/World.h"
 #include "Utilities/DebugLogger.h"
+#include "Animation/AnimStack.h"
 #include <iostream>
 
 namespace cxc {
@@ -55,6 +56,32 @@ namespace cxc {
 	{
 		if (Index < Cameras.size())
 			return Cameras[Index];
+		else
+			return nullptr;
+	}
+
+	void SceneManager::AddAnimationStack(std::shared_ptr<AnimStack> pAnimStack)
+	{
+		AnimationStacks.insert(std::make_pair(pAnimStack->GetAnimStackName(), pAnimStack));
+	}
+
+	void SceneManager::RemoveAnimationStack(std::shared_ptr<AnimStack> pAnimStack)
+	{
+		if (pAnimStack != nullptr)
+		{
+			auto AnimStackIter = AnimationStacks.find(pAnimStack->GetAnimStackName());
+			if (AnimStackIter != AnimationStacks.end())
+			{
+				AnimationStacks.erase(AnimStackIter);
+			}
+		}
+	}
+
+	std::shared_ptr<AnimStack> SceneManager::GetAnimationStack(const std::string& AnimStackName)
+	{
+		auto AnimStackIter = AnimationStacks.find(AnimStackName);
+		if (AnimStackIter != AnimationStacks.end())
+			return AnimStackIter->second;
 		else
 			return nullptr;
 	}

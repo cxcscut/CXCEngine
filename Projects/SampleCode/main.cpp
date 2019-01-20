@@ -68,7 +68,7 @@ int main()
 	pSceneManager->SetCameraActive(pSceneManager->GetCamera(0));
 
 	auto SceneContextCache = NewObject<SceneContext>();
-	bool bResult = pWorld->LoadSceneFromFBX(SceneFBXFile, SceneContextCache);
+	bool bResult = pWorld->LoadSceneFromFBX(HumanoidScene, SceneContextCache);
 	auto Actors = CreateActors(SceneContextCache);
 	if (bResult)
 	{

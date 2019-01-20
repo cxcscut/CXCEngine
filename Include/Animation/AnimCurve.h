@@ -19,7 +19,7 @@ namespace cxc
 	class CXC_ENGINECORE_API AnimCurve final
 	{
 	public:
-		AnimCurve(float Start, float End);
+		AnimCurve();
 		~AnimCurve();
 
 	public:
@@ -29,8 +29,8 @@ namespace cxc
 
 		std::shared_ptr<AnimKeyFrame> GetKeyFrameByIndex(size_t Index);
 		size_t GetKeyFrameCount() const { return KeyFrames.size(); }
-		float GetStartTime() const { return StartTime; }
-		float GetEndTime() const { return EndTime; }
+		float GetStartTime() const;
+		float GetEndTime() const;
 
 	public:
 
@@ -42,12 +42,6 @@ namespace cxc
 		void SortKeyFramesByStartTime();
 
 	private:
-
-		// Start time of the curve node;
-		float StartTime;
-
-		// End time of the curve node;
-		float EndTime;
 
 		// Key frames the curve has
 		std::vector<std::shared_ptr<AnimKeyFrame>> KeyFrames;

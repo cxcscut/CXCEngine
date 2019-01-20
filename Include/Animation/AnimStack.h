@@ -20,6 +20,10 @@ namespace cxc
 
 	public:
 
+		std::string GetAnimStackName() { return AnimationStackName; }
+
+	public:
+
 		void AddAnimationLayer(std::shared_ptr<AnimLayer> pAnimLayer);
 		void RemoveAnimationLayer(size_t Index);
 

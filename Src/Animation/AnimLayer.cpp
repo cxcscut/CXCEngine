@@ -3,8 +3,8 @@
 
 namespace cxc
 {
-	AnimLayer::AnimLayer():
-		Weight(0.0f)
+	AnimLayer::AnimLayer(const std::string& Name):
+		Weight(0.0f), LayerName(Name)
 	{
 
 	}
@@ -26,7 +26,8 @@ namespace cxc
 
 	void AnimLayer::AddAnimationCurve(std::shared_ptr<AnimCurve> pAnimCurve)
 	{
-		AnimCurves.push_back(pAnimCurve);
+		if(pAnimCurve != nullptr)
+			AnimCurves.push_back(pAnimCurve);
 	}
 
 	void AnimLayer::RemoveAnimationCurve(size_t Index)
