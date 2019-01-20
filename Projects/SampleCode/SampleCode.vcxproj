@@ -168,7 +168,6 @@
     <ClCompile Include="..\..\Src\Actor\CPawn.cpp" />
     <ClCompile Include="..\..\Src\Scene\SceneContext.cpp" />
     <ClCompile Include="..\..\src\scene\SceneManager.cpp" />
-    <ClCompile Include="..\..\src\script\ScriptParser.cpp" />
     <ClCompile Include="..\..\Src\Systems\CMovementCtrlSystem.cpp" />
     <ClCompile Include="..\..\Src\Systems\CSystem.cpp" />
     <ClCompile Include="..\..\Src\Utilities\DebugDrawHelper.cpp" />
@@ -238,7 +237,6 @@
     <ClInclude Include="..\..\Include\Actor\CPawn.h" />
     <ClInclude Include="..\..\Include\Scene\SceneContext.h" />
     <ClInclude Include="..\..\include\scene\SceneManager.h" />
-    <ClInclude Include="..\..\include\script\ScriptParser.h" />
     <ClInclude Include="..\..\Include\Systems\CMovementCtrlSystem.h" />
     <ClInclude Include="..\..\Include\Systems\CSystem.h" />
     <ClInclude Include="..\..\Include\Utilities\DebugDrawHelper.h" />
