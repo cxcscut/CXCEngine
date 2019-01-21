@@ -11,6 +11,8 @@
 #include "Animation/AnimCurve.h"
 #include "Animation/AnimKeyFrame.h"
 #include "Animation/Pose.h"
+#include "Animation/Skeleton.h"
+#include "Animation/LinkBone.h"
 
 #ifdef IOS_REF
 	#undef IOS_REF
@@ -183,13 +185,12 @@ namespace cxc {
 		}
 	}
 
-	bool FBXSDKUtil::GetMeshFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Mesh>>& OutMeshes, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode)
+	bool FBXSDKUtil::GetMeshFromNode(FbxNode* pNode, std::shared_ptr<SceneContext> OutSceneContext, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& lGlobalPosition, std::shared_ptr<Mesh> pParentNode)
 	{
 		if (!pNode)
 			return false;
 
 		bool bHasFoundAnyMesh = false;
-		std::shared_ptr<Mesh> pNewMesh = nullptr;
 		FbxAMatrix lGlobalOffPosition;
 
 		FbxMesh* pMesh = pNode->GetMesh();
@@ -496,18 +497,18 @@ namespace cxc {
 			}
 
 			// Create the object
-			pNewMesh = std::make_shared<Mesh>(Vertices, Normals, UVs, Indices);
-			pNewMesh->MeshName = pNode->GetName();
-			pNewMesh->isLoaded = true;
+			auto OutMesh = std::make_shared<Mesh>(Vertices, Normals, UVs, Indices);
+			OutMesh->MeshName = pNode->GetName();
+			OutMesh->isLoaded = true;
 
 			// Create indice of the meshes
 			if (!pMesh->GetElementMaterial() || lMaterialMappingMode == FbxGeometryElement::eAllSame)
 			{
 				FBX_ASSERT(NewSubMeshes.size() == 1);
-				NewSubMeshes[0]->Indices = pNewMesh->m_VertexIndices;
-				NewSubMeshes[0]->SetOwnerObject(pNewMesh);
+				NewSubMeshes[0]->Indices = OutMesh->m_VertexIndices;
+				NewSubMeshes[0]->SetOwnerObject(OutMesh);
 
-				pNewMesh->SubMeshes = NewSubMeshes;
+				OutMesh->SubMeshes = NewSubMeshes;
 			}
 			else if (lMaterialMappingMode == FbxGeometryElement::eByPolygon)
 			{
@@ -515,43 +516,31 @@ namespace cxc {
 
 				for (auto mesh : NewSubMeshes)
 				{
-					mesh->SetOwnerObject(pNewMesh);
+					mesh->SetOwnerObject(OutMesh);
 				}
 
-				pNewMesh->SubMeshes = NewSubMeshes;
-			}
+				OutMesh->SubMeshes = NewSubMeshes;
 
-			// Create the parent-child linkage
-			if (pParentNode)
-			{
-				pParentNode->pChildNodes.push_back(pNewMesh);
-				pNewMesh->pParentNode = pParentNode;
+				// Create the parent-child linkage
+				if (pParentNode)
+				{
+					pParentNode->pChildNodes.push_back(OutMesh);
+					OutMesh->pParentNode = pParentNode;
+				}
 			}
-
-			// Get global position of the node
-			FbxAMatrix lGlobalPosition = GetGlobalPosition(pNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
-			FbxAMatrix lGeometryOffset = GetGeometry(pNode);
-			lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
 
 			// Set translation
-			pNewMesh->Translate(glm::vec3(lGlobalPosition.GetT()[0], lGlobalPosition.GetT()[1], lGlobalPosition.GetT()[2]));
+			OutMesh->Translate(glm::vec3(lGlobalPosition.GetT()[0], lGlobalPosition.GetT()[1], lGlobalPosition.GetT()[2]));
 
 			// Set rotation
-			pNewMesh->RotateLocalSpace(glm::vec3(1, 0, 0), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[0])));
-			pNewMesh->RotateLocalSpace(glm::vec3(0, 1, 0), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[1])));
-			pNewMesh->RotateLocalSpace(glm::vec3(0, 0, 1), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[2])));
+			OutMesh->RotateLocalSpace(glm::vec3(1, 0, 0), static_cast<float>(glm::radians(lGlobalPosition.GetR()[0])));
+			OutMesh->RotateLocalSpace(glm::vec3(0, 1, 0), static_cast<float>(glm::radians(lGlobalPosition.GetR()[1])));
+			OutMesh->RotateLocalSpace(glm::vec3(0, 0, 1), static_cast<float>(glm::radians(lGlobalPosition.GetR()[2])));
 
 			// Set sacling
-			pNewMesh->Scale(glm::vec3(glm::vec3(lGlobalPosition.GetS()[0], lGlobalPosition.GetS()[1], lGlobalPosition.GetS()[2])));
+			OutMesh->Scale(glm::vec3(glm::vec3(lGlobalPosition.GetS()[0], lGlobalPosition.GetS()[1], lGlobalPosition.GetS()[2])));
 
-			OutMeshes.push_back(pNewMesh);
-		}
-
-		// Recursively traverse each node in the scene
-		int i, lCount = pNode->GetChildCount();
-		for (i = 0; i < lCount; i++)
-		{
-			bHasFoundAnyMesh |= GetMeshFromNode(pNode->GetChild(i), OutMeshes, WorldID, SpaceID, lGlobalOffPosition, pNewMesh);
+			OutSceneContext->Meshes.push_back(OutMesh);
 		}
 
 		return bHasFoundAnyMesh;
@@ -1012,13 +1001,13 @@ namespace cxc {
 		}
 	}
 
-	bool FBXSDKUtil::GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<LightSource>>& OutLights, FbxAMatrix& pParentGlobalPosition)
+	bool FBXSDKUtil::GetLightFromRootNode(FbxNode* pNode, FbxAMatrix& lGlobalPosition, std::shared_ptr<SceneContext> OutSceneContext)
 	{
 		if (!pNode)
 			return false;
 
 		bool bHasFoundAnyLightNode = false;
-		std::shared_ptr<LightSource> pNewLight = std::make_shared<LightSource>();
+		auto OutLight = std::make_shared<LightSource>();
 
 		// Get light from root node
 		FbxLight* lLight = pNode->GetLight();
@@ -1028,73 +1017,72 @@ namespace cxc {
 			bHasFoundAnyLightNode = true;
 
 			// Light Name
-			pNewLight->LightName = pNode->GetName();
+			OutLight->LightName = pNode->GetName();
 
 			// Light decay type
 			auto DecayType = lLight->DecayType.Get();
 			switch (DecayType)
 			{
 			case fbxsdk::FbxLight::eNone:
-				pNewLight->AtteunationType = eLightAtteunationType::None;
+				OutLight->AtteunationType = eLightAtteunationType::None;
 				break;
 			case fbxsdk::FbxLight::eLinear:
-				pNewLight->AtteunationType = eLightAtteunationType::Linear;
+				OutLight->AtteunationType = eLightAtteunationType::Linear;
 				break;
 			case fbxsdk::FbxLight::eQuadratic:
-				pNewLight->AtteunationType = eLightAtteunationType::Quadratic;
+				OutLight->AtteunationType = eLightAtteunationType::Quadratic;
 				break;
 			case fbxsdk::FbxLight::eCubic:
-				pNewLight->AtteunationType = eLightAtteunationType::Cubic;
+				OutLight->AtteunationType = eLightAtteunationType::Cubic;
 				break;
 			}
 
 			// Light color
 			FbxDouble3 LightColor = lLight->Color.Get();
-			pNewLight->LightColor = glm::vec3(LightColor[0], LightColor[1], LightColor[2]);
+			OutLight->LightColor = glm::vec3(LightColor[0], LightColor[1], LightColor[2]);
 
 			// Light intensity
-			pNewLight->LightIntensity = lLight->Intensity.Get();
+			OutLight->LightIntensity = lLight->Intensity.Get();
 
 			// Whether to cast light
-			pNewLight->bCastLight = lLight->CastLight.Get();
+			OutLight->bCastLight = lLight->CastLight.Get();
 
 			// Whether to cast shadow
-			pNewLight->bCastShadow = lLight->CastShadows.Get();
+			OutLight->bCastShadow = lLight->CastShadows.Get();
 		
-			FbxAMatrix TargetGlobalOffPosition;
 			// Light type
 			switch (lLight->LightType.Get())
 			{
 			case 0 :
 				// Omnidirectional light
-				pNewLight->LightType = eLightType::OmniDirectional;
-				pNewLight->AtteunationType = eLightAtteunationType::Quadratic;
-				pNewLight->SetIntensity(1000.0f);
+				OutLight->LightType = eLightType::OmniDirectional;
+				OutLight->AtteunationType = eLightAtteunationType::Quadratic;
+				OutLight->SetIntensity(1000.0f);
 				break;
 			case 1:
 			{
 				// Directional light
-				pNewLight->LightType = eLightType::Directional;
+				OutLight->LightType = eLightType::Directional;
 				break;
 			}
 			case 2:
 			{
 				// Spot light
-				pNewLight->LightType = eLightType::Spot;
-				pNewLight->CutOffAngle = lLight->OuterAngle.Get();
+				OutLight->LightType = eLightType::Spot;
+				OutLight->CutOffAngle = lLight->OuterAngle.Get();
 				break;
 			}
 			case 3:
 				// Area light
-				pNewLight->LightType = eLightType::Area;
+				OutLight->LightType = eLightType::Area;
 				break;
 			case 4:
 				// Volumetric light
-				pNewLight->LightType = eLightType::Volumetric;
+				OutLight->LightType = eLightType::Volumetric;
 				break;
 			default:
 				// Invalid light type
-				pNewLight->LightType = eLightType::InvalidType;
+				OutLight->LightType = eLightType::InvalidType;
 				break;
 			}
 
@@ -1102,38 +1090,26 @@ namespace cxc {
 			auto pTargetNode = pNode->GetTarget();
 			if (pTargetNode)
 			{
-				TargetGlobalOffPosition = GetGlobalPosition(pTargetNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
-				FbxAMatrix lTargetNodeGeometryOfferset = GetGeometry(pTargetNode);
-				FbxAMatrix lTargetNodeGlobalOffPosition = TargetGlobalOffPosition * lTargetNodeGeometryOfferset;
-				pNewLight->SetTargetPos(lTargetNodeGlobalOffPosition.GetT()[0], lTargetNodeGlobalOffPosition.GetT()[1], lTargetNodeGlobalOffPosition.GetT()[2]);
+				// Get global position of the node
+				FbxAMatrix lTargetNodeGeometryOffset = GetGeometry(pTargetNode);
+				FbxAMatrix lTargetNodeGlobalOffPosition = lGlobalPosition * lTargetNodeGeometryOffset;
+				OutLight->SetTargetPos(lTargetNodeGlobalOffPosition.GetT()[0], lTargetNodeGlobalOffPosition.GetT()[1], lTargetNodeGlobalOffPosition.GetT()[2]);
 			}
 
-			// Get global position and orientation
-			FbxAMatrix lGlobalPosition = GetGlobalPosition(pNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
-			FbxAMatrix lGeometryOffset = GetGeometry(pNode);
-			FbxAMatrix lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
-
 			// Set rotation
-			auto RotMatrix = glm::rotate(glm::mat4(1.0f), static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[0])), glm::vec3(1, 0, 0));
-			RotMatrix = glm::rotate(RotMatrix, static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[1])), glm::vec3(0, 1, 0));
-			RotMatrix = glm::rotate(RotMatrix, static_cast<float>(glm::radians(lGlobalOffPosition.GetR()[2])), glm::vec3(0, 0, 1));
+			auto RotMatrix = glm::rotate(glm::mat4(1.0f), static_cast<float>(glm::radians(lGlobalPosition.GetR()[0])), glm::vec3(1, 0, 0));
+			RotMatrix = glm::rotate(RotMatrix, static_cast<float>(glm::radians(lGlobalPosition.GetR()[1])), glm::vec3(0, 1, 0));
+			RotMatrix = glm::rotate(RotMatrix, static_cast<float>(glm::radians(lGlobalPosition.GetR()[2])), glm::vec3(0, 0, 1));
 
-			pNewLight->SetLightPos(lGlobalOffPosition.GetT()[0], lGlobalOffPosition.GetT()[1], lGlobalOffPosition.GetT()[2]);
+			OutLight->SetLightPos(lGlobalPosition.GetT()[0], lGlobalPosition.GetT()[1], lGlobalPosition.GetT()[2]);
 
-			OutLights.emplace_back(pNewLight);
-		}
-
-		// Recursively traverse each node in the scene
-		int i, lCount = pNode->GetChildCount();
-		for (i = 0; i < lCount; i++)
-		{
-			bHasFoundAnyLightNode |= GetLightFromRootNode(pNode->GetChild(i), OutLights, pParentGlobalPosition);
+			OutSceneContext->Lights.push_back(OutLight);
 		}
 
 		return bHasFoundAnyLightNode;
 	}
 
-	bool FBXSDKUtil::GetCameraFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Camera>>& OutCameras)
+	bool FBXSDKUtil::GetCameraFromRootNode(FbxNode* pNode, std::shared_ptr<SceneContext> OutSceneContext)
 	{
 		if (!pNode)
 			return false;
@@ -1171,18 +1147,11 @@ namespace cxc {
 				// todo
 			}
 
-			OutCameras.emplace_back(RetCamera);
+			OutSceneContext->Cameras.push_back(RetCamera);
 		}
 		else
 		{
 			bHasFoundAnyCameraNode = false;
-		}
-
-		// Recursively traverse each node in the scene
-		int i, lCount = pNode->GetChildCount();
-		for (i = 0; i < lCount; i++)
-		{
-			bHasFoundAnyCameraNode |= GetCameraFromRootNode(pNode->GetChild(i), OutCameras);
 		}
 
 		return bHasFoundAnyCameraNode;
@@ -1413,10 +1382,15 @@ namespace cxc {
 		return lStatus;
 	}
 
-	void FBXSDKUtil::ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept
+	void FBXSDKUtil::ProcessSceneNode(FbxNode* pRootNode, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<SceneContext> OutSceneContext)  noexcept
 	{
 		if (!pRootNode || !OutSceneContext)
 			return;
+
+		FbxAMatrix CurrentGlobalPosition = GetGlobalPosition(pRootNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
+		// Get global position of the node
+		FbxAMatrix lGeometryOffset = GetGeometry(pRootNode);
+		FbxAMatrix lGlobalOffPosition = CurrentGlobalPosition * lGeometryOffset;
 
 		if (pRootNode->GetNodeAttribute() != nullptr)
 		{
@@ -1432,39 +1406,20 @@ namespace cxc {
 
 			case FbxNodeAttribute::eMesh:
 			{
-				std::vector<std::shared_ptr<Mesh>> LoadedMeshes;
-				FbxAMatrix lGlobalPosition;
-				bool bMeshLoadingRes = FBXSDKUtil::GetMeshFromNode(pRootNode, LoadedMeshes, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalPosition);
+				bool bMeshLoadingRes = FBXSDKUtil::GetMeshFromNode(pRootNode, OutSceneContext, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalOffPosition);
 				if (!bMeshLoadingRes)
 				{
 					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the mesh \n");
-				}
-				else
-				{
-					for (auto pMeshes : LoadedMeshes)
-					{
-						OutSceneContext->Meshes.push_back(pMeshes);
-					}
 				}
 				break;
 			}
 
 			case FbxNodeAttribute::eLight:
 			{
-				std::vector<std::shared_ptr<LightSource>> LoadedLights;
-				FbxAMatrix lGlobalPosition;
-				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, LoadedLights, lGlobalPosition);
+				bool bLightLoadingRes = FBXSDKUtil::GetLightFromRootNode(pRootNode, lGlobalOffPosition, OutSceneContext);
 				if (!bLightLoadingRes)
 				{
 					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the lights \n");
-				}
-				else
-				{
-					for (auto pNewLight : LoadedLights)
-					{
-						if (pNewLight)
-							OutSceneContext->Lights.push_back(pNewLight);
-					}
 				}
 
 				break;
@@ -1472,42 +1427,101 @@ namespace cxc {
 
 			case FbxNodeAttribute::eSkeleton:
 			{
-				std::vector<std::shared_ptr<CSkeleton>> LoadedSkeletons;
-				FbxAMatrix lGloablParentPosition;
-				
-				// Geometry offset.
-				// it is not inherited by the children.
-				FbxAMatrix lGlobalPosition = GetGlobalPosition(pRootNode, pTime, pPose, &lGloablParentPosition);
-				FbxAMatrix lGeometryOffset = GetGeometry(pRootNode);
-				FbxAMatrix lGlobalOffPosition = lGlobalPosition * lGeometryOffset;
+				FbxSkeleton* lSkeleton = (FbxSkeleton*)pRootNode->GetNodeAttribute();
+				FbxAMatrix lSkeletonGlobalPosition = GetGlobalPosition(pRootNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
 
-				bool bSkeletonLoadingRes = FBXSDKUtil::LoadSkeletons(pRootNode, lGloablParentPosition, lGlobalOffPosition, LoadedSkeletons);
-				if (!bSkeletonLoadingRes)
-					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the skeletons \n");
-				else
-				{
-					for (auto pSkeleton : LoadedSkeletons)
-					{
-						if (pSkeleton)
-							OutSceneContext->Skeletons.push_back(pSkeleton);
-					}
-				}
-
+				FBXSDKUtil::LoadSkeletons(pRootNode, pParentGlobalPosition, lSkeletonGlobalPosition, OutSceneContext);
 				break;
 			}
 
 			case FbxNodeAttribute::eCamera:
 			{
+				bool bCameraLoadingRes = FBXSDKUtil::GetCameraFromRootNode(pRootNode, OutSceneContext);
+				if (!bCameraLoadingRes)
+				{
+					DEBUG_LOG(eLogType::Verbose, "SceneManager::ProcessSceneNode, Failed to load the Cameras \n");
+				}
 				break;
 			}
 
 			}
 		}
+
+		// Process child node
+		auto NodeCount = pRootNode->GetChildCount();
+		for (auto i = 0; i < NodeCount; ++i)
+		{
+			ProcessSceneNode(pRootNode->GetChild(i), lGlobalOffPosition, OutSceneContext);
+		}
 	}
 
-	bool FBXSDKUtil::LoadSkeletons(FbxNode* pNode, FbxAMatrix& GlobalParentPosition, FbxAMatrix& GlobalPosition, std::vector<std::shared_ptr<CSkeleton>>& OutSkeletons)
+	glm::mat4 FBXSDKUtil::ConvertFbxMatrixToGLM(const FbxMatrix& InMatrix)
 	{
-		return true;
+		FbxAMatrix AffineMatrix;
+		FbxMatrix TargetMatrix;
+		memcpy((double*)AffineMatrix, (double*)TargetMatrix, sizeof(TargetMatrix.mData));
+
+		return ConvertFbxMatrixToGLM(AffineMatrix);
+	}
+
+	glm::mat4 FBXSDKUtil::ConvertFbxMatrixToGLM(const FbxAMatrix& InMatrix)
+	{
+		glm::mat4 RetMatrix(1.0f);
+
+		// Translation
+		RetMatrix = glm::translate(RetMatrix, glm::vec3(InMatrix.GetT()[0], InMatrix.GetT()[1], InMatrix.GetT()[2]));
+
+		// Rotation
+		RetMatrix = glm::rotate(RetMatrix, static_cast<float>(glm::radians(InMatrix.GetR()[0])), glm::vec3(1, 0, 0));
+		RetMatrix = glm::rotate(RetMatrix, static_cast<float>(glm::radians(InMatrix.GetR()[1])), glm::vec3(0, 1, 0));
+		RetMatrix = glm::rotate(RetMatrix, static_cast<float>(glm::radians(InMatrix.GetR()[2])), glm::vec3(0, 0, 1));
+
+		// Scaling
+		RetMatrix = glm::scale(RetMatrix, glm::vec3(InMatrix.GetS()[0], InMatrix.GetS()[1], InMatrix.GetS()[2]));
+
+		return RetMatrix;
+	}
+
+	void FBXSDKUtil::LoadSkeletons(FbxNode* pNode, FbxAMatrix& GlobalParentPosition, FbxAMatrix& GlobalPosition, std::shared_ptr<SceneContext> OutSceneContext)
+	{
+		FbxSkeleton* lSkeleton = (FbxSkeleton*)pNode->GetNodeAttribute();
+
+		glm::vec3 BoneStartPos(GlobalParentPosition.GetT()[0], GlobalParentPosition.GetT()[1], GlobalParentPosition.GetT()[2]);
+		glm::vec3 BoneEndPos(GlobalPosition.GetT()[0], GlobalPosition.GetT()[1], GlobalPosition.GetT()[2]);
+
+		auto NewBone = NewObject<CLinkBone>(pNode->GetName(), BoneStartPos, BoneEndPos);
+
+		// Root node
+		if (lSkeleton->IsSkeletonRoot())
+		{
+			auto NewSkeleton = std::make_shared<CSkeleton>(pNode->GetName());
+			NewSkeleton->SetRootBone(NewBone);
+			OutSceneContext->Skeletons.push_back(NewSkeleton);
+		}
+		else
+		{
+			// Limb node
+			// Find the owner skeleton and attach to it
+			auto ParentSkeleton = (FbxSkeleton*)pNode->GetParent()->GetNodeAttribute();
+			if (!ParentSkeleton)
+				DEBUG_LOG(eLogType::Error, "FBXSDKUtil::LoadSkeleton, Parent node is not a skeleton\n");
+			else
+			{
+				bool bHasFoundParentBone = false;
+				for (auto pSkeleton : OutSceneContext->Skeletons)
+				{
+					if (pSkeleton && pSkeleton->AddBone(pNode->GetParent()->GetName(), NewBone))
+					{
+						// Find the parent bone
+						bHasFoundParentBone = true;
+						break;
+					}
+				}
+
+				if(!bHasFoundParentBone)
+					DEBUG_LOG(eLogType::Error, "FBXSDKUtil::LoadSkeleton, Can't find the parent bone \n");
+			}
+		}
 	}
 
 	void FBXSDKUtil::LoadPoses(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext)
@@ -1519,8 +1533,21 @@ namespace cxc {
 			for (int i = 0; i < PoseCount; ++i)
 			{
 				auto NewPose = NewObject<CPose>();
-				auto FbxPose = pScene->GetPose(i);
+				auto pFbxPose = pScene->GetPose(i);
 
+				NewPose->bIsBindPose = pFbxPose->IsBindPose();
+				NewPose->bIsRestPose = pFbxPose->IsRestPose();
+				
+				auto PoseInfoCount = pFbxPose->GetCount();
+				for (int i = 0; i < PoseInfoCount; ++i)
+				{
+					auto pNewPoseInfo = NewObject<PoseInfo>();
+					pNewPoseInfo->bIsLocalMatrix = pFbxPose->IsLocalMatrix(i);
+					pNewPoseInfo->PoseMatrix = ConvertFbxMatrixToGLM(pFbxPose->GetMatrix(i));
+					pNewPoseInfo->LinkBoneInfo.BoneName = pFbxPose->GetNode(i)->GetName();
+
+					NewPose->AddPoseInfo(pNewPoseInfo);
+				}
 
 				OutSceneContext->Poses.push_back(NewPose);
 			}

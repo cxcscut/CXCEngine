@@ -17,6 +17,7 @@ namespace cxc
 	class AnimCurve;
 	class SceneContext;
 	class CSkeleton;
+	class CLinkBone;
 	class CPose;
 
 	class CXC_ENGINECORE_API FBXSDKUtil final
@@ -30,7 +31,7 @@ namespace cxc
 	// Skeleton
 	public:
 
-		static bool LoadSkeletons(FbxNode* pNode, FbxAMatrix& GlobalParentPosition, FbxAMatrix& GlobalPosition, std::vector<std::shared_ptr<CSkeleton>>& OutSkeletons);
+		static void LoadSkeletons(FbxNode* pNode, FbxAMatrix& GlobalParentPosition, FbxAMatrix& GlobalPosition, std::shared_ptr<SceneContext> OutSceneContext);
 		static void LoadPoses(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext);
 
 	// Animation
@@ -50,12 +51,12 @@ namespace cxc
 	// Light
 	public:
 		
-		static bool GetLightFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<LightSource>>& OutLights, FbxAMatrix& pParentGlobalPosition);
+		static bool GetLightFromRootNode(FbxNode* pNode, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<SceneContext> OutSceneContext);
 
 	// Camera 
 	public:
 
-		static bool GetCameraFromRootNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Camera>>& OutCameras);
+		static bool GetCameraFromRootNode(FbxNode* pNode, std::shared_ptr<SceneContext> OutSceneContext);
 		
 	// SubMesh
 	public:
@@ -70,7 +71,7 @@ namespace cxc
 			const char * pFactorPropertyName,
 			GLuint& pTextureName);
 
-		static bool GetMeshFromNode(FbxNode* pNode, /* Out */ std::vector<std::shared_ptr<Mesh>>& OutMeshes, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode = nullptr);
+		static bool GetMeshFromNode(FbxNode* pNode, std::shared_ptr<SceneContext> OutSceneContext, dWorldID WorldID, dSpaceID SpaceID, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<Mesh> pParentNode = nullptr);
 		static void GetTexturesFromMaterial(FbxSurfaceMaterial* pSurfaceMaterial, std::vector<std::shared_ptr<Texture2D>>& OutTextures);
 
 	private:
@@ -82,6 +83,8 @@ namespace cxc
 		static FbxAMatrix GetGlobalPosition(FbxNode* pNode, const FbxTime& pTime, FbxPose* pPose = nullptr, FbxAMatrix* pParentGlobalPosition = nullptr);
 		static FbxAMatrix GetPoseMatrix(FbxPose* pPose, int pNodeIndex);
 		static FbxAMatrix GetGeometry(FbxNode* pNode);
+		static glm::mat4 ConvertFbxMatrixToGLM(const FbxAMatrix& InMatrix);
+		static glm::mat4 ConvertFbxMatrixToGLM(const FbxMatrix& InMatrix);
 
 	public:
 		
@@ -91,7 +94,7 @@ namespace cxc
 
 		static bool SaveScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName, int pFileFormat = -1, bool pEmbedMedia = false);
 		static bool LoadScene(FbxManager* pManager, FbxDocument* pScene, const char* pFileName);
-		static void ProcessSceneNode(FbxNode* pRootNode, std::shared_ptr<SceneContext> OutSceneContext)  noexcept;
+		static void ProcessSceneNode(FbxNode* pRootNode, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<SceneContext> OutSceneContext)  noexcept;
 	};
 }
 

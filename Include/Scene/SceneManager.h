@@ -28,6 +28,7 @@ namespace cxc {
 	class DebugMesh;
 	class AnimStack;
 	class CSkeleton;
+	class CPose;
 
 	class CXC_ENGINECORE_API SceneManager final : public Singleton<SceneManager>
 	{
@@ -120,8 +121,11 @@ namespace cxc {
 		// Animation stacks
 		std::unordered_map<std::string, std::shared_ptr<AnimStack>> AnimationStacks;
 
+		// Poses
+		std::vector<std::shared_ptr<CPose>> Poses;
+
 		// Skeletons
-		std::unordered_map<std::string, std::shared_ptr<>>
+		std::unordered_map<std::string, std::shared_ptr<CSkeleton>> Skeletons;
 
 		// <Object Name , Pointer to object>
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> MeshMap;

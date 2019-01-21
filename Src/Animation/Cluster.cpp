@@ -1,5 +1,5 @@
-#include "Animation/CCluster.h"
-#include "Animation/CLinkBone.h"
+#include "Animation/Cluster.h"
+#include "Animation/LinkBone.h"
 
 namespace cxc
 {
@@ -37,8 +37,7 @@ namespace cxc
 		}
 		else
 		{
-			auto CLinkBone = GetLinkBone();
-			auto BoneModelMatrix = CLinkBone->GetBoneModelMatrix();
+			auto pLinkBone = GetLinkBone();
 
 		}
 

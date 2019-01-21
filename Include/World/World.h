@@ -6,7 +6,6 @@
 #include "Material/MaterialManager.h"
 #include "Scene/SceneManager.h"
 #include "Window/Window.h"
-#include "Script/ScriptParser.h"
 #include "Core/EngineTypes.h"
 #include "Utilities/Singleton.inl"
 #include "GameLogic/LogicFramework.h"

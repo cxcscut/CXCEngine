@@ -9,7 +9,7 @@
 #include "Animation/AnimStack.h"
 #include "Animation/AnimLayer.h"
 #include "Animation/Skeleton.h"
-#include "Animation/CLinkBone.h"
+#include "Animation/LinkBone.h"
 
 namespace cxc {
 
@@ -245,6 +245,7 @@ namespace cxc {
 		bSuccessfullyLoadedScene = FBXSDKUtil::LoadScene(pSdkManager, pScene, filepath.c_str());
 		if (!bSuccessfullyLoadedScene)
 		{
+			DEBUG_LOG(eLogType::Error, "World::LoadSceneFromFBX, Failed to initialize FBX SDK");
 			FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);
 			return false;
 		}
@@ -252,11 +253,15 @@ namespace cxc {
 		// Clear cache of the context
 		OutSceneContext->ClearCache();
 
+		// Load Poses
+		FBXSDKUtil::LoadPoses(pScene, OutSceneContext);
+
 		// Load animation stacks
 		FBXSDKUtil::LoadAnimationStacks(pScene, OutSceneContext);
 
 		// Process node from the root node of the scene
-		FBXSDKUtil::ProcessSceneNode(pScene->GetRootNode(), OutSceneContext);
+		FbxAMatrix GlobalPosition;
+		FBXSDKUtil::ProcessSceneNode(pScene->GetRootNode(), GlobalPosition, OutSceneContext);
 
 		// Destroy all the objects created by the FBX SDK
 		FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);

@@ -9,7 +9,7 @@ namespace cxc
 	class CLinkBone;
 
 	/* The Skeleton class represents a skin-meshed skeleton */
-	class CXC_ENGINECORE_API CSkeleton
+	class CXC_ENGINECORE_API CSkeleton : public std::enable_shared_from_this<CSkeleton>
 	{
 	public:
 		CSkeleton(const std::string& Name);
@@ -17,8 +17,11 @@ namespace cxc
 
 	public:
 
-		void SetRootBone(std::shared_ptr<CLinkBone> pRoot) { RootBone = pRoot; }
+		void SetRootBone(std::shared_ptr<CLinkBone> pRoot);
 		std::string GetSkeletonName() const { return SkeletonName; }
+
+		bool AddBone(const std::string& ParentBoneName, std::shared_ptr<CLinkBone> pNewBone);
+		std::shared_ptr<CLinkBone> FindBone(const std::string& TargetBoneName);
 
 	private:
 
@@ -27,6 +30,9 @@ namespace cxc
 
 		// Root bone
 		std::shared_ptr<CLinkBone> RootBone;
+
+		// Bones that belongs to the skeleton
+		std::unordered_map<std::string, std::shared_ptr<CLinkBone>> Bones;
 	};
 }
 

@@ -9,6 +9,13 @@ namespace cxc
 	class CSkeleton;
 	class CLinkBone;
 
+	/* BoneInfo contains the information of the bone */
+	struct BoneInfo
+	{
+		// Name of the bone
+		std::string BoneName;
+	};
+
 	/* PoseInfo contains the infomation that the pose has, a CPose instance may has multiple PoseInfo for each bone of a skeleton */
 	struct PoseInfo
 	{
@@ -18,24 +25,32 @@ namespace cxc
 		// Whether the matrix is local
 		bool bIsLocalMatrix;
 
-		// Bones that the pose is binded
-		std::shared_ptr<CLinkBone> TargetBone;
+		// Info of the bone binded to the pose
+		BoneInfo LinkBoneInfo;
+
 	};
 
 	/* CPose is the class containing the description of a pose that a skeleton has */
 	class CXC_ENGINECORE_API CPose
 	{
 	public:
+		friend class FBXSDKUtil;
+
 		CPose();
 		~CPose();
 
 	public:
 
 		uint32_t GetPoseInfoCount() const { return PoseInfos.size(); }
-		const PoseInfo& GetPoseInfo(uint32_t Index) const;
+		std::shared_ptr<PoseInfo> GetPoseInfo(uint32_t Index) const;
 
 		bool IsBindPose() const { return bIsBindPose; }
 		bool IsRestPose() const { return bIsRestPose; }
+
+		void AddPoseInfo(std::shared_ptr<PoseInfo> pNewInfo);
+		void RemovePoseInfo(uint32_t Index);
+
+		std::shared_ptr<PoseInfo> FindBoneInfo(const std::string& BoneName);
 
 	private:
 
@@ -49,7 +64,7 @@ namespace cxc
 		std::shared_ptr<CSkeleton> pOwnerSkeleton;
 
 		// PoseInfos the Pose has
-		std::vector<PoseInfo> PoseInfos;
+		std::vector<std::shared_ptr<PoseInfo>> PoseInfos;
 	};
 }
 

@@ -1,4 +1,4 @@
-#include "Animation/CSkin.h"
+#include "Animation/Skin.h"
 
 namespace cxc
 {
