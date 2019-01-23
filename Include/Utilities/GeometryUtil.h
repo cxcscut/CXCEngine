@@ -5,7 +5,7 @@
 
 namespace cxc
 {
-	class DebugMesh;
+	class CSkeleton;
 
 	class CXC_ENGINECORE_API GeometryUtil final
 	{
@@ -15,9 +15,10 @@ namespace cxc
 
 	public:
 
-		static std::shared_ptr<DebugMesh> MakeSphere(float Radius, const glm::vec3& Center, uint32_t Segment, const glm::vec3& Color = {1,0,0});
-		static std::shared_ptr<DebugMesh> MakeBox(const glm::vec3& Center, const glm::vec3& Extent, const glm::vec3& Color = { 1,0,0 });
-		static std::shared_ptr<DebugMesh> MakeCone(const glm::vec3& Center, const glm::vec3& Axis, float ConeAngle, const glm::vec3& Color = { 1,0,0 });
+		static void MakeSphere(float Radius, uint32_t Segment, std::vector<glm::vec3>& OutVertices, std::vector<uint32_t>& OutIndices);
+		static void MakeBox(const glm::vec3& Extent, std::vector<glm::vec3>& OutVertices, std::vector<uint32_t>& OutIndices);
+		static void MakeCone(const glm::vec3& Axis, float ConeAngle, std::vector<glm::vec3>& OutVertices, std::vector<uint32_t>& OutIndices);
+		static void MakeSkeleton(std::shared_ptr<CSkeleton> pSkeleton, std::vector<glm::vec3>& OutVertices, std::vector<uint32_t>& OutIndices);
 
 	};
 }

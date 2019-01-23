@@ -14,7 +14,8 @@ namespace cxc {
 	Mesh::Mesh() :
 		MeshName(""),
 		isLoaded(false),
-		bPendingKill(false)
+		bPendingKill(false),
+		PolygonType(ePolygonType::TRIANGLES)
 	{
 
 		pParentNode.reset();

@@ -6,9 +6,12 @@
 #include "Rendering/ShadowRenderPipeline.h"
 #include "Utilities/DebugLogger.h"
 #include "Utilities/DebugDrawHelper.h"
+#include "Utilities/GeometryUtil.h"
 #include "Scene/SceneContext.h"
 #include "Actor/CLightActor.h"
 #include "Actor/CCameraActor.h"
+#include "Animation/Skeleton.h"
+#include "Geometry/DebugMesh.h"
 
 using namespace cxc;
 
@@ -30,6 +33,8 @@ std::shared_ptr<SubMeshRenderer> CreateForwardRenderer();
 std::shared_ptr<SubMeshRenderer> CreateShadowRenderer();
 void BindSubMeshRenderer(std::shared_ptr<SubMeshRenderer> pRenderer, const std::vector<std::shared_ptr<CActor>>& Objects);
 std::vector<std::shared_ptr<CActor>> CreateActors(std::shared_ptr<SceneContext> Context);
+
+void AddSkeletonMesh(std::shared_ptr<CSkeleton> pSkeleton);
 
 int main()
 {
@@ -84,12 +89,29 @@ int main()
 		pWorld->AddActor(Actor);
 	}
 
-	DrawDebugCube(glm::vec3(0,0,50), glm::vec3(5,5,5), glm::vec3(1,0,0), 5.0f);
+	AddSkeletonMesh(SceneContextCache->Skeletons[0]);
 
 	// Start engine
 	GEngine::StartEngine();
 
 	return 0;
+}
+
+void AddSkeletonMesh(std::shared_ptr<CSkeleton> pSkeleton)
+{
+	std::vector<glm::vec3> SkeletonVertices;
+	std::vector<uint32_t> SkeletonIndices;
+
+	GeometryUtil::MakeSkeleton(pSkeleton, SkeletonVertices, SkeletonIndices);
+	auto SkeletonMesh = NewObject<DebugMesh>(SkeletonVertices);
+	auto SkeletonSubMesh = NewObject<SubMesh>(SkeletonIndices);
+	SkeletonSubMesh->SetShadingMode(eShadingMode::FillMode);
+	SkeletonMesh->AddSubMesh(SkeletonSubMesh);
+	SkeletonMesh->SetPersistance(1000.0f);
+	SkeletonMesh->SetPolygonType(ePolygonType::LINES);
+
+	SceneManager::GetInstance()->pRendererMgr->BindDebugMesh(SkeletonMesh);
+	SceneManager::GetInstance()->AddDebugMesh(SkeletonMesh);
 }
 
 std::vector<std::shared_ptr<CActor>> CreateActors(std::shared_ptr<SceneContext> Context)

@@ -16,9 +16,21 @@ namespace cxc
 
 	void CSkeleton::SetRootBone(std::shared_ptr<CLinkBone> pRoot)
 	{
+		if (pRoot)
+		{
+			for (auto BoneIter = Bones.begin(); BoneIter != Bones.end(); ++BoneIter)
+			{
+				if (*BoneIter == pRoot)
+				{
+					Bones.erase(BoneIter);
+					break;
+				}
+			}
+		}
+
 		RootBone = pRoot;
 		pRoot->SetOwnerSkeleton(shared_from_this());
-		Bones.insert(std::make_pair(pRoot->GetName(), pRoot));
+		Bones.push_back(pRoot);
 	}
 
 	bool CSkeleton::AddBone(const std::string& ParentBoneName, std::shared_ptr<CLinkBone> pNewBone)
@@ -26,7 +38,7 @@ namespace cxc
 		auto ParentBone = FindBone(ParentBoneName);
 		if (pNewBone && ParentBone != nullptr)
 		{
-			Bones.insert(std::make_pair(pNewBone->GetName(), pNewBone));
+			Bones.push_back(pNewBone);
 			pNewBone->SetOwnerSkeleton(shared_from_this());
 			ParentBone->AddChildBone(pNewBone);
 
@@ -38,10 +50,20 @@ namespace cxc
 
 	std::shared_ptr<CLinkBone> CSkeleton::FindBone(const std::string& TargetBoneName)
 	{
-		auto BoneIter = Bones.find(TargetBoneName);
-		if (BoneIter != Bones.end())
-			return BoneIter->second;
-		else
+		for (auto pBone : Bones)
+		{
+			if (pBone->GetName() == TargetBoneName)
+				return pBone;
+		}
+
+		return nullptr;
+	}
+
+	std::shared_ptr<CLinkBone> CSkeleton::GetBone(size_t Index)
+	{
+		if (Index >= Bones.size())
 			return nullptr;
+		else
+			return Bones[Index];
 	}
 }

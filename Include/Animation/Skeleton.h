@@ -17,6 +17,9 @@ namespace cxc
 
 	public:
 
+		size_t GetBoneCount() const { return Bones.size(); }
+		std::shared_ptr<CLinkBone> GetBone(size_t Index);
+
 		void SetRootBone(std::shared_ptr<CLinkBone> pRoot);
 		std::string GetSkeletonName() const { return SkeletonName; }
 
@@ -32,7 +35,7 @@ namespace cxc
 		std::shared_ptr<CLinkBone> RootBone;
 
 		// Bones that belongs to the skeleton
-		std::unordered_map<std::string, std::shared_ptr<CLinkBone>> Bones;
+		std::vector<std::shared_ptr<CLinkBone>> Bones;
 	};
 }
 

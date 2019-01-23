@@ -2,7 +2,8 @@
 #include "Geometry/Mesh.h"
 #include "Geometry/SubMesh.h"
 #include "Material/Material.h"
-#include "Geometry/DebugMesh.h"
+#include "Animation/Skeleton.h"
+#include "Animation/LinkBone.h"
 
 namespace cxc
 {
@@ -16,10 +17,10 @@ namespace cxc
 
 	}
 
-	std::shared_ptr<DebugMesh> GeometryUtil::MakeSphere(float Radius, const glm::vec3& Center, uint32_t Segment, const glm::vec3& Color)
+	void  GeometryUtil::MakeSphere(float Radius, uint32_t Segment, std::vector<glm::vec3>& OutVertices, std::vector<uint32_t>& OutIndices)
 	{
-		std::vector<glm::vec3> Vertices;
-		std::vector<uint32_t> Indices;
+		OutVertices.clear();
+		OutIndices.clear();
 
 		// Create vertices and normals of the sphere
 		for (size_t Latitude = 0; Latitude <= Segment; ++Latitude)
@@ -37,7 +38,7 @@ namespace cxc
 				glm::vec3 Normal(cosPhi * sinTheta, cosTheta, sinPhi * sinTheta);
 				glm::vec3 Vertex = Normal * Radius;
 
-				Vertices.emplace_back(Vertex);
+				OutVertices.emplace_back(Vertex);
 			}
 		}
 
@@ -49,39 +50,31 @@ namespace cxc
 				int first = (Latitude * (Segment + 1)) + Longtitude;
 				int second = first + Segment + 1;
 
-				Indices.push_back(first);
-				Indices.push_back(second);
-				Indices.push_back(first + 1);
+				OutIndices.push_back(first);
+				OutIndices.push_back(second);
+				OutIndices.push_back(first + 1);
 
-				Indices.push_back(second);
-				Indices.push_back(second + 1);
-				Indices.push_back(first + 1);
+				OutIndices.push_back(second);
+				OutIndices.push_back(second + 1);
+				OutIndices.push_back(first + 1);
 			}
 		}
-
-		auto pSphere = NewObject<DebugMesh>(Vertices);
-		pSphere->SetDebugMeshColor(Color);
-		pSphere->Translate(Center);
-
-		auto pSubMesh = NewObject<SubMesh>(Indices);
-		pSubMesh->SetShadingMode(eShadingMode::WireframeMode);
-
-		pSphere->AddSubMesh(pSubMesh);
-
-		return pSphere;
 	}
 
-	std::shared_ptr<DebugMesh> GeometryUtil::MakeBox(const glm::vec3& Center, const glm::vec3& Extent, const glm::vec3& Color)
+	void GeometryUtil::MakeBox(const glm::vec3& Extent, std::vector<glm::vec3>& OutVertices, std::vector<uint32_t>& OutIndices)
 	{
+		OutVertices.clear();
+		OutIndices.clear();
+
 		// Create the vertices of the box
-		std::vector<glm::vec3> Vertices = 
+		OutVertices = 
 		{
 			{1.0, -1.0, 1.0}, {1.0, 1.0, 1.0}, {-1.0, 1.0 , 1.0}, {-1.0, -1.0 , 1.0},
 			{1.0, -1.0, -1.0},{1.0, 1.0, -1.0}, {-1.0, 1.0, -1.0}, {-1.0, -1.0, -1.0}
 		};
 
 		// Create the indices array of the box
-		std::vector<uint32_t> Indices = 
+		OutIndices = 
 		{
 			0, 1, 2, 0, 2, 3,
 			6, 5, 4, 4, 7, 6,
@@ -91,15 +84,31 @@ namespace cxc
 			3, 2, 6, 3, 6, 7
 		};
 
-		std::shared_ptr<DebugMesh> pBox = NewObject<DebugMesh>(Vertices);
-		pBox->SetDebugMeshColor(Color);
-		pBox->Translate(Center);
-		pBox->Scale(Extent);
+		// Extenting
+		for (auto& Vertex : OutVertices)
+			Vertex *= Extent;
+	}
 
-		auto pSubMesh = NewObject<SubMesh>(Indices);
-		pSubMesh->SetShadingMode(eShadingMode::WireframeMode);
-		pBox->AddSubMesh(pSubMesh);
+	void GeometryUtil::MakeSkeleton(std::shared_ptr<CSkeleton> pSkeleton, std::vector<glm::vec3>& OutVertices, std::vector<uint32_t>& OutIndices)
+	{
+		OutVertices.clear();
+		OutIndices.clear();
 
-		return pBox;
+		size_t IndiceCount = 0;
+
+		if (pSkeleton)
+		{
+			auto BoneCount = pSkeleton->GetBoneCount();
+			for (size_t BoneIndex = 0; BoneIndex < BoneCount; ++BoneIndex)
+			{
+				auto pBone = pSkeleton->GetBone(BoneIndex);
+
+				OutVertices.emplace_back(pBone->GetStartPos());
+				OutVertices.emplace_back(pBone->GetEndPos());
+
+				OutIndices.push_back(IndiceCount++);
+				OutIndices.push_back(IndiceCount++);
+			}
+		}
 	}
 }

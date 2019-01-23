@@ -14,6 +14,7 @@ namespace cxc
 	{
 		MeshName = "DebugMesh";
 		m_VertexCoords = Vertices;
+		DebugMeshColor = glm::vec3(1, 0, 0);
 	}
 
 	DebugMesh::~DebugMesh()

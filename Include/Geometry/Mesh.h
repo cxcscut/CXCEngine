@@ -20,6 +20,20 @@ namespace cxc {
 	class World;
 	class SubMesh;
 
+	enum class ePolygonType : uint16_t
+	{
+		POINTS,
+		TRIANGLES,
+		TRIANGLE_STRIP,
+		TRIANGLE_FAN,
+		LINES,
+		LINE_STRIP,
+		LINE_LOOP,
+		QUADS,
+		QUARD_STRIP,
+		POLYGON
+	};
+
 	enum class Location : GLuint 
 	{
 		VERTEX_LOCATION = 0,
@@ -131,6 +145,7 @@ namespace cxc {
 		bool CheckLoaded() const noexcept { return isLoaded; }
 		void SetLoaded() noexcept;
 		void MarkPendingKill() { bPendingKill = true; }
+		void SetPolygonType(ePolygonType Type) { PolygonType = Type; }
 
 		bool IsPendingKill() const { return bPendingKill; }
 		CXCRect3D GetAABB() const noexcept { return AABB; };
@@ -138,9 +153,14 @@ namespace cxc {
 		GLuint GetVertexCoordsVBO() const { return  m_VBO[0]; }
 		GLuint GetTexCoordsVBO() const { return m_VBO[1]; }
 		GLuint GetNormalsVBO() const { return m_VBO[2]; }
-		
+		ePolygonType GetPolygonType() const { return PolygonType; }
+
 		std::shared_ptr<SubMesh> GetSubMesh(size_t Index);
 		void AddSubMesh(std::shared_ptr<SubMesh> pNewMesh);
+
+	protected:
+
+		ePolygonType PolygonType;
 
 	protected:
 

@@ -28,6 +28,9 @@ namespace cxc
 		size_t GetClusterCount() const { return Clusters.size(); }
 		std::shared_ptr<CCluster> GetCluster(size_t Index);
 
+		glm::vec3 GetStartPos() const { return StartPosition; }
+		glm::vec3 GetEndPos() const { return EndPosition; }
+
 	public:
 
 		std::string GetName() const { return Name; }

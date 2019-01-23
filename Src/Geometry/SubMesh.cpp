@@ -160,8 +160,24 @@ namespace cxc {
 			break;
 		}
 
+		GLenum DrawingMode;
+		switch (pOwnerMesh.lock()->GetPolygonType())
+		{
+		case ePolygonType::TRIANGLES:
+			DrawingMode = GL_TRIANGLES;
+			break;
+			
+		case ePolygonType::LINES:
+			DrawingMode = GL_LINES;
+			break;
+
+		case ePolygonType::LINE_STRIP:
+			DrawingMode = GL_LINE_STRIP;
+			break;
+		}
+
 		// Note : the 4-th parameter of glDrawElements is the offset of EBO which must be sizeof(DataType) * number of indices
-		glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+		glDrawElements(DrawingMode, Indices.size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
