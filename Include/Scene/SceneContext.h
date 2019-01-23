@@ -44,7 +44,6 @@ namespace cxc
 
 		// Skeletons
 		std::vector<std::shared_ptr<CSkeleton>> Skeletons;
-
 	};
 }
 

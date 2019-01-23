@@ -17,6 +17,7 @@ namespace cxc
 
 	public:
 
+		size_t GetAnimCurveCount() const { return AnimCurves.size(); }
 		std::shared_ptr<AnimCurve> GetAnimCurveNode(size_t Index);
 		std::string GetAnimationLayerName() { return LayerName; }
 

@@ -9,11 +9,11 @@ namespace cxc
 	class CSkeleton;
 	class CLinkBone;
 
-	/* BoneInfo contains the information of the bone */
-	struct BoneInfo
+	/* NodeInfo contains the information of the bone or mesh */
+	struct NodeInfo
 	{
 		// Name of the bone
-		std::string BoneName;
+		std::string NodeName;
 	};
 
 	/* PoseInfo contains the infomation that the pose has, a CPose instance may has multiple PoseInfo for each bone of a skeleton */
@@ -26,7 +26,7 @@ namespace cxc
 		bool bIsLocalMatrix;
 
 		// Info of the bone binded to the pose
-		BoneInfo LinkBoneInfo;
+		NodeInfo LinkNodeInfo;
 
 	};
 
@@ -50,7 +50,7 @@ namespace cxc
 		void AddPoseInfo(std::shared_ptr<PoseInfo> pNewInfo);
 		void RemovePoseInfo(uint32_t Index);
 
-		std::shared_ptr<PoseInfo> FindBoneInfo(const std::string& BoneName);
+		std::shared_ptr<PoseInfo> FindPoseInfo(const std::string& NodeName);
 
 	private:
 
@@ -59,9 +59,6 @@ namespace cxc
 
 		// Whether the pose is BindPose
 		bool bIsBindPose;
-
-		// Skeleton that the pose is binded to
-		std::shared_ptr<CSkeleton> pOwnerSkeleton;
 
 		// PoseInfos the Pose has
 		std::vector<std::shared_ptr<PoseInfo>> PoseInfos;

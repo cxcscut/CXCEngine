@@ -31,11 +31,11 @@ namespace cxc
 		PoseInfos.shrink_to_fit();
 	}
 
-	std::shared_ptr<PoseInfo> CPose::FindBoneInfo(const std::string& BoneName)
+	std::shared_ptr<PoseInfo> CPose::FindPoseInfo(const std::string& NodeName)
 	{
 		for (auto pInfo : PoseInfos)
 		{
-			if (pInfo->LinkBoneInfo.BoneName == BoneName)
+			if (pInfo->LinkNodeInfo.NodeName == NodeName)
 				return pInfo;
 		}
 

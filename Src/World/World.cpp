@@ -253,6 +253,12 @@ namespace cxc {
 		// Clear cache of the context
 		OutSceneContext->ClearCache();
 
+#if _DEBUG
+		// Testing
+		std::vector<std::string> NodeNames;
+		FBXSDKUtil::GetNodeNames(pScene->GetRootNode(), NodeNames);
+#endif
+
 		// Load Poses
 		FBXSDKUtil::LoadPoses(pScene, OutSceneContext);
 
@@ -262,6 +268,10 @@ namespace cxc {
 		// Process node from the root node of the scene
 		FbxAMatrix GlobalPosition;
 		FBXSDKUtil::ProcessSceneNode(pScene->GetRootNode(), GlobalPosition, OutSceneContext);
+
+		// Load the skinmesh
+		FbxAMatrix GlobalSkinMeshPosition;
+		FBXSDKUtil::LoadSkinedMeshSkeleton(pScene->GetRootNode(), GlobalSkinMeshPosition,  OutSceneContext);
 
 		// Destroy all the objects created by the FBX SDK
 		FBXSDKUtil::DestroySDKObjects(pSdkManager, bSuccessfullyLoadedScene);

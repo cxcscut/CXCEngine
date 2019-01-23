@@ -19,9 +19,6 @@ namespace cxc
 		if (pKeyFrame != nullptr)
 		{
 			KeyFrames.push_back(pKeyFrame);
-
-			// Re-sorting the key frames after inserting
-			SortKeyFramesByStartTime();
 		}
 	}
 

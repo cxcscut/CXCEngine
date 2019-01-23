@@ -124,7 +124,6 @@
     <ClCompile Include="..\..\Src\Animation\LinkBone.cpp" />
     <ClCompile Include="..\..\Src\Animation\Pose.cpp" />
     <ClCompile Include="..\..\Src\Animation\Skeleton.cpp" />
-    <ClCompile Include="..\..\Src\Animation\Skin.cpp" />
     <ClCompile Include="..\..\Src\Components\CAnimComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CCameraComponent.cpp" />
     <ClCompile Include="..\..\Src\Components\CColliderComponent.cpp" />
@@ -192,7 +191,6 @@
     <ClInclude Include="..\..\Include\Animation\LinkBone.h" />
     <ClInclude Include="..\..\Include\Animation\Pose.h" />
     <ClInclude Include="..\..\Include\Animation\Skeleton.h" />
-    <ClInclude Include="..\..\Include\Animation\Skin.h" />
     <ClInclude Include="..\..\Include\Components\CAnimComponent.h" />
     <ClInclude Include="..\..\Include\Components\CCameraComponent.h" />
     <ClInclude Include="..\..\Include\Components\CColliderComponent.h" />

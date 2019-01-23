@@ -30,7 +30,9 @@ namespace cxc
 
 	// Skeleton
 	public:
+		static void GetNodeNames(FbxNode* pNode, std::vector<std::string>& OutNodeNames);
 
+		static void LoadSkinedMeshSkeleton(FbxNode* pNode, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<SceneContext> OutSceneContext);
 		static void LoadSkeletons(FbxNode* pNode, FbxAMatrix& GlobalParentPosition, FbxAMatrix& GlobalPosition, std::shared_ptr<SceneContext> OutSceneContext);
 		static void LoadPoses(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext);
 
@@ -38,9 +40,10 @@ namespace cxc
 	public:
 
 		static void LoadAnimationStacks(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext);
-		static void ExtractAnimLayers(FbxAnimStack* pAnimStack, FbxNode* pNode, std::shared_ptr<AnimStack> OutAnimStack);
-		static void ExtractAnimCurves(FbxAnimLayer* pAnimLayer, FbxNode* pNode, std::shared_ptr<AnimLayer> OutAnimLayer, bool bIsSwitcher);
-		static std::shared_ptr<AnimCurve> ExtractAnimKeyFrames(FbxAnimCurve* pCurve);
+		static void ExtractAnimStack(FbxAnimStack* pAnimStack, FbxNode* pNode, std::shared_ptr<AnimStack> OutAnimStack);
+		static void ExtractAnimLayer(FbxAnimLayer* pAnimLayer, FbxNode* pNode, std::shared_ptr<AnimLayer> OutAnimLayer, bool bIsSwitcher =false);
+		static std::shared_ptr<AnimCurve> ExtractAnimKeyFrames(FbxNode* pNode, FbxAnimCurve* pCurve);
+		static std::shared_ptr<AnimCurve> ExtractListAnimKeyFrames(FbxNode* pNode, FbxAnimCurve* pCurve, FbxProperty* pProperty);
 
 		static int InterpolationFlagToIndex(int flags);
 		static int ConstantmodeFlagToIndex(int flags);

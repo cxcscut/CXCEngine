@@ -5,26 +5,18 @@ namespace cxc
 {
 	CCluster::CCluster()
 	{
-
+		pOwnerBone.reset();
 	}
 
 	CCluster::~CCluster()
 	{
-
+		pOwnerBone.reset();
 	}
 
 	std::shared_ptr<CLinkBone> CCluster::GetLinkBone()
 	{
-		if (!CLinkBone.expired())
-			return CLinkBone.lock();
-		else
-			return nullptr;
-	}
-
-	std::shared_ptr<CSkin> CCluster::GetSkin()
-	{
-		if (!OwnerSkin.expired())
-			return OwnerSkin.lock();
+		if (!pOwnerBone.expired())
+			return pOwnerBone.lock();
 		else
 			return nullptr;
 	}

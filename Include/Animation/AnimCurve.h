@@ -24,9 +24,11 @@ namespace cxc
 
 	public:
 		
+		void SetNodeName(const std::string& Name) { NodeName = Name; }
 		void AddKeyFrame(std::shared_ptr<AnimKeyFrame> pKeyFrame);
 		void DeleteKeyFrame(std::shared_ptr<AnimKeyFrame> pKeyFrame);
 
+		std::string GetNodeName() const { return NodeName; }
 		std::shared_ptr<AnimKeyFrame> GetKeyFrameByIndex(size_t Index);
 		size_t GetKeyFrameCount() const { return KeyFrames.size(); }
 		float GetStartTime() const;
@@ -35,13 +37,13 @@ namespace cxc
 	public:
 
 		void Evaluate(float CurrentTime, eAnimPlayMode PlayMode, const std::vector<glm::vec3>& SrcVertices, std::vector<glm::vec3>& DstVertices);
-
-	private:
-
 		std::shared_ptr<AnimKeyFrame> FindCurrentKeyFrame(float CurrentTime);
 		void SortKeyFramesByStartTime();
 
 	private:
+
+		// Name of the node that the curve belongs to
+		std::string NodeName;
 
 		// Key frames the curve has
 		std::vector<std::shared_ptr<AnimKeyFrame>> KeyFrames;

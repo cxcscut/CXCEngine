@@ -13,6 +13,7 @@
 #include "Animation/Pose.h"
 #include "Animation/Skeleton.h"
 #include "Animation/LinkBone.h"
+#include "Animation/Cluster.h"
 
 #ifdef IOS_REF
 	#undef IOS_REF
@@ -635,7 +636,7 @@ namespace cxc {
 			auto ExtractedAnimStack = NewObject<AnimStack>(FbxAnimationStack->GetName());
 
 			// Extract animation layers
-			ExtractAnimLayers(FbxAnimationStack, pScene->GetRootNode(), ExtractedAnimStack);
+			ExtractAnimStack(FbxAnimationStack, pScene->GetRootNode(), ExtractedAnimStack);
 
 			OutSceneContext->AnimationStacks.push_back(ExtractedAnimStack);
 		}
@@ -683,7 +684,7 @@ namespace cxc {
 		return 0;
 	}
 
-	std::shared_ptr<AnimCurve> FBXSDKUtil::ExtractAnimKeyFrames(FbxAnimCurve* pCurve)
+	std::shared_ptr<AnimCurve> FBXSDKUtil::ExtractListAnimKeyFrames(FbxNode* pNode, FbxAnimCurve* pCurve, FbxProperty* pProperty)
 	{
 		if (pCurve == nullptr)
 			return nullptr;
@@ -695,8 +696,34 @@ namespace cxc {
 		int KeyCount = pCurve->KeyGetCount();
 		for (int i = 0; i < KeyCount; ++i)
 		{
+			KeyValue = static_cast<float>(pCurve->KeyGetValue(i));;
+			KeyTime = pCurve->KeyGetTime(i).GetSecondDouble();
+
+			std::string PropertyEnumValue = pProperty->GetEnumValue(KeyValue);
+
+			auto ExtractedKeyFrame = NewObject<AnimKeyFrame>(KeyTime, KeyValue);
+			OutCurve->AddKeyFrame(ExtractedKeyFrame);
+		}
+
+		OutCurve->SetNodeName(pNode->GetName());
+
+		return OutCurve;
+	}
+
+	std::shared_ptr<AnimCurve> FBXSDKUtil::ExtractAnimKeyFrames(FbxNode* pNode, FbxAnimCurve* pCurve)
+	{
+		if (pCurve == nullptr)
+			return nullptr;
+		
+		auto OutCurve = NewObject<AnimCurve>();
+
+		float KeyTime;
+		float KeyValue;
+		int KeyCount = pCurve->KeyGetCount();
+		for (int i = 0; i < KeyCount; ++i)
+		{
 			KeyValue = static_cast<float>(pCurve->KeyGetValue(i));
-			KeyTime = pCurve->KeyGetTime(i).GetMilliSeconds();
+			KeyTime = pCurve->KeyGetTime(i).GetSecondDouble();
 
 			// Get the interpolation type
 			auto InterpolationType = InterpolationFlagToIndex(pCurve->KeyGetInterpolation(i));
@@ -722,77 +749,80 @@ namespace cxc {
 			OutCurve->AddKeyFrame(ExtractedKeyFrame);
 		}
 
+		OutCurve->SetNodeName(pNode->GetName());
+		OutCurve->SortKeyFramesByStartTime();
+
 		return OutCurve;
 	}
 
-	void FBXSDKUtil::ExtractAnimCurves(FbxAnimLayer* pAnimLayer, FbxNode* pNode, std::shared_ptr<AnimLayer> OutAnimLayer, bool bIsSwitcher)
+	void FBXSDKUtil::ExtractAnimLayer(FbxAnimLayer* pAnimLayer, FbxNode* pNode, std::shared_ptr<AnimLayer> OutAnimLayer, bool bIsSwitcher)
 	{
 		FbxAnimCurve* lAnimCurve = nullptr;
 
 		// General curves
-		if (bIsSwitcher)
+		if (!bIsSwitcher)
 		{
 			// Translation of the x axis
 			lAnimCurve = pNode->LclTranslation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Translation of the y axis
 			lAnimCurve = pNode->LclTranslation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Translation of the z axis
 			lAnimCurve = pNode->LclTranslation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Rotation of the x axis
 			lAnimCurve = pNode->LclRotation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Rotation of the y axis
 			lAnimCurve = pNode->LclRotation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Rotation of the z axis
 			lAnimCurve = pNode->LclRotation.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Scaling of the x axis
 			lAnimCurve = pNode->LclScaling.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Scaling of the y axis
 			lAnimCurve = pNode->LclScaling.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Scaling of the z axis
 			lAnimCurve = pNode->LclScaling.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 		}
 
@@ -804,19 +834,19 @@ namespace cxc {
 			lAnimCurve = lNodeAttribute->Color.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COLOR_RED);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			lAnimCurve = lNodeAttribute->Color.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COLOR_GREEN);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			lAnimCurve = lNodeAttribute->Color.GetCurve(pAnimLayer, FBXSDK_CURVENODE_COLOR_BLUE);
 			if (lAnimCurve)
 			{
-				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+				OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 			}
 
 			// Curve specific to a light
@@ -827,19 +857,19 @@ namespace cxc {
 				lAnimCurve = pLight->Intensity.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 
 				lAnimCurve = pLight->Fog.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 
 				lAnimCurve = pLight->OuterAngle.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 			}
 
@@ -851,37 +881,37 @@ namespace cxc {
 				lAnimCurve = pCamera->FieldOfView.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 
 				lAnimCurve = pCamera->FieldOfViewX.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 
 				lAnimCurve = pCamera->FieldOfViewY.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 
 				lAnimCurve = pCamera->OpticalCenterX.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 
 				lAnimCurve = pCamera->OpticalCenterY.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 
 				lAnimCurve = pCamera->Roll.GetCurve(pAnimLayer);
 				if (lAnimCurve)
 				{
-					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+					OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 				}
 			}
 
@@ -905,7 +935,7 @@ namespace cxc {
 
 						lAnimCurve = lGeometry->GetShapeChannel(lBlendShapeIndex, lChannelIndex, pAnimLayer, true);
 						if (lAnimCurve)
-							OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+							OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 					}
 				}
 			}
@@ -931,7 +961,7 @@ namespace cxc {
 						{
 							lAnimCurve = lCurveNode->GetCurve(0U, c);
 							if (lAnimCurve)
-								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 						}
 					}
 					else if (lDataType.GetType() == eFbxDouble3 || lDataType.GetType() == eFbxDouble4 || lDataType.Is(FbxColor3DT) || lDataType.Is(FbxColor4DT))
@@ -941,7 +971,7 @@ namespace cxc {
 							lAnimCurve = lCurveNode->GetCurve(0U, c);
 							if (lAnimCurve)
 							{
-								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 							}
 						}
 
@@ -950,7 +980,7 @@ namespace cxc {
 							lAnimCurve = lCurveNode->GetCurve(1U, c);
 							if (lAnimCurve)
 							{
-								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 							}
 						}
 
@@ -959,7 +989,7 @@ namespace cxc {
 							lAnimCurve = lCurveNode->GetCurve(2U, c);
 							if (lAnimCurve)
 							{
-								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(pNode, lAnimCurve));
 							}
 						}
 					}
@@ -969,7 +999,7 @@ namespace cxc {
 						{
 							lAnimCurve = lCurveNode->GetCurve(0U, c);
 							if (lAnimCurve)
-								OutAnimLayer->AddAnimationCurve(ExtractAnimKeyFrames(lAnimCurve));
+								OutAnimLayer->AddAnimationCurve(ExtractListAnimKeyFrames(pNode, lAnimCurve, &lProperty));
 						}
 					}
 				}
@@ -982,11 +1012,11 @@ namespace cxc {
 		auto ChildNodeCount = pNode->GetChildCount();
 		for (auto i = 0; i < ChildNodeCount; ++i)
 		{
-			ExtractAnimCurves(pAnimLayer, pNode->GetChild(i), OutAnimLayer, bIsSwitcher);
+			ExtractAnimLayer(pAnimLayer, pNode->GetChild(i), OutAnimLayer, bIsSwitcher);
 		}
 	}
 
-	void FBXSDKUtil::ExtractAnimLayers(FbxAnimStack* pAnimStack, FbxNode* pNode, std::shared_ptr<AnimStack> OutAnimStack)
+	void FBXSDKUtil::ExtractAnimStack(FbxAnimStack* pAnimStack, FbxNode* pNode, std::shared_ptr<AnimStack> OutAnimStack)
 	{
 		auto AnimationLayerCount = pAnimStack->GetMemberCount<FbxAnimLayer>();
 		for (auto i = 0; i < AnimationLayerCount; ++i)
@@ -995,9 +1025,10 @@ namespace cxc {
 			auto ExtractedAnimLayer = NewObject<AnimLayer>(FbxAnimationLayer->GetName());
 
 			// Extract animation curves of the layer
-			ExtractAnimCurves(FbxAnimationLayer, pNode, ExtractedAnimLayer, false);
+			ExtractAnimLayer(FbxAnimationLayer, pNode, ExtractedAnimLayer);
 
-			OutAnimStack->AddAnimationLayer(ExtractedAnimLayer);
+			if (ExtractedAnimLayer->GetAnimCurveCount() > 0)
+				OutAnimStack->AddAnimationLayer(ExtractedAnimLayer);
 		}
 	}
 
@@ -1387,6 +1418,8 @@ namespace cxc {
 		if (!pRootNode || !OutSceneContext)
 			return;
 
+		auto Name = pRootNode->GetName();
+
 		FbxAMatrix CurrentGlobalPosition = GetGlobalPosition(pRootNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
 		// Get global position of the node
 		FbxAMatrix lGeometryOffset = GetGeometry(pRootNode);
@@ -1401,9 +1434,6 @@ namespace cxc {
 
 			switch (AttributeType)
 			{
-			default:
-				break;
-
 			case FbxNodeAttribute::eMesh:
 			{
 				bool bMeshLoadingRes = FBXSDKUtil::GetMeshFromNode(pRootNode, OutSceneContext, pPhysicalWorld->GetWorldID(), pPhysicalWorld->GetTopSpaceID(), lGlobalOffPosition);
@@ -1444,6 +1474,14 @@ namespace cxc {
 				break;
 			}
 
+			case FbxNodeAttribute::eNull:
+			{
+				std::string WarningString = "SceneManager::ProcessSceneNode, Find eNull node : ";
+				WarningString += pRootNode->GetName();
+				WarningString += '\n';
+				DEBUG_LOG(eLogType::Warning, WarningString);
+				break;
+			}
 			}
 		}
 
@@ -1494,7 +1532,13 @@ namespace cxc {
 		// Root node
 		if (lSkeleton->IsSkeletonRoot())
 		{
-			auto NewSkeleton = std::make_shared<CSkeleton>(pNode->GetName());
+			std::string SkeletonName;
+			if (pNode->GetParent() != pNode->GetScene()->GetRootNode())
+				SkeletonName = pNode->GetParent()->GetName();
+			else
+				SkeletonName = pNode->GetName();
+
+			auto NewSkeleton = std::make_shared<CSkeleton>(SkeletonName);
 			NewSkeleton->SetRootBone(NewBone);
 			OutSceneContext->Skeletons.push_back(NewSkeleton);
 		}
@@ -1526,7 +1570,6 @@ namespace cxc {
 
 	void FBXSDKUtil::LoadPoses(FbxScene* pScene, std::shared_ptr<SceneContext> OutSceneContext)
 	{
-		OutSceneContext->Poses.clear();
 		if (pScene)
 		{
 			const int PoseCount = pScene->GetPoseCount();
@@ -1544,13 +1587,153 @@ namespace cxc {
 					auto pNewPoseInfo = NewObject<PoseInfo>();
 					pNewPoseInfo->bIsLocalMatrix = pFbxPose->IsLocalMatrix(i);
 					pNewPoseInfo->PoseMatrix = ConvertFbxMatrixToGLM(pFbxPose->GetMatrix(i));
-					pNewPoseInfo->LinkBoneInfo.BoneName = pFbxPose->GetNode(i)->GetName();
+					pNewPoseInfo->LinkNodeInfo.NodeName = pFbxPose->GetNode(i)->GetName();
 
 					NewPose->AddPoseInfo(pNewPoseInfo);
 				}
 
 				OutSceneContext->Poses.push_back(NewPose);
 			}
+		}
+	}
+
+	void FBXSDKUtil::LoadSkinedMeshSkeleton(FbxNode* pNode, FbxAMatrix& pParentGlobalPosition, std::shared_ptr<SceneContext> OutSceneContext)
+	{
+		if (pNode)
+		{
+			FbxAMatrix CurrentGlobalPosition = GetGlobalPosition(pNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
+			// Get global position of the node
+			FbxAMatrix lGeometryOffset = GetGeometry(pNode);
+			FbxAMatrix lGlobalOffPosition = CurrentGlobalPosition * lGeometryOffset;
+
+			if (pNode->GetNodeAttribute())
+			{
+				auto AttributeType = pNode->GetNodeAttribute()->GetAttributeType();
+				if (AttributeType == FbxNodeAttribute::eMesh)
+				{
+					FbxMesh* pMesh = pNode->GetMesh();
+					const bool bHasVertexCache = pMesh->GetDeformerCount(FbxDeformer::eVertexCache) &&
+						(static_cast<FbxVertexCacheDeformer*>(pMesh->GetDeformer(0, FbxDeformer::eVertexCache)))->Active.Get();
+					const bool bHasShapeDeformer = pMesh->GetShapeCount() > 0;
+					const bool bHasSkinDeformer = pMesh->GetDeformerCount(FbxDeformer::eSkin) > 0;
+					const bool bHasDeformation = bHasVertexCache || bHasShapeDeformer || bHasSkinDeformer;
+
+					if (bHasDeformation)
+					{
+						if (bHasVertexCache)
+						{
+							// TODO : Vertex Animation,
+							// 可以搞，但是没必要
+						}
+						else
+						{
+							if (bHasShapeDeformer)
+							{
+								// Shape deformer
+							}
+
+							// Skined-mesh skeleton deformation
+							const int SkinCount = pMesh->GetDeformerCount(FbxDeformer::eSkin);
+							int ClusterCount = 0;
+							for (int SkinIndex = 0; SkinIndex < SkinCount; ++SkinIndex)
+							{
+								FbxSkin * lSkinDeformer = (FbxSkin *)pMesh->GetDeformer(SkinIndex, FbxDeformer::eSkin);
+								FbxCluster::ELinkMode lClusterMode = ((FbxSkin*)pMesh->GetDeformer(0, FbxDeformer::eSkin))->GetCluster(0)->GetLinkMode();
+
+								auto ClusterCount = lSkinDeformer->GetClusterCount();
+								for (int ClusterIndex = 0; ClusterIndex < ClusterCount; ++ClusterIndex)
+								{
+									FbxCluster* lCluster = lSkinDeformer->GetCluster(ClusterIndex);
+									FbxNode* pBoneNode = lCluster->GetLink();
+									if (!pBoneNode)
+										continue;
+
+									std::shared_ptr<CLinkBone> TargetLinkBone = nullptr;
+									for (auto pSkeleton : OutSceneContext->Skeletons)
+									{
+										if (pSkeleton &&
+											pBoneNode->GetNodeAttribute() &&
+											pBoneNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
+										{
+											TargetLinkBone = pSkeleton->FindBone(pBoneNode->GetName());
+										}
+
+										if (TargetLinkBone)
+											break;
+									}
+
+									if (!TargetLinkBone)
+									{
+										std::string ErrorString = "FBXSDKUtil::LoadSkinMeshes, Failed to find the Bone the cluster attached to, Link Bone Name = ";
+										ErrorString += pBoneNode->GetName();
+										ErrorString += '\n';
+										DEBUG_LOG(eLogType::Warning, ErrorString);
+										continue;
+									}
+
+									auto pNewCluster = NewObject<CCluster>();
+									pNewCluster->pOwnerBone = TargetLinkBone;
+
+									// Blending mode
+									switch (lClusterMode)
+									{
+									case FbxCluster::eAdditive:
+										pNewCluster->ClusterMode = eClusterMode::Additive;
+										break;
+									case FbxCluster::eNormalize:
+										pNewCluster->ClusterMode = eClusterMode::Normalized;
+										break;
+									case FbxCluster::eTotalOne:
+										pNewCluster->ClusterMode = eClusterMode::TotalOne;
+										break;
+									default:
+										break;
+									}
+
+									// Get the vertex indices and weights
+									int lVertexIndexCount = lCluster->GetControlPointIndicesCount();
+									for (int VertexIndex = 0; VertexIndex < lVertexIndexCount; ++VertexIndex)
+									{
+										pNewCluster->ControlPointsIndices.push_back(lCluster->GetControlPointIndices()[VertexIndex]);
+										pNewCluster->ControlPointsWeight.push_back(lCluster->GetControlPointWeights()[VertexIndex]);
+									}
+
+									// Add cluster to the bone
+									TargetLinkBone->AddCluster(pNewCluster);
+
+									// Assign the mesh that the cluster belongs to
+									for (auto pMesh : OutSceneContext->Meshes)
+									{
+										if (pMesh && pMesh->GetMeshName() == pNode->GetName())
+											pNewCluster->SetSkinnedMesh(pMesh);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// Process the child node
+			int ChildNodeCount = pNode->GetChildCount();
+			for (int i = 0; i < ChildNodeCount; ++i)
+			{
+				LoadSkinedMeshSkeleton(pNode->GetChild(i), lGlobalOffPosition, OutSceneContext);
+			}
+		}
+	}
+
+	void FBXSDKUtil::GetNodeNames(FbxNode* pNode, std::vector<std::string>& OutNodeNames)
+	{
+		if (pNode)
+		{
+			if (pNode->GetNodeAttribute())
+				OutNodeNames.push_back(pNode->GetName());
+			else
+				auto a = 1;
+
+			for (auto i = 0; i < pNode->GetChildCount(); ++i)
+				GetNodeNames(pNode->GetChild(i), OutNodeNames);
 		}
 	}
 }

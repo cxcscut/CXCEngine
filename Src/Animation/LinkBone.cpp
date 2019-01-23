@@ -42,4 +42,18 @@ namespace cxc
 			pChildBone->SetParentBone(shared_from_this());
 		}
 	}
+
+	void CLinkBone::AddCluster(std::shared_ptr<CCluster> pNewCluster)
+	{
+		if (pNewCluster)
+			Clusters.push_back(pNewCluster);
+	}
+
+	std::shared_ptr<CCluster> CLinkBone::GetCluster(size_t Index)
+	{
+		if (Index >= Clusters.size())
+			return nullptr;
+		else
+			return Clusters[Index];
+	}
 }

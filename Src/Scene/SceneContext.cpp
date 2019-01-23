@@ -4,7 +4,6 @@ namespace cxc
 {
 	SceneContext::SceneContext()
 	{
-
 	}
 
 	SceneContext::~SceneContext()
@@ -17,5 +16,8 @@ namespace cxc
 		Lights.clear();
 		Meshes.clear();
 		Cameras.clear();
+		Skeletons.clear();
+		AnimationStacks.clear();
+		Poses.clear();
 	}
 }
