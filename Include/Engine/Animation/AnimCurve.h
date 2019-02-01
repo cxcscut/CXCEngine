@@ -3,6 +3,18 @@
 
 #include "Core/EngineTypes.h"
 
+#define CURVENODE_TRANSFORM		"Transform"
+#define CURVENODE_TRANSLATION	"T"
+#define CURVENODE_ROTATION		"R"
+#define CURVENODE_SCALING		"S"
+#define CURVENODE_COMPONENT_X	"X"
+#define CURVENODE_COMPONENT_Y	"Y"
+#define CURVENODE_COMPONENT_Z	"Z"
+#define CURVENODE_COLOR			"Color"
+#define CURVENODE_COLOR_RED		CURVENODE_COMPONENT_X
+#define CURVENODE_COLOR_GREEN	CURVENODE_COMPONENT_Y
+#define CURVENODE_COLOR_BLUE	CURVENODE_COMPONENT_Z
+
 namespace cxc
 {
 	class AnimKeyFrame;
@@ -16,6 +28,24 @@ namespace cxc
 		sQuard = 2  /* Spherical cubic spline interpolation */
 	};
 
+	// What type the curve node is animating
+	enum class eCurveNodeType : uint16_t
+	{
+		LocalTranslation,
+		LocalRotation,
+		LocalScaling,
+		Color,
+		LightIntensity,
+		LightFog,
+		LightOuterAngle,
+		CameraFOV,
+		CameraFOV_X,
+		CameraFOV_Y,
+		CameraOpticalCenterX,
+		CameraOpticalCenterY,
+		CameraRoll
+	};
+
 	class CXC_ENGINECORE_API AnimCurve final
 	{
 	public:
@@ -24,11 +54,11 @@ namespace cxc
 
 	public:
 		
-		void SetNodeName(const std::string& Name) { NodeName = Name; }
+		void SetCurveNodeName(const std::string& Name) { CurveNodeName = Name; }
 		void AddKeyFrame(std::shared_ptr<AnimKeyFrame> pKeyFrame);
 		void DeleteKeyFrame(std::shared_ptr<AnimKeyFrame> pKeyFrame);
 
-		std::string GetNodeName() const { return NodeName; }
+		std::string GetCurveNodeName() const { return CurveNodeName; }
 		std::shared_ptr<AnimKeyFrame> GetKeyFrameByIndex(size_t Index);
 		size_t GetKeyFrameCount() const { return KeyFrames.size(); }
 		float GetStartTime() const;
@@ -42,8 +72,8 @@ namespace cxc
 
 	private:
 
-		// Name of the node that the curve belongs to
-		std::string NodeName;
+		// Name of the curve node
+		std::string CurveNodeName;
 
 		// Key frames the curve has
 		std::vector<std::shared_ptr<AnimKeyFrame>> KeyFrames;

@@ -9,6 +9,7 @@ namespace cxc
 	class CSkin;
 	class CSkeleton;
 	class CCluster;
+	class AnimCurve;
 
 	/* CLinkBone is the bone of a skeleton, which contain a collection of CSkins attached to it */
 	class CXC_ENGINECORE_API CLinkBone : public std::enable_shared_from_this<CLinkBone>
@@ -48,6 +49,9 @@ namespace cxc
 
 		// End position of the bone
 		glm::vec3 EndPosition;
+
+		// Animation curves the bone has
+		std::unordered_map<std::string, std::shared_ptr<AnimCurve>> Curves;
 
 		// Owner skeleton
 		std::weak_ptr<CSkeleton> pOwnerSkeleton;

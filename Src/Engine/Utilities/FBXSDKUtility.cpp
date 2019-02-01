@@ -705,8 +705,6 @@ namespace cxc {
 			OutCurve->AddKeyFrame(ExtractedKeyFrame);
 		}
 
-		OutCurve->SetNodeName(pNode->GetName());
-
 		return OutCurve;
 	}
 
@@ -749,7 +747,6 @@ namespace cxc {
 			OutCurve->AddKeyFrame(ExtractedKeyFrame);
 		}
 
-		OutCurve->SetNodeName(pNode->GetName());
 		OutCurve->SortKeyFramesByStartTime();
 
 		return OutCurve;
@@ -1460,7 +1457,7 @@ namespace cxc {
 				FbxSkeleton* lSkeleton = (FbxSkeleton*)pRootNode->GetNodeAttribute();
 				FbxAMatrix lSkeletonGlobalPosition = GetGlobalPosition(pRootNode, FBXSDK_TIME_INFINITE, nullptr, &pParentGlobalPosition);
 
-				FBXSDKUtil::LoadSkeletons(pRootNode, pParentGlobalPosition, lSkeletonGlobalPosition, OutSceneContext);
+				FBXSDKUtil::LoadSkeletons(pRootNode, lGlobalOffPosition, lSkeletonGlobalPosition, OutSceneContext);
 				break;
 			}
 
